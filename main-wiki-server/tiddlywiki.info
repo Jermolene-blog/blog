@@ -1,0 +1,17 @@
+{
+	"description": "Server configuration of Santovia Doc Workbench",
+	"plugins": [
+		"tiddlywiki/tiddlyweb",
+		"tiddlywiki/filesystem"
+	],
+	"themes": [
+		"tiddlywiki/vanilla",
+		"tiddlywiki/snowwhite"
+	],
+	"includeWikis": [
+		"../main-wiki"
+	],
+	"config": {
+		"default-tiddler-location": "../main-wiki/tiddlers/new"
+	}
+}

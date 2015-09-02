@@ -1,0 +1,3 @@
+title: $:/plugins/tiddlywiki/blog/templates/tiddler
+
+{{Index||$:/core/templates/static.tiddler.html}}
