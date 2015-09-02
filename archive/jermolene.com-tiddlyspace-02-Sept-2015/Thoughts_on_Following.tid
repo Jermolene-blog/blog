@@ -1,0 +1,23 @@
+_hash: 3711fc2eef900802f6587df442ae7960543cb593
+created: 20100917184835000
+creator: jermolene
+modified: 20100920092252000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Thoughts%20on%20Following/118595:6ff272c13c8b2e4d377ae282a767244b5f698020"
+server.host: http://jermolene.com
+server.page.revision: 118595
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Thoughts on Following
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @jon
+title: Thoughts on Following
+type: text/x-tiddlywiki
+
+My main problem with following as presently implemented is that it is based on following named spaces. I'm more interested in having the choice of both being able to follow an individuals activity across all spaces they may be a member of and in following individual spaces.
+
+Then I'd be able to see things like someone I follow creating a new space and populating it. 
+

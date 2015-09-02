@@ -1,0 +1,276 @@
+_hash: c5b359abab5a1446d12be89e6ea608d2d73e4822
+created: 20131111192330000
+creator: jon
+modified: 20131111192330000
+modifier: jon
+server.bag: system-plugins_public
+server.content-type: text/javascript
+server.etag: "system-plugins_public/RandomColorPalettePlugin/1521872:a65d7c30af56e5b6237c37f7131d7c425e2721db"
+server.host: http://jermolene.com
+server.page.revision: 1521872
+server.permissions: read
+server.recipe: jermolene_public
+server.title: RandomColorPalettePlugin
+server.type: tiddlyweb
+server.workspace: bags/system-plugins_public
+tags: excludeLists excludeSearch systemConfig
+title: RandomColorPalettePlugin
+type: text/x-tiddlywiki
+
+/***
+|''Name''|RandomColorPalettePlugin|
+|''Description''|Adds a random color palette to TiddlyWiki|
+|''Author''|Jon Robson|
+|''Version''|1.4.0|
+|''Status''|stable|
+|''Source''|https://github.com/jdlrobson/TiddlyWikiPlugins/raw/master/plugins/RandomColorPalettePlugin/RandomColorPalettePlugin.js|
+|''License''|[[BSD|http://www.opensource.org/licenses/bsd-license.php]]|
+!Usage
+{{{
+<<RandomColorPalette>>
+}}}
+Sets and saves a random color palette on execution
+
+{{{
+<<RandomColorPaletteButton>>
+}}}
+Creates a button, which when clicked will change the color palette
+More information at http://macros.tiddlyspace.com/#%5B%5BRandomColorPaletteButton%20macro%5D%5D
+!Code
+***/
+//{{{
+RGB.prototype.toRGBString = function() {
+	return "rgb(%0,%1,%2)".format(parseInt(this.r * 255, 10),
+		parseInt(this.g * 255, 10), parseInt(this.b * 255, 10))
+}
+function HSL_TO_RGB(h, s, l) { // h (hue) between 0 and 360, s (saturation) & l (lightness) between 0 and 1
+	var c = l <= 0.5 ? 2 * l * s : ( 2 - (2 * l)) * s;
+	var h1 = h / 60;
+	var x = c * (1 - Math.abs((h1 % 2) - 1)); 
+	var r, g, b;
+	if(typeof(h) == 'undefined') {
+		r = 0;
+		g = 0;
+		b = 0;
+	} else if(0 <= h1 && h1 < 1) {
+		r = c;
+		g = x;
+		b = 0;
+	} else if(1 <= h1 && h1 < 2) {
+		r = x;
+		g = c;
+		b = 0;
+	} else if(2 <= h1 && h1 < 3) {
+		r = 0;
+		g = c;
+		b = x;
+	} else if(3 <= h1 && h1 < 4) {
+		r = 0;
+		g = x;
+		b = c;
+	} else if(4 <= h1 && h1 < 5) {
+		r = x;
+		g = 0;
+		b = c;
+	} else if(5 <= h1 && h1 < 6) {
+		r = c;
+		g = 0;
+		b = x;
+	}
+	m = l - (0.5 * c);
+	return new RGB(r + m, g + m, b + m);
+}
+
+(function($){
+	var macro = config.macros.RandomColorPalette = {
+		messagesOn: false, 
+		changedPaletteText: "We have assigned you a random theme by adjusting the [[ColorPalette]] tiddler.\nDon't like it? Click <<RandomColorPalette>> for another one.", 
+		handler: function(place, macroName, params, wikifier, paramString, tiddler) {
+			paramString = paramString || "";
+			var options = macro.getOptions(paramString);
+			macro.generatePalette(options, true);
+		},
+		optionTypes: {
+			floats: ["hue", "saturation", "darkest", "lightness", "huevariance", "dark", "pale", "light", "mid",
+				"saturation_light", "saturation_pale", "saturation_mid", "saturation_dark"
+			]
+		},
+		getOptions: function(paramString) {
+			var args = paramString.parseParams("name", null, true, false, true)[0];
+			var options = {};
+			var numbers = macro.optionTypes.floats;
+			for(var i in args) {
+				options[i] = numbers.indexOf(i) > -1 ? parseFloat(args[i][0], 10) : args[i][0];
+			}
+			return options;
+		},
+		generateRandomNumber: function(min, max, info) {
+			var num = (Math.random() * 1);
+			info = !info ? { attempts:0 } : info;
+			info.attempts += 1;
+			var good = true;
+			if(min == max) {
+				return max;
+			}
+			if(min && num < min) {
+				good = false;
+			} else if(max && num > max) {
+				good = false;
+			}
+			if(!good) {
+				if(info.attempts < 5) {
+					return macro.generateRandomNumber(min, max, info);
+				} else {
+					if(max) {
+						return max;
+					} else if(min) {
+						return min;
+					} else {
+						return 1;
+					}
+				}
+			}
+			return num;
+		},
+		getExistingPalette: function(asJSON) {
+			var title = "ColorPalette";
+			var tiddlerText;
+			if(store.tiddlerExists(title)) {
+				tiddlerText = store.getTiddlerText(title);
+			} else if(store.isShadowTiddler(title)){
+				tiddlerText = config.shadowTiddlers[title];
+			}
+			if(asJSON) {
+				var json = {};
+				if(tiddlerText) {
+					var lines = tiddlerText.split("\n");
+					for(var i = 0; i < lines.length; i++) {
+						var definition = lines[i].split(":");
+						if(definition.length == 2) {
+							var name = definition[0].trim();
+							var value = definition[1].trim();
+							json[name] = value;
+						}
+					}
+				}
+				return json;
+			} else {
+				return tiddlerText;
+			}
+		},
+		generatePalette: function(options, save) {
+			var outputRGB = options.rgb;
+			var palette = macro.getExistingPalette(true);
+			var hue = options.hue || Math.floor(Math.random() * 359);
+			var saturation = options.saturation || macro.generateRandomNumber(0.3, 0.7);
+			var dark = options.dark || options.darkest || macro.generateRandomNumber(0, 0.10);
+			var pale = options.pale || options.lightness || macro.generateRandomNumber(0.90, 1);
+			var delta = ( ( pale - dark ) / 3 );
+			var mid = options.mid || dark + delta;
+			var light = options.light || dark + (delta * 2);
+			var lightness_values = {Dark: dark, Mid: mid, Light: light, Pale: pale};
+			var saturation_values = {};
+			for(i in lightness_values) {
+				if(true) {
+					saturation_values[i] = options["saturation_" + i.toLowerCase()] || saturation;
+				}
+			}
+
+			var opposite_hue = (hue + 180) % 360;
+			var seed = options.huevariance || Math.floor((85 * Math.random()) + 5); // we want it to be at least 5 degrees
+			var huetwo = (opposite_hue + seed) % 360;
+			var huethree = (opposite_hue - seed) % 360;
+			if(huetwo < 0) {
+				huetwo = 360 + huetwo;
+			}
+			if(huethree < 0) {
+				huethree = 360 + huethree;
+			}
+			for(var j in lightness_values) {
+				if(true) {
+					var saturation = saturation_values[j];
+					palette["Primary" + j] = HSL_TO_RGB(hue, saturation, lightness_values[j]);
+					palette["Secondary" + j] = HSL_TO_RGB(huetwo, saturation, lightness_values[j]);
+					palette["Tertiary" + j] = HSL_TO_RGB(huethree, saturation, lightness_values[j]);
+				}
+			}
+			palette.Background = HSL_TO_RGB(hue, saturation, 0.92);
+			palette.Foreground = HSL_TO_RGB(hue, saturation, 0.08);
+			palette.ColorPaletteParameters = ["HSL([", hue, "|", seed, "], [", saturation_values.Pale, "|",
+				saturation_values.Light, "|", saturation_values.Mid, "|", saturation_values.Dark, "],",
+				"[", dark, "|", mid, "|", light, "|", pale, "])"].join("");
+			// construct new ColorPalette
+			var text = ["/*{{{*/\n"];
+			var colorcode;
+			for(var id in palette) {
+				if(true) {
+					var color = palette[id];
+					colorcode = outputRGB ? color.toRGBString() : color.toString();
+					text.push("%0: %1\n".format(id, colorcode));
+				}
+			}
+			text.push("/*}}}*/");
+			text = text.join("");
+			if(save) {
+				macro.saveColorPalette(text);
+			}
+			return text;
+		},
+		saveColorPalette: function(text) {
+			var tid = store.getTiddler("ColorPalette");
+			if(!tid) {
+				tid = new Tiddler("ColorPalette");
+				tid.fields = merge({}, config.defaultCustomFields);
+			} // TODO: detect that the ColorPalette in the space comes from outside recipe
+			tid.fields["server.page.revision"] = "false"; // edit conflicts dont matter
+
+			// save the color palette in tid
+			tid = store.saveTiddler(tid.title, tid.title, text, tid.modifier, tid.modified,
+				tid.tags, tid.fields, false, tid.created, tid.creator);
+			// an interval is used to cope with users clicking on the palette button quickly.
+			if(macro._nextSave) {
+				window.clearTimeout(macro._nextSave);
+			}
+			macro._nextSave = window.setTimeout(function() {
+					autoSaveChanges(null, [tid]);
+				}, 2000);
+			// temporary workaround for IE.
+			$.twStylesheet.remove({ id: "StyleSheetColors" });
+			$.twStylesheet.remove({ id: "StyleSheet" });
+			refreshAll();
+			macro.reportChange();
+			return tid;
+		},
+		reportChange: function() {
+			if(macro.messagesOn) { // only display message once..
+				var msgPlace = getMessageDiv();
+				if(!$(".changedPalette", msgPlace)[0]) {
+					var tempPlace = document.createElement("div");
+					wikify("{{changedPalette{" + macro.changedPaletteText + "}}}", tempPlace);
+					msgPlace.appendChild(tempPlace);
+				}
+			}
+		}
+	};
+	var btnMacro = config.macros.RandomColorPaletteButton = {
+			text: "New ColorPalette",
+			tooltip: "Generate a random colour scheme for your TiddlyWiki",
+			makeButton: function(place, options) {
+				var btnHandler = function(ev) {
+					var t = $(ev.target);
+					var options = t.data("options");
+					macro.generatePalette(options, true);
+					ev.preventDefault();
+					return false;
+				};
+				var btn = createTiddlyButton(place, this.text, this.tooltip, btnHandler);
+				$(btn).data("options", options);
+				return btn;
+			},
+			handler: function(place, macroName, params, wikifier, paramString, tiddler) {
+				var options = macro.getOptions(paramString);
+				btnMacro.makeButton(place, options);
+			}
+	};
+})(jQuery);
+//}}}

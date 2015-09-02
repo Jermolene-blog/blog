@@ -1,0 +1,20 @@
+_hash: 8bb94b1f34a5cb0c68e7f0d59abaca5a936c9618
+created: 20100612174651000
+creator: jermolene
+modified: 20110404115418000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/SiteTitle/118512:80c9bfbea3bc48b427d0da9ab9eb5117f5814e23"
+server.host: http://jermolene.com
+server.page.revision: 118512
+server.permissions: read
+server.recipe: jermolene_public
+server.title: SiteTitle
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: excludeLists excludeSearch
+title: SiteTitle
+type: text/x-tiddlywiki
+
+Jermolene

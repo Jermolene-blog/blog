@@ -1,0 +1,31 @@
+_hash: 9af294a0b36d214eebbd97530ee6d9858cf6dd89
+created: 20101202193747000
+creator: jermolene
+modified: 20101202193747000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Public%20by%20Default/118476:3fb886d492fa5a7634e33cdc1d0e0d9a03afecf0"
+server.host: http://jermolene.com
+server.page.revision: 118476
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Public by Default
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @jrbl
+title: Public by Default
+type: text/x-tiddlywiki
+
+Many thanks to @jrbl who in [[Public by Default]]@jrbl has this to say about @osmosoft's handling of the recent change to [[Public by Default]]@blog:
+<<<
+First, I very much dislike not being told that my tiddlers would suddenly start being created public. That shit is weak. It is not, I repeat not, good to assume that I read blog. I don't. I generally forget that it's there at all. In fact, I want to never have to read it again, if I don't want to. 
+
+From my perspective, all my ephemera just started being public without warning, and I didn't notice right away, either. I've been bookmarking things as public on jrbl-bookmarks for days because I use the cool javascript sidebar bookmarklet for firefox that bengillies made, and I didn't notice that the 'public' radio button was picked. Boy I'm glad I wasn't bookmarking porn sites.
+
+At the very least, I would have liked for my first tiddlyspace load after the change went live to open my backstage and give me a note telling me about the change. Something. But no.
+
+Bad osmosoft. No cookie for you.
+<<<
+I'm very grateful to @jrbl for making his anger visible; some users might silently stop using the service, without giving us a chance to understand what happened. I think this is a great example of where @osmosoft needs to pay attention as it steps up to running a service, on top of it's normal software development activities.
+

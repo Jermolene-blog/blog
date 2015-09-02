@@ -1,0 +1,20 @@
+_hash: aa0b55a12746234efaff456a3d1422586098af9b
+created: 20101215154438000
+creator: jermolene
+modified: 20101215154522000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/TagCloud/118587:91ffc186b1051d9b67316be3d7f009284eb6869f"
+server.host: http://jermolene.com
+server.page.revision: 118587
+server.permissions: read
+server.recipe: jermolene_public
+server.title: TagCloud
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: TagCloud
+type: text/x-tiddlywiki
+
+<<tagcloud filter:"[is[local]]" exclude:excludeLists exclude:excludeSearch exclude:excludePublisher exclude:follow>>

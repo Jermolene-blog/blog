@@ -1,0 +1,30 @@
+_hash: 7bc357188d6afd65d6724a670b0052c0488766a4
+created: 20131111192330000
+creator: osmosoft
+modified: 20131111192330000
+modifier: osmosoft
+server.bag: system-theme_public
+server.content-type: 
+server.etag: "system-theme_public/TiddlySpaceTabs/1521916:a71fbeeaab4f0d561fea2da382f7c9384de65fe0"
+server.host: http://jermolene.com
+server.page.revision: 1521916
+server.permissions: read
+server.recipe: jermolene_public
+server.title: TiddlySpaceTabs
+server.type: tiddlyweb
+server.workspace: bags/system-theme_public
+tags: excludeLists excludeSearch
+title: TiddlySpaceTabs
+type: text/x-tiddlywiki
+
+!Spaces
+<<groupBy server.bag>>
+
+!Private
+<<list filter [is[private]]>>
+
+!Public
+<<list filter [is[public]]>>
+
+!Drafts
+<<list filter [is[draft]]>>

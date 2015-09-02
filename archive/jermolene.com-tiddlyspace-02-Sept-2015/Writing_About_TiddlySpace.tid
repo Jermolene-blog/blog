@@ -1,0 +1,32 @@
+_hash: b6abf03b06bce6577547d016a5a2f8921b391d40
+created: 20110412142111000
+creator: jermolene
+modified: 20110412143602000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Writing%20About%20TiddlySpace/118692:dcbb599b333c0552a4d6486ab29563a9ca92144c"
+server.host: http://jermolene.com
+server.page.revision: 118692
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Writing About TiddlySpace
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: TiddlySpace
+title: Writing About TiddlySpace
+type: text/x-tiddlywiki
+
+These are my writings that touch on describing the TiddlySpace proposition
+
+[[What does TiddlySpace do?]]
+[[Who is the audience?]]
+[[New TiddlySpace Frontpage Mockups]]
+[[Social Features of TiddlySpace]]
+[[SocialTiddlyWiki]]
+[[TiddlySpace]]
+[[History of TiddlyWiki serversides]]
+[[TiddlySpace vs. Everything Else]]
+[[What is the point of TiddlySpace?]]
+[[What isn't TiddlySpace for?]]
+[[About Text for Front Page]]

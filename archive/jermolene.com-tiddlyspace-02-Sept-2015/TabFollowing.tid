@@ -1,0 +1,30 @@
+_hash: 8fd76e9d0d4f4064ad10ced3355522eebe06c37c
+created: 20100818140134000
+creator: jon
+modified: 20101001155043000
+modifier: jon
+server.bag: following_public
+server.content-type: 
+server.etag: "following_public/TabFollowing/71006:0e4ccdd6fd893d5ac3dba7c377083a3e9a3adb89"
+server.host: http://jermolene.com
+server.page.revision: 71006
+server.permissions: read
+server.recipe: jermolene_public
+server.title: TabFollowing
+server.type: tiddlyweb
+server.workspace: bags/following_public
+tags: excludeLists
+title: TabFollowing
+type: text/x-tiddlywiki
+
+!Followers
+<<followers>>
+!Activity
+[[Replies and Notifications]]
+
+<<activity>>
+!Following
+All spaces tagged follow
+<<list filter [tag[follow]][sort[title]]>>
+
+<<followSuggestions>>

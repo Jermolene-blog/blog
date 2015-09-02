@@ -1,0 +1,21 @@
+_hash: 378e7c4224d9b9ed97947eefce1fab45a0a71696
+created: 20110405101309000
+creator: bengillies
+modified: 20110405101309000
+modifier: bengillies
+server.bag: tiddlyace_public
+server.content-type: 
+server.etag: "tiddlyace_public/tiddlyaceSetupFlag/352983:0cab0c45e17e04451706b4e2fd729df16bbae846"
+server.host: http://jermolene.com
+server.page.revision: 352983
+server.permissions: read
+server.recipe: jermolene_public
+server.title: tiddlyaceSetupFlag
+server.type: tiddlyweb
+server.workspace: bags/tiddlyace_public
+tags: excludeLists excludePublisher excludeSearch
+tiddlyspaceinit_version: 0.6
+title: tiddlyaceSetupFlag
+type: text/x-tiddlywiki
+
+@@Please do not modify this tiddler; it was created automatically upon space creation.@@

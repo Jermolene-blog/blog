@@ -1,0 +1,22 @@
+_hash: b5e7448f1ee0a569dbf20113858f56155197c560
+created: 20101109111155000
+creator: jermolene
+modified: 20101109111155000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Observations%20about%20macros.tiddlyspace.com%20on%20Nov%209%202010/118467:3dd4335d3c2a08d8668990b73a0ff5013007eb7a"
+server.host: http://jermolene.com
+server.page.revision: 118467
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Observations about macros.tiddlyspace.com on Nov 9 2010
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @colm @psd
+title: Observations about macros.tiddlyspace.com on Nov 9 2010
+type: text/x-tiddlywiki
+
+* The tiddler titles shouldn't be the raw macro name to avoid clashes when including the space. Instead the titles should be "BlahBlah Macro" (ie a capitalised version of the macro name with a space and the word "Macro" tacked on) -- //This is demonstrated at http://wikitext.tiddlyspace.com/#%5B%5BTagging%20Macro%5D%5D, which is an orphan that should now be removed//
+* There is a tiddler called MacroDocumentation@macros and an apparently unnecessary one called [[Macro Documentation]]@macros, the latter being tagged excludeSearch and excludeLists
+* Filters@macros should perhaps be migrated to the glossary space?

@@ -1,0 +1,42 @@
+_hash: 6faef613b0a61620d353770baa09eeaec652491b
+created: 20101002110747000
+creator: jermolene
+modified: 20101002110747000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Server%20Synchronisation%20in%20TiddlyWiki/118502:a43f5bf94e7e4d2e9dc265eb94a9b10cbd3725b6"
+server.host: http://jermolene.com
+server.page.revision: 118502
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Server Synchronisation in TiddlyWiki
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: Server Synchronisation in TiddlyWiki
+type: text/x-tiddlywiki
+
+TiddlyWiki's data model is that of a local database of tiddlers that are held in the browser. JavaScript code can access the data synchronously, without waiting for a server to respond. This allows both users and programmers to have a simple mental model where requested actions are performed instantaneously, with immediate feedback of success or failure.
+
+That is no longer true when we extend TiddlyWiki to work with a server. For instance a request to save a new revision of a tiddler may take several hundred milliseconds to be processed by the server, and may ultimately fail with an error condition.
+
+The first, rather naive serverside adaptations of TiddlyWiki didn't really address the problem. Early systems like [[PhpTiddlyWiki|http://www.patrickcurry.com/tiddly/]] would typically override the {{{store.saveTiddler()}}} function to make it HTTP POST the modified tiddler to the server, and then later report success in a crude way via {{{displayMessage()}}}.
+
+Although that simple architecture works well for demos, it's very brittle, and it doesn't allow for situations where you need to defer the sync operation until well after the modifications were made - for instance, synchronising changes made while offline, or during network connectivity issues.
+
+So, when we started working with Socialtext in 2006, we introduced a sync architecture that would cope with the "unplugged" offline scenario. The constraints are more challenging than for working with a conventional connected server, and require a non-trivial synchronisation architecture. But the good thing about having a decent synchronisation architecture is that it also makes conventional situations easier and more robust to handle.
+
+The sync architecture consisted of:
+* JavaScript adaptors for encapsulating API details of specific servers, exposing a standard interface to asynchronous methods for working with the server
+* Modifications to tiddler store processing to keep track of which tiddlers have been modified
+* A new {{{<<sync>>}}} macro that compared the current state of the store with the server and fired off any asynchronous requests required to bring the two into step with one another
+The basic principle was that the user continued to work with TiddlyWiki's local store in the usual way, with changes rippling out to attached servers afterwards.
+
+As implemented, the user interface was primitive: the only way to trigger a sync was to bring up the {{{<<sync>>}}} macro and click the {{{sync}}} button. And the only user interface for success or failure was through the {{{<<sync>>}}} macro.
+
+This user interface implementation was adequate for the Socialtext Unplugged scenario, because in that situation tearing off and syncing were both deliberate explicit actions that a user needed to choose to perform.
+
+When TiddlyWeb came along, the sync mechanism fell hopelessly short of being an adequate user interface for dynamic, online interactions with the server. The ServerSideSavingPlugin was introduced in order to perform some of the UI hacks necessary to get synchronisation working adequately.
+
+ 

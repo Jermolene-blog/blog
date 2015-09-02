@@ -1,0 +1,30 @@
+_hash: 6d5bd2155d7149d22339f770461d558aea23c968
+created: 20110412152002000
+creator: jermolene
+modified: 20110412152002000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Review%20of%20Original%20TiddlySpace%20Manifesto/118488:0f9d41b28d5769543625c766f761f953c40de1eb"
+server.host: http://jermolene.com
+server.page.revision: 118488
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Review of Original TiddlySpace Manifesto
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: Review of Original TiddlySpace Manifesto
+type: text/x-tiddlywiki
+
+There's been some discussion of the original [[TiddlySpace manifesto|http://manifestopheles.com/manifestos/tiddlyspace]]. The context was originally talking about how we get stuff out of Jeremy's brain and into written form - the manifesto is one example where we've done that as a team.
+
+A couple of comments.
+
+In [[Review of Original TiddlySpace Manifesto]]@bengillies, @bengillies says:
+<<<
+In the discussion yesterday, I got the impression that TiddlySpace is a toolkit for organising your data based on TiddlyWiki. In answer to the question: "what is TiddlySpace?" the general answer (at least, the overriding impression that I got) seemed to be: "it's an abstract, undefinable concept based around an approach of splitting things up so they're small." In answer to the question: "who is the audience?" my impression was that the audience consists of the sort of people who already use TiddlyWiki, and we'll grow that audience, by making TiddlyWiki available online where it's more convenient (aka TiddlySpace).
+<<<
+I don't quite see the "abstract, undefinable" bit. It's just the idea of splitting things up into chunks with titles, bodies, links, tags and fields. The "audience consists of the sort of people who already use TiddlyWiki" makes it sound as if we're targetting existing TiddlyWiki users. I'd phrase it that our experience with TiddlyWiki has shown that there is a sizeable audience of people who are interested in better tools to organise their stuff. By lowering the barriers to usage we can reach more of that audience.
+
+

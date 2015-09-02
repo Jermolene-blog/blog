@@ -1,0 +1,22 @@
+_hash: 887ce7f726f10beffe80b435e0b5a7de74a3f701
+created: 20110823091019000
+creator: jermolene
+modified: 20110823091704000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/mailto%20links%20in%20TiddlySpace/118739:a6fae21a372b37049315fbd65e2bf0cfea066de8"
+server.host: http://jermolene.com
+server.page.revision: 118739
+server.permissions: read
+server.recipe: jermolene_public
+server.title: mailto links in TiddlySpace
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: mailto links in TiddlySpace
+type: text/x-tiddlywiki
+
+mailto:person@example.com?body=The+message+first+paragraph.%0a%0aSecond+paragraph.%0a%0aThird+paragraph.&subject=Subject+of+this+email
+
+[[Send a mail|mailto:person@example.com?body=The+message+first+paragraph.%0a%0aSecond+paragraph.%0a%0aThird+paragraph.&subject=Subject+of+this+email]]

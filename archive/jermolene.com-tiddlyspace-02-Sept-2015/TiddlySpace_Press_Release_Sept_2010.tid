@@ -1,0 +1,31 @@
+_hash: 5e043801ee1d09a6f657ac5cc6cbb595d38a3a85
+created: 20100915095536000
+creator: jermolene
+modified: 20100915095536000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/TiddlySpace%20Press%20Release%20Sept%202010/118627:24b7f586f7401fad671bb76ecfb4cb16e563098b"
+server.host: http://jermolene.com
+server.page.revision: 118627
+server.permissions: read
+server.recipe: jermolene_public
+server.title: TiddlySpace Press Release Sept 2010
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: TiddlySpace Press Release Sept 2010
+type: text/x-tiddlywiki
+
+BT’s Head of Open Source Innovation Jeremy Ruston is leading the open source development of TiddlySpace, a new social model for working with information on the web. 
+
+It is based on the popular TiddlyWiki project that first introduced the idea of "tiddlers": breaking information up into the smallest semantic units consisting of human readable content, binary data, or JavaScript code. TiddlySpace extends this model to put tiddlers on the web and give them a robust API. 
+
+Users can collaborate with others, assemble content by including spaces, add features using plugins and mix content with other services using the API.
+
+TiddlySpace is open source software from Osmosoft (the open source innovation arm of BT) and users are free to host their own instance on their own domain and are encouraged to contribute to the project.
+
+Jeremy notes, "In many organisations Word/Excel/Powerpoint and Outlook are still the dominant general purpose information processing tools. BT is using TiddlySpace to explore new ways of working that are more efficient and more cost effective, learning from the best of the many successful web services around us."
+
+You can view a quick demo and description of TiddlySpace below.
+

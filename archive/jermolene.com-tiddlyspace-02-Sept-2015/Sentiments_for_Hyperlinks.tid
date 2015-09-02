@@ -1,0 +1,28 @@
+_hash: 215359dd37d3217126245ca38fabfc3fe08f1187
+created: 20100614133839000
+creator: jermolene
+modified: 20100915150600000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Sentiments%20for%20Hyperlinks/118500:b7a0e57fcdc1b5cfbafb5c2af016cb1c93d083e3"
+server.host: http://jermolene.com
+server.page.revision: 118500
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Sentiments for Hyperlinks
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: TiddlySpace notes
+title: Sentiments for Hyperlinks
+type: text/x-tiddlywiki
+
+Possibly use '{{{++}}}' and '{{{--}}}' as postfix indicators of the sentiments of a hyperlink:
+* {{{@JoeBloggs++}}} - vote of approval for a particular user
+* {{{@JoeBloggs--}}} - vote of disapproval for a particular user
+* {{{#HashTag++}}} -  vote of approval/interest in a hashtag
+* {{{#HashTag--}}} - vote of disapproval in a hashtag
+* {{{HelloThere@JoeBloggs++}}} - links to the specified tiddler from the specified user, and attaches a positive/agreement vote to the link
+* {{{HelloThere@JoeBloggs--}}} - links to the specified tiddler from the specified user, and attaches a negative/disagreement vote to the link
+
+Possibly additional plusses and minuses could be used to indicate stronger sentiments. And maybe '+-' could be used for a more equivocal vote.

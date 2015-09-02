@@ -1,0 +1,26 @@
+_hash: 9b53f0d3828917594f10c85beb09150529329377
+created: 20100923131051000
+creator: jermolene
+modified: 20100923131146000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Intra-space%20Links/118431:dde0abf0a5030c822cacf03b65933a694fbc2674"
+server.host: http://jermolene.com
+server.page.revision: 118431
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Intra-space Links
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: Intra-space Links
+type: text/x-tiddlywiki
+
+By which I mean the links provided by the TiddlySpaceLinkPlugin:
+* {{{@space}}} -- @psd 
+* {{{~@space}}} -- ~@psd 
+* {{{Tiddler@space}}} -- Tiddler@glossary
+* {{{[[Tiddler Name]]@space}}} -- [[How do I link to another space?]]@faq 
+* {{{[[Link text|Tiddler Name]]@space}}} -- [[about spaces|Space]]@glossary
+I think it would be useful if the rendered links included the {{{@}}} symbol. Twitter.com does this and it does improve ones ability to anticipate the action of a link before clicking or hovering.

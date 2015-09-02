@@ -1,0 +1,37 @@
+_hash: 59f0e3c534ff21eda5823a54a0e607b716a79fcf
+created: 20101229160605000
+creator: jermolene
+modified: 20101229160628000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/TiddlySpace%20as%20an%20Extranet/118642:535b91c4c6a3b316670ab1c76043ed2e3384b6c2"
+server.host: http://jermolene.com
+server.page.revision: 118642
+server.permissions: read
+server.recipe: jermolene_public
+server.title: TiddlySpace as an Extranet
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: TiddlySpace
+title: TiddlySpace as an Extranet
+type: text/x-tiddlywiki
+
+TiddlySpace presents a security model that is unashamedly oriented towards web scale public discourse. The primitive mechanisms by which this is achieved are:
+* Spaces contain tiddlers that can either be public or private
+* Only the members of spaces can see the private tiddlers
+* Space inclusion works with public tiddlers
+* Users can only create or modify content in spaces in which they are a member
+
+This design is not directly suited for common "extranet" scenarios where information needs to be published to a private audience. Using space membership and private tiddlers is almost adequate, but not quite:
+* The same privilege (space membership) is used to confer the ability to modify content as well as just to read it, making it impossible to grant someone access to read private information without also giving them the right to modify it
+* The private content cannot be included into other spaces, making it impossible to create derived works
+
+These issues could be resolved by changing the TiddlySpace security model established above, for instance to allow for additional levels of privacy beyond private and public. However, I believe that a simple extension of the model suffices to cover many of the common extranet scenarios:
+* Spaces reside on //servers// (which may be virtual)
+* //Public servers// allow anonymous guests to see public content within their spaces 
+* //Protected servers// require users to have an account in order to see their spaces and the public content within them
+
+Note that the distinction is made at the level of a server rather than a space. The implication is that a separate server has to be created for each publishing group. Most of the time, this would mean having a separate virtual server for each distinct extranet client organisation, with individual user accounts within each one.
+
+This proposal could lead to an unmanageable profusion of servers. But for the scenarios where it is practical it strikes a good balance between unusably fiddly fine degrees of control, and something simple enough to be practical. In particular, it is simple and logical for users that have learned how to read URLs properly.

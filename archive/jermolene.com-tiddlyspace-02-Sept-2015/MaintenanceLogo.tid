@@ -1,0 +1,25 @@
+_hash: 4df08e3bb011fc0118e6091da0a43b1d78997466
+created: 20110123174146000
+creator: jermolene
+modified: 20110123174146000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/MaintenanceLogo/118442:7aa61700b07d74bea082900d749d5fb6ffb5ff72"
+server.host: http://jermolene.com
+server.page.revision: 118442
+server.permissions: read
+server.recipe: jermolene_public
+server.title: MaintenanceLogo
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: MaintenanceLogo
+type: text/x-tiddlywiki
+
+In MaintenanceLogo@cdent @cdent says:
+<<<
+I reckon the correct image for a fail whale like page for TiddlySpace is the main roundel with a drooping eyelid indicating that it is tired or napping. I haven't got the chops (nor software) to make such a thing but I'm sure somebody reading this does. Please make it so?
+<<<
+I've not quite managed to make anything convincing for this, and instead submit the bunny fixer:
+<<image "bunny fixer.png" width:300>>

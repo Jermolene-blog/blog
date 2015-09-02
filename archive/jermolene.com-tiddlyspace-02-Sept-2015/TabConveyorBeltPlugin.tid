@@ -1,0 +1,20 @@
+_hash: 7b6c7124afe0451c19f01a4234a38e00971fe66b
+created: 20100926213058000
+creator: jermolene
+modified: 20100926213058000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/TabConveyorBeltPlugin/118581:706ed0c26b7fa0321471b26e6816baf3d4fadf4b"
+server.host: http://jermolene.com
+server.page.revision: 118581
+server.permissions: read
+server.recipe: jermolene_public
+server.title: TabConveyorBeltPlugin
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @jon
+title: TabConveyorBeltPlugin
+type: text/x-tiddlywiki
+
+What does "Turns tabs into a conveyor belt" mean?

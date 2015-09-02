@@ -1,0 +1,20 @@
+_hash: 1565aad404ddb74c26a279cbbd45aab980e0f585
+created: 20100702155500000
+creator: jermolene
+modified: 20100702155500000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/HelloWorld/118410:04b98a7c01745ab8ae8dce0079fd158a5dae63a1"
+server.host: http://jermolene.com
+server.page.revision: 118410
+server.permissions: read
+server.recipe: jermolene_public
+server.title: HelloWorld
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: HelloWorld
+type: text/x-tiddlywiki
+
+Hello Chaps

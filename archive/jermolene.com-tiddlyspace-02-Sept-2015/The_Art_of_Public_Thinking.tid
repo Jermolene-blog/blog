@@ -1,0 +1,26 @@
+_hash: 8fae5b3334bd68ee5432fd45db935343e7209324
+created: 20110906101711000
+creator: jermolene
+modified: 20110906101711000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/The%20Art%20of%20Public%20Thinking/118589:d97b29129ce2023943a7a9eac5f72b1b48f623e1"
+server.host: http://jermolene.com
+server.page.revision: 118589
+server.permissions: read
+server.recipe: jermolene_public
+server.title: The Art of Public Thinking
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: The Art of Public Thinking
+type: text/x-tiddlywiki
+
+An excellent blog post from collisiondetection:
+* http://www.collisiondetection.net/mt/archives/2011/08/the_art_of_publ.php
+<<<
+Yet as I’ve worked away on the book, I’ve increasingly begun to feel intellectually claustrophic. It’s hard to describe, but it’s like a cabin fever of the mind. The symptoms: I’ll get obsessed with a particular line of research, chewing away at it for days or weeks, only to realize it’s a) kind of half-baked or b) super interesting but not at all useful to my work. Or I’ll read a fascinating white paper, write a bunch of notes on it, but never crystallize a solid analysis.
+
+I now think the problem is I’m not doing enough thinking in public.
+<<<

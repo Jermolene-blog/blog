@@ -1,0 +1,44 @@
+_hash: c9d588c64bec0186fcca3f2c4cacd2b0813cfca2
+created: 20120605160945000
+creator: cdent
+modified: 20130327163125000
+modifier: cdent
+server.bag: edit_public
+server.content-type: 
+server.etag: "edit_public/extraclusion/1161633:499b101ee3510c091b1080f0af617357418b80d4"
+server.host: http://jermolene.com
+server.page.revision: 1161633
+server.permissions: read
+server.recipe: jermolene_public
+server.title: extraclusion
+server.type: tiddlyweb
+server.workspace: bags/edit_public
+tags: 
+title: extraclusion
+type: text/x-tiddlywiki
+
+If transclusion is the process of including content from somewhere else, by reference, then extraclusion is the process whereby content in a document is removed to another location and a reference to it is left in its place. With tiddlers, this is a good way of breaking a large tiddler down into several smaller tiddlers while maintaining the overview.
+
+To engage extraclusion in @edit you use some special syntax that wraps around the content you wish to move to another tiddler:
+
+{{{
+    .extraclude The Name of the New Tiddler
+
+    the content
+
+    .extraclude
+}}}
+
+Those {{{.extraclude}}} statements are at the beginning of the line.
+
+You can have multiple extraclusions in an edit. When the tiddlers is saved each one will be replaced with
+
+{{{<<tiddler [[The Name of the New Tiddler]]>>}}}
+
+and the new tiddler will be created in the same bag as the current tiddler. If the tiddler already exists it will be overwritten.
+
+If you are editing a Markdown syntax tiddler, then the created tiddlers will also be Markdown and the markup left behind in the original tiddler will be correct Markdown transclusion syntax
+
+{{{{{The Name of the New Tiddler}}}}}
+
+

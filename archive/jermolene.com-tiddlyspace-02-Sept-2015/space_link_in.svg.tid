@@ -1,0 +1,22 @@
+_hash: fe2e3388c39efb14b7c0ac25121fd9e68c828042
+created: 20101107212852000
+creator: jermolene
+modified: 20101107212852000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: image/svg+xml
+server.etag: "jermolene_public/space%20link%20in.svg/118750:1c6c04e509a6c5c238a406e22a67f73a0a9637de"
+server.host: http://jermolene.com
+server.page.revision: 118750
+server.permissions: read
+server.recipe: jermolene_public
+server.title: space link in.svg
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: space link in.svg
+type: text/x-tiddlywiki
+
+<?xml version="1.0"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" viewBox="223 512 57 56" width="57pt" height="56pt"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:date>2010-11-07 21:27Z</dc:date><!-- Produced by OmniGraffle Professional 5.2.3 --></metadata><defs></defs><g stroke="none" stroke-opacity="1" stroke-dasharray="none" fill="none" fill-opacity="1"><title>Canvas 1</title><g><title>Layer 1</title><path d="M 224.9045 547.61237 C 227.95692 558.08313 237.08899 566.19415 248.60027 567.38898 C 263.7781 568.96423 277.37598 557.9243 278.95282 542.74646 C 280.52808 527.5669 269.48822 513.969 254.30878 512.39398 C 240.56339 510.9673 228.11385 519.8869 224.71631 532.85657 L 237.40755 532.85742 L 237.40532 521.77753 L 246.1438 529.98645 C 247.72568 529.136 249.53432 528.65338 251.45496 528.65338 C 257.65775 528.65338 262.69275 533.68683 262.69275 539.8913 C 262.69275 546.094 257.65775 551.12915 251.45496 551.12915 C 249.72284 551.12915 248.08179 550.7365 246.61601 550.03546 L 237.40521 558.68793 L 237.40532 547.61462 Z M 224.27258 545.12677 L 240.04375 545.12946 L 240.04375 552.47467 L 252.28577 540.23285 L 240.04364 527.9911 L 240.04497 535.34064 L 224.14072 535.33936 C 224.05086 535.886 223.97665 536.43866 223.91873 536.9969 C 223.62938 539.7815 223.76485 542.513 224.27258 545.12677 Z" fill="black"/></g></g></svg>

@@ -1,0 +1,183 @@
+_hash: adc4df0742888833ed1bca8cab3a23a5385b1d50
+assignedto: 
+created: 20110826125340000
+creator: jon
+modified: 20110906102345000
+modifier: jermolene
+priority: 6
+server.bag: jermolene_public
+server.content-type: text/html
+server.etag: "jermolene_public/zoombox/118766:03dd0955e80e52462d88bc72bc0bc8e3de43ebce"
+server.host: http://jermolene.com
+server.page.revision: 118766
+server.permissions: read
+server.recipe: jermolene_public
+server.title: zoombox
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+size: ?
+summary: 
+tags: migrate
+tiddler.source: osmosoft-resources_public
+title: zoombox
+type: text/x-tiddlywiki
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd"> 
+ 
+<html lang="en"> 
+<head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+	<title>ZoomBox &middot; Zoomable Lightbox in JavaScript</title> 
+	<meta name="author" content="Jeremy Ruston"> 
+<script type="text/javascript" src="http://htmljs.tiddlyspace.com/jquery.js"></script> 
+<script type="text/javascript"> 
+ 
+(function($) {
+	// Initialise "global" variables
+	var cssTransform;
+	var isZoomed = false;
+	var defaultOptions = {};
+	
+	// Figure out the name of the CSS transform property
+	function getTransformPropertyName() {
+		cssTransform = null;
+		if(document.body.style['-webkit-transform'] !== undefined)
+			cssTransform = '-webkit-transform';
+		if(document.body.style['MozTransform'] !== undefined)
+			cssTransform = 'MozTransform';
+	}
+ 
+	// Zooms into a particular element
+	function zoomTo(el) {
+		var winScroll = $(window).scrollTop();
+		var winWidth = $(window).width();
+		var winHeight = $(window).height();
+		var width = $(el).width();
+		var height = $(el).height();
+		var offset = $(el).offset();
+		var left = offset.left;
+		var top = offset.top;
+		var sw = winWidth/width;
+		var sh = winHeight/height;
+		var s;
+		if(sw * height > winHeight) {
+			s = sh;
+		} else {
+			s = sw;
+		}
+		var s = s * 0.9;
+		var xMargin = (winWidth - s * width)/2;
+		var yMargin = (winHeight - s * height)/2;
+		var t = "matrix(" + s + "," + 0 + "," + 0 + "," + s + "," + (xMargin-left*s) + "," + (yMargin+winScroll-top*s) + ")";
+		document.body.style[cssTransform] = t;
+	}
+ 
+	// Zooms back out to the full page
+	function zoomOut() {
+		document.body.style[cssTransform] = "";
+	};
+ 
+	// Initialisation
+	function init() {
+		// Get the CSS transformation property name
+		getTransformPropertyName();
+		// Install event handlers
+		$(document).click(function(ev) {
+			if(!isZoomed && $(ev.target).hasClass("zoomable")) {
+				isZoomed = true;
+				zoomTo(ev.target);
+			} else {
+				isZoomed = false;
+				zoomOut();
+			}
+		});
+	}
+	
+	// Do the initialisation once the document has loaded
+	$(function() {
+		init();
+	});
+ 
+	// Plugin handler
+	$.fn.zoombox = function(options) {
+		var opts = $.extend({},defaultOptions,options);
+		
+	};
+})(jQuery);
+ 
+ 
+</script> 
+<script type="text/javascript"> 
+ 
+ 
+	$(function() {
+ 
+	
+	});
+	
+</script> 
+<style type="text/css"> 
+ 
+body {
+	font-family: Helvetica, sans-serif;
+	padding: 1em;
+	margin: 0;
+	-webkit-transform-origin: 0% 0%;
+	-moz-transform-origin: 0% 0%;
+	-webkit-transition: -webkit-transform 0.65s ease-in-out;
+}
+ 
+h1 {
+	padding: 0;
+	margin: 0;
+}
+ 
+.lorem {
+	color: #666;
+}
+ 
+img.zoomable {	
+	-webkit-box-shadow: 1px 1px 3px #aaa;
+}
+ 
+.zoomable {
+}
+ 
+.zoomable:hover {
+}
+ 
+img.floatLeft {
+	float: left;
+	margin: 0 0.8em 0.8em 0;
+}
+ 
+img.floatRight {
+	float: right;
+	margin: 0 0 0.8em 0.8em;
+}
+ 
+.teensytiny {
+	font-size: 6pt;
+	width: 20%;
+}
+ 
+</style> 
+</head> 
+<body> 
+	<h1>ZoomBox</h1> 
+	<p>This page shows a technique for creating Zoomable Lightboxes by <a href="http://jermolene.com">Jeremy Ruston</a> of <a href="http://www.osmosoft.com/">Osmosoft</a>. It works on recent versions of Webkit, including Safari 3.1+ and Google Chrome (and works best on Safari 4.0).</p> 
+	<p>To use it, click on any of the images below. Instead of the thumbnail popping up a lightbox, the display should zoom until the image fills the window. You can then click again to zoom back out to the whole page. It's an experiment, and has lots of holes, but it illustrates a cleaner way to expand thumbnails, and doesn't introduce a brand new entity that users need to interact with, as with a conventional lightbox.</p> 
+	<img src='Weyflection.jpg' width='102.4px' height='76.8px' class='floatRight zoomable'/> 
+	<p class='lorem'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec in nisl ligula. Morbi sagittis felis at est semper sodales. Nunc eu iaculis dui. Vestibulum hendrerit, turpis ut sollicitudin varius, erat nisl pulvinar lacus, et mollis nunc diam id elit. Mauris in quam eu neque vulputate aliquet in non sem. Nulla consectetur iaculis libero, et luctus velit molestie id. Etiam nec tincidunt quam. Donec eu libero tortor. Etiam vitae justo sem, a vestibulum dolor. Vestibulum tempor elementum urna, vitae sodales orci venenatis in. Phasellus at est ac dolor egestas semper. Donec vel elit ut mauris sollicitudin malesuada a id nibh. Integer auctor placerat mi in ultrices. Nunc venenatis dictum tellus vel ullamcorper. Aliquam vestibulum sodales sem eu suscipit.</p> 
+	<img src='Tenerife.jpg' width='102.4px' height='76.2px' class='floatLeft zoomable'/> 
+	<p class='lorem'>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Praesent porta ante id erat vehicula posuere. Nunc tortor dui, dignissim iaculis aliquet eget, consectetur eget eros. Mauris ac lacus odio, quis porttitor dolor. Mauris rhoncus dui sed ante ultricies non egestas dui blandit. In vel nisl non nisi rutrum tempor sed eget nulla. Ut auctor pharetra mattis. Praesent congue sapien eu elit bibendum vel luctus quam rhoncus. Integer dignissim adipiscing arcu in ornare. Donec vel massa metus. Sed posuere placerat nisi eget faucibus. Sed justo tortor, feugiat eget condimentum at, ullamcorper eleifend massa. Nunc sodales urna vitae risus porttitor eu scelerisque nisl ultricies.</p> 
+	<img src='Swampglade.jpg' width='102.4px' height='76.8px' class='floatRight zoomable'/> 
+	<p class='lorem'>Suspendisse ultricies congue ullamcorper. Suspendisse id odio mi, vel adipiscing nisi. Cras pharetra tortor eget erat posuere vulputate. Duis in enim lectus, nec malesuada augue. In vitae felis lorem, eget malesuada lorem. Maecenas erat mauris, porta vel pharetra ut, dictum sit amet ante. Morbi eleifend, elit nec cursus fringilla, neque eros laoreet nulla, non elementum turpis tortor vel risus. Suspendisse congue convallis ipsum sit amet interdum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse potenti. Nullam nec porttitor ligula.</p> 
+	<img src='Poppy.jpg' width='102.4px' height='136.5px' class='floatLeft zoomable'/> 
+	<img src='Seagully.jpg' width='102.4px' height='54.1px' class='floatRight zoomable'/> 
+	<p class='lorem'>Sed at hendrerit lorem. Vivamus lorem justo, convallis vel dignissim et, ullamcorper eu lectus. Morbi sed odio non ipsum feugiat mollis eget ac ante. Cras sollicitudin libero at eros sodales ac feugiat turpis lacinia. Mauris et venenatis libero. Pellentesque eu leo sapien. Maecenas et arcu felis. Cras vitae tellus leo, ac tempor arcu. Fusce auctor congue lacus eget laoreet. Aenean a tortor eu arcu faucibus fermentum. Phasellus odio tellus, molestie ac dictum eget, commodo ac nunc. Mauris in velit et est malesuada posuere vel eu nisl. Duis pulvinar fermentum justo in ultrices. Suspendisse potenti. Fusce ullamcorper dolor et felis elementum accumsan. Donec nisl sem, viverra quis lacinia et, faucibus nec velit. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.</p> 
+	<p class='lorem'>In hac habitasse platea dictumst. Praesent ut faucibus ipsum. Etiam ut elit diam, eget tincidunt ligula. Nam sagittis ante vitae ipsum elementum pulvinar. Curabitur augue lectus, adipiscing ac aliquet ut, semper non lorem. Aenean ut dui vel velit faucibus dapibus. Duis at ligula dui. Donec euismod est eget neque adipiscing lobortis. Vivamus luctus auctor ultrices. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam euismod vulputate neque id cursus.</p> 
+	<div class='zoomable teensytiny'>And this is a paragraph of text that is soooo small and tiny that it's hard to read unless you zoom into it</div> 
+	</body> 
+</html> 

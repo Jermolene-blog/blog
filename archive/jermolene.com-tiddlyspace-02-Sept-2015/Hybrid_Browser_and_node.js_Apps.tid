@@ -1,0 +1,24 @@
+_hash: e5dca6ce7160685a8704bb87427a13efabefeeea
+created: 20110410203625000
+creator: jermolene
+modified: 20110412140635000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Hybrid%20Browser%20and%20node.js%20Apps/118426:b0bf621691f7d3cd13e4d765316f841285382817"
+server.host: http://jermolene.com
+server.page.revision: 118426
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Hybrid Browser and node.js Apps
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: TiddlyWiki thought
+title: Hybrid Browser and node.js Apps
+type: text/x-tiddlywiki
+
+Just idly thinking that if one re-structured a tiddlywiki document with a separate JavaScript file (as in {{{index.html}}} including {{{tiddlywiki.js}}}), then it might be possible for the {{{tiddlywiki.js}}} file to contain logic such that one could start the TiddlyWiki as a node.js web server with:
+{{{
+node tiddlywiki.js
+}}}
+...and then have the JavaScript sniff for the TiddlyWiki HTML document in the same directory to get at the data.

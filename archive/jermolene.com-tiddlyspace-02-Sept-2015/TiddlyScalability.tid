@@ -1,0 +1,41 @@
+_hash: 5a92878e7c216d79e75bbfdb30b88bf48290a49a
+created: 20100824211418000
+creator: jermolene
+modified: 20100915150500000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/TiddlyScalability/118616:2b9a5e1b9ac4c60b1d0637faeb338147e60906a4"
+server.host: http://jermolene.com
+server.page.revision: 118616
+server.permissions: read
+server.recipe: jermolene_public
+server.title: TiddlyScalability
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: TiddlyScalability
+type: text/x-tiddlywiki
+
+TiddlyWiki was developed as a [[standalone HTML file|http://en.wikipedia.org/wiki/Single-page_application]] that contains both the JavaScript and CSS necessary for its operation and the payload data of the tiddlers comprising the wiki document. It exploits some specific browser tricks to be able to modify itself directly on the users hard drive, and hence provides a complete single-user productivity environment without needing a server. This arrangement allows for some unusual use cases, such as keeping a truly private personal wiki, and lowers the barriers to working with TiddlyWiki to the ability to download and open an HTML file.
+
+Since its introduction, several different serversides have been independently created for TiddlyWiki. They lift the limitations of working on a local file by putting the tiddler content on a server, allowing multiple users to work together at the same time on much bigger datasets than would fit into a single HTML file.
+
+Superficially, the end result resembles a traditional web application built from stacks such as J2EE, .Net, Ruby in Rails or PHP. However, behind the scenes, the architecture of TiddlyWiki permits a radically different approach to the design of the server component, leading to significant performance and scalability advantages over conventional approaches.
+
+Traditional web development stacks evolved in the mid-'90s, replacing the first wave of CGI-based web applications. The characteristics of these stacks have stayed fairly consistent over the years:
+* User experiences are modelled as the browser requesting a page from the server, rendering it for the user, and then processing user interactions within the page to trigger the loading of the next page. To the user, the experience is that they are moving through a sequence of distinct pages, with the jumps between pages
+* When the server generates a new page, it has access to a "session" object that is specific to each current user of the system. This compensates for HTTP's stateless nature by letting the programmer store any required information that needs to be available across page requests. The canonical example of using the session object is to use it to keep track of the items in a users checkout basket.
+This model has been very successful (in the sense of widely used) because it is simple for programmers to understand, and works well on simple server configurations. It doesn't work quite as well for complex, high traffic sites. In these situations, the standard approach is to have a pool of web servers, each handling independent client requests in parallel. Then, by buying more servers, and distributing the incoming requests evenly, any desired level of responsiveness can be achieved.
+
+The problem is those session objects: the system needs to ensure that the right session object is available to a server for a particular request. This can be done by taking special steps to route traffic so that consecutive requests from the same client end up at the same server, or by transporting the session data between servers. In either case, these considerations add a lot of complexity, meaning that the illusion of session state is very expensive.
+
+In TiddlyWiki, the user experience model differs because all interactions take place within the same HTML file. Users don't navigate between pages, they interact with a single dynamic page. This allows any required session state information to be maintained in the client. Once all the session state information is managed in the client, it becomes possible for the server to be stateless: to be designed to get all the session state information directly from the client with each request. The beauty of making the server stateless in this way is that it allows the site to be scaled with the addition of more servers without running into the issue of managing session state information between servers.
+
+
+
+
+
+
+
+

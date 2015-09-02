@@ -1,0 +1,42 @@
+_hash: 10b0276ddc805a9489b6449c972bb1dc00fb9cf0
+created: 20131111192332000
+creator: osmosoft
+modified: 20131111192332000
+modifier: osmosoft
+server.bag: tiddlyspace
+server.content-type: text/javascript
+server.etag: "tiddlyspace/TiddlySpaceCSRF/1521904:71ad865f2027ba2d1decf189e2c9fbc070237449"
+server.host: http://jermolene.com
+server.page.revision: 1521904
+server.permissions: read
+server.recipe: jermolene_public
+server.title: TiddlySpaceCSRF
+server.type: tiddlyweb
+server.workspace: bags/tiddlyspace
+tags: excludeLists excludeSearch systemConfig
+title: TiddlySpaceCSRF
+type: text/x-tiddlywiki
+
+(function() {
+var getCSRFToken = function(window) {
+	// XXX: should not use RegEx - cf.
+	// http://www.quirksmode.org/js/cookies.html
+	// https://github.com/TiddlySpace/tiddlyspace/commit/5f4adbe009ed4bda3ce39058a3fb07de1420358d
+	var regex = /^(?:.*; )?csrf_token=([^(;|$)]*)(?:;|$)/;
+	var match = regex.exec(document.cookie);
+	var csrf_token = null;
+	if (match && (match.length === 2)) {
+		csrf_token = match[1];
+	}
+
+	return csrf_token;
+};
+
+if (typeof config !== 'undefined' && config.extensions &&
+		config.extensions.tiddlyspace &&
+		config.extensions.tiddlyspace.getCSRFToken === null) {
+	config.extensions.tiddlyspace.getCSRFToken = getCSRFToken;
+} else {
+	window.getCSRFToken = getCSRFToken;
+}
+})(window);

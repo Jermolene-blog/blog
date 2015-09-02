@@ -1,0 +1,25 @@
+_hash: 402500121d26f686c8a0e493385f6925b8bc8c1c
+created: 20101105165425000
+creator: jermolene
+modified: 20101105165509000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/sync%20adaptor%20issues/118754:f3c2482434b37fb3c6990c9ac76ff1790c35eff9"
+server.host: http://jermolene.com
+server.page.revision: 118754
+server.permissions: read
+server.recipe: jermolene_public
+server.title: sync adaptor issues
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @cdent @fnd
+title: sync adaptor issues
+type: text/x-tiddlywiki
+
+See [[sync adaptor issues]]@cdent, where there is a discussion about retaining backwards compatibility between the new sync engine and old-style adaptors.
+
+@jermolene says:
+<<<
+I was expecting that we'd have to start distinguishing between old-skool 1.0 adaptors, which might have very limited functionality, and new-skool 2.0 adaptors, which conform to the new sync architecture. There's not many adaptors out there, but there's enough that we should keep them compatible if we can, and not weep for too long if we can't.
+<<<

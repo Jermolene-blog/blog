@@ -1,0 +1,151 @@
+_hash: 92fad7c8da21bdb17d7d2ab436044fda77e96bd2
+created: 20120924172121000
+creator: cdent
+modified: 20131112153515000
+modifier: cdent
+server.bag: edit_public
+server.content-type: text/css
+server.etag: "edit_public/edit.css/1524117:b67fd7445b044b0a15a8786e4b9a5c173c0652d4"
+server.host: http://jermolene.com
+server.page.revision: 1524117
+server.permissions: read
+server.recipe: jermolene_public
+server.title: edit.css
+server.type: tiddlyweb
+server.workspace: bags/edit_public
+tags: 
+title: edit.css
+type: text/x-tiddlywiki
+
+html, body {
+    height: 100%;
+    max-height: 100%;
+    background: #F0F4F8;
+    font-family: "Helvetica Neue",helvetica,arial,sans-serif;
+    line-height: 1.4;
+    overflow: auto;
+}
+
+button {
+    cursor: pointer;
+}
+
+.privacyicon {
+    float: right;
+}
+
+#delete {
+    margin-top: 1em;
+}
+
+.cleancol > h1 {
+    font-size: 150%;
+    text-align: center;
+}
+
+#message {
+    padding: 1em;
+    display: none;
+}
+
+#container {
+    height: 90%;
+    margin: 1em auto 0 auto;
+    width: 100%;
+}
+
+.inputs {
+    white-space: pre-wrap;
+    font: 90% "Andale Mono", "Lucida Console", "Bitstream Vera Sans Mono", "Courier New", monospace;
+    border: none;
+    box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, 0.5);
+}
+
+#editor textarea {
+    height: 85%;
+    width: 96%;
+    padding: 2%;
+    border-radius: .5em .5em 0 0;
+    border-top: thin solid lightgrey;
+    border-left: thin solid lightgrey;
+}
+
+#editor input {
+    width: 100%;
+    border-radius: 0 0 .5em .5em;
+}
+
+.cleancol {
+    height: 90%;
+    background: #DCE7F1;
+    padding: 1em;
+    border-radius: .5em;
+    border-top: thin solid #ACA7FF;
+    border-left: thin solid #ACA7FF;
+    box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, 0.5);
+    overflow-x: hide;
+}
+
+#recents {
+    float: right;
+    width: 20%;
+    overflow: hide;
+    margin-right: 1em;
+}
+
+
+#recents span {
+    cursor: pointer;
+    padding-right: 1em;
+}
+
+#editor {
+    margin-left: auto;
+    margin-right: auto;
+    width: 45%;
+}
+
+#info {
+    position: relative;
+    float: left;
+    width: 20%;
+    margin-left: 1em;
+}
+
+#info button {
+    width: 100%;
+}
+
+#tags {
+    position: absolute;
+    bottom: 0;
+    max-height: 15em;
+    overflow: hide;
+    width: 90%;
+    -moz-column-count: 2;
+    -webkit-column-count: 2;
+    column-count: 2;
+    column-gap: 1em;
+    -moz-column-gap: 1em;
+    -webkit-column-gap: 1em;
+}
+
+.taglink {
+    cursor: pointer;
+    display: block;
+}
+
+a {
+    color: #BC4378;
+    text-decoration: none;
+}
+
+@media all and (max-width: 50em) {
+    #recents {
+        display: none;
+    }
+    #editor {
+        width: 65%;
+        margin-right: 1em;
+    }
+}

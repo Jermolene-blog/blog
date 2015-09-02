@@ -1,0 +1,30 @@
+_hash: 59e53854fa48a345f07d31f93f7295864f25ae7d
+created: 20101111135446000
+creator: jermolene
+modified: 20101111135446000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Release%20Notes%20as%20Development%20Artefacts/118486:55033f0a137f4430331793f8c69681bf6b76696a"
+server.host: http://jermolene.com
+server.page.revision: 118486
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Release Notes as Development Artefacts
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: Release Notes as Development Artefacts
+type: text/x-tiddlywiki
+
+In the TiddlySpace project we're making extensive use of ''stories'' and ''concerns'' which are tracked over at http://tiddlyspace.tiddlyspace.com/. Stories are the familiar artefacts from agile development that capture what a user wants to achieve. Concerns are what we've called more nebulous issues that we need to discuss but that have not yet become actionable.
+
+When we deliver new releases of TiddlySpace we need to let people know what has changed through another artifact: the ''release note'', which gathers together bugs, new features and enhancements in language that makes sense to end users.
+ 
+We tend to leave the production of release notes to the very end of the process. According to [[Werner Vogels|http://www.allthingsdistributed.com/2006/11/working_backwards.html]], Amazon does the opposite, at least for the introduction of new services:
+<<<
+# Start by writing the Press Release. Nail it. The press release describes in a simple way what the product does and why it exists - what are the features and benefits. It needs to be very clear and to the point. Writing a press release up front clarifies how the world will see the product - not just how we think about it internally.
+# Write a Frequently Asked Questions document. Here's where we add meat to the skeleton provided by the press release. It includes questions that came up when we wrote the press release. You would include questions that other folks asked when you shared the press release and you include questions that define what the product is good for. You put yourself in the shoes of someone using the product and consider all the questions you would have.
+# Define the customer experience. Describe in precise detail the customer experience for the different things a customer might do with the product. For products with a user interface, we would build mock ups of each screen that the customer uses. For web services, we write use cases, including code snippets, which describe ways you can imagine people using the product. The goal here is to tell stories of how a customer is solving their problems using the product.
+# Write the User Manual. The user manual is what a customer will use to really find out about what the product is and how they will use it. The user manual typically has three sections, concepts, how-to, and reference, which between them tell the customer everything they need to know to use the product. For products with more than one kind of user, we write more than one user manual.
+<<<

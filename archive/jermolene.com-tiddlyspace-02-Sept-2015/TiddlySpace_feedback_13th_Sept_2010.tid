@@ -1,0 +1,35 @@
+_hash: 2e8b1d7f7ec43b4e2bf93289109692cdee0f77d2
+created: 20100913110216000
+creator: jermolene
+modified: 20100913124858000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/TiddlySpace%20feedback%2013th%20Sept%202010/118648:12bcb36092b0c08e1f52c51341bba1eaff7747c9"
+server.host: http://jermolene.com
+server.page.revision: 118648
+server.permissions: read
+server.recipe: jermolene_public
+server.title: TiddlySpace feedback 13th Sept 2010
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: TiddlySpace feedback 13th Sept 2010
+type: text/x-tiddlywiki
+
+The frontpage:
+* The {{{<<TiddlySpaceRegister>>}}} and {{{<<TiddlySpaceLogin>>}}} plugins shouldn't include a {{{<fieldset>/<legend>}}} because it results in the signup and login user interfaces being surrounded by two distinct and different borders with the same name label
+* The main menu is too long. Might be better to reword as
+** Sign Up
+** Login
+** Blog
+** Developers
+** Support
+* The main text block should be a slightly larger font size
+* I think [[FAQ]], [[Terms of Service]] and [[Contact Us]] could go into a small footer line immediately under the text block
+* The words 'discoursive' and 'social model' should be links in the site subtitle (and ideally no bolder than the non-linked words)
+* The ColorPalette has the {{{Foreground}}} colour set to {{{#0a0e1e}}}, which is nearly but not quite black. Possibly it should either be black, or more noticeably not black
+* The toolbar only being visible on hover is a bit unsatisfactory. It would be nicer if we could make it so that non-members just get an unobtrusive {{{close}}} command, and members get the full toolbar
+* Obviously, we shouldn't have any links to missing tiddlers
+New Space experience:
+* ColorPalette and TiddlySpaceConcertina should both be hidden from lists like recent changes

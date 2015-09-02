@@ -1,0 +1,20 @@
+_hash: 5ae67f1e627ab749017fc13fc42691875f68e16c
+created: 20100710180044000
+creator: jermolene
+modified: 20100710180044000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/What%20is%20the%20difference%20between%20TiddlySpace%20and%20TiddlySpot%3F/118672:3e87f2ec4362dab4d0d156fac10c210c28a8df3e"
+server.host: http://jermolene.com
+server.page.revision: 118672
+server.permissions: read
+server.recipe: jermolene_public
+server.title: What is the difference between TiddlySpace and TiddlySpot?
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: FAQ TiddlySpace
+title: What is the difference between TiddlySpace and TiddlySpot?
+type: text/x-tiddlywiki
+
+[[TiddlySpot|http://tiddlyspot.com]] is a mature, popular service focused on publishing and sharing entire TiddlyWiki documents. TiddlySpace is more experimental, and directed towards publishing and sharing individual tiddlers between documents.

@@ -1,0 +1,20 @@
+_hash: 6516f71685d10be266a599f46d8dcf1c658225d0
+created: 20131111192330000
+creator: osmosoft
+modified: 20131111192330000
+modifier: osmosoft
+server.bag: system-theme_public
+server.content-type: 
+server.etag: "system-theme_public/SideBarOptions/1521921:93753d1d882bf9db13aa8e1c6359fd21b81a56c2"
+server.host: http://jermolene.com
+server.page.revision: 1521921
+server.permissions: read
+server.recipe: jermolene_public
+server.title: SideBarOptions
+server.type: tiddlyweb
+server.workspace: bags/system-theme_public
+tags: excludeLists excludeSearch
+title: SideBarOptions
+type: text/x-tiddlywiki
+
+<<closeAll>><<permaview>><<newTiddler>>

@@ -1,0 +1,42 @@
+_hash: a169fe2b67cc486d0078358c1db5d4cc38eb43e6
+created: 20101229142053000
+creator: jermolene
+modified: 20101229145140000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Table%20formatting%20test%20for%20tobbe/118584:6fe01bf0b868b8a54223ab12813993117d57b133"
+server.host: http://jermolene.com
+server.page.revision: 118584
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Table formatting test for tobbe
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: Table formatting test for tobbe
+type: text/x-tiddlywiki
+
+@tobbe asks:
+<<<
+I've look att TW Help on all the table arrangement but I don't find
+anything that I wanna do.
+
+http://lh4.ggpht.com/_O2EMbmFp2V0/TRs3Ej7-jSI/AAAAAAAABBs/5kQtHBmdfMg/arr.png
+
+In the picture above I want to have under "Starting measure" seven
+columns. How do I do that?
+<<<
+
+You need to use the special cell value {{{>}}} which will merge horizontally adjacent cells:
+
+{{{
+| !No | !Arrangement name | !Tempo | !Beat |>|>|>|>|>|>| !Starting measure| !Break | !V1 | !~DrumKit |
+|       |                              |             |         |1 | 2 | 3 | 4 | 5 |6 |7 |           |       |                |
+|       |                              |             |         |1 | 2 | 3 | 4 | 5 |6 |7 |           |       |                |
+}}}
+
+| !No | !Arrangement name | !Tempo | !Beat |>|>|>|>|>|>| !Starting measure| !Break | !V1 | !~DrumKit |
+|       |                              |             |         |1 | 2 | 3 | 4 | 5 |6 |7 |           |       |                |
+|       |                              |             |         |1 | 2 | 3 | 4 | 5 |6 |7 |           |       |                |
+

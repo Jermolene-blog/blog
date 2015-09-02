@@ -1,0 +1,28 @@
+_hash: 2095888abb7d81b0225e5e26ca0f111f229517d7
+created: 20101229155858000
+creator: jermolene
+modified: 20101229165929000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Computers%20I%20have%20owned/118350:aa1964f335c48972293b7c633a997b0b31e6b23f"
+server.host: http://jermolene.com
+server.page.revision: 118350
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Computers I have owned
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: nostalgia
+title: Computers I have owned
+type: text/x-tiddlywiki
+
+As far as I can remember, and currently incomplete:
+
+|!Year |!Computer |!Processor |
+|1978 |[[Science of Cambridge MK14]] |[[SC/MP]] |
+|1979 |[[Sinclair ZX80]] |[[Z80]] |
+|1980 |[[Acorn Atom]] |[[6502]] |
+|1980 |[[Exidy Sorceror]] |[[Z80]] |
+|1981 |[[BBC Micro]] |[[6502]] |
+|1982 |[[ACT Sirius 1|http://www.actsirius1.co.uk/]] |[[8086]] |

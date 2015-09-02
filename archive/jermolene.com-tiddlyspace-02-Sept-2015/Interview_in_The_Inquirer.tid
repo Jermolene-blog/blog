@@ -1,0 +1,24 @@
+_hash: 282b2001d56e8f2c708fefa03a559324d372a2ec
+created: 20110908114755000
+creator: jermolene
+modified: 20110908114755000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Interview%20in%20The%20Inquirer/118429:80cd2af2487905aab2585901a56b784c81cec3aa"
+server.host: http://jermolene.com
+server.page.revision: 118429
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Interview in The Inquirer
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: Interview in The Inquirer
+type: text/x-tiddlywiki
+
+An interview with me by Wendy Grossman:
+<<<
+By running the service externally with real users doing stuff that matters to them, we get feedback and learn about the service. Volume outside precedes the volume inside BT, and the users are more heterogeneous and more radically different things - missionaries, not just mathematicians.
+<<<
+* http://www.theinquirer.net/inquirer/feature/2105529/bt-software-engineer-tells-telco-source

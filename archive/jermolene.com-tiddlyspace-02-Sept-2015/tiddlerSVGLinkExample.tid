@@ -1,0 +1,20 @@
+_hash: 07f49329181e613b323b914a17ff215644ca9344
+created: 20100925135134000
+creator: jermolene
+modified: 20100925135134000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/tiddlerSVGLinkExample/118762:f4c73955f795f7675b610d35ae4f8e25716ec199"
+server.host: http://jermolene.com
+server.page.revision: 118762
+server.permissions: read
+server.recipe: jermolene_public
+server.title: tiddlerSVGLinkExample
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @jon
+title: tiddlerSVGLinkExample
+type: text/x-tiddlywiki
+
+Rather than using the {{{tiddler="title"}}} attribute, I suggest that you use the same {{{tiddlyLink="title"}}} and {{{refresh="link"}}} attributes that TiddlyWiki uses for links in wikified HTML. Then by also using the classes {{{tiddlyLink}}}, {{{tiddlyLinkExisting}}} and {{{tiddlyLinkExisting}}}, you'd be able to take advantage of TiddlyWiki's dynamic processing of link styles according to the existence of the target tiddler.

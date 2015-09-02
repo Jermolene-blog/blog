@@ -1,0 +1,37 @@
+_hash: 21d4a5b307ec25fbf88b43e0f08e4070d1702956
+created: 20110126150657000
+creator: jon
+modified: 20110126150657000
+modifier: jon
+server.bag: following_public
+server.content-type: 
+server.etag: "following_public/LoadMissingExternalTiddler/71032:c2543c1ae13e6bdc4f090d86df3ec34f31e5d5ca"
+server.host: http://jermolene.com
+server.page.revision: 71032
+server.permissions: read
+server.recipe: jermolene_public
+server.title: LoadMissingExternalTiddler
+server.type: tiddlyweb
+server.workspace: bags/following_public
+tags: excludeLists excludeSearch systemConfig
+title: LoadMissingExternalTiddler
+type: text/x-tiddlywiki
+
+/***
+|''Name''|LoadMissingExternalTiddler|
+|''Version''|0.1.0|
+|''Author''|Jon Robson|
+***/
+//{{{
+var _loadMissing = Story.prototype.loadMissingTiddler;
+Story.prototype.loadMissingTiddler = function(title,fields,callback) {
+	var matches = title.match(/([^\*]*) \*\(@([^\)]*)\)\*/);
+	if(matches && matches.length > 0) {
+		var sTitle = matches[1];
+		var space = matches[2];		config.extensions.tiddlyspace.displayServerTiddler(story.getTiddler(title),
+			sTitle, "bags/%0_public".format(space));
+	} else {
+	_loadMissing.apply(this, arguments)
+	}
+};
+//}}}

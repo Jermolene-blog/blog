@@ -1,0 +1,20 @@
+_hash: 539c37a211f7ddd48d4bdca321eba1cda697f0d1
+created: 20110407140023000
+creator: jermolene
+modified: 20110407140023000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Caspian%20Theme%20Colour%20Choices/118321:0ae69e52e911034f86c087062c58d204531793cc"
+server.host: http://jermolene.com
+server.page.revision: 118321
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Caspian Theme Colour Choices
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @caspian-ii @jon
+title: Caspian Theme Colour Choices
+type: text/x-tiddlywiki
+
+To me, the speech bubbles having the same colour as the background of the page makes them look like they are hole in the tiddler where the background shows through. The speech bubble shouldn't be tied to the page background colour.

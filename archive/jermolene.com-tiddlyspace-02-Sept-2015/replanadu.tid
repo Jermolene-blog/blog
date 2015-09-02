@@ -1,0 +1,100 @@
+_hash: 3541bdc61cce259cf5287600757ab0a4c4f23522
+created: 20131017100757000
+creator: colmbritton
+modified: 20131017100757000
+modifier: colmbritton
+server.bag: replanadu_public
+server.content-type: text/html
+server.etag: "replanadu_public/replanadu/1465700:1d5cc9d1f1e15ed82dcd2b1720dd818c046b6774"
+server.host: http://jermolene.com
+server.page.revision: 1465700
+server.permissions: read
+server.recipe: jermolene_public
+server.title: replanadu
+server.type: tiddlyweb
+server.workspace: bags/replanadu_public
+tags: 
+title: replanadu
+type: text/x-tiddlywiki
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Replanadu</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+        <link rel="stylesheet" href="/replanadu.css">
+        <script src="/bags/replanadu_public/tiddlers/modernizr-2.6.2.js"></script>
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+        <nav class="tsbar"></nav>
+        <header>
+            <script id="tiddler-header-template" type="text/x-handlebars-template">
+                <h1 id="tiddler-title" class="title">
+                    <a href="{{ getSpaceURI user }}/{{ title }}">{{{ title }}}</a>
+                </h1>
+            </script>
+        </header>
+        <div class="wrapper">
+        <section>
+            <article id="local" class="tiddler original">
+                <script id="tiddler-view-template" type="text/x-handlebars-template">
+                    <section class="action-buttons">
+                        <button class="edit-button">Edit</button>
+                    </section>
+                    {{{ html }}}
+                </script>
+                <script id="tiddler-edit-template" type="text/x-handlebars-template">
+                    <section class="action-buttons">
+                        <button class="cancel-button">Cancel</button>
+                        <button class="save-button">Save</button>
+                    </section>
+                    <textarea>{{{ text }}}</textarea>
+                </script>                
+            </article>
+        </section>
+        <section>
+            <section id="relatedlist" class="pairs">
+                <script id="related-list-template" type="text/x-handlebars-template">
+                    <ul>
+                        {{#each tiddlers}}
+                        <li>
+                            <a href="{{ getSpaceURI this.modifier }}">
+                                <img src="{{ getSpaceURI this.modifier }}/SiteIcon" />
+                            </a>
+                            <div class="meta">
+                                <a href="{{ getSpaceURI this.modifier }}">@{{ this.modifier }}</a> at
+                                <a href="{{ getSpaceURI this.bag }}">@{{ getSpaceName this.bag }}</a>
+                                <abbr class="timeago" title="{{ dateString this.modified }}"></abbr>
+                            </div>
+                            <button data-uri="{{ this.uri }}" class="tiddler-button"></button>
+                            <button class="close-button" title="Dismiss tiddler">x</button>
+                            <article class="pair-content tiddler"></article>
+                        </li>
+                        {{/each}}
+                    </ul>
+                </script>
+            </section>
+        </section>
+        </div>
+        <script src="/bags/common/tiddlers/jquery.js"></script>
+        <script src="/bags/common/tiddlers/jquery.timeago.js"></script>
+        <script src='/bags/common/tiddlers/backstage.js'></script>
+        <script src="/status.js"></script>
+        <script src="/bags/replanadu_public/tiddlers/handlebars-1.0.0.js"></script>
+        <script src="/bags/replanadu_public/tiddlers/twiddlers.js"></script>
+        <script>
+            var app = new Twiddlers(tiddlyweb);
+            app.init();
+        </script>
+    </body>
+</html>

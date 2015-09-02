@@ -1,0 +1,28 @@
+_hash: 25d7239b607957e59381df538fbfc374072c8947
+created: 20100917104502000
+creator: jermolene
+modified: 20100917105026000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/TiddlyCouch/118605:66dbde60abe39b1446a435c8090c3cdd235bb657"
+server.host: http://jermolene.com
+server.page.revision: 118605
+server.permissions: read
+server.recipe: jermolene_public
+server.title: TiddlyCouch
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: blog
+title: TiddlyCouch
+type: text/x-tiddlywiki
+
+@SaqImtiaz:
+<<<
+TiddlyCouch lets you serve a TiddlyWiki from CouchDB and read and write individual tiddlers to the database. Each tiddler is saved as a separate document. It consists of a couchapp and some TiddlyWiki plugins.
+<<<
+http://github.com/saqimtiaz/TiddlyCouch
+
+These webby non-SQL databases like CouchDB/MongoDB/Cassandra paired with a templating engine seem to be a good match for TiddlyWiki, and this looks like a nice clean implementation.
+
+I love the diversity of having lots of different serversides for TiddlyWiki, suiting people with different preferences and offering different trade-offs to end users.

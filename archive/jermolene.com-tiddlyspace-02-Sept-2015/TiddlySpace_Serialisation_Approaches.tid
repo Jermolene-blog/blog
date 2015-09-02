@@ -1,0 +1,48 @@
+_hash: 53feaa5db13b2182a004ae23e6a73311fa6a6f7a
+created: 20110412140616000
+creator: jermolene
+modified: 20110412190639000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/TiddlySpace%20Serialisation%20Approaches/118640:639cb241ba2891a396ebeac6972155fef41a6e0c"
+server.host: http://jermolene.com
+server.page.revision: 118640
+server.permissions: read
+server.recipe: jermolene_public
+server.title: TiddlySpace Serialisation Approaches
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @fnd TiddlySpace thought
+title: TiddlySpace Serialisation Approaches
+type: text/x-tiddlywiki
+
+Currently, TiddlySpace serialises tiddlers in two slightly different ways:
+* individual tiddlers are serialised through the HTML serialiser which produces a static HTML representation of that individual tiddler
+* sets of tiddlers are serialised through the wiki serialiser which produces a dynamic TiddlyWiki document with the required tiddlers embedded within it
+
+I'm interested in exploring an alternate hybrid approach whereby the HTML serialiser:
+* includes a static representation of the tiddler (rendered on the server)
+* also includes the raw wiki text representation of the tiddler (hidden from normal view)
+* also includes a little JavaScript stub that, subject to some opting in/out mechanism, inserts a version of the TiddlyWiki JavaScript code
+** There's no point in squirting in the JavaScript code unless the user tries to do something that requires it, or has explicitly opted in to pre-loading it
+* once loaded, the TiddlyWiki code would build up the full TiddlyWiki environment, ultimately replacing the server-rendered HTML tiddler with a dynamic, locally rendered version
+* users {{{history.pushState()}}} to keep the URI bar up to date as the user clicks between tiddlers
+
+The end result would be that a robot retrieving the raw HTML of a tiddler would get the basic HTML representation. A user gets to see the content they wanted significantly quicker (because they don't need to wait for the JavaScript to limber into life), and retains the ability to use TiddlyWiki in the normal way.
+
+The attraction of the approach is that from an end user perspective there wouldn't be an appreciable difference in the experience of navigating to a space versus to an individual tiddler.
+----
+In [[TiddlySpace Serialisation Approaches]]@fnd, @fnd says:
+<<<
+As I understand it, @jermolene proposes to augment the raw-HTML serialization,
+progressive enhancement-style, to spawn a TiddlyWiki where JavaScript is
+available.
+
+While I understand the motivation here, I absolutely do not want that. (In fact,
+it would likely discourage me from using, or linking to, TiddlySpace any
+longer.)
+<<<
+Well, first, I'm "interested in exploring" more than "proposing". I've expanded what I meant by the opt in/out mechanism, too. To be clear, I'm talking about optionally progressively enhancing a server generated HTML representation of a tiddler. It allows people to be purist in either direction.
+
+

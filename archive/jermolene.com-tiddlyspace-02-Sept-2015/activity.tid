@@ -1,0 +1,59 @@
+_hash: f86d6e2de5080b090a8ac79b64504e44eaae76d4
+created: 20120430150709000
+creator: bengillies
+modified: 20130912135001000
+modifier: pads
+server.bag: tivity_public
+server.content-type: text/html
+server.etag: "tivity_public/activity/1399308:f15887bde792014132a37c4eb8b9f20dbcbe9e88"
+server.host: http://jermolene.com
+server.page.revision: 1399308
+server.permissions: read
+server.recipe: jermolene_public
+server.title: activity
+server.type: tiddlyweb
+server.workspace: bags/tivity_public
+tags: 
+title: activity
+type: text/x-tiddlywiki
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@tivity</title>
+    <link rel="stylesheet" type="text/css"
+    href="/bags/common/tiddlers/reset.css">
+    <link rel="stylesheet" type="text/css"
+    href="http://tiddlyspace.com/bags/tivity-extra_public/tiddlers/activity.css">
+</head>
+<body>
+    <div id="message"></div>
+    <div class="box">
+        <h1 title="from spaces you follow">&#9634;</h1>
+        <ul id="bbox" class="tiddlers"></ul>
+    </div>
+    <div class="box">
+        <h1 title="tagged for you">@</h1>
+        <ul id="atbox" class="tiddlers"></ul>
+    </div>
+    <div class="box">
+        <h1 title="from your friends">&#x263A;</h1>
+        <ul id="fbox" class="tiddlers"></ul>
+    </div>
+    <div class="box">
+        <h1 title="from everybody">&#x221E;</h1>
+        <ul id="upbox" class="tiddlers"></ul>
+    </div>
+    <div id="sizer">M</div>
+    <div id="more">
+        <input type="text" id="newsub" value="#tag, +modifier or @space">
+        <button id="addsub">+</button>
+    </div>
+</body>
+<script src="/bags/common/tiddlers/jquery.js"></script>
+<script src="http://tiddlyspace.com/bags/tivity-extra_public/tiddlers/jquery.timeago.js"></script>
+<script src="/status.js"></script>
+<script src="http://tiddlyspace.com/bags/tivity-extra_public/tiddlers/tiddlersocket.js"></script>
+<script src="http://tiddlyspace.com/bags/tivity-extra_public/tiddlers/activity.js"></script>
+</html>
+

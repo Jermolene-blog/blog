@@ -1,0 +1,22 @@
+_hash: ef5f983ca36b19ed82d51224aee1c85d8fecb0a5
+created: 20131111192330000
+creator: osmosoft
+modified: 20131111192330000
+modifier: osmosoft
+server.bag: system-info_public
+server.content-type: 
+server.etag: "system-info_public/spaceIcon/1521883:29c5ffb4a12bf390e36eed1d69a3ca153713c9c7"
+server.host: http://jermolene.com
+server.page.revision: 1521883
+server.permissions: read
+server.recipe: jermolene_public
+server.title: spaceIcon
+server.type: tiddlyweb
+server.workspace: bags/system-info_public
+tags: excludeLists excludeSearch
+title: spaceIcon
+type: text/x-tiddlywiki
+
+A [[SiteIcon|SiteIcon tiddler]]@glossary helps provide some identity to your space.  Ideally it'd be a square and a minimum of 48*48 pixels size.  You can upload your site icon using the uploader below.
+
+<<binaryUploadPublic title:SiteIcon>>

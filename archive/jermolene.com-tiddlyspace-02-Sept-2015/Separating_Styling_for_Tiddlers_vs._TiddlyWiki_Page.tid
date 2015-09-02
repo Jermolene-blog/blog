@@ -1,0 +1,28 @@
+_hash: 55c86a6fe1dd98cb4ea3c5a955d5776b195761c7
+created: 20110412184616000
+creator: jermolene
+modified: 20110412184616000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Separating%20Styling%20for%20Tiddlers%20vs.%20TiddlyWiki%20Page/118501:59cd28699e6db0926d099990cb7a99236001fb3c"
+server.host: http://jermolene.com
+server.page.revision: 118501
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Separating Styling for Tiddlers vs. TiddlyWiki Page
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: TiddlyWiki thought
+title: Separating Styling for Tiddlers vs. TiddlyWiki Page
+type: text/x-tiddlywiki
+
+I'd like to be able to separate out the styling applied to individual tiddlers from that applied to the containing TiddlyWiki. The advantage would to be able to display tiddlers from other spaces in their original styling, making them easier to identify and closer to their original authors intent.
+
+In order to be able to display several tiddlers with different styling it will be necessary to qualify each tiddler style rule with a qualifying class. For example:
+{{{
+.style_MyGreatStyle .tiddler .title {
+font-size: 2em;
+}
+}}}
+The requirement that the tiddler stylesheets be authored in this way is quite onerous. It may be better to automatically apply the necessary changes by parsing the tiddler stylesheet.

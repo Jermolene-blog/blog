@@ -1,0 +1,21 @@
+_hash: 378e7c4224d9b9ed97947eefce1fab45a0a71696
+created: 20120214105414000
+creator: cdent
+modified: 20120214105414000
+modifier: cdent
+server.bag: edit_public
+server.content-type: 
+server.etag: "edit_public/editSetupFlag/624378:aa2c171ee17c3edad2ddbe94bc994c0583ef7d9f"
+server.host: http://jermolene.com
+server.page.revision: 624378
+server.permissions: read
+server.recipe: jermolene_public
+server.title: editSetupFlag
+server.type: tiddlyweb
+server.workspace: bags/edit_public
+tags: excludeLists excludePublisher excludeSearch
+tiddlyspaceinit_version: 0.6
+title: editSetupFlag
+type: text/x-tiddlywiki
+
+@@Please do not modify this tiddler; it was created automatically upon space creation.@@

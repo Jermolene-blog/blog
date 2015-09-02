@@ -1,0 +1,20 @@
+_hash: e9ed8fe815abdb1d870242d6b79d3ddd74364430
+created: 20100915150701000
+creator: jermolene
+modified: 20100915150701000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Open%20Source%20software%20is%20provisional/118470:dae921fb5f047e7cb07aa8be6ecc51be23cc8410"
+server.host: http://jermolene.com
+server.page.revision: 118470
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Open Source software is provisional
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: thought
+title: Open Source software is provisional
+type: text/x-tiddlywiki
+
+As with blogging, developing and publishing open source software is focussed on sharing provisional results.

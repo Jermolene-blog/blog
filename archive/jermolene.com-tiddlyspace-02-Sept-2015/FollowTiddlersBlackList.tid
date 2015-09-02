@@ -1,0 +1,34 @@
+_hash: 6fc8ab230a904a71d63a42d97dccd8e135c1ed1c
+created: 20131111192334000
+creator: osmosoft
+modified: 20131111192334000
+modifier: osmosoft
+server.bag: tiddlyspace
+server.content-type: 
+server.etag: "tiddlyspace/FollowTiddlersBlackList/1521900:3a62984692efeb848f2d966a605e4a2c933fdc76"
+server.host: http://jermolene.com
+server.page.revision: 1521900
+server.permissions: read
+server.recipe: jermolene_public
+server.title: FollowTiddlersBlackList
+server.type: tiddlyweb
+server.workspace: bags/tiddlyspace
+tags: excludeLists excludeMissing excludeSearch
+title: FollowTiddlersBlackList
+type: text/x-tiddlywiki
+
+ColorPalette
+StyleSheet
+SiteSubtitle
+GettingStarted
+SiteTitle
+MainMenu
+SiteIcon
+DefaultTiddlers
+ViewTemplate
+PageTemplate
+SideBarOptions
+EditTemplate
+SiteInfo
+SideBarTabs
+ToolbarCommands

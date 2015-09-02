@@ -1,0 +1,20 @@
+_hash: ad84cfc7470b21ecb95f56d8030cefaa628ed2f3
+created: 20120127171000000
+creator: jermolene
+modified: 20120127171000000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/test3/118761:4c8d40080b575f7c65805a0d2802e62672ff2d86"
+server.host: http://jermolene.com
+server.page.revision: 118761
+server.permissions: read
+server.recipe: jermolene_public
+server.title: test3
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: test3
+type: text/x-tiddlywiki
+
+<<tiddler test2>>

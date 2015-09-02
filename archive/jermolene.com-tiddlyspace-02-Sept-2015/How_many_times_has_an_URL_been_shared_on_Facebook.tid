@@ -1,0 +1,29 @@
+_hash: 41c9b1f96f7a4ea6fcff5b3c1fb3cda74775f607
+created: 20110320224410000
+creator: jermolene
+modified: 20110320224457000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/How%20many%20times%20has%20an%20URL%20been%20shared%20on%20Facebook/118423:f5d115ee30623bea30e04d38c15968eba213d744"
+server.host: http://jermolene.com
+server.page.revision: 118423
+server.permissions: read
+server.recipe: jermolene_public
+server.title: How many times has an URL been shared on Facebook
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: How many times has an URL been shared on Facebook
+type: text/x-tiddlywiki
+
+http://graph.facebook.com/http://tiddlywiki.com/
+returns:
+{{{
+{
+   "id": "http://tiddlywiki.com/",
+   "shares": 395
+}
+}}}
+
+bt.com has been shared 643 times for comparison. And twitter.com has been shared 1,850,692 times.

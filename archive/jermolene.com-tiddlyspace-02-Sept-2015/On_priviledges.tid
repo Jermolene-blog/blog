@@ -1,0 +1,20 @@
+_hash: 5ca6872b40c067518f6fdba7600e4a49503aa332
+created: 20101013213133000
+creator: jermolene
+modified: 20101013213133000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/On%20priviledges/118468:042fc0e30759800fca386bd0255c2dc1ef4edb7e"
+server.host: http://jermolene.com
+server.page.revision: 118468
+server.permissions: read
+server.recipe: jermolene_public
+server.title: On priviledges
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @pmario @tobibeer
+title: On priviledges
+type: text/x-tiddlywiki
+
+I accept that the TiddlySpace privilege model is very simplistic. I like the idea that we use it as a starting convention for spaces, but that we allow for people to "go under the floorboards" when necessary to get at the full functionality of TiddlyWeb. To make this stuff easier, I'd like to see something like the Hoster user interface exposed through the TiddlySpace backstage.

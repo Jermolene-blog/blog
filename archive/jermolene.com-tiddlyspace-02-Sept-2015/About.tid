@@ -1,0 +1,22 @@
+_hash: 56d94d560f68b80f8c4ed4b56386d685b1ef3371
+created: 20101002105125000
+creator: jermolene
+modified: 20101002105538000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/About/118301:deafde1733ceac2bd4b112357b205ef0a050d9ef"
+server.host: http://jermolene.com
+server.page.revision: 118301
+server.permissions: read
+server.recipe: jermolene_public
+server.title: About
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: About
+type: text/x-tiddlywiki
+
+My name is Jeremy Ruston. I'm a technologist based in London, working on the web in open source.
+
+I run [[Osmosoft]], BT's open source arm. We help BT get the most out of open source, and make sure it knows its obligations when it works with communities. We also work on TiddlySpace, TiddlyWiki and TiddlyWeb to deliver value to BT and its customers.

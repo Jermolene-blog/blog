@@ -1,0 +1,20 @@
+_hash: 6187e7ef773cc62a61df362f2ea545f190dc5d07
+created: 20111214135855000
+creator: jermolene
+modified: 20111214135855000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/SiteInfo/118505:083990267a7865ae46f994da218baabd4a45ee93"
+server.host: http://jermolene.com
+server.page.revision: 118505
+server.permissions: read
+server.recipe: jermolene_public
+server.title: SiteInfo
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: SiteInfo
+type: text/x-tiddlywiki
+
+This is Jeremy Ruston's personal space

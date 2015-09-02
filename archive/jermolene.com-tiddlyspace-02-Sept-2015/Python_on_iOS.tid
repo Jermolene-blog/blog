@@ -1,0 +1,24 @@
+_hash: c3a5c16d579c1d14d04d16248ff849b1274b862a
+created: 20110320140148000
+creator: jermolene
+modified: 20110320140148000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Python%20on%20iOS/118485:54c191dc510068d12c53f5b2a64f826bde1830b5"
+server.host: http://jermolene.com
+server.page.revision: 118485
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Python on iOS
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: Python on iOS
+type: text/x-tiddlywiki
+
+Here's a patch to allow Python to be compiled for iOS:
+
+https://github.com/cobbal/python-for-iphone
+
+It appears to be compatible with Apple's current app store rules.

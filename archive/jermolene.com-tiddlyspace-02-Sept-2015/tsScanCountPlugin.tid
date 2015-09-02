@@ -1,0 +1,105 @@
+_hash: 1ee08923ff297138f10696798a07381af707548d
+created: 20110331073807000
+creator: jon
+modified: 20110411103933000
+modifier: jon
+server.bag: following_public
+server.content-type: 
+server.etag: "following_public/tsScanCountPlugin/71064:e506e372742b8253f3a6a1cdd60477f63a24d4f7"
+server.host: http://jermolene.com
+server.page.revision: 71064
+server.permissions: read
+server.recipe: jermolene_public
+server.title: tsScanCountPlugin
+server.type: tiddlyweb
+server.workspace: bags/following_public
+tags: excludeLists excludeSearch systemConfig
+title: tsScanCountPlugin
+type: text/x-tiddlywiki
+
+/***
+|''Name''|tsScanCountPlugin|
+|''Description''|Provides ability to count tiddlers at a given tiddlyspace url and display a button that when clicked lists them. Also upgrades tsScan to replace any options containing with $1 with the current space|
+|''Version''|0.2.0|
+***/
+//{{{
+(function($) {
+
+var tsScan = config.macros.tsScan;
+var tiddlyspace = config.extensions.tiddlyspace;
+
+var macro = config.macros.tsScanCount = {
+	cache: true,
+	countCache: {},
+	handler: function(place, macroName, params, w, paramString, tiddler) {
+		var container = $("<a href='#' class='button' />").attr("refresh", "macro").attr("macroName", macroName).appendTo(place)[0];
+		$(container).data("params", paramString);
+		macro.refresh(container);
+	},
+	refresh: function(container) {
+		var paramString = $(container).data("params");
+		var options = tsScan.getOptions(paramString, tiddler);
+		var url = options.url;
+		options.cache = macro.cache;
+		options.callback = function(tiddlers) {
+				options.cache = true;
+				macro.cache = true;
+				var count = tiddlers[0] ? tiddlers[0].fields['server.page.revision'] : 0;
+				var lastCount = macro.countCache[url] || 0;
+				if(lastCount != count) {
+					var interval, step = 0;
+					interval = window.setInterval(function() {
+						var last = step;
+						step += 1;
+						$(container).removeClass("step" + last);
+						if(step > 10) {
+							macro.countCache[url] = count;
+							window.clearInterval(interval);
+						} else {
+							$(container).addClass("step" + step);
+						}
+					}, 500)
+				}
+				$(container).empty().addClass("enabled").text(tiddlers.length).click(function(ev) {
+				$(ev.target).addClass("active");
+				var target = options.popupSelector ? $(options.popupSelector)[0] : ev.target;
+				var p = Popup.create(target, "div");
+				var container;
+				if(options.heading) {
+					container = $("<div />").addClass("heading").appendTo(p)[0];
+					wikify(store.getTiddlerText(options.heading) || "", container);
+				}
+				container = $("<div />").addClass("followTiddlersList").appendTo(p)[0];
+				tsScan.scan(container, options);
+				Popup.show();
+				ev.stopPropagation();
+				return false;
+			});
+		};
+		tsScan.scan(container, options);
+	}
+}
+
+var _getOptions = tsScan.getOptions;
+config.macros.tsScan.getOptions = function(paramString, tiddler) {
+	var options = _getOptions.apply(this, arguments);
+	var optionsClone = {};
+	for(var i in options) {
+		if(typeof(options[i]) == "string") {
+			optionsClone[i] = options[i].format(tiddlyspace.currentSpace.name);
+		} else {
+			optionsClone[i] = options[i];
+		}
+	}
+	return optionsClone;
+}
+
+// every 5 minutes make tsScan update.
+window.setInterval(function() {
+	macro.cache = false;
+	$("[macroName=tsScanCount]").each(function(i, el) {
+		macro.refresh(el);
+	});
+}, 1000 * 60 * 5);
+})(jQuery);
+//}}}

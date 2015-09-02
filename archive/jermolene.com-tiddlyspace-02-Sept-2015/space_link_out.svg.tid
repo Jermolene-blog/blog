@@ -1,0 +1,22 @@
+_hash: ce536e9bcf1009b74a35a69b2aaaf00faa1d65f5
+created: 20101107212849000
+creator: jermolene
+modified: 20101107212849000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: image/svg+xml
+server.etag: "jermolene_public/space%20link%20out.svg/118751:0826b663737250b5b38c2c52aba20c665bda76a4"
+server.host: http://jermolene.com
+server.page.revision: 118751
+server.permissions: read
+server.recipe: jermolene_public
+server.title: space link out.svg
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: space link out.svg
+type: text/x-tiddlywiki
+
+<?xml version="1.0"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" viewBox="294 513 70 56" width="70pt" height="56pt"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:date>2010-11-07 21:27Z</dc:date><!-- Produced by OmniGraffle Professional 5.2.3 --></metadata><defs></defs><g stroke="none" stroke-opacity="1" stroke-dasharray="none" fill="none" fill-opacity="1"><title>Canvas 1</title><g><title>Layer 1</title><path d="M 348.67593 549.084 L 330.3736 549.084 C 328.32709 551.224 325.44412 552.55762 322.25186 552.55762 C 316.04907 552.55762 311.01404 547.52258 311.01404 541.3197 C 311.01404 535.1153 316.04907 530.08173 322.25186 530.08173 C 325.35803 530.08173 328.17139 531.34412 330.20618 533.38348 L 348.67691 533.38348 C 345.73755 523.49274 337.35495 515.6493 326.48944 513.92877 C 311.4179 511.54208 297.24762 521.83716 294.861 536.90863 C 292.47263 551.98047 302.76935 566.15216 317.84085 568.53882 C 331.70544 570.73413 344.80716 562.19824 348.67593 549.084 Z M 332.2837 546.12708 L 351.67978 546.1303 L 351.67978 553.47552 L 363.92178 541.23376 L 351.67966 528.99213 L 351.68097 536.34155 L 332.2839 536.34003 C 333.0012 537.81952 333.40356 539.4798 333.40356 541.2337 C 333.40356 542.98737 333.0011 544.64752 332.2837 546.12708 Z" fill="black"/></g></g></svg>

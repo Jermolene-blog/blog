@@ -1,0 +1,21 @@
+_hash: 378e7c4224d9b9ed97947eefce1fab45a0a71696
+created: 20140909104205000
+creator: beaumop1
+modified: 20140909104205000
+modifier: beaumop1
+server.bag: tmanager_public
+server.content-type: 
+server.etag: "tmanager_public/tmanagerSetupFlag/1882504:7ac573c04ca9b7df0bd54011cbc928d8b99eaf4a"
+server.host: http://jermolene.com
+server.page.revision: 1882504
+server.permissions: read
+server.recipe: jermolene_public
+server.title: tmanagerSetupFlag
+server.type: tiddlyweb
+server.workspace: bags/tmanager_public
+tags: excludeLists excludePublisher excludeSearch
+tiddlyspaceinit_version: 0.6
+title: tmanagerSetupFlag
+type: text/x-tiddlywiki
+
+@@Please do not modify this tiddler; it was created automatically upon space creation.@@

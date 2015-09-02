@@ -1,0 +1,20 @@
+_hash: 6de5a813e6148df04281cfc65749b0b1fed0fc23
+created: 20101001154830000
+creator: jon
+modified: 20101001154830000
+modifier: jon
+server.bag: following_public
+server.content-type: 
+server.etag: "following_public/Replies%20and%20Notifications/70974:16d3d1de521a92f04ceb57b49fb06f75d6b78f25"
+server.host: http://jermolene.com
+server.page.revision: 70974
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Replies and Notifications
+server.type: tiddlyweb
+server.workspace: bags/following_public
+tags: excludeLists
+title: Replies and Notifications
+type: text/x-tiddlywiki
+
+<<activity show:reply show:notify>>

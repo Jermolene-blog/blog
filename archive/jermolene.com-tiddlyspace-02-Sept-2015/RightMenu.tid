@@ -1,0 +1,20 @@
+_hash: f1716eaa6b0db96a342fb12e277e18058ad128be
+created: 20101229165423000
+creator: jermolene
+modified: 20101229165423000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/RightMenu/118489:ed058806feccbe9dce70dd9cf1bc09816e42ae85"
+server.host: http://jermolene.com
+server.page.revision: 118489
+server.permissions: read
+server.recipe: jermolene_public
+server.title: RightMenu
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: RightMenu
+type: text/x-tiddlywiki
+
+<<closeAll>> <<permaview>> <<newTiddler>> <<newJournal "DD MMM YYYY" "journal">> <<search>>

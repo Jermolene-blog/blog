@@ -1,0 +1,20 @@
+_hash: f36ff12265e0b1923ec3332b74cb21c0d7a5e362
+created: 20111111100219000
+creator: jermolene
+modified: 20111111100219000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Client%20Side%20File%20Saving/118324:92f935e16b41be9b476f1fce448469acb8aec29d"
+server.host: http://jermolene.com
+server.page.revision: 118324
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Client Side File Saving
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: Client Side File Saving
+type: text/x-tiddlywiki
+
+http://eligrey.com/blog/post/saving-generated-files-on-the-client-side

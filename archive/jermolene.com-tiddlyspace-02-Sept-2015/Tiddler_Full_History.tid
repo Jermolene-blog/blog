@@ -1,0 +1,22 @@
+_hash: 5f8326cb8a96e99a25ad73db057765a7fc932da2
+created: 20100720124053000
+creator: jermolene
+modified: 20100720124053000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Tiddler%20Full%20History/118596:0b5356b4e6a9603b06ba4b502bbb8f513a4b1bba"
+server.host: http://jermolene.com
+server.page.revision: 118596
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Tiddler Full History
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: Tiddler Full History
+type: text/x-tiddlywiki
+
+This is an attempt to visualise the complete intertwined history of the public and private versions of a tiddler.
+
+<<image [[Tiddler Full History.svg]]>>

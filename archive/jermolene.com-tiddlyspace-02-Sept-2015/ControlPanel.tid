@@ -1,0 +1,28 @@
+_hash: 7a2f39c25605f07c2f5a4c949918cc0d1ff22b23
+created: 20100919195240000
+creator: jermolene
+modified: 20110101170130000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/ControlPanel/118358:1f5e3cd1eaba1147ee9b0e61794bfcd92f41942b"
+server.host: http://jermolene.com
+server.page.revision: 118358
+server.permissions: read
+server.recipe: jermolene_public
+server.title: ControlPanel
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: ControlPanel
+type: text/x-tiddlywiki
+
+!Writing
+<<newJournal "DD MMM YYYY hh:mm" "journal">>
+!Uploader
+<<binaryUpload edit:title>>
+!Palette
+New colour palette: <<RandomColorPaletteButton>>
+!Saving
+[[Public tiddlers|http://jermolene.tiddlyspace.com/bags/jermolene_public/tiddlers.wiki]]
+[[Private tiddlers|http://jermolene.tiddlyspace.com/bags/jermolene_private/tiddlers.wiki]]

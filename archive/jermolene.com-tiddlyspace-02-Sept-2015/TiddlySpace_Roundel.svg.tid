@@ -1,0 +1,35 @@
+_hash: 2d7fbfdcc47c4382dbd050fd6a3740d773be10db
+_iframe: svgeditor-0
+created: 20101013073408000
+creator: jermolene
+modified: 20101013164104000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: image/svg+xml
+server.etag: "jermolene_public/TiddlySpace%20Roundel.svg/118635:30b92c9b6ce04fa6fffe1f90f1edfdf10a8fa0d3"
+server.host: http://jermolene.com
+server.page.revision: 118635
+server.permissions: read
+server.recipe: jermolene_public
+server.title: TiddlySpace Roundel.svg
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: TiddlySpace Roundel.svg
+type: text/x-tiddlywiki
+
+<svg width="320" height="240" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <!-- Created with SVG-edit - http://svg-edit.googlecode.com/ -->
+ <defs>
+  <linearGradient id="svg_3" x1="0" y1="0" x2="1" y2="1">
+   <stop offset="0" stop-color="#bfbf00"/>
+   <stop offset="1" stop-color="#ff56aa"/>
+  </linearGradient>
+ </defs>
+ <g>
+  <title>Layer 1</title>
+  <circle id="svg_1" r="81.90848" cy="120" cx="160" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="8" stroke="#7aa3be" fill="#c1e6fd"/>
+  <circle id="svg_2" r="35.27792" cy="120" cx="160.00001" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="8" stroke="#ce81b0" fill="#f4c4e2"/>
+  <image transform="rotate(-35.75388717651367 271.50000000000017,179.50000000000003) " x="171.5" y="131" width="200" height="97" id="svg_4" xlink:href="http://www.tiddlywiki.com/fractalveg.jpg"/>
+ </g>
+</svg>

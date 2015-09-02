@@ -1,0 +1,25 @@
+_hash: e8b78f1edfb6ceebb722d8905ce6d2846c50946c
+created: 20100924113729000
+creator: jermolene
+modified: 20100924114311000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/DesigningForAsynchrony/118367:fca415c22a4d60eedad0107da6b2062471ab2a6b"
+server.host: http://jermolene.com
+server.page.revision: 118367
+server.permissions: read
+server.recipe: jermolene_public
+server.title: DesigningForAsynchrony
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @cdent
+title: DesigningForAsynchrony
+type: text/x-tiddlywiki
+
+@cdent has written a good summary of the issues asynchronous operations in TiddlyWiki: DesigningForAsynchrony@tiddlyspace
+
+The core problem is that in some situations the client will attempt to repeatedly save the same tiddler, without waiting for previous save operations on the same tiddler to complete.
+
+I agree with @cdent that this is likely to require significant rework of the synchronisation and adaptor subsystem in the client. Because that is a large undertaking, I agree that in the meantime we should alter Cecily/@preso so that they don't autosave the map, but rather require a manual step to save it.
+

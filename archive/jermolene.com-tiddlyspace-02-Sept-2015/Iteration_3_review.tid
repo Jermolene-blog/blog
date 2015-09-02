@@ -1,0 +1,28 @@
+_hash: b4eb961b4e69befe6f4b8eff9b6c16963c64e109
+created: 20101208134750000
+creator: jermolene
+modified: 20101208135744000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Iteration%203%20review/118433:423180a006f212d51728227c71036dcfe5aeb637"
+server.host: http://jermolene.com
+server.page.revision: 118433
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Iteration 3 review
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: Iteration 3 review
+type: text/x-tiddlywiki
+
+We just finished Iteration 3 of TiddlySpace platform development. We had the [[Iteration 3 review]]@tiddlyspace, and comments including [[Iteration 3 review]]@cdent from @cdent.
+
+My observations:
+* Travel problems with snow and strikes last week meant that most people were working at home for almost the entire week, and there was less face-to-face collaboration than usual. Note that by design, @osmosoft uses collocation to drive collaboration within the team; the goal of @osmosoft is not to optimise for geographically distributed development
+* There was a lot going on in the other strands of work that wasn't particularly visible:
+** Provisioning the greenside Wholesale server (which consumed many, many hours of time from Ben and Jeff)
+** Working on OpenBritain, ILGA and AMBIT
+
+We need to do a better job of planning work across strands so that we have clearer sight of the resources available.

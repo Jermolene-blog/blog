@@ -1,0 +1,62 @@
+_hash: 8fae054d52568e0ee1a58c0d1eb0a8cc014b00cd
+created: 20100929074448000
+creator: jermolene
+modified: 20101005071017000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Safe%20Scripted%20Transclusions%20for%20TiddlySpace/118493:61623eb9a0ebde6b0d08915517ee49938424204a"
+server.host: http://jermolene.com
+server.page.revision: 118493
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Safe Scripted Transclusions for TiddlySpace
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: Safe Scripted Transclusions for TiddlySpace
+type: text/x-tiddlywiki
+
+I propose a new feature to TiddlyWiki to allow users to write scripted transclusions in a way that can be safely shared. Scripted transclusions are designed as a safe way to satisfy some of the popular use cases for unsafe features like plugins and evaluated macro parameters discussed in SecurityHandling.
+
+Scripted transclusions are not intended to replace plugins; systemConfig plugins will still be needed as the means to modify TiddlyWiki itself.
+
+Scripted transclusions are called in the same way as ordinary ones:
+{{{
+<<tiddler MyTransclusion with:Param1 Param2>>
+}}}
+Scripted transclusions kick in if the target tiddler is tagged {{{systemScript}}}. Instead of the text of the target tiddler being transcluded, the text is executed as a safe subset of JavaScript, and the value that it returns is wikified as the result of the {{{<<tiddler>>}}} macro.
+
+{{{systemScript}}} tiddlers are executed as if they were wrapped in the following:
+{{{
+return (function ($$,tiddler,script) {
+// systemScript tiddler body goes here
+})($$,tiddler,script);
+}}}
+One approach to implementing the safe subset of JavaScript is [[parse the script|http://javascript.crockford.com/tdop/tdop.html]] to a tree representation that can then be compiled to JavaScript. If necessary, runtime checks can be incorporated by, for example, compiling {{{a = b;}}} to {{{safeAssign(a,b);}}}.
+
+Observations and reservations:
+* The parameters passed to the script should include:
+** the parameters passed to the transclusion
+** the tiddler that called the transclusion
+** the script that is executing
+** the tiddler store
+** the story, represented as an array of objects
+** regular expression functionality
+** runtime information, such as:
+*** the current date and time
+*** the current URL
+*** the current username
+* Rather than using the existing {{{<<tiddler>>}}} macro, it may be preferable to introduce a new syntax, such as {{{[[[MyScript]]]}}}, or {{{[[[MyScript param:one param2:two]]]}}}
+* Should we allow access to the DOM? jQuery?
+** //it would appear that such access would need to itself be heavily sandboxed to prevent phishing attacks//
+
+Here is an example of a {{{systemScript}}} called ''helloWorld'':
+{{{
+// A simple script tiddler that displays what it is told
+// Usage:
+// <<tiddler helloWorld with:Hello >>
+// displays: "HelloWorld"
+return $$[0] + "World";
+}}}
+

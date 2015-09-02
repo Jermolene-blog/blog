@@ -1,0 +1,36 @@
+_hash: 7b3083a000a6328a976a1d3d205a0f511079f35b
+created: 20101005173601000
+creator: jermolene
+modified: 20101005173601000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/The%20Concertina/118591:78e38086ae3faa0f09d1b5e464926b81a7680eea"
+server.host: http://jermolene.com
+server.page.revision: 118591
+server.permissions: read
+server.recipe: jermolene_public
+server.title: The Concertina
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @jon @pmario
+title: The Concertina
+type: text/x-tiddlywiki
+
+in reply to [[The Concertina]]@pmario and [[The Concertina]]@jon:
+
+This is a good point. The issue with the concertina was really in relation to using them for the public/private transitions. I agree that as a general UI thing it's still pretty useful for the reasons noted. There was something similar in the TiddlyWiki5 prototype:
+
+http://tiddlywiki.com/tiddlywiki5
+
+(click on the "//i//" icon to see the concertina)
+
+One way to implement the concertina that's more inline with classic TiddlyWiki would be to think of it as the ability to nominate certain tiddler toolbar commands to be tabs that slide open to show their controls, instead of using popups as at present.
+
+For instance, in my ToolbarCommands tiddler, I could define something like:
+{{{
+|~ViewToolbar|+editTiddler +cloneTiddler > (fields) changeToPublic changeToPrivate (revisions) (syncing) permalink references jump closeOthers < closeTiddler|
+|~EditToolbar|+saveTiddler saveDraft -cancelTiddler deleteTiddler|
+|~RevisionToolbar|> fields revert|
+}}}
+The commands in parenthesis would be displayed as tabs instead of popups. Once opened, a tab would be closed by opening a different one, or re-clicking on the original one.

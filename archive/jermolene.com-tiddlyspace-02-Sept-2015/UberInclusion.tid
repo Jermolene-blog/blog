@@ -1,0 +1,31 @@
+_hash: 57e9da7ef49f440ca6c09a4fd56c9d9125458377
+created: 20101229155410000
+creator: jermolene
+modified: 20101229155410000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/UberInclusion/118668:a83c326061e65879b90e166a4e970a23cc7cf050"
+server.host: http://jermolene.com
+server.page.revision: 118668
+server.permissions: read
+server.recipe: jermolene_public
+server.title: UberInclusion
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: TiddlySpace
+title: UberInclusion
+type: text/x-tiddlywiki
+
+I'd like to see the following degrees of control for space inclusion:
+* filtering
+** by title, tags, fields
+* title mangling
+** add a title prefix
+** decorate the title
+* retagging
+** add a tag
+** add a prefix to a tag
+** decorate a tag
+
+

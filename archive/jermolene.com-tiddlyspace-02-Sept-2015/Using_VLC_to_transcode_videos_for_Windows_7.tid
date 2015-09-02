@@ -1,0 +1,33 @@
+_hash: 6be9c201c809b1b36bf46232c0ab5a9b25a739eb
+created: 20110419104426000
+creator: jermolene
+modified: 20110419104426000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Using%20VLC%20to%20transcode%20videos%20for%20Windows%207/118669:e8941849a5f0dee3fdaace15d4a9a7ca56fad923"
+server.host: http://jermolene.com
+server.page.revision: 118669
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Using VLC to transcode videos for Windows 7
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: Using VLC to transcode videos for Windows 7
+type: text/x-tiddlywiki
+
+* Fire up VLC (from http://videolan.org/)
+* Choose "Streaming/Exporting Wizard" from the file menu
+* Select the radio button "Transcode/Save to file"
+* Click "Next"
+* Select radion button "Select a stream" and browse to the file you want to convert
+* Click "Next"
+* Ensure "Transcode video" is checked and select the codec "MPEG-2 Video" and the bitrate "1024"
+* Ensure "Transcode audo" is checked and select the codex "MP3" and the bitrate "192"
+* Click "Next"
+* Select the radio button "MPEG PS"
+* Click "Next"
+* Browse to choose the filename of the saved file (should have extension .MPG)
+* Click "Next"
+* Click "Finish"

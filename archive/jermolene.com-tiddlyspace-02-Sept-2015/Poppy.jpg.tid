@@ -1,0 +1,22 @@
+_hash: 41c7f75ae0525ddc7b12260509ce19de1d56ad6c
+created: 20110906102259000
+creator: jermolene
+modified: 20110906102259000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: image/jpeg
+server.etag: "jermolene_public/Poppy.jpg/118475:b77c16ca8f29617573ef8ed4a436dcb460466c70"
+server.host: http://jermolene.com
+server.page.revision: 118475
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Poppy.jpg
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+tiddler.source: lorem-ipsum_public
+title: Poppy.jpg
+type: text/x-tiddlywiki
+
+
+<html><img src="http://jermolene.tiddlyspace.com/bags/jermolene_public/tiddlers/Poppy.jpg" /></html>

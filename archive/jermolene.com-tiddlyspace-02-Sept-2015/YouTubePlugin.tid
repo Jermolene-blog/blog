@@ -1,0 +1,28 @@
+_hash: b556ff79c0ff43ec058caca4ab035addf6cfdd0f
+created: 20110408154154000
+creator: jermolene
+modified: 20110408154154000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/YouTubePlugin/118693:97c943fe5effdec12bf8adf9184f27203adca61e"
+server.host: http://jermolene.com
+server.page.revision: 118693
+server.permissions: read
+server.recipe: jermolene_public
+server.title: YouTubePlugin
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: YouTubePlugin
+type: text/x-tiddlywiki
+
+@youtubeplugin by @jon is a simple TiddlyWiki plugin for embedding YouTube videos in tiddlers. It uses Google's [[SWFObject library|http://code.google.com/p/swfobject/]] to do the heavy lifting and exposes a nice simple API that currently looks like this:
+{{{
+* url: <string>
+* autoplay: <yes>|<no>
+* start: <integer> (number of seconds)
+* onEnd: <tiddler name> to open on end
+* onPause: <tiddler name> to open on pause
+}}}
+

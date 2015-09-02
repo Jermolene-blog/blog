@@ -1,0 +1,24 @@
+_hash: c3223bd215470552cb22f4f9eb760a526431d1bb
+created: 20101021120614000
+creator: jermolene
+modified: 20101021120614000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/On%20public%20and%20private%20siblings/118469:a264de8a52864a780f904b7c7880f06fce52d2cb"
+server.host: http://jermolene.com
+server.page.revision: 118469
+server.permissions: read
+server.recipe: jermolene_public
+server.title: On public and private siblings
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @tobibeer
+title: On public and private siblings
+type: text/x-tiddlywiki
+
+I think you're following similar thought processes to us. It's possible to imagine a UI based on flipping between the private and public tiddlers, but the details get quite complicated and confusing. In contrast, the simpler model of a tiddler being either public or private lends itself to a very simple, natural user interface.
+
+I think that the scenarios where one would want private and public siblings are all around creating a space that presents a different environment to visitors and members. I think we can bottle up the important use cases into handy plugins that allow us to continue using the simple public/private model.
+
+For example, I can imagine a plugin that makes it appear to me as though my space had tiddlers called {{{PublicViewTemplate}}}, {{{PublicStyleSheet}}} etc, which would automatically be substituted for the associated private tiddlers when the space is visited by a non-member. I like the way that plugins that support specific scenarios can simplify the user interface compared to a truly general purpose user interface.

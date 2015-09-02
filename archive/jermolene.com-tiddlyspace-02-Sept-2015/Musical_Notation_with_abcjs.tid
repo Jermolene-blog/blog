@@ -1,0 +1,37 @@
+_hash: 42b3189686e158db669a69a86c1f21103c85749b
+created: 20110420210439000
+creator: jermolene
+modified: 20110420210638000
+modifier: jermolene
+publish.name: Musical Notation with abcjs
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Musical%20Notation%20with%20abcjs/118456:a6eb2cd012623723861616d720a80d86252cb87e"
+server.host: http://jermolene.com
+server.page.revision: 118456
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Musical Notation with abcjs
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: Musical Notation with abcjs
+type: text/x-tiddlywiki
+
+http://www.drawthedots.com/abcjs
+
+A JavaScript library that generates reasonable looking sheet music from notation like this:
+
+{{{
+X: 1
+T: Cooley's
+M: 4/4
+L: 1/8
+R: reel
+K: Emin
+|:D2|EB{c}BA B2 EB|~B2 AB dBAG|FDAD BDAD|FDAD dAFD|
+EBBA B2 EB|B2 AB defg|afe^c dBAF|DEFD E2:|
+|:gf|eB B2 efge|eB B2 gedB|A2 FA DAFA|A2 FA defg|
+eB B2 eBgB|eB B2 defg|afe^c dBAF|DEFD E2:|
+}}}
+

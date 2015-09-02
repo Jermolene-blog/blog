@@ -1,0 +1,20 @@
+_hash: ba3cc820d594d67cce6e205cb004b4d2fcec9399
+created: 20140919125742000
+creator: beaumop1
+modified: 20140919125742000
+modifier: beaumop1
+server.bag: tmanager_public
+server.content-type: 
+server.etag: "tmanager_public/tManagerConfig/1895787:fed89f82f0e8ede0bb1d66714566ddda782db6f5"
+server.host: http://jermolene.com
+server.page.revision: 1895787
+server.permissions: read
+server.recipe: jermolene_public
+server.title: tManagerConfig
+server.type: tiddlyweb
+server.workspace: bags/tmanager_public
+tags: tmanager tmanagerconfig
+title: tManagerConfig
+type: text/x-tiddlywiki
+
+{"presets":[]}

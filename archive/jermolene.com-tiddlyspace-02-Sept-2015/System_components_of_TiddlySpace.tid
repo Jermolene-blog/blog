@@ -1,0 +1,24 @@
+_hash: aeaf1b9ff86f9115634fed169906101464d32cf0
+created: 20100828155915000
+creator: jermolene
+modified: 20100915150038000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/System%20components%20of%20TiddlySpace/118580:8fb9e2ecca19155277ee3b2780a1c415ecd559fd"
+server.host: http://jermolene.com
+server.page.revision: 118580
+server.permissions: read
+server.recipe: jermolene_public
+server.title: System components of TiddlySpace
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: TiddlySpace
+title: System components of TiddlySpace
+type: text/x-tiddlywiki
+
+It would be desirable for the various system tiddlers comprising TiddlySpace to be delivered via ordinary space inclusion, so that users can control the recipe cascade in the ordinary way.
+
+We need to minimise the number of system tiddlers, too, using techniques such as the following:
+* There are several tiddlers that define text for the {{{<<tab>>}}} macro, like TabUnpublished, BackstageOptions, BackstageSpaceInclusion etc. These could be combined into a single TiddlySpaceConfiguration tiddler, divided into sections that would then be referenced from the {{{<<tab>>}}} macro using the {{{TiddlySpaceConfiguration##Options}}} syntax
+* Plugins that cannot plausibly be used on their own might be combined into a single TiddlySpace megaplugin

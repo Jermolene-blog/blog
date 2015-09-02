@@ -1,0 +1,402 @@
+_hash: 1a28a9b1acf2996cdfbb522f52f0e56353d9f883
+created: 20131111192330000
+creator: osmosoft
+modified: 20131111192330000
+modifier: osmosoft
+server.bag: system-theme_public
+server.content-type: 
+server.etag: "system-theme_public/StyleSheetTiddler/1521917:473b75f2e3857f134d70dd885df556f017b0b4b9"
+server.host: http://jermolene.com
+server.page.revision: 1521917
+server.permissions: read
+server.recipe: jermolene_public
+server.title: StyleSheetTiddler
+server.type: tiddlyweb
+server.workspace: bags/system-theme_public
+tags: excludeLists excludeSearch
+title: StyleSheetTiddler
+type: text/x-tiddlywiki
+
+/*{{{*/
+.tiddler .originButton div {
+	display: inline-block;
+}
+
+.tiddler .spaceSiteIcon .siteIcon {
+	_display: inline; /* IE doesn't like inline-block */
+}
+
+.tiddler .originButton {
+	display: block;
+}
+
+.selected .tagging,
+.selected .tagging:hover {
+	border: none;
+	background: none;
+}
+
+.tagging {
+	float: none;
+	background: none;
+	border: none;
+}
+
+.tagging li.listTitle {
+	margin-left: 0px;
+}
+.tagging li {
+	margin: 0 8px;
+}
+
+.tagging .tiddlyLink {
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	-o-border-radius: 3px;
+	border-radius: 3px;
+	padding: 1px 2px;
+	line-height: 1.2em;
+}
+
+/* for following */
+#popup .siteIcon {
+	float: left;
+	height: 25px;
+}
+
+.content {
+	width: 100%; /* IE */
+	font-size: 0.9em;
+}
+
+.editorHeading {
+	height: 48px;
+}
+
+.heading {
+	left: 0;
+	margin-bottom: 40px;
+	position: relative;
+	top: 32px;
+}
+
+.followButton a {
+	display: block;
+	margin-top: -20px;
+}
+
+.tiddler .followPlaceHolder {
+	display: block;
+	position: absolute;
+	top: 16px;
+	right: 64px;
+	_right: 138px; // add width of modifierIcon
+}
+
+.tiddler .followButton {
+	position: relative;
+	height: 24px;
+	text-align: left;
+	color: #fff;
+	background: [[ColorPalette::PrimaryMid]];
+	padding: 10px 0px 0px 10px;
+	width: 38px;
+	margin: -16px -8px 24px 0;
+}
+
+/* creates the larger triangle */
+.followButton:before {
+	content: "\00a0";
+	display: block; /* reduce the damage in FF3.0 */
+	position: relative;
+	bottom: -20px;
+	right: 0;
+	width: 0;
+	height: 0;
+	border-width: 0 0 20px 20px;
+	border-style: solid;
+	border-color: transparent [[ColorPalette::PrimaryMid]];
+}
+
+.toolbar svg {
+	height: 16px;
+	width: 16px;
+}
+
+.toolbar svg .glyph {
+	fill: #ccc;
+}
+
+.toolbar a:hover .glyph {
+	fill: black;
+}
+
+.toolbar a:active .glyph {
+	fill: [[ColorPalette::Background]];
+}
+
+.originButton,
+.followPlaceHolder,
+.tiddler .subtitle {
+	cursor: pointer;
+}
+
+.editSpaceSiteIcon .originButton {
+	cursor: auto;
+}
+
+.tiddler .subtitle:hover {
+	font-weight: bold;
+	background: none;
+}
+
+.originButton img,
+.originButton svg {
+	margin-left: 0px;
+}
+
+.modifierIcon {
+	position: absolute;
+	width: 74px;
+	top: 0px;
+	right: 0px;
+	_right: 74px; /* in IE6 positioning works incorrectly so use -width instead */
+	text-align: right;
+}
+
+.modifierIcon img,
+.modifierIcon svg {
+	margin-right: 8px;
+}
+
+.tiddler .viewer {
+	padding-bottom: 16px;
+	margin: 0 0 0 56px;
+	line-height: 1.4em;
+}
+
+.viewer pre {
+	margin-left: 0;
+}
+
+.siteIcon .label {
+	color: [[ColorPalette::TertiaryDark]];
+}
+
+.tiddler .spaceSiteIcon {
+	float: left;
+	margin-right: 0;
+	margin-top: 0;
+	position: relative;
+	display: block;
+}
+
+.tiddler .titleBar {
+	display: block;
+	margin-right: 136px;
+	margin-left: 56px;
+}
+
+.followButton a {
+	color: [[ColorPalette::Background]];
+}
+
+.tiddler {
+	position: relative;
+	padding: 0;
+	margin-bottom: 3em;
+	border-top: 3px solid [[ColorPalette::PrimaryMid]];
+	background: #fff;
+}
+
+.tiddler .editor {
+	padding: 0px 8px;
+}
+
+.tiddler .heading .title {
+	position: relative;
+	display: block;
+	word-wrap: break-word;
+	font-size: 32px;
+	line-height: 32px;
+}
+.tiddler .heading .editor.title {
+	font-size: 1.7em;
+	line-height: normal;
+}
+
+.tiddler .headingClear {
+	clear: both;
+}
+
+.tiddler .subtitle {
+	font-style: italic;
+	font-size: 0.9em;
+	color: #a6a59e;
+	margin-top: 0;
+}
+
+.toolbar {
+	position: absolute;
+	padding: 0;
+	top: 8px;
+	right: -8px;
+}
+
+.toolbar .moreCommand.highlight {
+	background: none;
+}
+
+.tiddler .toolbar .button {
+	border: none;
+	display: inline;
+	padding: 0px;
+	margin-right: 16px;
+}
+
+.tiddler .toolbar a:hover {
+	background: none;
+}
+
+.tiddler .tagged .listTitle {
+	display: none;
+}
+
+.revButton {
+	float: right;
+}
+
+/*! EditTemplate specific*/
+.tiddler .privacySettings {
+	text-align: center;
+}
+.tiddler .privacySettings .originButton {
+	display: inline;
+}
+
+.editSpaceSiteIcon, .privacyEdit {
+	float: left;
+}
+
+.editSpaceSiteIcon svg,
+.editSpaceSiteIcon img,
+.editSpaceSiteIcon .roundelLabel {
+	float: left;
+}
+
+.tagTitle {
+	position: absolute;
+	text-align: center;
+	width: 48px;
+	top: 0px;
+	left: -56px;
+}
+
+.editSpaceSiteIcon .originButton img,
+.editSpaceSiteIcon .originButton svg {
+	height: 16px;
+	margin-left: 24px;
+	margin-right: 32px;
+	width: 16px;
+}
+
+.tagAnnotation {
+	margin-top: 8px;
+	padding-bottom: 8px;
+}
+.annotationsBox {
+	margin-top: 8px;
+}
+
+.editorFooter {
+	position: relative;
+	padding: 0;
+	margin-top: 16px;
+	margin-left: 64px;
+}
+
+.tiddler .editorFooter .editor {
+	padding-left: 0px;
+}
+
+.heading .editor input {
+	width: 100%;
+	font-size: 1.5em;
+}
+
+.spaceSiteIcon .externalImage .image a:hover,
+.modifierIcon .externalImage .image a:hover {
+	background: none;
+}
+
+div.toolbar {
+	visibility:hidden;
+	right:-16px;
+}
+
+.selected div.toolbar {
+	visibility: visible;
+}
+
+.followButton a:hover {
+	background: [[ColorPalette::PrimaryMid]];
+	text-decoration: underline;
+}
+
+a.image:hover {
+	background: transparent;
+}
+
+@media all and (max-device-width: 480px) {
+	div.toolbar {
+		visibility:visible;
+	}
+}
+@media only screen and (device-width: 768px) {
+	div.toolbar {
+		visibility:visible;
+	}
+}
+@media all and (max-width: 960px) {
+	.tiddler .titleBar {
+		margin-left: 36px;
+		margin-right: 80px;
+	}
+
+	.tiddler .heading {
+		margin-bottom: 48px;
+	}
+
+	.tiddler .heading .title {
+		font-size: 32px;
+		line-height: 32px;
+	}
+
+	.tiddler .modifierIcon img,
+	.tiddler .modifierIcon svg,
+	.tiddler .spaceSiteIcon .originButton img,
+	.originButton svg {
+		width: 32px;
+		height: 32px;
+		margin-left: 0px;
+		margin-right: 0px;
+	}
+
+	.tiddler .followPlaceHolder {
+		right: 48px;
+	}
+
+	.tiddler .followButton {
+		width: 24px;
+	}
+
+	.tiddler .viewer {
+		margin: 0px 0px 0px 36px;
+		padding-top: 0;
+	}
+
+	br {
+		line-height: 0.5em;
+	}
+}
+/*}}}*/

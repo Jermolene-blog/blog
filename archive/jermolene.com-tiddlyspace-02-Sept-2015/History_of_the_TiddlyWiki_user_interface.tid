@@ -1,0 +1,28 @@
+_hash: 6292471477ccec86f187cda6a219d27fe4207b96
+created: 20100614133343000
+creator: jermolene
+modified: 20100915145800000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/History%20of%20the%20TiddlyWiki%20user%20interface/118415:9f26def71cda23ebbce1f125b844f588ebda5550"
+server.host: http://jermolene.com
+server.page.revision: 118415
+server.permissions: read
+server.recipe: jermolene_public
+server.title: History of the TiddlyWiki user interface
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: TiddlyWiki notes
+title: History of the TiddlyWiki user interface
+type: text/x-tiddlywiki
+
+After watching people use wikis for a few years, I noticed that power users made extensive use of the ability to open multiple wiki pages at once in several browser tabs, making it easier for them to compare and review pages, to copy text between them and to act as a sort of queue of pages yet to be read.
+
+I could see that this ability to manipulate multiple pages at once was central to the ability to refactor a wiki, and I've found that a wiki that is lovingly refactored tends to be more useful. And yet, standard wiki user interfaces have always been designed exclusively for the presentation and manipulation of single pages at once.
+
+All of these thoughts came together when I saw GMail in April 2004, which used Ajax cleverly to blend individual emails into threaded conversations.
+
+I started experimenting with HTML and JavaScript to explore the idea further. I'd had virtually no experience of either, just having put together some static pages and simple ASP sites in previous lives. Getting my head around these client-side technologies was painful; like everyone else, I was horrified to discover how appalling were the incompatibilities and inconsistencies of web programming.
+
+Then I could show the idea with a static HTML file. So, I didn't need a serverside to demonstrate how the idea worked. Or indeed a proper grown-up server with the ability to run cgi scripts.

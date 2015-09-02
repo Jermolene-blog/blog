@@ -1,0 +1,67 @@
+_hash: e8573311fc8799a0fe652da18e9ef70bf5b241b2
+created: 20101002111415000
+creator: jermolene
+modified: 20110320152417000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/StyleSheet/118575:50c875739f797a8496597fda6a21a3d57cae28bd"
+server.host: http://jermolene.com
+server.page.revision: 118575
+server.permissions: read
+server.recipe: jermolene_public
+server.title: StyleSheet
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: hack
+title: StyleSheet
+type: text/x-tiddlywiki
+
+[[StyleSheetTiddlySpace]]
+
+body {
+	background-image: url('ltbg.jpg');
+}
+
+.header, #menuBar {
+	background-image: url('dkbg.jpg');
+}
+
+#displayArea .tiddler,  .headerForeground {
+	background: transparent;
+}
+
+.headerForeground, #menuBar a,  #sidebarOptions .button {
+	color: [[ColorPalette::Foreground]];
+}
+
+#menuBar a {
+	margin: 0px 8px 0px 8px;
+}
+
+#tiddlerDisplay {
+	margin: 16px 384px 0px 16px;
+}
+
+#sidebarTabs {
+	right: 16px;
+}
+
+#sidebarTabs .tabsetWrapper .tabContents {
+	border-width: 1px;
+	left: -1px;
+}
+
+#sidebarTabs .tabsetWrapper .tabset .tabSelected {
+	border-width: 1px;
+}
+
+.tiddler .viewer {
+	font-size: 1.3em;
+}
+
+.tiddler .subtitle:hover {
+	font-weight: normal;
+	background-color: [[ColorPalette::TertiaryPale]];
+}
+

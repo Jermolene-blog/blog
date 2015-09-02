@@ -1,0 +1,22 @@
+_hash: fc6cbafbbf1009da659a70f1f400ca4db8ebc84d
+created: 20131111192330000
+creator: osmosoft
+modified: 20131111192330000
+modifier: osmosoft
+server.bag: system-info_public
+server.content-type: 
+server.etag: "system-info_public/spaceTitle/1521874:da2ff12e1a1b8d87d8d60576bf469c38d8205fcb"
+server.host: http://jermolene.com
+server.page.revision: 1521874
+server.permissions: read
+server.recipe: jermolene_public
+server.title: spaceTitle
+server.type: tiddlyweb
+server.workspace: bags/system-info_public
+tags: excludeLists excludeSearch
+title: spaceTitle
+type: text/x-tiddlywiki
+
+The title and subtitle of your space are visible to visitors and are also displayed in your browser's tabs. Click on the SiteTitle and SiteSubtitle tiddler links below to make changes.
+* [[SiteTitle]]
+* [[SiteSubtitle]]

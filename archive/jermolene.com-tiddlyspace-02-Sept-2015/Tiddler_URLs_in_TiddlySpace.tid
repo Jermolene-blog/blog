@@ -1,0 +1,32 @@
+_hash: 0b0b9278c74c4709e4a3a6f9963337c33159b71a
+created: 20100801135808000
+creator: jermolene
+modified: 20100918173702000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Tiddler%20URLs%20in%20TiddlySpace/118602:4af62074dcd6456dbc7688e91440c87570d10cdb"
+server.host: http://jermolene.com
+server.page.revision: 118602
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Tiddler URLs in TiddlySpace
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @cdent TiddlySpace
+title: Tiddler URLs in TiddlySpace
+type: text/x-tiddlywiki
+
+Currently TiddlySpace uses URLs of the following form as permalinks to individual tiddlers in a particular space:
+{{{
+http://jermolene.tiddlyspace.com/#HelloThere
+}}}
+Such links only resolve correctly in browsers with JavaScript enabled, and capable of running TiddlyWiki.
+
+An alternative would be to use URLs that point to a custom HTML representation of the tiddler:
+{{{
+http://jermolene.tiddlyspace.com/HelloThere.html
+}}}
+This would return a server-generated HTML representation of the tiddler, with a button to switch to the full TiddlyWiki representation of the tiddler. There would also be a means of bypassing the HTML version in future, redirecting straight to the TiddlyWiki version of the URL.
+
+This change would make TiddlySpace permalinks be more webby and robust.

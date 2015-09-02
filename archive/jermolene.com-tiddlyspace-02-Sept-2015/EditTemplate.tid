@@ -1,0 +1,44 @@
+_hash: bb2ebcb9880f563a789711fbbbec5d3bfcb1b248
+created: 20131111192330000
+creator: osmosoft
+modified: 20131111192330000
+modifier: osmosoft
+server.bag: system-theme_public
+server.content-type: 
+server.etag: "system-theme_public/EditTemplate/1521922:eb2bba4e3b72d6d16c39c49953bf61662d5524a5"
+server.host: http://jermolene.com
+server.page.revision: 1521922
+server.permissions: read
+server.recipe: jermolene_public
+server.title: EditTemplate
+server.type: tiddlyweb
+server.workspace: bags/system-theme_public
+tags: excludeLists excludeSearch
+title: EditTemplate
+type: text/x-tiddlywiki
+
+<!--{{{-->
+<div class='toolbar'
+	macro='toolbar [[ToolbarCommands::EditToolbar]] icons:yes'>
+</div>
+<div class='heading editorHeading'>
+	<div class='editor title' macro='edit title'></div>
+	<div class='tagClear'></div>
+</div>
+<div class='annotationsBox' macro='annotations'>
+	<div class='editSpaceSiteIcon'
+		macro='tiddlerOrigin height:16 width:16 label:no interactive:no'>
+	</div>
+	<div class="privacyEdit" macro='setPrivacy label:no interactive:no'></div>
+	<div class='tagClear'></div>
+</div>
+<div class='editor' macro='edit text'></div>
+<div class='editorFooter'>
+	<div class='tagTitle'>tags</div>
+	<div class='editor' macro='edit tags'></div>
+	<div class='tagAnnotation'>
+		<span macro='message views.editor.tagPrompt'></span>
+		<span macro='tagChooser excludeLists'></span>
+	</div>
+</div>
+<!--}}}-->

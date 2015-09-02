@@ -1,0 +1,31 @@
+_hash: 2480b9306acef8a450b7034685df9907db33b12d
+created: 20100902084451000
+creator: jermolene
+modified: 20101109164607000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Creating%20a%20replica%20of%20TiddlyWiki%20in%20static%20HTML/118364:b4cb3217acf955df9eb3f3ab67d6d1aa54652d46"
+server.host: http://jermolene.com
+server.page.revision: 118364
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Creating a replica of TiddlyWiki in static HTML
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @cdent
+title: Creating a replica of TiddlyWiki in static HTML
+type: text/x-tiddlywiki
+
+Now that we've got TiddlyWeb, we can consider the possibility of creating a serverside replica of the TiddlyWiki user interface that only relies on static HTML at the client, and doesn't require JavaScript or cookies to function.
+
+We'll need to keep all the required state information in the page URI:
+{{{
+http://jermolene.tiddlyspace.com/static?view=HelloThere&edit=DefaultTiddlers&view=Another+Tiddler
+}}}
+That scheme isn't sufficient to do things like keeping track of switching tabs. We'd need something like this:
+{{{
+http://jermolene.tiddlyspace.com/static?view=HelloThere&tabSidebar=Recent
+}}}
+
+@cdent questions whether this is something that one would want to do. I could have been clearer that I bought it up as something to consider, not a proposal for immediate action. Anyhow, the motivation for me is that TiddlyWiki applications often create an interface over the raw tiddlers that makes it hard for end users of the TiddlyWiki interface to jump back and forth to the generic facilities for manipulating raw tiddlers. The ability to automatically generate an equivalent static HTML app would resolve that. 

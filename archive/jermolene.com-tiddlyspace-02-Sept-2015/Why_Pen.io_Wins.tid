@@ -1,0 +1,29 @@
+_hash: f12f0f2adfd2e5b8436722de83dba903830e2ead
+created: 20110407131023000
+creator: jermolene
+modified: 20110407144604000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Why%20Pen.io%20Wins/118687:61c08266522f7d829667d0ca1fda13c1181712db"
+server.host: http://jermolene.com
+server.page.revision: 118687
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Why Pen.io Wins
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @april1111 @colmbritton
+title: Why Pen.io Wins
+type: text/x-tiddlywiki
+
+In [[Why Pen.io Wins]]@colmjude @colmbritton says:
+<<<
+Pen.io is very interesting and looks like a simplified tiddlywiki.  However it knows what it is good at and sticks to it.  It sells the fact it is about content and the easy creation and authoring of content.
+It does a very good job at separating the authoring and the viewing of content. Something I don;t think Tiddly... does very well and is a source of confusion for many non-technical users.  This separation is less important for tiddlywiki because by it's nature it is intended for single use or at least suits it better.  However tiddlyspace is suppose to be different. It is social and multi user. Multiuser authoring but also viewing. People have content online sp people can see it and engage with it. Otherwise it is useless and may as well be private.
+
+Role separation
+Currently, working with tiddlyspace is like having a 3 course meal all on one plate.  Mouthfuls of individual courses on their own are good but it does get mixed and that is not nice.
+<<<
+I think that pen.io is better compared with a vertical edition of TiddlyWiki, rather than TiddlyWiki itself. It would be interesting to try to clone pen.io with TiddlySpace.
+

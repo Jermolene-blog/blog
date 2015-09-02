@@ -1,0 +1,21 @@
+_hash: 554aab4e20dd112346fd8013641e26bf8b48cb38
+created: 20100923220213000
+creator: jermolene
+modified: 20100923220515000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Aspect%20Ratio%20of%20SiteIcons/118314:74613294d5326d3f8734bf04f2931bed65e5b0d9"
+server.host: http://jermolene.com
+server.page.revision: 118314
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Aspect Ratio of SiteIcons
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: Aspect Ratio of SiteIcons
+type: text/x-tiddlywiki
+
+It's good that TiddlySpace supports uploading arbitrarily sized SiteIcon images. It would be better still if it preserved the aspect ratio when scaling them down. For example:
+* SiteTitle@dickon

@@ -1,0 +1,29 @@
+_hash: 1850f07d4c43246fffd2608aa7d4247f2174f2fa
+created: 20110420142805000
+creator: jermolene
+modified: 20110421093834000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Client-side%20Tiddler%20Store/118327:b4bdf99e7281e92c3ec74908f1877d4484ea49e8"
+server.host: http://jermolene.com
+server.page.revision: 118327
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Client-side Tiddler Store
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @bengillies @fnd
+title: Client-side Tiddler Store
+type: text/x-tiddlywiki
+
+@fnd raised the question of whether TiddlySpace needs a client-side tiddler store in JavaScript, along the same lines as TiddlyWiki. I think this question might be better posed as whether it is useful to have a Model/View/Controller architecture implemented in the client.
+
+My key motivation for this archiecture comes from a combination of what @fnd refers to as "linking and transclusion" and "data processing across multiple tiddlers". Having "all" the tiddlers in one place makes it easy to code operations that span mutliple tiddlers, and makes client side operations such as italicising missing links be nice and fast. The possibility that we can maintain compatible environments on the client and the server is attractive to me.
+
+@fnd refers to "offline access" which I take to be the ability to operate a standalone HTML client that syncs back to the server. @bengillies comments that LocalStorage could be used, but I'm not so sure that that is the same thing.
+
+I note also that without an MVC architecture we would be restricted to some very simple patterns on the client. While I'd like to explore such arrangements, I believe that we need some client-side MVC capability in order to be able to implement basic ajax interaction patterns.
+
+
+

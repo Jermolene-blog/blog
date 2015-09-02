@@ -1,0 +1,23 @@
+_hash: 5280a895fb574f3398c7c12734e3834ebe2926db
+created: 20100822094017000
+creator: jermolene
+modified: 20100822094017000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/What%20isn't%20TiddlySpace%20for%3F/118675:aed09265ce4b2028fe25898d0d5faed2c77601f6"
+server.host: http://jermolene.com
+server.page.revision: 118675
+server.permissions: read
+server.recipe: jermolene_public
+server.title: What isn't TiddlySpace for?
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: What isn't TiddlySpace for?
+type: text/x-tiddlywiki
+
+TiddlySpace is not intended to be the best solution for:
+* Working on material that is secret and not for publication (because TiddlySpace is optimised for publishing, sharing, and creating derived and aggregated works)
+* Working with others in real time (because TiddlySpace is optimised for asynchronous communication)
+  

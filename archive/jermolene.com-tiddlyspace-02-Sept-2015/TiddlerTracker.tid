@@ -1,0 +1,24 @@
+_hash: 324506b85b25581a3585afbfc862d1ed48ec2a4e
+created: 20101002110721000
+creator: jermolene
+modified: 20101002110721000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/TiddlerTracker/118603:58be30a65764ad826c0a96e16d12c64bfdb99276"
+server.host: http://jermolene.com
+server.page.revision: 118603
+server.permissions: read
+server.recipe: jermolene_public
+server.title: TiddlerTracker
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @fnd
+title: TiddlerTracker
+type: text/x-tiddlywiki
+
+in reply to @fnd:
+<<<
+* pings are tiddlers with tag {{{@<user>}}}
+<<<
+"Ping" is a good word for it.

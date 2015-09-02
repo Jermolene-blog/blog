@@ -1,0 +1,32 @@
+_hash: 7db7d6b1ab76e686624a97d9baeb141749303d91
+created: 20110901114442000
+creator: jermolene
+modified: 20110901120314000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/TiddlySpaceGoals/118655:35384ee73cb97414bb32de7c6f0819f4f540b05e"
+server.host: http://jermolene.com
+server.page.revision: 118655
+server.permissions: read
+server.recipe: jermolene_public
+server.title: TiddlySpaceGoals
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: TiddlySpaceGoals
+type: text/x-tiddlywiki
+
+@osmosoft is planning a new TiddlySpace development iteration.
+
+My primary goal would be to focus on the overall user experience, particularly the language, affordances and integration between different parts of the system.
+
+* New text for the front page that better represents the service
+* New links/dynamic elements on the front page to show where there is activity across the system
+* A clear model for end users to help them understand the relationship between the TiddlyWiki interface and the raw HTML interfaces
+* A consistent look-and-feel across all elements of the service
+
+<<<
+@martin notes that it may be useful to resolve the current TiddlyWiki import issues by offering a fuller range of plugins and themes on TiddlySpace
+<<<
+

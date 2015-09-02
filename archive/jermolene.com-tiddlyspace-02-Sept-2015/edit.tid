@@ -1,0 +1,80 @@
+_hash: 94f333b6e18435e57841cbe54b51bfc438fb1c35
+created: 20120213221922000
+creator: cdent
+modified: 20131112153515000
+modifier: cdent
+server.bag: edit_public
+server.content-type: text/html
+server.etag: "edit_public/edit/1524116:268270dbd340dadf931924c28c74809092a98947"
+server.host: http://jermolene.com
+server.page.revision: 1524116
+server.permissions: read
+server.recipe: jermolene_public
+server.title: edit
+server.type: tiddlyweb
+server.workspace: bags/edit_public
+tags: 
+title: edit
+type: text/x-tiddlywiki
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>edit</title>
+    <link rel="stylesheet"
+          type="text/css"
+          href="/bags/common/tiddlers/reset.css">
+    <link rel="stylesheet"
+           type="text/css"
+           href="/edit.css">
+</head>
+<body>
+    <div id="container">
+        <div class="cleancol" id="recents">
+            <h1>Changes</h1>
+            <ul>
+            </ul>
+        </div>
+        <div class="cleancol" id="info">
+            <ul id="actions">
+                <li><button id="saver">Save & Return</button></li>
+                <li><button id="save">Save</button></li>
+                <li><button id="revert">Revert</button></li>
+                <li><button id="delete">Delete</button></li>
+            </ul>
+            <div id="type">
+                <ul>
+                    <li><label><input name="type" type="radio"
+                        value="text/x-tiddlywiki">TiddlyWikiText</label></li>
+                    <li><label><input name="type" type="radio"
+                        value="text/x-markdown">Markdown</label></li>
+                    <li><label><input name="type" type="radio"
+                        value="text/css">CSS</label></li>
+                    <li><label><input name="type" type="radio"
+                        value="text/javascript">JavaScript</label></li>
+                    <li><label><input name="type" type="radio"
+                        value="text/html">HTML</label></li>
+                    <li><label><input name="type" type="radio"
+                        value="text/plain">Plain Text</label></li>
+                    <li><label><input name="type" type="radio"
+                        value="other">Other</label></li>
+                </ul>
+            </div>
+            <div id="message"></div>
+            <div id="tags">
+            </div>
+        </div>
+        <div class="cleancol" id="editor">
+            <h1></h1>
+            <textarea class="inputs" name="text"></textarea><br/>
+            <input class="inputs" name="tags" value="">
+        </div>
+    </div>
+
+    <script src="/bags/common/tiddlers/jquery.js"></script>
+    <script src="/bags/edit_public/tiddlers/edit.js"></script>
+    <script src="/status.js"></script>
+    <script src="/bags/common/tiddlers/backstage.js"></script>
+</body>
+</html>

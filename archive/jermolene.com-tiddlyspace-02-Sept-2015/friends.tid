@@ -1,0 +1,72 @@
+_hash: 89262e713b31df6313dbd224c2c631ec82f7ae20
+created: 20110628164406000
+creator: jon
+description: 
+modified: 20111010095628000
+modifier: jon
+server.bag: following_public
+server.content-type: text/html
+server.etag: "following_public/friends/71126:1da4c24a156c418ec2390b0fac4951c4c17946ac"
+server.host: http://jermolene.com
+server.page.revision: 71126
+server.permissions: read
+server.recipe: jermolene_public
+server.title: friends
+server.type: tiddlyweb
+server.workspace: bags/following_public
+summary: A tool for managing friends in TiddlySpace. Follow users, unfollow users and see what those users are up to.
+tags: app excludeLists excludeSearch
+tiddler.source: jon_public
+title: friends
+type: text/x-tiddlywiki
+
+<html>
+<head>
+	<title>Friends</title>
+	<style type='text/css'>
+		ul {
+			list-style: none;
+		}
+		ul .friend {
+			border-bottom: solid 1px black;
+		}
+		ul .friend .tiddler {
+			margin-left: 10px;
+			margin-bottom: 30px;
+			padding: 10px;
+			border: dotted 2px #CCC;
+			color: #006100;
+		}
+		textarea {
+			width: 100%;
+			height: 150px;
+		}
+		.friend h2 {
+			display: inline-block;
+		}
+		button {
+			display: inline-block;
+		}
+		.inactiveFriend {
+			background-color: #ccc;
+			opacity: 0.1;
+		}
+	</style>
+	<link rel="stylesheet" href="/HtmlCss" type="text/css">
+</head>
+<body>
+<div id="container">
+<div id="header">
+<h1>Your friends</h1>
+</div>
+<noscript>
+	javascript is required to see friend's activity
+</noscript>
+<div id='friends' class="section">loading...</div>
+</div>
+<script src="/bags/common/tiddlers/jquery.js" type="text/javascript" charset="utf-8"></script>
+<script src="/bags/common/tiddlers/jquery-json.js" type="text/javascript" charset="utf-8"></script>
+<script src="/bags/tiddlyspace/tiddlers/chrjs" type="text/javascript" charset="utf-8"></script>
+<script type='text/javascript' src='/friendjs'></script>
+</body>
+</html>

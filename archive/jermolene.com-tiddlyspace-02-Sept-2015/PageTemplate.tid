@@ -1,0 +1,41 @@
+_hash: f7d57de5937a110a2d275d11eebcd4557fc34f25
+created: 20131111192330000
+creator: osmosoft
+modified: 20131111192330000
+modifier: osmosoft
+server.bag: system-theme_public
+server.content-type: 
+server.etag: "system-theme_public/PageTemplate/1521914:f43dfda08051d7190d4de3700d9e6507e7005f8b"
+server.host: http://jermolene.com
+server.page.revision: 1521914
+server.permissions: read
+server.recipe: jermolene_public
+server.title: PageTemplate
+server.type: tiddlyweb
+server.workspace: bags/system-theme_public
+tags: excludeLists excludeSearch
+title: PageTemplate
+type: text/x-tiddlywiki
+
+<!--{{{-->
+<div class='header'>
+	<div id='sidebarSearch'>
+		<span macro='search'></span>
+	</div>
+	<div class='headerForeground'>
+		<span class='siteTitle' refresh='content' tiddler='SiteTitle'></span>
+		<span class='siteSubtitle' refresh='content' tiddler='SiteSubtitle'></span>
+	</div>
+	<div class='clearFloat'></div>
+</div>
+
+<div id='menuBar'>
+	<div id='mainMenu' refresh='content' tiddler='MainMenu'></div>
+	<div id='sidebarOptions' refresh='content' tiddler='SideBarOptions'></div>
+</div>
+<div id='displayArea'>
+	<div id='messageArea'></div>
+	<div id='tiddlerDisplay'></div>
+	<div id='sidebarTabs' refresh='content' force='true' tiddler='SideBarTabs'></div>
+</div>
+<!--}}}-->

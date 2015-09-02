@@ -1,0 +1,35 @@
+_hash: eb0c259ccd32689415c53010b89c827a6d31e1da
+created: 20110407134640000
+creator: jermolene
+modified: 20110407144611000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Permaview%20shouldn't%20exist/118473:2ba5c526f76c7d81df43db2b17316bbc560b5c87"
+server.host: http://jermolene.com
+server.page.revision: 118473
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Permaview shouldn't exist
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @april1111 @jon
+title: Permaview shouldn't exist
+type: text/x-tiddlywiki
+
+In [[Permaview shouldn't exist]]@jon @jon says:
+<<<
+The web *should* work like this:
+The address bar should reflect what I am currently reading.
+
+If I want to share a webpage I simply copy the address bar and paste it into an email/tweet/wiki etc..
+
+TiddlyWiki doesn't work like this. I have to click a button permaview that changes the address bar. I also have to link the fact that clicking that button changes the address bar as it is not immediately obvious.
+
+This is wrong.
+
+@historyplugin tries to fix this by automagically updating the address bar as you view. It's proved trickier then I might have hoped due to complicated TiddlyWiki internals.
+
+I've added it to @caspian-ii - I hope my motivations are clear.
+<<<
+I agree; the browser address bar should be continually updated to reflect the state of the user interface

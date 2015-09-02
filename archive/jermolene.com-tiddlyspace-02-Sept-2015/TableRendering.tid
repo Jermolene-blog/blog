@@ -1,0 +1,22 @@
+_hash: 11c5319fda8b7664d03e0613946ba572da9372ef
+created: 20101206165524000
+creator: jermolene
+modified: 20101206165524000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/TableRendering/118585:71d71db3c44e2ef412ddbfcc68e97089c7d3dc34"
+server.host: http://jermolene.com
+server.page.revision: 118585
+server.permissions: read
+server.recipe: jermolene_public
+server.title: TableRendering
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @cdent
+title: TableRendering
+type: text/x-tiddlywiki
+
+In TableRendering@cdent, @cdent reports problems with rendering tables in the latest WebKit nightlies. I can confirm that I see the same problems.
+
+Looking at the generated DOM elements, it seems that it is actually the TiddlyWiki table formatter that is broken, and not the rendering of tables by the browser. This suggests a regression or a new bug in WebKit's RegExp handling.

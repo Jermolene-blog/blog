@@ -1,0 +1,22 @@
+_hash: 3c4f413a34853c510c6dc3bd4b461d86dc44b5a1
+created: 20110407130258000
+creator: jermolene
+modified: 20110407144544000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Social%20Features%20of%20TiddlySpace/118514:88a925025b03aeb96915b583299d5b8ae080c7ec"
+server.host: http://jermolene.com
+server.page.revision: 118514
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Social Features of TiddlySpace
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @april1111
+title: Social Features of TiddlySpace
+type: text/x-tiddlywiki
+
+My goal with TiddlySpace was to build a solid serverside environment for TiddlyWiki that would allow us (and others) to experiment with devising new social features and conventions. So I see the current set of social features fairly positively; they've given us enough of an experience to drive our thinking, and stimulate discussion. (SocialTiddlyWiki contains some old notes of mine that capture my early thinking on the social features).
+
+I'm particularly keen that the experimentation around social features shouldn't be restricted to the core developers who have access to a server; I'd like to see simultaneous exploration across the community.

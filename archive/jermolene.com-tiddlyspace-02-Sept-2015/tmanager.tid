@@ -1,0 +1,402 @@
+_hash: 0241199df8ba280fcb31d8c8869908f67bd100e7
+created: 20140909105506000
+creator: beaumop1
+modified: 20141128172556000
+modifier: beaumop1
+server.bag: tmanager_public
+server.content-type: text/html
+server.etag: "tmanager_public/tmanager/1979962:4c604e7860603911aad71e8188ec8f61cf3691be"
+server.host: http://jermolene.com
+server.page.revision: 1979962
+server.permissions: read
+server.recipe: jermolene_public
+server.title: tmanager
+server.type: tiddlyweb
+server.workspace: bags/tmanager_public
+tags: 
+title: tmanager
+type: text/x-tiddlywiki
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta charset="utf-8">
+	<title>tManager</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	
+	<link rel="stylesheet" href="bootstrap.min.css">
+	<link rel="stylesheet" href="bootstrapValidator.min.css">
+	<link rel="stylesheet" href="font-awesome.min.css">
+	<link rel="stylesheet" href="sceditor.default.min.css" type="text/css" media="all" />
+	<link rel="stylesheet" href="tmanager.css">
+
+
+	<!--[if IE]>
+		<script type="text/javascript" src="/bags/common/tiddlers/jquery.js"></script>
+		<script type="text/javascript" src="/bags/tiddlyspace/tiddlers/chrjs"></script>
+		<script type="text/javascript" src="/bags/common/tiddlers/chrjs-store.js"></script>
+    <![endif]-->
+
+	<!--[if lte IE 9]>
+	   <script src="html5shim.js"></script>	   
+    <![endif]-->
+
+</head>
+
+<body>
+
+	<!-- Side Bar -->
+	<div class="row-offcanvas row-offcanvas-left">
+
+		<div id="sidebar" class="sidebar-offcanvas">
+			<img src="tmanager.png"/>
+			<div class="col-md-12">
+				<form id="sidebar-form">
+
+					<ul class="nav">
+						<li>
+							<div class="input-group">
+								<span class="input-group-addon"><i class="fa fa-heart fa-1x"></i></span><select id="presetItems" class="form-control"><option value="" disabled selected>Preset</option></select>
+							</div>
+						</li>
+						<li>
+							<div class="input-group">
+								<span class="input-group-addon"><i class="fa fa-globe fa-1x"></i></span><input type="text" class="form-control" id="space" placeholder="Space name"/>
+							</div>
+						</li>
+<!-- 						<li> -->
+<!-- 							<div class="input-group"> -->
+<!-- 								<span class="input-group-addon"><i class="fa fa-briefcase fa-1x"></i></span><input type="text" class="form-control" id="bag" placeholder="Bag"/> -->
+<!-- 							</div> -->
+<!-- 						</li> -->
+						<li>
+							<div class="input-group">
+								<span class="input-group-addon"><i class="fa fa-tag fa-1x"></i></span><input type="text" class="form-control" id="tag" placeholder="Tag"/>
+							</div>
+						</li>
+						<li>
+							<div class="input-group">
+								<span class="input-group-addon"><i class="fa fa-dot-circle-o fa-1x"></i></span><input type="text" class="form-control" id="title" placeholder="Title"/>
+							</div>
+						</li>
+						<li>
+							<div class="input-group">
+								<span class="input-group-addon"><i class="fa fa-user fa-1x"></i></span><input type="text" class="form-control" id="author" placeholder="Author"/>
+							</div>
+						</li>
+					</ul>
+
+					<div class="pull-right">
+						<button class="btn btn-default btn-primary" data-toggle="tooltip" data-placement="bottom" title="Clear the search fields" id="reset-search-form" type="button">
+							<i class="fa fa-eraser"></i>
+						</button>
+
+						<button class="btn btn-default btn-primary" data-toggle="tooltip" data-placement="bottom" title="Save search as a preset" id="save-preset" type="button">
+							<i class="fa fa-save"></i>
+						</button>
+	
+						<button class="btn btn-default btn-primary" data-toggle="tooltip" data-placement="bottom" title="Search" id="advanced-search" type="submit">
+							<i class="fa fa-search"></i>
+						</button>
+					</div>
+				</form>
+			</div>
+
+			<!--<div class="text-center">
+            <p><a href="http://www.tiddlyspace.com" target="_ext">TiddlySpace.com</a>
+                <br><a href="http://www.osmosoft.com" target="_ext">Developed by Osmosoft</a>
+            </p>
+        </div>
+        -->
+		</div>
+		<!-- /Side Bar -->
+
+
+
+		<!--main-->
+		<div id="main">
+
+			<div class="sidebar-toggle">
+<!--				<div class="form-group">			        
+		            <div class="form-inline">
+       					<div class="form-group">           		-->
+       						<button type="button" class="btn btn-primary btn-xl"
+								data-toggle="offcanvas" data-toggle="tooltip"
+								data-placement="bottom" title="Show/Hide Search Panel">
+								<i class="fa fa-chevron-right"></i>
+							</button>
+           					<input type="text" id="filterBy" class="typeahead form-control" placeholder="Filter..."/>
+<!--		                </div>
+		            </div>
+			    </div>-->
+			</div>
+
+			<div id="sidebar-right" class="sidebar-right-toggle sidebar-right-scrollbar-not-visible-toggle">
+				<button type="button" class="btn btn-primary btn-xl"
+					data-toggle="addnew" data-toggle="tooltip" data-placement="bottom"
+					title="Add New">
+					<i class="fa fa-plus"></i>
+				</button>
+				<button type="button" class="btn btn-primary btn-xl"
+					data-toggle="expand" data-toggle="tooltip" data-placement="bottom"
+					title="Expand/Collapse All">
+					<i class="fa fa-expand"></i>
+				</button>
+			</div>
+
+			<div class="container-full">
+
+				<div id="cards">
+					<div class="clearfix visible-xs-block cardclearfix"></div>					
+				</div>
+				<!--/row-->					
+				<br>
+				<div class="clearfix"></div>
+			</div>
+
+		</div>
+
+		<!--/main-->
+
+		<div id="loading">
+			<div><i class="fa fa-circle-o-notch fa-spin"></i> Loading...</div>
+		</div>
+
+	</div>
+	<!--row-offcanvas row-offcanvas-left-->
+
+	<!--<div id="sidebar-right" class="sidebar-right-toggle">
+        <button type="button" class="btn btn-primary btn-xl" data-toggle="expand"><i class="fa fa-expand"></i>
+        </button>
+    </div>
+    -->
+
+
+
+	<!--tiddler modal-->
+	<div id="tiddlerModal" class="modal fade" tabindex="-1" role="dialog"
+		aria-hidden="true">
+        <div id="modalCarousel" class="carousel slide" data-ride="carousel" data-interval="false">
+            <div id="carouselContent" class="carousel-inner">           	
+            	<!-- slide 1 -->
+                <div id ="slide1" class="item active"></div>
+                <!-- slide 2 -->
+                <div id ="slide2" class="item"></div>
+            </div> <!-- carousel-inner -->
+			<a class="carousel-control left" href="#modalCarousel"><i class="fa fa-chevron-circle-left fa-2x"></i></a>
+      		<a class="carousel-control right" href="#modalCarousel"><i class="fa fa-chevron-circle-right fa-2x"></i></a>
+		</div>
+	</div>
+
+
+	<!--Delete Confirm Modal Dialog-->
+	<div class="modal fade" id="deleteConfirmModal" tabindex="-1"
+		role="dialog" aria-labelledby="deleteConfirmModal" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h2 class="modal-title" id="myModalLabel">Delete Tiddler</h2>
+				</div>
+				<div class="modal-body">
+					Are you sure you want to delete this Tiddler?
+					<div class="tiddlerName"></div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+					<button id="btnDeleteTiddler" type="button" class="btn btn-primary"
+						data-dismiss="modal">Delete</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!--Unsaved changes Modal Dialog-->
+	<div class="modal fade" id="unsavedChangesConfirmModal" tabindex="-1"
+		role="dialog" aria-labelledby="unsavedChangesConfirmModal" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h2 class="modal-title" id="myModalLabel">Editing Tiddler</h2>
+				</div>
+				<div class="modal-body">
+					You are currently editing this tiddler.  Any unsaved changes will be lost.  Are you sure you want to close this Tiddler?
+					<div class="tiddlerName"></div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+					<button id="btnIgnoreEdit" type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!--Save Preset Modal Dialog-->
+	<div class="modal fade" id="savePresetModal" tabindex="-1"
+		role="dialog" aria-labelledby="saveConfirmModal" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div id="presetSaveForm">
+					<div class="modal-header">
+						<h2 class="modal-title" id="myModalLabel">Save Preset</h2>
+					</div>
+					<div class="modal-body">					
+						<div class="form-group">
+							<div class="input-group">
+								<span class="input-group-addon"><i class="fa fa-heart fa-1x"></i></span><input type="text" class="form-control" name="spPresetName" id="spPresetName" placeholder="Preset name"/>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="input-group">
+								<span class="input-group-addon"><i class="fa fa-globe fa-1x"></i></span><input type="text" class="form-control" name="spSpace"  id="spSpace" placeholder="Space name"/>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="input-group">
+								<span class="input-group-addon"><i class="fa fa-tag fa-1x"></i></span><input type="text" class="form-control" name="spTag"  id="spTag" placeholder="Tag"/>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="input-group">
+								<span class="input-group-addon"><i class="fa fa-dot-circle-o fa-1x"></i></span><input type="text" class="form-control" name="spTitle"  id="spTitle" placeholder="Title"/>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="input-group">
+								<span class="input-group-addon"><i class="fa fa-user fa-1x"></i></span><input type="text" class="form-control" name="spAuthor" id="spAuthor" placeholder="Author"/>
+							</div>
+						</div>					
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn" data-dismiss="modal">Cancel</button>
+						<button type="button" class="btn btn-default btn-primary" id="btnSavePreset">Save</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- handlerbar template references -->
+
+	<!-- the card template -->
+	<script id="cardTemplate" type="text/x-handlebars-template">
+        <div id="card_{{revision}}" class="card col-md-4">            
+        	<div class="panel panel-default">
+                <div class="panel-heading">                	
+                	<div class="pull-right">
+                		<a href="#" onClick="tmanager.showModalCarousel({{revision}});"  role="button" data-toggle="modal" data-toggle="tooltip" data-placement="bottom" title="Open"><i class="fa fa-eye fa-2x"></i></a>
+                		<a href="#" onClick="tmanager.getCardBody({{revision}});" data-toggle="expand-panel" data-toggle="tooltip" data-placement="bottom" title="Expand/Collapse"><i class="expand-toggle fa fa-chevron-down fa-2x"></i></a>
+                	</div>
+                	<h4>{{title}}</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="clearfix"></div>
+                    <div id="tiddler-content-{{revision}}"></div>
+                </div>
+                <div class="nav panel-footer">
+                    <span class="card-tags">
+                    	<div style="margin:0px auto; width:100%">
+                    		<div style="float:left; margin:0; width:15em%;">
+                    			<i class="fa fa-tag fa-2x" data-toggle="tooltip" data-placement="bottom" title="Tags"></i>&nbsp
+                    		</div>
+                    		<div style="float:left; margin:0; width:80%">                                        			
+                    				{{#each tags}}
+                        				<span class="label label-primary tags">{{this}}</span>
+                        			{{/each}}
+                    		</div>
+                    		<div class="privacy pull-right">                  			
+                    			<i class="fa fa-unlock-alt fa-2x" data-toggle="tooltip" data-placement="bottom" title="Public"></i>
+                    		</div>
+                    	</div>                    	
+                    </span>                    
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <!-- slide template -->
+	<script id="slideTemplate" type="text/x-handlebars-template">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="pull-right">
+						{{#contains permissions "write"}}
+                    		<a href="#" onClick="tmanager.editTiddler();" class="edit-button" role="button" data-toggle="tooltip" data-placement="bottom" title="Edit"><i class="fa fa-edit fa-2x"></i></a>
+                    		<a href="#" onClick="tmanager.saveTiddler();" class="save-button edit-control-display-toggle" role="button" data-toggle="tooltip" data-placement="bottom" title="Save"><i class="fa fa-check-square-o fa-2x"></i></a>
+						{{/contains}}
+                    	{{#contains permissions "delete"}}
+							<a href="#" onClick="tmanager.confirmDeleteTiddler();" class="delete-button" role="button" data-toggle="tooltip" data-placement="bottom" title="Delete"><i class="fa fa-trash-o fa-2x"></i></a>
+						{{/contains}}
+						<a href="#" onClick="" class="close-button" role="button" data-dismiss="modal" data-toggle="tooltip" data-placement="bottom" title="Close"><i class="fa fa-times fa-2x"></i></a>	
+                    </span>
+                    <h2 class="text-center title-header" id="tiddlerModalTitle">{{title}}</h2>
+                    <input type="text" class="form-control title-edit edit-control-display-toggle" placeholder="Title" autocomplete="off" spellcheck="false" dir="auto" style="position: relative; vertical-align: top;font-size: 20px;text-align: center;" value="{{title}}">
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12">                        
+                        {{#ifCond type '==' "image/svg+xml"}}
+                    		{{{text}}}
+                    	{{else}}
+                    		{{#ifCond type '==' "image/png"}}
+	                    		<img src="{{uri}}"/>
+                    		{{else}}
+								{{#ifCond type '==' "image/jpeg"}}
+		                    		<img src="{{uri}}"/>
+	                    		{{else}}
+	                    			{{#ifCond type '==' "text/html"}}
+			                    		<iframe sandbox="allow-same-origin allow-popups" id="IFrame" class='activeIFrame' frameborder="0"></iframe>
+		                    		{{else}}
+		                    			{{#if render}}
+		                    	  			{{{render}}}
+	                    				{{else}}
+		                      				<pre>{{text}}</pre>
+	                    				{{/if}}
+	                    			{{/ifCond}}	
+								{{/ifCond}}
+	                    	{{/ifCond}}	
+                    	{{/ifCond}}	
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <span class="card-tags pull-left" style="margin:0px auto; width:100%; text-align:left">
+                		<div style="float:left; margin:0; width:15em%;">
+                			<i class="fa fa-tag fa-2x" data-toggle="tooltip" data-placement="bottom" title="Tags"></i>&nbsp
+                		</div>
+                		<div style="float:left; margin:0; width:80%;">                                        			
+                				{{#each tags}}
+                    				<span class="label label-primary tags">{{this}}</span>
+                    			{{/each}}
+                    			<input type="text" class="form-control tags-edit edit-control-display-toggle" placeholder="Tags..." autocomplete="off" spellcheck="false" dir="auto" style="position: relative; vertical-align: top;font-size: 20px;">
+                		</div>                    	
+                    	
+                    	<div class="pull-right private" style="float:left; margin:0; width:15em%;">			                    		
+                    		<i class="privacy fa fa-unlock-alt fa-2x" data-toggle="tooltip" data-placement="bottom" title="Public"></i>
+                    		<a href="#" onClick="tmanager.changePrivacy();" class="privacy-edit edit-control-display-toggle" role="button" data-toggle="tooltip" data-placement="bottom" title="Close"><i class="fa fa-unlock-alt fa-2x" data-toggle="tooltip" data-placement="bottom" title="Change to private"></i></a>
+                    	</div>
+
+                    </span>			                    
+                </div>
+            </div>
+		</div>
+	</script>
+
+	<!-- script references -->			
+	<!--[if !IE]> -->
+		<script type="text/javascript" src="/bags/common/tiddlers/jquery.js"></script>
+		<script type="text/javascript" src="/bags/tiddlyspace/tiddlers/chrjs"></script>
+		<script type="text/javascript" src="/bags/common/tiddlers/chrjs-store.js"></script>
+	<!-- <![endif]-->
+
+
+	<script type="text/javascript" src="bootstrap.min.js"></script>
+	<script type="text/javascript" src="bootstrapValidator.min.js"></script>
+	<script type="text/javascript" src="handlebars.min-v1.3.0.js"></script>
+	<script type="text/javascript" src="typeahead.bundle.min.js"></script>
+	<script type="text/javascript" src="sceditor.jquery.sceditor.xhtml.min.js"></script>
+	<script type="text/javascript" src="tmanager.js"></script>
+
+</body>
+
+</html>

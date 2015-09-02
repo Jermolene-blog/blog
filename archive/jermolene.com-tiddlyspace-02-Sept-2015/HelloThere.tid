@@ -1,0 +1,60 @@
+_hash: 8668b11362ce44a792ec125b0130d2d30d5a0d64
+created: 20100625131354000
+creator: jermolene
+modified: 20121112102307000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/HelloThere/938757:229ddbea176be750b7df5935d6a3ca006f094f65"
+server.host: http://jermolene.com
+server.page.revision: 938757
+server.permissions: read
+server.recipe: jermolene_public
+server.title: HelloThere
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: HelloThere
+type: text/x-tiddlywiki
+
+Welcome to Jeremy Ruston's space on TiddlySpace...
+
+Other useful and interesting spaces:
+* @osmosoft (and @osmozoom)
+** @bengillies
+** @cdent & @chris-dent
+** @colmbritton/@colmjude
+** @jon
+** @matt
+* Osmosoft alumni
+** @psd
+** @jnthnlstr
+** @blaine
+* Other folk
+** @dickon
+** @jrbl
+** @bauwebijl
+** @pmario
+* TiddlySpace related:
+** @docs - TiddlySpace collected documentation
+** @about - information about TiddlySpace
+** @blog - regularly updated news for users of TiddlySpace
+** @glossary - definitions of TiddlySpace words and usages
+** @faq - frequently asked questions
+** @wikitext - TiddlyWiki and TiddlySpace wikitext and macro syntax
+** @tiddlyspace - documentation about building and improving TiddlySpace
+** @icons - repository of icons (including a collection created by Penny O'Rorke at @pennys-icons)
+** @ganalytics - Google Analytics for tracking interactions with your tiddlers
+** @tscount - TiddlySpace service statistics
+
+My experimental spaces:
+* @breadthumbs - experiments with using thumbnails as breadcrumbs
+
+Other experiments:
+* Cecily, a zooming interface for TiddlyWiki: http://jermolene.tiddlyspace.com/cecily
+* Zoombox, a zooming lightbox experiment: http://jermolene.tiddlyspace.com/zoombox
+* SpaceSphere, messing about with CSS3 transforms: http://jermolene.tiddlyspace.com/spacesphere
+
+Presentations:
+* "HTML5 and the Slow Death of Flash": http://jermolene.tiddlyspace.com/html5cecily
+

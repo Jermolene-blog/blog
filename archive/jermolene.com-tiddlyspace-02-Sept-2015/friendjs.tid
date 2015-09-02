@@ -1,0 +1,380 @@
+_hash: 238c1704a5b9a58ffeb7e55a110e7e077fc53f42
+created: 20110710192436000
+creator: jon
+modified: 20110728162009000
+modifier: jon
+server.bag: following_public
+server.content-type: text/javascript
+server.etag: "following_public/friendjs/71140:c34c55c57556fe067de71ca8ca10ba20cf532fb3"
+server.host: http://jermolene.com
+server.page.revision: 71140
+server.permissions: read
+server.recipe: jermolene_public
+server.title: friendjs
+server.type: tiddlyweb
+server.workspace: bags/following_public
+summary: 
+tags: excludeLists
+tiddler.source: takenote_public
+title: friendjs
+type: text/x-tiddlywiki
+
+var user, userbag;
+var friends = [];
+var host = "http://tiddlyspace.com";
+
+$.ajaxSetup({
+	beforeSend: function(xhr) {
+		xhr.setRequestHeader("X-ControlView", "false");
+	}
+});
+
+function printMessage(txt) {
+	alert(txt);
+}
+
+function printError(txt) {
+	alert(txt);
+}
+
+var simpleDate = (function() {
+
+	var measures = {
+		second: 1,
+		minute: 60,
+		hour: 3600,
+		day: 86400,
+		week: 604800,
+		month: 2592000,
+		year: 31536000
+	};
+
+	var chkMultiple = function(amount, type) {
+		return (amount > 1) ? amount + " " + type + "s":"a " + type;
+	};
+
+	return function(thedate) {
+
+		var dateStr, amount,
+			current = new Date().getTime(),
+			diff = (current - thedate.getTime()) / 1000; // work with seconds
+
+		if(diff > measures.year) {
+			amount = Math.round(diff/measures.year);
+			dateStr = "about " + chkMultiple(amount, "year") + " ago";
+		} else if(diff > measures.month) {
+			amount = Math.round(diff/measures.month);
+			//if(typeof amount == "")
+			dateStr = "about " + chkMultiple(amount, "month") + " ago";
+		} else if(diff > measures.week) {
+			amount = Math.round(diff/measures.week);
+			dateStr = "about " + chkMultiple(amount, "week") + " ago";
+		} else if(diff > measures.day) {
+			amount = Math.round(diff/measures.day);
+			dateStr = "about " + chkMultiple(amount, "day") + " ago";
+		} else if(diff > measures.hour) {
+			amount = Math.round(diff/measures.hour);
+			dateStr = "about " + chkMultiple(amount, "hour") + " ago";
+		} else if(diff > measures.minute) {
+			amount = Math.round(diff/measures.minute);
+			dateStr = "about " + chkMultiple(amount, "minute") + " ago";
+		} else {
+			dateStr = "a few seconds ago";
+		}
+
+		return dateStr;
+
+	};
+})();
+
+function prettyDate(t) {
+	var date = new Date(Date.UTC(
+		parseInt(t.substr(0, 4), 10),
+		parseInt(t.substr(4, 2), 10) - 1,
+		parseInt(t.substr(6, 2), 10),
+		parseInt(t.substr(8, 2), 10),
+		parseInt(t.substr(10, 2), 10),
+		parseInt(t.substr(12, 2) || "0", 10),
+		parseInt(t.substr(14, 3) || "0", 10)
+	));
+	return simpleDate(date);
+}
+
+function endsWith(str, suffix) {
+	return str.indexOf(suffix) == str.length - suffix.length;
+}
+
+function isShadow(tid) {
+	var shadows = ["MarkupPreHead", "DefaultTiddlers", "PageTemplate", "SideBarTabs",
+		"GettingStarted", "MainMenu", "SiteTitle", "SiteSubtitle", "ColorPalette",
+		"SiteIcon", "ViewTemplate", "EditTemplate", "ServerSettings", "MarkupPostHead",
+		"MarkupPostBody", "MarkupPreBody"];
+	return tid.title.indexOf("StyleSheet") === 0 ||
+		tid.title.indexOf("SideBar") === 0 ||
+		shadows.indexOf(tid.title) > -1 || endsWith(tid.title, "SetupFlag") ? true : false;
+}
+
+function isPlugin(tid) {
+	return tid.tags.indexOf("systemConfig") > -1 ? true : false;
+}
+
+function isArtifact(tid) {
+	var follow = tid.tags.indexOf("follow") > -1;
+	var type = tid.type;
+	if(follow || type) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function chooseTiddlers(tiddlers) {
+	var _tiddlers = [];
+	for(var i = 0; i < tiddlers.length; i++) {
+		var tid = tiddlers[i];
+		if(!isPlugin(tid) && !isShadow(tid) && !isArtifact(tid)) {
+			_tiddlers.push(tid);
+		}
+	}
+	return _tiddlers;
+}
+
+function bubbleDown() {
+	var friends = $(".friend");
+	friends.css({ position: "relative" });
+	var target;
+	friends.each(function(i, el) {
+		if(!target && $(el).hasClass("silentFriend") &&
+			$(el).next(".friend").hasClass("noisyFriend")) {
+			target = el;
+		}
+	});
+	if(target) {
+		var other = $(target).next(".friend");
+		// we want to move target above the prev element
+		// target is an element which has the class noisy and the previous node is quiet
+		var swapDuration = 50;
+		var otherHeight = other.height();
+		var thisHeight = $(target).height();
+		$(target).animate({ top: + otherHeight }, { duration: swapDuration });
+		$(other).animate({ top:  - thisHeight }, { duration: swapDuration,
+				complete: function() {
+					var newTarget = $(target).clone(true).insertAfter(other)[0];
+					$(target).remove();
+					$(other).css({ top: 0 });
+					$(newTarget).css({ top: 0 });
+					bubbleDown();
+				}
+		});
+	}
+}
+
+function renderTiddlerList(container,friend) {
+	var tidList = $("<ul />").appendTo(container)[0];
+	$("<li />").text("loading").appendTo(tidList);
+	var oncompletion = function() {
+		if($(".errorFriend,.silentFriend,.noisyFriend").length === $(".friend").length) {
+			bubbleDown();
+		}
+	}
+	$.ajax({ dataType: "json",
+		url: "/search?q=modifier:" + friend + "&select=modified:>3d&sort=-modified",
+		error: function() {
+			$(container).addClass("errorFriend");
+			oncompletion();
+		},
+		success: function(tiddlers) {
+			$(tidList).empty();
+			tiddlers = chooseTiddlers(tiddlers);
+			if(tiddlers.length === 0) {
+				$(container).addClass("silentFriend");
+				$("<li />").text("No recent activity.").appendTo(tidList);
+				oncompletion();
+				return;
+			} else {
+				$(container).addClass("noisyFriend").removeClass("inactiveFriend");
+				oncompletion();
+			}
+			for(var i=0; i < tiddlers.length; i++) {
+				var tiddler = tiddlers[i];
+				var item = $("<li />").appendTo(tidList)[0];
+				var win;
+				var space = tiddler.bag.split("_")[0];
+				var spaceUrl = "http://" + space + ".tiddlyspace.com";
+				var path = "/bags/" + tiddler.bag + "/tiddlers/" + encodeURIComponent(tiddler.title);
+				var link = $("<a />").text(tiddler.title).
+					attr("href", spaceUrl + path).
+					data("path", path).
+					click(function(ev) {
+						var win = $(ev.target).data("win");
+						if($(ev.target).hasClass("active")) {
+							$(win).toggle(1000);
+						} else {
+							$(ev.target).addClass("active");
+							$(".text", win).text("loading...");
+							$(win).show();
+							$.ajax({
+								url: $(ev.target).data("path"),
+								data: {
+									render: "y"
+								},
+								dataType: "json",
+								success: function(tiddler) {
+									$(".text",win).html(tiddler.render);
+									$(win).show(1000);
+								},
+								error: function() {
+									$(".text", win).text("error loading that tiddler");
+								}
+							});
+						}
+						ev.preventDefault();
+					}).
+					appendTo(item)[0];
+				var space = tiddler.bag.split("_")[0];
+				$("<span />").text(" in ").appendTo(item);
+				$("<a />").attr("href", spaceUrl).text(space).appendTo(item);
+				$("<span />").text(" (" + prettyDate(tiddler.modified) + ")").appendTo(item);
+				win = $("<div />").addClass("tiddler").appendTo(item)[0];
+				$("<div />").addClass("text").appendTo(win);
+				var toolbar = $("<div />").addClass("toolbar").appendTo(win)[0];
+				var extra = $("<div />").addClass("extra").appendTo(win)[0];
+				$("<button />").data("bag", tiddler.bag).data("title", tiddler.title).text("give feedback").
+					data("revision", tiddler.revision).click(function(ev) {
+					var title = $(ev.target).data("title");
+					var revision = $(ev.target).data("revision");
+					var bag = $(ev.target).data("bag");
+					var revisionURL = host + "/bags/" + bag + "/tiddlers/" + encodeURIComponent(title) + "/revisions/" + revision;
+					var space = bag.split("_")[0];
+					var area = $(ev.target).parents(".tiddler").children(".extra")[0];
+					$(area).hide();
+					$("<textarea />").appendTo(area);
+					$("<button />").text("save feedback").click(function(ev) {
+						var tid = new tiddlyweb.Tiddler("Feedback for " + title, userbag);
+						tid.tags = ["feedback", "@" + space];
+						tid.text = ["In reply to [[", title, "]]@", space,
+							" (revision [[", revision, "|", revisionURL, "]])\n\n"].join("") + $("textarea", area).val();
+						tid.put(function(tiddler) {
+							$(area).empty();
+							$("<span />").text("your comment: ").appendTo(area);
+							$("<a />").attr("href", "/" + encodeURIComponent(tiddler.title)).text(tiddler.title).appendTo(area);
+						}, function() {
+							printError("error commenting!");
+						});
+					}).appendTo(area);
+					$(area).show(1000);
+					ev.preventDefault();
+					$(ev.target).remove();
+					return false;
+				}).appendTo(toolbar);
+
+				$(win).hide();
+				$(link).data("win", win);
+			}
+		}
+	})
+}
+
+function removeFriend(friend) {
+	var tiddler = new tiddlyweb.Tiddler("@" + friend, userbag);
+	var success = function() {
+		printMessage("User removed from friends");
+		var newFriends = [];
+		for(var i = 0; i < friends.length; i++) {
+			var f = friends[i];
+			if(f !== friend) {
+				newFriends.push(f);
+			}
+		}
+		friends = newFriends;
+		$("#friend-" + friend).hide(2000);
+	};
+	tiddler["delete"](success, function() {
+		var old = new tiddlyweb.Tiddler(friend, userbag);
+		old["delete"](success, function() {
+			printError("Unable to remove friend " + friend);
+		})
+	})
+}
+
+function renderFriend(list, friend) {
+	var bag = friend + "_public";
+	var item = $("<li />").addClass("friend").attr("id", "friend-" + friend).addClass("inactiveFriend").appendTo(list)[0];
+	$("<img />").attr("alt", friend).attr("title", friend).
+		attr("src", host + "/bags/" + bag + "/tiddlers/SiteIcon").css({ width: 48, height: 48 }).appendTo(item);
+	var heading = $("<h2>").appendTo(item)[0];
+	$("<a />").attr("href", "#friend-" + friend).attr("name", "friend-" + friend).text(friend).appendTo(heading);
+	$("<button />").data("who", friend).text("remove from friends").
+		click(function(ev) {
+			if(confirm("Are you sure you want to remove " + friend + " as a friend?")) {
+				removeFriend($(ev.target).data("who"));
+			}
+		}).appendTo(item)[0];
+	renderTiddlerList(item,friend);
+}
+
+function renderFriends() {
+	var list = $("<ul />").appendTo("#friends")[0];
+	$("<li />").text("Activity of your friends will appear below when available").appendTo(list);
+	for(var i = 0; i < friends.length; i++) {
+		var friend = friends[i];
+		renderFriend(list, friend);
+	}
+}
+
+function followWidget() {
+	$("#friends").empty();
+	var container = $("<div />").addClass("addfriends").appendTo("#friends")[0];
+	$("<input />").attr("name", "friend").appendTo(container);
+	$("<button />").text("add friend").click(function(ev) {
+		var friend = $(ev.target).parent().children("[name='friend']").val();
+		if(friends.indexOf(friend) > -1) {
+			return printError("You already follow " + friend + "!");
+		}
+
+		var title;
+		if(friend.indexOf("@") !== 0) {
+			title = "@" + friend;
+		} else {
+			title = friend;
+		}
+
+		$.ajax({ dataType: "text", url: "/users/" + friend,
+			success: function() {
+				var tid = new tiddlyweb.Tiddler(title, userbag);
+				tid.tags = ["follow", "excludeLists"];
+				tid.put(function(tiddler) {
+					printMessage("Added friend " + friend);
+					renderFriend($("#friends ul")[0], friend);
+					window.location.hash = "#friend-" + friend;
+				}, function() {
+					printError("Failed to add friend " + friend);
+				})
+			},
+			error: function() {
+				printError("No one with name " + friend + " exists!");
+			}
+		});
+	}).appendTo(container);
+	renderFriends();
+}
+$.ajax({
+	url: "/status",
+	dataType: "json",
+	success: function(status) {
+		user = status.username;
+		userbag = new tiddlyweb.Bag(user + "_public", "/");
+		$.ajax({ url: "/bags/" + user + "_public/tiddlers?select=tag:follow", dataType: "json", success: function(tiddlers) {
+				for(var i = 0; i < tiddlers.length; i++) {
+					var title = tiddlers[i].title;
+					if(title.indexOf("@") === 0) {
+						title = title.substr(1, title.length);
+					}
+					friends.push(title);
+				}
+				friends.sort();
+				followWidget();
+			}
+		});
+	}
+})

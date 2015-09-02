@@ -1,0 +1,53 @@
+_hash: fba242ee8d380c7780b1d78badee6f70f2657d07
+_iframe: svgeditor-0
+created: 20101013214437000
+creator: jermolene
+modified: 20101013214437000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: image/svg+xml
+server.etag: "jermolene_public/Space%20Inclusion.svg/118521:5f8e1040c009ed78499d2be7fe418bd8f8a3ae4b"
+server.host: http://jermolene.com
+server.page.revision: 118521
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Space Inclusion.svg
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: Space Inclusion.svg
+type: text/x-tiddlywiki
+
+<svg width="640" height="480" xmlns="http://www.w3.org/2000/svg">
+ <!-- Created with SVG-edit - http://svg-edit.googlecode.com/ -->
+ <defs>
+  <linearGradient y2="1" x2="1" y1="0" x1="0" id="svg_3">
+   <stop stop-color="#bfbf00" offset="0"/>
+   <stop stop-color="#ff56aa" offset="1"/>
+  </linearGradient>
+ </defs>
+ <g display="inline">
+  <title>Layer 1</title>
+  <g id="svg_7">
+   <circle fill="#c1e6fd" stroke="#7aa3be" stroke-width="8" stroke-dasharray="null" stroke-linejoin="null" stroke-linecap="null" cx="113" cy="116" r="81.90848" id="svg_1"/>
+   <circle fill="#f4c4e2" stroke="#ce81b0" stroke-width="8" stroke-dasharray="null" stroke-linejoin="null" stroke-linecap="null" cx="113.00001" cy="116" r="35.27792" id="svg_2"/>
+  </g>
+  <g id="svg_8">
+   <circle fill="#c1e6fd" stroke="#7aa3be" stroke-width="8" stroke-dasharray="null" stroke-linejoin="null" stroke-linecap="null" cx="433" cy="144" r="81.90848" id="svg_9"/>
+   <circle fill="#f4c4e2" stroke="#ce81b0" stroke-width="8" stroke-dasharray="null" stroke-linejoin="null" stroke-linecap="null" cx="433.00001" cy="144" r="35.27792" id="svg_10"/>
+  </g>
+  <g id="svg_11">
+   <circle fill="#c1e6fd" stroke="#7aa3be" stroke-width="8" stroke-dasharray="null" stroke-linejoin="null" stroke-linecap="null" cx="196" cy="338" r="81.90845" id="svg_12"/>
+   <circle fill="#f4c4e2" stroke="#ce81b0" stroke-width="8" stroke-dasharray="null" stroke-linejoin="null" stroke-linecap="null" cx="196.00001" cy="338" r="35.27792" id="svg_13"/>
+  </g>
+  <g id="svg_14">
+   <circle fill="#c1e6fd" stroke="#7aa3be" stroke-width="8" stroke-dasharray="null" stroke-linejoin="null" stroke-linecap="null" cx="465" cy="361" r="81.90845" id="svg_15"/>
+   <circle fill="#f4c4e2" stroke="#ce81b0" stroke-width="8" stroke-dasharray="null" stroke-linejoin="null" stroke-linecap="null" cx="465.00001" cy="361" r="35.27792" id="svg_16"/>
+  </g>
+  <line fill="none" stroke="#ce81b0" stroke-width="8" stroke-dasharray="null" stroke-linejoin="null" stroke-linecap="null" x1="290" y1="332" x2="369" y2="355" id="svg_17"/>
+  <text xml:space="preserve" text-anchor="middle" font-family="serif" font-size="24" id="svg_4" y="205" x="435" stroke-width="0" stroke="#000000" fill="#000000">National</text>
+  <text xml:space="preserve" text-anchor="middle" font-family="serif" font-size="24" id="svg_5" y="174" x="112" stroke-width="0" stroke="#000000" fill="#000000">Regional</text>
+  <text xml:space="preserve" text-anchor="middle" font-family="serif" font-size="24" id="svg_6" y="401" x="195" stroke-width="0" stroke="#000000" fill="#000000">City</text>
+  <text xml:space="preserve" text-anchor="middle" font-family="serif" font-size="24" id="svg_18" y="422" x="466" stroke-width="0" stroke="#000000" fill="#000000">Office</text>
+ </g>
+</svg>

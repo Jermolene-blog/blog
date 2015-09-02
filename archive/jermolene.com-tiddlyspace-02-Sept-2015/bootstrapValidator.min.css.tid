@@ -1,0 +1,30 @@
+_hash: e9c51b0e8213c7f504f8481d580331d0a522a43c
+created: 20140922164410000
+creator: beaumop1
+modified: 20140926082141000
+modifier: beaumop1
+server.bag: tmanager_public
+server.content-type: text/css
+server.etag: "tmanager_public/bootstrapValidator.min.css/1902542:030872e9a4a69bc98093ef0e66cec891c0f41af3"
+server.host: http://jermolene.com
+server.page.revision: 1902542
+server.permissions: read
+server.recipe: jermolene_public
+server.title: bootstrapValidator.min.css
+server.type: tiddlyweb
+server.workspace: bags/tmanager_public
+tags: 
+title: bootstrapValidator.min.css
+type: text/x-tiddlywiki
+
+/*!
+ * BootstrapValidator (http://bootstrapvalidator.com)
+ * The best jQuery plugin to validate form fields. Designed to use with Bootstrap 3
+ *
+ * @version     v0.5.1, built on 2014-08-22 4:55:09 PM
+ * @author      https://twitter.com/nghuuphuoc
+ * @copyright   (c) 2013 - 2014 Nguyen Huu Phuoc
+ * @license     MIT
+ */
+
+.bv-form .help-block{margin-bottom:0}.bv-form .tooltip-inner{text-align:left}.nav-tabs li.bv-tab-success>a{color:#3c763d}.nav-tabs li.bv-tab-error>a{color:#a94442}

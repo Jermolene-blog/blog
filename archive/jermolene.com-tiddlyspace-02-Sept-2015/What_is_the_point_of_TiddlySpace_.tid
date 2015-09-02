@@ -1,0 +1,22 @@
+_hash: 36ca66aa3701edb199d2eb8342ea1881eb4c66bd
+created: 20100614132829000
+creator: jermolene
+modified: 20100822093037000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/What%20is%20the%20point%20of%20TiddlySpace%3F/118674:dbe26091cb7eddae572a8da17750d9fc8846a368"
+server.host: http://jermolene.com
+server.page.revision: 118674
+server.permissions: read
+server.recipe: jermolene_public
+server.title: What is the point of TiddlySpace?
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: FAQ TiddlySpace
+title: What is the point of TiddlySpace?
+type: text/x-tiddlywiki
+
+The goal of TiddlySpace is to provide an environment on the web that supports open intellectual discourse while being inimical to spam and the tragedy of the commons.
+
+See also [[What isn't TiddlySpace for?]]

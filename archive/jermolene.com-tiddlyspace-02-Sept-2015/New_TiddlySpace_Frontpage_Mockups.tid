@@ -1,0 +1,35 @@
+_hash: 13fbcda523c261ef0d20ae8f95c4cba4c4c4d3ac
+created: 20110412114219000
+creator: jermolene
+modified: 20110414124957000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/New%20TiddlySpace%20Frontpage%20Mockups/118466:cc0b569860050ec72cb7d228d09b3ab95f7bd744"
+server.host: http://jermolene.com
+server.page.revision: 118466
+server.permissions: read
+server.recipe: jermolene_public
+server.title: New TiddlySpace Frontpage Mockups
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @april1111 TiddlySpace
+title: New TiddlySpace Frontpage Mockups
+type: text/x-tiddlywiki
+
+Here are some wireframes exploring ideas for new frontpages for TiddlySpace.
+!Simple Frontpage
+Pretty much stolen from @colmbritton, this design is pretty minimal:
+* Screenshots from interesting spaces
+* Ability to sign up for the service
+* Some testimonials from existing users
+* Plumbing, like a "terms and conditions" link
+<<image [[New Frontpage 2.png]]>>
+!Busy Frontpage
+The ideas I was trying to explore here include:
+* focussing on the layout and proposition. As a wireframe it looks quite noisy, but I think that the information density is comparable with other sites. I'd point to sites like GitHub that have a similar information density but make effective use of graphic design to keep the visual noise and clutter under control
+* striking a balance between explaining TiddlySpace by showing it in action, and an actual step-by-step introduction to scroll through
+* maintaining the front page as an ordinary TiddlyWiki so that it can both dogfood the user experience proposition (learning TiddlyWiki by reading a TiddlyWiki document teaching you how to use TiddlyWiki) and can be implemented with existing macros
+* having a conventional, spare and spacious front page above the scroll line, with an invitation to scroll down to explore more information
+
+<<image [[New Frontpage 1.png]]>>

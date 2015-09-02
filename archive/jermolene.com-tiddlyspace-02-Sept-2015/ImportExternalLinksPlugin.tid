@@ -1,0 +1,87 @@
+_hash: 2887de749a491f27a1b294ead85a27085395f964
+created: 20120104162500000
+creator: jon
+modified: 20120104162500000
+modifier: jon
+server.bag: following_public
+server.content-type: 
+server.etag: "following_public/ImportExternalLinksPlugin/71184:7e0fdf2411dec19665321e9bae5960db425d3630"
+server.host: http://jermolene.com
+server.page.revision: 71184
+server.permissions: read
+server.recipe: jermolene_public
+server.title: ImportExternalLinksPlugin
+server.type: tiddlyweb
+server.workspace: bags/following_public
+summary: 
+tags: excludeLists excludeSearch systemConfig
+title: ImportExternalLinksPlugin
+type: text/x-tiddlywiki
+
+/***
+|''Name''|ImportExternalLinksPlugin|
+|''Author''|Jon Robson|
+|''Version''|0.3.0|
+|''Requires''|TiddlySpaceConfig TiddlySpaceLinkPlugin TiddlySpaceCloneCommand|
+|''Description''|Turns space links into ajax links so you don't have to leave the comfort of your own TiddlyWiki|
+!Notes
+This maybe should hides the editTiddler, cloneTiddler commands. Ideally the toolbar commands should hide themselves but we need a strong concept of "this is a sucked in tiddler" to do that.
+***/
+//{{{
+(function($){
+var tiddlyspace = config.extensions.tiddlyspace;
+_createSpaceLink = createSpaceLink;
+if(_createSpaceLink) {
+	createSpaceLink = function(place, spaceName, title, alt, isBag) {
+		var tooltip = "Click to open in current document. Right click to open in original space.";
+		_createSpaceLink(place, spaceName, title, alt, isBag);
+		var workspace;
+		if(isBag) {
+			workspace = "bags/%0".format(spaceName);
+		} else {
+			workspace = "bags/%0_public".format(spaceName);
+		}
+		if(title && spaceName != tiddlyspace.currentSpace.name) {
+			var link = $("a:last", place);
+			var newlink = $("<a />").text("[link]").after(link[0]);
+			// very hacky
+			var updateInterval = setInterval(function() {
+				var href = link.attr("href");
+				if(href) {
+					$(newlink).attr("href", href);
+					clearInterval(updateInterval);
+				}
+			}, 200);
+			
+			if(link.parent(".replyLink").length == 0) { // don't suck in a reply link.
+				link.attr("title", tooltip).addClass("importLink").click(function(ev) {
+					if(config.floorboards) {
+						config.floorboards.pushUnique("%0_public".format(spaceName));
+					}
+					tiddlyspace.displayServerTiddler(ev.target, title, workspace, function(el) {
+						// TODO: the commands should disable themselves based on the meta information.
+						//$("[commandname=editTiddler], [commandname=cloneTiddler]", el).hide(); 
+					});
+					ev.preventDefault();
+				});
+			}
+		}
+	};
+}
+
+var _cloneHandler = config.commands.cloneTiddler.handler;
+config.commands.cloneTiddler.handler = function(event, src, title) {
+	var _tiddler = store.getTiddler(title);
+	var source = _tiddler ? _tiddler.fields["server.bag"] : false;
+	var imported = _tiddler ? _tiddler.fields["tiddler.source"] : false;
+	var realTitle = _tiddler ? _tiddler.fields["server.title"] : title;
+	_cloneHandler.apply(this, [event, src, title]);
+	var tidEl = story.getTiddler(title);
+	$(story.getTiddlerField(title, "title")).val(realTitle);
+	if(source) {
+		$("<input />").attr("type", "hidden").attr("edit", "tiddler.source").val(source).appendTo(tidEl);
+		$("<input />").attr("type", "hidden").attr("edit", "server.activity").appendTo(tidEl);
+	}
+}
+})(jQuery);
+//}}}

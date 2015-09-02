@@ -1,0 +1,20 @@
+_hash: 8c16c3b87adcaca23e8af642f263fcec9b0b43cc
+created: 20101116185600000
+creator: jermolene
+modified: 20101116185600000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/SyncToMyDropBox/118577:b2e69a8f630c41cfc562e832f61a7c9d6abc5f18"
+server.host: http://jermolene.com
+server.page.revision: 118577
+server.permissions: read
+server.recipe: jermolene_public
+server.title: SyncToMyDropBox
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: SyncToMyDropBox
+type: text/x-tiddlywiki
+
+I'd love to be able to automatically sync my TiddlySpace content straight into my DropBox (http://dropbox.com/), from where I can sync it to my own machines and from there to backup media that I can control like DVDs and hard disks.

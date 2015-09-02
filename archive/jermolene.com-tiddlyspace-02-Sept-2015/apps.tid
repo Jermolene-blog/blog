@@ -1,0 +1,97 @@
+_hash: 901ce9fdbc458a92f3643134f0bd968fc1f69cb1
+created: 20131111192332000
+creator: osmosoft
+modified: 20131111192332000
+modifier: osmosoft
+server.bag: tiddlyspace
+server.content-type: text/html
+server.etag: "tiddlyspace/apps/1521891:43041d938a2a2fa096bbc74916ead1dcd2e88010"
+server.host: http://jermolene.com
+server.page.revision: 1521891
+server.permissions: read
+server.recipe: jermolene_public
+server.title: apps
+server.type: tiddlyweb
+server.workspace: bags/tiddlyspace
+tags: excludeLists excludeSearch
+title: apps
+type: text/x-tiddlywiki
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8"/>
+	<title>TiddlySpace Apps</title>
+	<link rel="stylesheet" href="/bags/common/tiddlers/reset.css" />
+	<link rel="stylesheet" href="/bags/common/tiddlers/appspage.css" />
+	<!--[if lt IE 7 ]>
+	<link rel="stylesheet" href="/bags/common/tiddlers/appspageie6.css" />
+	<![endif]-->
+</head>
+<body>
+	
+	<div id="wrapper">
+		<div id="TSbar"></div>
+		<div id="main-content">
+			<div id="space-details">
+				<a href="/_space"><img class="siteicon"></a>
+				<div id="title-subtitle">
+					<h1 class="spaceaddress">
+						<span class="spaceName"></span><span class="hostName"></span>
+					</h1>
+					<p class="tagline"><span class="subTitle"></span><a class="managespaces" href="/_space">manage space</a></p>
+				</div>
+			</div>
+			<div id="holder">
+				<div id="appswitcher-wrapper">
+					<div id="appswitcher">
+						<h2>Your Apps</h2>
+						<ul id="app-list">
+							<li class="htmlserialisation">
+								<a href="/tiddlers.html?select=tag:!excludeLists;sort=-modified">
+									<img src="/bags/common/tiddlers/browse_read_blue.png" alt="Icon for the HTML Serialisation" class="app-img" />
+									BROWSE
+								</a>
+							</li>
+							<li class="tiddlywiki">
+								<a href="/tiddlers.wiki">
+									<img src="/bags/common/tiddlers/tiddlywiki2_blue.png" alt="Icon for TiddlyWiki" class="app-img" />
+									TIDDLYWIKI
+								</a>
+							</li>
+						</ul>
+						<div id="addapp">
+							<button class="inactive">Add More!</button>
+						</div>
+					</div>
+					<div id="app-desc">
+						<ul>
+							<li class="htmlserialisationdesc"><p>an easy to understand HTML representation of your content.</p></li>
+							<li class="tiddlywikidesc"><p>use TiddlyWiki to create, edit and organise your content.</p></li>
+						</ul>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+		<div id="footer"><!-- ie doesn't support footer tag -->
+			<div id="footer-content">
+				<div class="links">
+					<a href="http://blog.tiddlyspace.com">blog</a>
+					<a href="http://featured.tiddlyspace.com">featured</a>
+					<a href="http://docs.tiddlyspace.com">documentation</a>
+					<a href="https://github.com/TiddlySpace/tiddlyspace">source</a>
+				</div>
+				<p>TiddlySpace 2011, created by <a href="http://osmosoft.com">Osmosoft</a></p>
+			</div>
+		</div>
+	</div>
+	
+	<script type="text/javascript" src="/bags/common/tiddlers/backstage.js"></script>
+	<script type="text/javascript" src="/bags/common/tiddlers/jquery.js"></script>
+	<script type="text/javascript" src="/bags/tiddlyspace/tiddlers/chrjs"></script>
+	<script type="text/javascript" src="/bags/common/tiddlers/chrjs-store.js"></script>
+	<script type="text/javascript" src="/bags/common/tiddlers/jquery-json.js"></script>
+	<script type="text/javascript" src="/bags/common/tiddlers/appspage.js"></script>
+</body>
+</html>

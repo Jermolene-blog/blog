@@ -1,0 +1,54 @@
+_hash: 02e0b362ad77cbb6e902b176a082430649e798ac
+created: 20131111192330000
+creator: osmosoft
+modified: 20131111192330000
+modifier: osmosoft
+server.bag: system-plugins_public
+server.content-type: text/javascript
+server.etag: "system-plugins_public/RefreshTiddlerCommand/1521867:d86b18298010dac8146893bcae2ebf8a5ddb57df"
+server.host: http://jermolene.com
+server.page.revision: 1521867
+server.permissions: read
+server.recipe: jermolene_public
+server.title: RefreshTiddlerCommand
+server.type: tiddlyweb
+server.workspace: bags/system-plugins_public
+tags: excludeLists excludeSearch systemConfig
+title: RefreshTiddlerCommand
+type: text/x-tiddlywiki
+
+/***
+|''Name''|RefreshTiddlerCommand|
+|''Version''|0.3.0|
+***/
+//{{{
+(function($) {
+
+var cmd = config.commands.refreshTiddler = {
+	text: "refresh",
+	locale: {
+		refreshing: "Refreshing tiddler..."
+	},
+	tooltip: "refresh this tiddler to be the one on the server",
+	handler: function(ev, src, title) {
+		var tiddler = store.getTiddler(title);
+		if(!tiddler) {
+			tiddler = new Tiddler(title);
+			merge(tiddler.fields, config.defaultCustomFields);
+		}
+		$(story.getTiddler(title)).find(".viewer").
+			empty().text(cmd.locale.refreshing);
+		var dirtyStatus = store.isDirty();
+		story.loadMissingTiddler(title, {
+			"server.workspace": tiddler.fields["server.recipe"]  ? "recipes/" + tiddler.fields["server.recipe"] :
+				tiddler.fields["server.workspace"] || "bags/"+tiddler.fields["server.bag"],
+			"server.host": tiddler.fields["server.host"],
+			"server.type": tiddler.fields["server.type"]
+		}, function() {
+			store.setDirty(dirtyStatus);
+		});
+	}
+};
+
+})(jQuery);
+//}}}

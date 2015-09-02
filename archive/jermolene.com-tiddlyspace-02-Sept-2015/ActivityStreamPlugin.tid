@@ -1,0 +1,474 @@
+_hash: e8e570ecad97ac7a02a41323272d6a5e1e7bb963
+created: 20100917110749000
+creator: jon
+modified: 20110412100500000
+modifier: jon
+server.bag: following_public
+server.content-type: 
+server.etag: "following_public/ActivityStreamPlugin/70970:b251e8abbd7fc77010e1f2a61275f3db197eef26"
+server.host: http://jermolene.com
+server.page.revision: 70970
+server.permissions: read
+server.recipe: jermolene_public
+server.title: ActivityStreamPlugin
+server.type: tiddlyweb
+server.workspace: bags/following_public
+tags: excludeLists systemConfig
+title: ActivityStreamPlugin
+type: text/x-tiddlywiki
+
+/***
+|''Name''|ActivityStreamPlugin|
+|''Version''|0.5.4|
+|''Description''|Provides a following macro|
+|''Author''|Jon Robson|
+|''Requires''|TiddlySpaceFollowingPlugin|
+|''License''|[[BSD|http://www.opensource.org/licenses/bsd-license.php]]|
+|''Source''|https://github.com/jdlrobson/TiddlyWiki/raw/master/plugins/TiddlySpaceInstaller/ActivityStreamPlugin.js|
+!Usage
+{{{<<activity>>}}}
+!!Supressing activity
+You can supress notifications by  id:
+"plugin", "shadow", "standard", "follow", "followYou", "siteInfo", "siteIcon", "ownSiteIcon", "notify", "reply"
+e.g. {{{ <<activity supress:siteIcon>> }}} will hide siteIcon activity from you.
+
+!!Supressing people
+{{{<<activity ignore:person}}} will ignore all activity where person is the subject of the activity. eg. person followed other-person will not appear in the feed.
+!!Controlling displayed dates.
+{{{<<activity timestampFormat:"<0hh o' clock>" headingFormat:"0DD/0MM" >>}}} will display date headings as date/month eg.
+3rd of January would be displayed as 03/01. This particular timestamp example gives you the hour of the activity.
+
+!!Even more content
+{{{<<activity limit:no>>}}} will show you all possible activity in the last X days where X is set at a macro level (advanced developers should see config.macros.activity.RECENTNESS).
+!StyleSheet
+
+.activityStream .externalImage, .activityStream .image {
+	display: inline;
+}
+
+.feedItem .siteIcon {
+	display: inline;
+}
+
+.activityStream .error {
+	background-color: red;
+	color: white;
+	font-weight: bold;
+}
+
+.activityStream .feedItem {
+list-style: none;
+}
+
+.activityStream .notification {
+	background-color: yellow;
+	color: black;
+}
+
+.activityStream .activityGroupTitle {
+	font-weight: bold;
+	margin-top: 8px;
+}
+.activityStream .feedItem {
+	margin-left: 8px;
+}
+!Code
+***/
+//{{{
+(function($) {
+var name = "StyleSheetActivityStream";
+config.shadowTiddlers[name] = store.getTiddlerText(tiddler.title +
+     "##StyleSheet");
+store.addNotification(name, refreshStyles);
+
+var followMacro = config.macros.followTiddlers;
+var tweb = config.extensions.tiddlyweb;
+var tiddlyspace = config.extensions.tiddlyspace;
+var scanMacro = config.macros.tsScan;
+
+var modifierSpaceLink = "<<view modifier spaceLink>>";
+var spaceTiddlyLink = "<<view server.bag spaceLink server.title>>";
+var bagSpaceLink = "<<view server.bag spaceLink>>";
+var bagSiteIcon = "<<view server.bag SiteIcon width:24 height:24 label:no preserveAspectRatio:yes>>";
+var modifierSiteIcon = "<<view modifier SiteIcon width:24 height:24 label:no preserveAspectRatio:yes>>";
+var timestamp = "[<<view modified date '0hh:0mm'>>]";
+var replyLink = "<<view server.title replyLink>>";
+config.shadowTiddlers.ActivityStreamTemplates = [
+	"!notify\n%3 {{notification{%0 %1 has modified %2 in %0 %1 and flagged it for your attention!}}} %8\n",
+	"!reply\n%3 {{notification{%0 %1 replied with %2 to your %4 %5 post.}}} %8\n",
+	"!userSiteIcon\n%3 %6 %7 has a new ~SiteIcon.\n",
+	"!spaceSiteIcon\n%3 %6 %7 updated the SiteIcon for the %0 %1 space.\n",
+	"!image\n%3 %6 %7 drew the image %2 in the %1 space.\n",
+	"!plugin\n%3 %6 %7 modified a plugin called %2 in the %0 %1 space.\n",
+	"!shadow\n%3 %6 %7 modified a shadow tiddler %2 in the %0 %1 space.\n",
+	"!geo\n%3 %6 %7 modified a geo tiddler called %2 in the %0 %1 space <<view title maplink 'view on map'>>. %8\n",
+	"!followYou\n%3 %0 %1 is now following you.\n",
+	"!follow\n%3 %0 %1 is now following %4 %5 <<view server.title link follow>>\n",
+	"!siteInfo\n%3 %6 %7 <<view server.bag spaceLink server.title label:described>> the %0 %1 space.\n",
+	"!video\n%3 %6 %7 modified a video entitled %2 in the %0 %1 space. %8\n",
+	"!standard\n%3 %6 %7 modified %2 in the %0 %1 space. %8\n"
+	].join("").format(bagSiteIcon, bagSpaceLink, spaceTiddlyLink, timestamp,
+		"<<view server.title SiteIcon width:24 height:24 label:no preserveAspectRatio:yes>>", "<<view server.title spaceLink>>",
+		modifierSiteIcon, modifierSpaceLink, replyLink);
+story.refreshTiddler("ActivityStreamTemplates", null, true);
+config.annotations.ActivityStreamTemplates = "This is a special tiddler used by the ActivityStreamPlugin. It is used for templating notifications. Templates at the top have preference over templates at the bottom.";
+
+var macro = config.macros.activity = {
+	default_limit: 50,
+	templates: [],
+	init: function() {
+		var templates = [];
+		var regex = new RegExp(/^!(.*)\n/gm);
+		var text = store.getTiddlerText("ActivityStreamTemplates");
+		var match = regex.exec(text);
+		while(match) {
+			templates.push(match[1]);
+			match = regex.exec(text);
+		}
+		macro.templates = templates;
+	},
+	// order matters - earlier templates override older ones
+	RECENTNESS: 2, // in days
+	TIMESTAMP_FORMAT: "<0hh:0mm>",
+	info: {},
+	locale: {
+		pleaseWait: "please wait while we load your stream...",
+		errorLoading: "The activity stream failed to load. Please make sure you have an internet connection and try again.",
+		userHeading: "Below is the activity stream for spaces that this space follows with the follow tag. (%0/%1 spaces have been loaded)",
+		emptyStream: "Activity stream currently empty. (%0/%1 loaded)"
+	},
+	getTimeStamp: function() {
+		var today = new Date();
+		macro._lastRun = today.getTime();
+		var previous = new Date(today.setDate(today.getDate() - macro.RECENTNESS));
+		return previous.convertToYYYYMMDDHHMM();
+	},
+	handler: function(place, macroName, params, wikifier, paramString, tiddler) {
+		var container = $("<div />").text(macro.locale.pleaseWait).appendTo(place).
+			attr("refresh", "macro").attr("macroName", macroName).attr("paramString", paramString);
+		var space = tiddlyspace.currentSpace.name;
+		var options = macro.getOptions(paramString);
+		$(container).attr("activity-limit", options.limit);
+		macro._session = Math.random();
+		var activityType;
+		var sourceActivity = function(user) {
+			macro.CURRENT_USER = user.name;
+			macro.USER_AT_TAG = "@%0".format(user.name);
+			followMacro.getFollowers(function(users) {
+				macro.getActivity(container, users, activityType, options);
+			}, macro.CURRENT_USER);
+			container.attr("activity-type", activityType);
+			macro._renderStream(container, activityType, options);
+		};
+
+		if(options.user) {
+			sourceActivity({name: options.user});
+		} else {
+			sourceActivity({ name: tiddlyspace.currentSpace.name });
+		}
+	},
+	getOptions: function(paramString) {
+		var options = {};
+		var args = paramString.parseParams("name")[0];
+		var toMap = ["timestampFormat", "headingFormat", "limit", "user"];
+		var i;
+		for(i = 0; i < toMap.length; i++) {
+			var map = toMap[i];
+			options[map] = args[map] ? args[map][0] : false;
+		}
+		var supress = args.supress || [];
+		var templates = [];
+		var show = args.show ? args.show : macro.templates;
+		for(i = 0; i < show.length; i++) {
+			var template = show[i];
+			if(supress.indexOf(template) === -1) {
+				templates.push(template);
+			}
+		}
+		options.ignore = args.ignore || [];
+		options.templates = templates;
+		return options;
+	},
+	_getActivityQuery: function(user, timestamp) {
+		timestamp = timestamp || macro.getTimeStamp();
+		if(user) {
+			return "/bags/%0_public/tiddlers?select=modified:>%1".format(user, timestamp);
+		} else {
+			return false;
+		}
+	},
+	refresh: function(container) {
+		var type = $(container).attr("activity-type");
+		var limit = $(container).attr("activity-limit");
+		var options = macro.getOptions($(container).attr("paramString"));
+		options.limit = parseInt(limit, 10);
+		macro.renderStream(container, type, options);
+	},
+	getActivity: function(place, users, type, options) {
+		var i;
+		var timestamp = macro.activityTimestamp;
+		var firstRun =  timestamp ? false : true;
+		macro.info.loaded = firstRun ? 0 : macro.info.loaded;
+		var afterAjax = function(tiddlers) {
+			if(firstRun) {
+				macro.info.loaded += 1;
+			}
+			macro.updateStream(tiddlers, type, options);
+			macro.renderStream(place, type, options);
+		};
+		var success = function(tiddlers) {
+			afterAjax(tiddlers);
+		};
+		var error = function() {
+			afterAjax([]);
+		};
+		if(macro._lastRun > new Date().getTime() - 300000) { // leave 5 minutes between calls
+			afterAjax([]);
+			return;
+		}
+		macro.info.queries = users.length;
+		for(i = 0; i < users.length; i++) {
+			var user = users[i];
+			ajaxReq({
+				url: macro._getActivityQuery(user, timestamp),
+				dataType: "json", success: success, error: error
+			});
+		}
+		macro.activityTimestamp = new Date().convertToYYYYMMDDHHMM();
+	},
+	reportError: function(place) {
+		var error = $("<div />").addClass("error").text(locale.errorLoading);
+		$(place).empty().append(error);
+	},
+	createFeedEntry: function(container, tiddler, options) {
+		var item = $("<li />").addClass("feedItem");
+		var content = $("<div />").appendTo(item);
+		var wikifyPlace = $("<span />").appendTo(content)[0];
+		var author = tiddler.modifier;
+		if(author && !options.ignore.contains(author)) {
+			$(container).append(item);
+			config.macros.view.views.activityItem(null, wikifyPlace, null, null, null, tiddler);
+			return item;
+		}
+		return false;
+	},
+	renderStream: function(place, type, options) {
+		window.clearTimeout(macro._renderTimeout);
+		macro._renderTimeout = window.setTimeout(function() {
+			macro._renderStream(place, type, options);
+		}, 100);
+	},
+	_renderStream: function(place, type, options) {
+		$(place).empty();
+		var limit = options.limit;
+		var container = $("<ul />").addClass("activityStream").appendTo(place);
+		var textHeading = macro.locale.userHeading.format(macro.info.loaded, macro.info.queries);
+		$("<li />").addClass("listTitle").text(textHeading).appendTo(container);
+		var tiddlers = store.sortTiddlers(store.filterTiddlers("[server.activity[true]]"), "-modified"); // TODO: sort headings instead if possible (conflicts with limit)
+		var headings = [];
+		var groups = {};
+		var processed = 0, i, j;
+		var atEndOfActivityFeed = true;
+		for(i = 0; i < tiddlers.length; i++) {
+			var tiddler = tiddlers[i];
+			if(options.templates.contains(tiddler.fields["server.activity.type"])) {
+				if(!limit || processed < limit) {
+					var modified = tiddler.modified;
+					if(modified) {
+						// format date.
+						var modifiedString = modified.formatString(options.headingFormat || config.macros.timeline.dateFormat);
+						if(headings.contains(modifiedString)) {
+							groups[modifiedString].push(tiddler);
+						} else {
+							headings.push(modifiedString);
+							groups[modifiedString] = [ tiddler ];
+						}
+					}
+					processed += 1;
+				} else {
+					atEndOfActivityFeed = false;
+				}
+			}
+		}
+		var somethingRendered;
+		for(i = 0; i < headings.length; i++) {
+			var heading = headings[i];
+			var _tiddlers = store.sortTiddlers(groups[heading], "-modified");
+			var headingEl;
+			if(_tiddlers.length > 0) {
+				headingEl = $("<li />").addClass("listTitle activityGroupTitle").text(heading).appendTo(container);
+			}
+			var rendered = [];
+			for(j = 0; j < _tiddlers.length; j++) {
+				var item = macro.createFeedEntry(container, _tiddlers[j], options);
+				if(item) {
+					rendered.push(item);
+				}
+			}
+			if(rendered.length === 0) {
+				headingEl.remove();
+			} else {
+				somethingRendered = true;
+			}
+		}
+		if(!somethingRendered) {
+			var msg;
+			if(macro.gotActivity) { // it has been run before
+				msg = macro.locale.emptyStream.format(macro.info.loaded, macro.info.queries);
+			} else {
+				msg = macro.locale.pleaseWait;
+			}
+			$(container).text(msg);
+		}
+		if(!atEndOfActivityFeed) { // show more button
+			$("<input />").attr("type", "button").val("more").click(function(ev) {
+				var currentLimit = $(place).attr("activity-limit");
+				var newLimit = parseInt(currentLimit, 10) + 50;
+				macro.default_limit = newLimit;
+				$(place).attr("activity-limit", newLimit);
+				macro.refresh(place);
+			}).appendTo(place);
+		}
+		this.gotActivity = true;
+	},
+	updateStream: function(jstiddlers, type, options) {
+		// assume already sorted.
+		var tiddlers = scanMacro._tiddlerfy(jstiddlers, options);
+		var _dirty = store.isDirty();
+		$.each(tiddlers, function(i, tid) {
+			var info = config.macros.view.activity.getActivityInfo(tid, options);
+			tid.fields["server.activity.type"] = info.type;
+			tid.fields["server.activity"] = "true";
+			if(!tid.tags.contains("excludeLists")) {
+				tid.title = tiddlyspace.getLocalTitle(tid.title, tid.fields["server.workspace"]);
+				tid.tags = tid.tags.concat(["excludeLists", "excludeMissing", "excludeSearch"]);
+				tid.fields.doNotSave = "true";
+				store.addTiddler(tid); // save caused unsaved changes alert and slowdown
+			}
+		});
+		store.setDirty(_dirty);
+	}
+};
+
+config.macros.view.views.activityItem = function(value, place, params, wikifier,
+	paramString, tiddler) {
+	var info = config.macros.view.activity.getActivityInfo(tiddler, {});
+	wikify(info.template, place, null, tiddler);
+};
+
+var helper = config.macros.view.activity = {
+	_isNotification: function(tiddler) {
+		return tiddler.tags.contains(macro.USER_AT_TAG) || tiddler.tags.contains("@all");
+	},
+	_repliesOn: function() {
+		return tiddlyspace.currentSpace.name === macro.CURRENT_USER;
+	},
+	types: {
+		video: function(tiddler) {
+			return tiddler.tags.contains("video");
+		},
+		geo: function(tiddler) {
+			return tiddler.fields["geo.lat"] && tiddler.fields["geo.long"];
+		},
+		siteInfo: function(tiddler) {
+			var title = tiddler.fields["server.title"];
+			return title === "SiteInfo";
+		},
+		userSiteIcon: function(tiddler) {
+			var modifierBag = "%0_public".format(tiddler.modifier);
+			var title = tiddler.fields["server.title"];
+			return title === "SiteIcon" && modifierBag === tiddler.fields["server.bag"];
+		},
+		spaceSiteIcon: function(tiddler) {
+			var title = tiddler.fields["server.title"];
+			return title === "SiteIcon"; // note userSiteIcon above does the bag check
+		},
+		shadow: function(tiddler) {
+			var title = tiddler.fields["server.title"];
+			return title in config.shadowTiddlers;
+		},
+		plugin: function(tiddler) {
+			return tiddler.tags.contains("systemConfig");
+		},
+		followYou: function(tiddler) {
+			var title = tiddler.fields["server.title"];
+			title = title.indexOf("@") === 0 ? title.substr(1) : title;
+			return tiddler.tags.contains("follow") && title === macro.USER_AT_TAG;
+		},
+		follow: function(tiddler) {
+			return tiddler.tags.contains("follow");
+		},
+		reply: function(tiddler) {
+			var title = tiddler.fields["server.title"];
+			var myTiddler = store.getTiddler(tiddler.title);
+			var myTiddlerIsOlder = myTiddler && myTiddler.modified < tiddler.modified;
+			return store.tiddlerExists(title) && myTiddlerIsOlder && helper._repliesOn(tiddler);
+		},
+		notify: function(tiddler) {
+			var title = tiddler.fields["server.title"];
+			var myTiddler = store.getTiddler(title);
+			var myTiddlerIsNewer = myTiddler && myTiddler.modified > tiddler.modified;
+			return helper._isNotification(tiddler) && helper._repliesOn(tiddler) && !myTiddlerIsNewer;
+		},
+		standard: function(tiddler) {
+			return true;
+		},
+		image: function(tiddler) {
+			return config.macros.image.isImageTiddler(tiddler);
+		}
+	},
+	// each type should point to a slice in ActivityStreamTemplates tiddler
+	getActivityInfo: function(tiddler, options) {
+		var repliesOn = tiddlyspace.currentSpace.name === macro.CURRENT_USER;
+		var activityType, i;
+		if(tiddler) {
+			for(i = 0; i < macro.templates.length; i++) {
+				var type = macro.templates[i];
+				if(!activityType && helper.types[type]) {
+					if(helper.types[type](tiddler)) {
+						activityType = type;
+					}
+				}
+			}
+		}
+		template = store.getTiddlerText("ActivityStreamTemplates##" + activityType) || locale.standardTemplate;
+		return activityType ? { template: template, type: activityType } : false;
+	}
+};
+
+config.macros.view.views.link = function(value, place, params, wikifier,
+		paramString, tiddler) {
+		var el = createTiddlyLink(place,value,true);
+		if(params[2]) {
+			$(el).text(params[2]);
+		}
+};
+
+config.macros.view.views.maplink = function(value, place, params, wikifier,
+		paramString, tiddler) {
+		var lat = tiddler.fields["geo.lat"];
+		var lng = tiddler.fields["geo.long"];
+		var label  = params[2] || value;
+		if(lat && lng) {
+			$("<a />").attr("href", "http://maps.google.com/maps?saddr=%0,%1".format(lat, lng)).text(label).appendTo(place);
+		}
+};
+
+var _displayS = tiddlyspace.displayServerTiddler;
+tiddlyspace.displayServerTiddler = function(src, title, workspace, callback) {
+	var localTitle = tiddlyspace.getLocalTitle(title, workspace);
+	var localTiddler = store.getTiddler(localTitle);
+
+	var _callback = function(src, tiddler) {
+		if(callback) {
+			callback(src, tiddler);
+		}
+		if(localTiddler) {
+			tiddler.fields["server.activity"] = "true";
+			tiddler.fields["server.activity.type"] = localTiddler.fields["server.activity.type"];
+		}
+	};
+	return _displayS.apply(this, [ src, title, workspace, _callback ]);
+};
+}(jQuery));
+//}}}

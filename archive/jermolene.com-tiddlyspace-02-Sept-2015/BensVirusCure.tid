@@ -1,0 +1,22 @@
+_hash: 96434fc3e1b9a659b8949abcbb240c609ba1369e
+created: 20100924140738000
+creator: jermolene
+modified: 20100924140738000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/BensVirusCure/118319:15410a3560bf9027e4eced9e1746906fed7443a9"
+server.host: http://jermolene.com
+server.page.revision: 118319
+server.permissions: read
+server.recipe: jermolene_public
+server.title: BensVirusCure
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @bengillies @jon
+title: BensVirusCure
+type: text/x-tiddlywiki
+
+There is an existing clientside HTML validator that we could use:
+
+http://code.google.com/p/google-caja/source/browse/trunk/src/com/google/caja/plugin/html-sanitizer.js

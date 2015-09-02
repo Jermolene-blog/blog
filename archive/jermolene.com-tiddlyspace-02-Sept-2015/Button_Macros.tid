@@ -1,0 +1,20 @@
+_hash: c8739700819dd51f30f7c4770f59f966004c57f2
+created: 20100923124942000
+creator: jermolene
+modified: 20100923124942000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Button%20Macros/118320:24f3e4c0bce250ecef1bfd2e03c030f867aa5898"
+server.host: http://jermolene.com
+server.page.revision: 118320
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Button Macros
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @matt
+title: Button Macros
+type: text/x-tiddlywiki
+
+Matt, I think it would be better to break those macros out into separate tiddlers, and let users recombine them when they reuse the documentation.

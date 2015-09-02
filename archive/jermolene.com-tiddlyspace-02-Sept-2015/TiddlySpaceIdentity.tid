@@ -1,0 +1,38 @@
+_hash: c821bdc0c1fb39441e236cc13ce1e25c50382b49
+created: 20100923125540000
+creator: jermolene
+modified: 20101121172050000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/TiddlySpaceIdentity/118657:ef40cc1bc83d643451a09da803385d6c7dfa8cde"
+server.host: http://jermolene.com
+server.page.revision: 118657
+server.permissions: read
+server.recipe: jermolene_public
+server.title: TiddlySpaceIdentity
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @cdent
+title: TiddlySpaceIdentity
+type: text/x-tiddlywiki
+
+//@jrbl says://
+<<<
+I think there should be packages.  Like, maybe when I sign up, I have the option of selecting from a set of predefined setups.  One, WikiLike, would include things like References as a matter of course.  Another, SocialLike, would naturally come prepacked with @following, @activitystream, and so forth.  Another would have to be @sharky.  Or maybe users automatically get several spaces created for them, in several different styles.  My thinking is that, for a particular model of work, you want to give them something that they can use right away - while allowing the communities of practice that @jermolene talks about in [[following]]@jermolene to develop.  I suppose that that's already starting to happen (e.g., @sharky).  But it could use some encouragement.  My other thought here is that people could quickly see, with a set of examples, how this one thing can support many models of work, and how they can mix and match features.
+<<<
+I hit a lot of these questions 5 years ago when TiddlyWiki first got popular. The thing presented itself in quite a dense way that requires a bit of investment to unlock. The basic problem seemed to be making something that was a general purpose tool be presented like a conventional product with conventional hooks. Meanwhile, in the field, TiddlyWiki was being used for a bunch of radically different things (GTD vs Bible studies vs. programmer notes), so we got the idea of marketing TiddlyWiki through vertical editions aimed at specific scenarios. Very much as you suggest, the idea was that   these verticals, although distinct from one another, provided equivalent entry points to the configurable universe of the full tool. The TiddlyWiki build toolset reflects this approach, and is geared towards building lots of variants of TiddlyWiki. The plan was to publish http://gtd.tiddlywiki.com/, http://gamers.tiddlywiki.com/ etc, but it never quite happened.
+
+Anyhow, TiddlySpace can be viewed as a more dynamic replacement for those TiddlyWiki build tools, and still has this idea of blending your own personal variant from off-the-shelf parts and your own special secret sauce.
+
+So, all of this matches up nicely with @jrbl's observations, I think. Now that we have TiddlySpace, the goal is that any space can be presented as a vertical edition, sometimes with a user interface to explicitly help you 'tear off' your own copy. @jon's got a good example with his [[family tree space|http://familytree.tiddlyspace.com/]].
+
+Which comes back to one of the things that we endlessly need help with: curating the front door of TiddlySpace to showcase what people are doing with it, and to guide newcomers finding their own starting point. I'm imagining the front door of TiddlySpace to end up functioning like the front page of craigslist, offering a broad menu of special interests that draws the audience in with familiar signposts and labels.
+----
+I agree with @cdent's observation that TiddlySpace is trying to support both flow and stock activities. I note that I personally use gmail in a way that is both flow and stock oriented, and I think that that approach has a powerful appeal for me.
+
+From an extreme perspective, TiddlySpace supports both in the same sense that Python or PHP does, because TiddlySpace can be used as a general purpose framework for building web applications.
+
+The question of identity applies more perhaps to how we position TiddlySpace on the front page.
+
+Perhaps the unifying thing is that TiddlySpace is a place you go to think.

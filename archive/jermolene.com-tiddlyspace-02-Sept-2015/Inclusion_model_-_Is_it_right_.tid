@@ -1,0 +1,20 @@
+_hash: ec2b4d1c7ec6160f6c53209b5e16a40ce9574911
+created: 20110407130639000
+creator: jermolene
+modified: 20110407144556000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Inclusion%20model%20-%20Is%20it%20right%3F/118428:f9c473e02696fc4cea13809ca817df46aa0d9165"
+server.host: http://jermolene.com
+server.page.revision: 118428
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Inclusion model - Is it right?
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @april1111 @colmbritton
+title: Inclusion model - Is it right?
+type: text/x-tiddlywiki
+
+As noted in UberInclusion, I believe that we need filtering, title mangling and retagging built into the inclusion mechanism. All of these features would be under the control of the space doing the inclusion, but it would be useful to have a convention for a space to declare it's preferred inclusion settings.

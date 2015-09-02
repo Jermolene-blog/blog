@@ -1,0 +1,22 @@
+_hash: 6e1c24e8bbc87a3816b58dddb7daf15272d79e8c
+created: 20101013212354000
+creator: jermolene
+modified: 20101013212354000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/file%3A%20only%20TiddlyWikis/118721:4f0d7eb0faa89f0547e51f5e3068524eb3c9713b"
+server.host: http://jermolene.com
+server.page.revision: 118721
+server.permissions: read
+server.recipe: jermolene_public
+server.title: file: only TiddlyWikis
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @cdent
+title: file: only TiddlyWikis
+type: text/x-tiddlywiki
+
+In [[file: only TiddlyWikis]]@cdent, @cdent takes up the idea that we should be designing TiddlySpace primarily for the TiddlyWiki offline case, which gets us the ability to operate online pretty much for free.
+
+@cdent wonders how to get the starter TiddlyWiki into the hands of the user: one way is to pack it up for the Android or iPhone app store. 

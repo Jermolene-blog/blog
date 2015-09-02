@@ -1,0 +1,20 @@
+_hash: 9c4218e5d95c7b3dafe8d0053b0a4e8671eb9b62
+created: 20101112145509000
+creator: jermolene
+modified: 20101112145509000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/DefaultTiddlers/118365:044041b91ab0786cb83adeb5f1396bbf0ac75d53"
+server.host: http://jermolene.com
+server.page.revision: 118365
+server.permissions: read
+server.recipe: jermolene_public
+server.title: DefaultTiddlers
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: DefaultTiddlers
+type: text/x-tiddlywiki
+
+HelloThere

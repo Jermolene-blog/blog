@@ -1,0 +1,23 @@
+_hash: 8fa24ee0e4878cead4b8de24c48d880a19c24a72
+created: 20100915151002000
+creator: jermolene
+modified: 20100915151002000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Allowing%20references%20to%20tiddlers%20from%20other%20users/118306:d257a49ee91569b1f5a88848d1ce4712a59973c7"
+server.host: http://jermolene.com
+server.page.revision: 118306
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Allowing references to tiddlers from other users
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: TiddlySpace notes
+title: Allowing references to tiddlers from other users
+type: text/x-tiddlywiki
+
+{{{
+HelloThere@Jermolene
+[[Long Explanations]]@psd
+}}}

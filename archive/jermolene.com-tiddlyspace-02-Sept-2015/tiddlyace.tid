@@ -1,0 +1,112 @@
+_hash: c89e9707a1c6dd00aa875370cc371fba35f7b779
+created: 20110405111014000
+creator: bengillies
+modified: 20110519120829000
+modifier: bengillies
+server.bag: tiddlyace_public
+server.content-type: text/html
+server.etag: "tiddlyace_public/tiddlyace/352982:4725a06ba95ab6bc84aff5d1b8b076077b705d9e"
+server.host: http://jermolene.com
+server.page.revision: 352982
+server.permissions: read
+server.recipe: jermolene_public
+server.title: tiddlyace
+server.type: tiddlyweb
+server.workspace: bags/tiddlyace_public
+tags: 
+title: tiddlyace
+type: text/x-tiddlywiki
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title>TiddlyAce</title>
+	<link type='text/css' rel='stylesheet' href='http://ace-ide.tiddlyspace.com/jquery-ui.css'>
+	<link type='text/css' rel='stylesheet' href='http://ace-ide.tiddlyspace.com/tiddlyace.css'>
+</head>
+<body>
+	<header>
+		<h1>TiddlyACE</h1>
+	</header>
+
+	<div id='messageArea'></div>
+
+	<div id='tiddlerList' class='ui-widget-content ui-corner-all'>
+		<div id='toolbar'>
+			<ul>
+				<li class="toolbarButton ui-button ui-button-text-only ui-corner-all ui-state-default ui-widget">
+					<a href='javascript:;' class='newTiddler'>New</a>
+				</li>
+				<li class="toolbarButton ui-button ui-button-text-only ui-corner-all ui-state-default ui-widget">
+					<a href='javascript:;' class='save'>Save</a>
+				</li>
+			</ul>
+		</div>
+		<div id='tiddlers'>
+		</div>
+		<div id='readOnly' class='ui-widget-content ui-corner-all'>
+			<a href='javascript:;' class='typeHeader ui-state-active ui-corner-all ui-widget'>read only</a>
+			<div id='readOnlyTiddlers'>
+			</div>
+		</div>
+	</div>
+
+	<div id='workingArea'>
+		<ul id='tabList'>
+		</ul>
+		<div id='tabContainer'>
+		</div>
+	</div>
+
+
+	<script type='text/x-template' id='tabTemplate'>
+	<li>
+		<a href="#{href}">#{label}</a>
+		<span class="ui-icon ui-icon-close">Remove Tab</span>
+	</li>
+	</script>
+	<script type='text/x-template' id='tiddlerTypeTemplate'>
+	<div class='tiddlers#{type} ui-widget-content ui-corner-all'>
+		<a href='javascript:;' class='typeHeader ui-state-active ui-corner-all ui-widget'>#{type}</a>
+		<ul class='tiddlerList'>
+		</ul>
+	</div>
+	</script>
+	<script type='text/x-template' id='tiddlerListTemplate'>
+	<li tiddler="#{title}" class="ui-widget-header ui-corner-all ui-widget">
+		<a href="/#{title}">#{title}</a>
+	</li>
+	</script>
+	<script type='text/x-template' id='tiddlerDialogTemplate'>
+	<div id="dialog-form" title="New Tiddler">
+		<form id="NewTiddlerDialog">
+			<fieldset>
+				<label for="tiddlerName">Title</label>
+				<input type="text" name="tiddlerName" class="text ui-widget-content ui-corner-all" />
+				<label for="tiddlerType">Type</label>
+				<select name="tiddlerType" class="text ui-widget-content ui-corner-all">
+				</select>
+			</fieldset>
+		</form>
+	</div>
+	</script>
+	<script type='text/x-template' id='tiddlerTypeOptions'>
+	<option value="#{type}">#{type}</option>
+	</script>
+	<script src="http://ace-ide.tiddlyspace.com/ace.js" type="text/javascript" charset="utf-8"></script>
+	<script src="http://ace-ide.tiddlyspace.com/theme-twilight.js" type="text/javascript" charset="utf-8"></script>
+	<script src="http://ace-ide.tiddlyspace.com/mode-css.js" type="text/javascript" charset="utf-8"></script>
+	<script src="http://ace-ide.tiddlyspace.com/mode-html.js" type="text/javascript" charset="utf-8"></script>
+	<script src="http://ace-ide.tiddlyspace.com/mode-svg.js" type="text/javascript" charset="utf-8"></script>
+    <script src="http://ace-ide.tiddlyspace.com/mode-javascript.js" type="text/javascript" charset="utf-8"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="http://ace-ide.tiddlyspace.com/jquery-json.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="http://ace-ide.tiddlyspace.com/jquery-ui.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="http://ace-ide.tiddlyspace.com/chrjs" type="text/javascript" charset="utf-8"></script>
+	<script src="http://ace-ide.tiddlyspace.com/chrjs-store.js" type="text/javascript" charset="utf-8"></script>
+	<script src="http://ace-ide.tiddlyspace.com/tiddlyace.js" type="text/javascript" charset="utf-8"></script>
+
+</body>
+</html>

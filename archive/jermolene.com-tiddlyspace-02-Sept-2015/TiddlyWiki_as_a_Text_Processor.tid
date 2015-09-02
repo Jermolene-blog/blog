@@ -1,0 +1,43 @@
+_hash: 44311e20139c46f60d5268c125b53945ea703d82
+created: 20101229155328000
+creator: jermolene
+modified: 20101229155425000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/TiddlyWiki%20as%20a%20Text%20Processor/118665:3135d297ee0f78a84892edbb4999d314e4d01b0d"
+server.host: http://jermolene.com
+server.page.revision: 118665
+server.permissions: read
+server.recipe: jermolene_public
+server.title: TiddlyWiki as a Text Processor
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: TiddlyWiki
+title: TiddlyWiki as a Text Processor
+type: text/x-tiddlywiki
+
+TiddlyWiki can be thought of as a text processing system. The idea is to process tiddlers into their interactive representations through a pipeline:
+
+''raw text'' is //transformed// into ''evaluated text'' which is //parsed// into a ''tree'' which is //rendered// to the ''output''
+
+* ''raw text'' is always plain Unicode text but it can represent wiki markup, a CSS stylesheet, HTML, SVG, a base64 image, or plain text
+* the //transformations// are textual transformations that look for patterns in the text and apply the associated processing. For example:
+** transclusion of other tiddlers
+** aliasing of references to other tiddlers
+* //transformations// are applied repeatedly until none more can be applied, or an infinite loop is entered
+* ''evaluated text'' is still plain Unicode text, and generally represents the same thing that it did when it was raw text
+* the type of //parsing// performed depends on what the text represents:
+** wiki markup is converted to a JSON tree representation
+** CSS stylesheets are converted to a JSON representation of CSS3 stylesheets
+** HTML text is converted to a JSON representation of HTML
+** JavaScript is converted to a JSON representation of the source
+** etc
+* the ''tree'' is always a JSON compatible JavaScript object
+* the //rendering// depends again on what the text represents:
+** a wiki tree is rendered into the DOM with augmentations for dynamic content
+** a stylesheet is rendered into CSS text and added to the DOM
+** an HTML tree is rendered to the DOM
+** a JavaScript tree is compiled back to JavaScript, if necessary with compile-time or run-time safety checks imposed
+
+The separation between transformation and parsing is needed so that transformation can be used to stitch together material to be parsed.

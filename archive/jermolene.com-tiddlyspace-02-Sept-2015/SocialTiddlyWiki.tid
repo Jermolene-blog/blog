@@ -1,0 +1,79 @@
+_hash: f777c260be20e841dec0af2d8cae2563a303b78a
+created: 20110407130020000
+creator: jermolene
+modified: 20110407144537000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/SocialTiddlyWiki/118519:a00f54c8973ee6f0bce900fe7d60c43ad08cdf62"
+server.host: http://jermolene.com
+server.page.revision: 118519
+server.permissions: read
+server.recipe: jermolene_public
+server.title: SocialTiddlyWiki
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @april1111 TiddlySpace notes
+title: SocialTiddlyWiki
+type: text/x-tiddlywiki
+
+//These notes date from early 2010, as I started to switch attention from TiddlyWiki5 to TiddlySpace//
+
+So, TiddlyWeb is getting to it's 1.0 release, the point at which the community feels that the design and implementation are stable and complete enough to be usable.
+
+We've had multi-user versions of TiddlyWiki before, but they really only literally address the need to allow multiple users to safely edit the same TiddlyWiki without losing data. They don't update the TiddlyWiki interface paradigm to exploit the capabilities added by introducing a server.
+
+So, a traditional multi-user version of TiddlyWiki might work like this:
+
+http://samsvacation.tiddlywikiserver.com/ - Sam publishing details of his holiday (anyone can read, only Sam can make changes)
+
+http://alphaclub.tiddlywikiserver.com/ - A private TiddlyWiki for a group to collaborate (only people in the group can read it or make changes, everyone else can't even see that it's there)
+
+In Social TiddlyWiki, users get a single workspace, and that is the only space in which they are allowed to write (and no-one else can make modifications). Tiddlers in that space can be marked as draft or private, in which case they are invisible to other users.
+
+Users opt in and out of following other users, which has several effects:
+
+The context menu for tiddler links shows a list of followed users who have a tiddler with the same title (shown in reverse order of last modification)
+A new 'river of thoughts' view shows excerpts from any tiddlers modified by people you follow. If you have a tiddler with the same title, it is highlighted
+When you see a tiddler from another user you have options like ignoring that user, ignoring this particular tiddler, or marking it with 1-5 stars/thumbsdown as a "like/dislike". This is used to further tune the river of thought, and aggregated it gives insight into the interesting stuff out there.
+
+Aggregating this attention data allows compilation of popularity charts, recommendation engines etc.
+
+The intention is to support a form of intellectual discourse where each writer seeks to build their own universe of understanding, with loose, one-way links to those of other individuals. This allows each individual to be the king of their own domain, in the sense that they can publish whatever they like, with no need to consult or worry about anyone else. And yet, they can make their contribution to the greater understanding of the group as a whole through the network of aggregated knowledge. Garrett Lisi's Deferential Geometry is a great example of what an individual TiddlyWiki might look like.
+
+In Twitter terms, each tiddler title is a hashtag, in that the titles are used to rally discussions around particular topics. Like twitter, STW would support ad-hoc social conventions (like having an "AboutMe" tiddler).
+
+It would support conventions/memes like NoToThirdRunway vs. YesToThirdRunway with voting being measurable from both an individual and aggregate viewpoint.
+
+Changes to TiddlyWiki:
+- introduction of the concept of a link to multiple tiddlers (perhaps shown with double underline). By default, the new tiddlers open sideways, which is to say that they move the story column one notch to the right, and open the indicated tiddlers in the newly empty column
+- HelloThere - refers to tiddlers titled "HelloThere"
+- HelloThere:2 - refers to a particular revision of a particular tiddler
+- #HelloThere - is used both for inline tagging and to refer to all tiddlers tagged or titled "HelloThere"
+- ?HelloThere - refers to the matches for searching for "HelloThere"
+- @JoeBloggs - refers to another user
+- @* - refers to all the people you follow
+- @** - refers to everyone
+- HelloThere@JoeBloggs - refers to a particular tiddler by a particular author
+- ?crypto@JoeBloggs - refers to all tiddlers that match the search "crypto" that were authored by JoeBloggs
+- #blog@JoeBloggs - refers to all JoeBloggs' tiddlers that are tagged "blog"
+- @JoeBloggs++ - expresses a vote of approval for a particular user
+- @JoeBloggs-- - expresses a note of disapproval for a particular user
+- #HashTag++ - expresses approval/interest in a hashtag
+- #HashTag-- - expresess disapproval in a hashtag
+- HelloThere@JoeBloggs++ - links to the specified tiddler from the specified user, and attaches a positive/agreement vote to the link
+- HelloThere@JoeBloggs-- - links to the specified tiddler from the specified user, and attaches a negative/disagreement vote to the link
+
+Although discussed here as though it were centralised service, STW could plausibly be implemented in a distributed fashion. Low traffic situations could use federated TiddlyWeb servers talking to each other with HTTP, but scalability would require a messaging infrastructure too. Using a standalone TiddlyWiki document on a WebDAV server is entirely plausible: only one person needs to edit it at once
+
+In the same way that Twitter trends towards power users having multiple user accounts with different characteristics, rather than adding lots of lxayers of options and configurability to how user accounts work.
+
+Maybe we'll need to have some options for fuzzy matching tiddler titles? I'd rather not, just in the same way that we don't fuzzy match URLs.
+
+Anyhow, you could think about this as a sort of Anti-Wave to Google's Wave, which embodies several ideas that I've found to be superficially attractive, but perniciously dangerous from a user interface design perspective:
+
+- simultaneous editting
+
+- hierarchies as a means of organisation
+
+- create new spaces as one would create a new twitter account

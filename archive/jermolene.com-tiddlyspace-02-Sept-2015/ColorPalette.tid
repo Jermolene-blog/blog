@@ -1,0 +1,36 @@
+_hash: b59c5a5b1f85f8ceff218f874f8e9d76f10ec5ec
+created: 20100919194945000
+creator: jermolene
+modified: 20110928153235000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/ColorPalette/118342:ebd308bd5bd2e32f971ff2ef0317582cfbdd0da6"
+server.host: http://jermolene.com
+server.page.revision: 118342
+server.permissions: read
+server.recipe: jermolene_public
+server.title: ColorPalette
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: ColorPalette
+type: text/x-tiddlywiki
+
+/*{{{*/
+Background: #ffffff
+Foreground: #000000
+PrimaryPale: #bbb
+PrimaryLight: #999
+PrimaryMid: #666
+PrimaryDark: #333
+SecondaryPale: #c0c3ee
+SecondaryLight: #6b72d8
+SecondaryMid: #2c35aa
+SecondaryDark: #000000
+TertiaryPale: #c1eec0
+TertiaryLight: #6ed86b
+TertiaryMid: #31aa2c
+TertiaryDark: #000000
+ColorPaletteParameters: HSL([357|59], [0.5831102798692882],[0.0017397559713572264|0.8448509825393558])
+/*}}}*/

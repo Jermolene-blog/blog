@@ -1,0 +1,40 @@
+_hash: cd12ca71dca22b6eb12c58f0b055b3be6fea495c
+created: 20101009083922000
+creator: jermolene
+modified: 20101009083922000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Some%20more%20following%20thoughts/118520:ccf8bc6653c673e707f5427f255a35fb75a566af"
+server.host: http://jermolene.com
+server.page.revision: 118520
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Some more following thoughts
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @jon
+title: Some more following thoughts
+type: text/x-tiddlywiki
+
+A couple of points in reply to @jon:
+<<<
+!!Replying
+The reply button is not really working.
+@cdent suggested instead it might only include text that has been highlighted, but getting highlighted text from an input box is tricky to do cross browser (although there is a jquery plugin ([[jquery.a-tools]]@wikitextbuttons that makes this easier)
+
+I am hoping plugins could be developed to update the behaviour of this button to explore replying. In the meantime I suggest the reply button does the minimum possible. Maybe if you already have a tiddler with the same name it should just link to your tiddler and only display the reply button for tiddlers you haven't replied to?
+<<<
+I'm inclined to regard the quoting functionality as a hack. It would be nicer to be able to use the link from the reply to the original text to have the UI present the referenced text as required. But until we have all that, quoting seems like a reasonable and familiar alternative.
+
+Pulling out the selected text from a text area isn't actually that hard. TiddlyWiki includes a function {{{replaceSelection(e,text)}}} in {{{DOM.js}}} that incorporates the required logic. It should be possible to refactor it to expose the {{{getSelection()}}} functionality.
+<<<
+!!bad follows
+If a user bob starts following a user @jdlrobson that doesn't exist this appears in a feed as "bob is following jdlrobson" even though this is not true, as the client is dumb.
+<<<
+I don't think this is much of a problem at the moment, I'd do nothing.
+<<<
+!!Sucked in tiddler links
+Really they should be mangled. If a tiddler from @cdent contains a link to foo it should mangle it to become a link to foo@cdent. Not sure how easy this would be but imagine this would resort to regular expressions during the sucking in process.
+<<<
+I'd strongly advise against mangling the links with regexps. You'd have to precisely duplicate the logic of the existing wikifier in order to correctly identify the links. I think instead we'll have to update the wikifier and related bits of the TiddlyWiki core to allow for links to be evaluated relative to a different space.

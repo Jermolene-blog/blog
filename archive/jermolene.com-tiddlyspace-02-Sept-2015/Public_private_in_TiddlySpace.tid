@@ -1,0 +1,45 @@
+_hash: 907aadab225db713c2a86b69410ca902a9271cb8
+created: 20100721234834000
+creator: jermolene
+modified: 20100915150725000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Public%2Fprivate%20in%20TiddlySpace/118484:8648b747af93b1bac6a4d7d0714dc3a7221218f8"
+server.host: http://jermolene.com
+server.page.revision: 118484
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Public/private in TiddlySpace
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: TiddlySpace thought
+title: Public/private in TiddlySpace
+type: text/x-tiddlywiki
+
+Under the hood we have the public and private bags, external bags, and the recipe cascade. The aim is for the user interface to reflect a model that is simpler than the mechanism.
+
+The primary candidate for keeping things simple is to ensure/assume that every tiddler only exists as either a public or a private tiddler.
+
+That works well for many common usage scenarios, but doesn't cover hybrid situations like a public tiddler with a later private draft pending publication. In this situation the private draft overrides the public version in the recipe cascade, meaning that it is not directly accessible to TiddlyWiki.
+
+We could avoid the problem by using a naming convention like {{{draft: <title>}}} to form the names of tiddlers that are acting as private drafts of public tiddlers.
+
+For example:
+# click ''new tiddler''
+# click the privacy roundel on the new tiddler to open the tiddler details slider
+# click the ''public'' symbol to cause the newly created tiddler will be saved as a public tiddler
+# give the tiddler the title ''my public tiddler'', and save it
+# in another browser, check that ''my public tiddler'' is publically accessible
+# click ''edit'' on the tiddler
+# modify the text of the tiddler
+# click ''save as draft'' on the tiddler. //This causes the new tiddler to be saved as a private tiddler called ''draft: my public tiddler''//
+# click ''publish'' on the tiddler. //This causes the tiddler to be saved as a public tiddler called ''my public tiddler'', and the old draft is deleted (or just marked for deletion)//
+
+Some observations:
+* if we were flexible in the way that we encode the relationship between the draft and the public tiddler, this technique could allow for multiple drafts of a given public tiddler, which isn't possible under the current scheme, but seems pretty useful
+* this could be implemented via a new field called "publish.to" that is only applied to draft tiddlers
+** when clicking ''save as draft'' after editing a tiddler, the system creates a new private tiddler with the ''publish.to'' field, and a suitably constructed title
+** the draft tiddler can be saved and editted as usual
+** to publish the draft tiddler, it is copied to the public tiddler specified in the ''publish.to'' field. The actual title of the private tiddler would be ignored
+* there is no need for the [[publicWithPrivateDraft|http://icons.tiddlyspace.com/#publicWithDraftIcon.svg]] icon

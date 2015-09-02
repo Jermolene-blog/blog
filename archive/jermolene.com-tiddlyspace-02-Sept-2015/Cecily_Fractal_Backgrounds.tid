@@ -1,0 +1,26 @@
+_hash: ee19982008bb659afc30b7b9f0fe2c7db64b6b73
+created: 20111112110403000
+creator: jermolene
+modified: 20111112110414000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Cecily%20Fractal%20Backgrounds/118323:21bda2db92b674d711f02200ca48bed449c84241"
+server.host: http://jermolene.com
+server.page.revision: 118323
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Cecily Fractal Backgrounds
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: Cecily Fractal Backgrounds
+type: text/x-tiddlywiki
+
+I just found a good comment that I'd written on rambly's blog in 2008:
+
+http://rambly.wordpress.com/2008/08/26/thoughts-on-the-tiddlyzui/#comment-236
+
+<<<
+My idea with the fractal background thing was to have a background that reveals progressively more detail as you zoom in, but the character (colour/texture etc) of the pattern changes too, so that you can tell instinctively whether you’ve woken up looking at a row of sand dunes or a row of mountains. Imagine something like a Gosper curve that gets rounder as you zoom in….
+<<<

@@ -1,0 +1,26 @@
+_hash: 7c55d46c676afee07bdbbe2dc1f5f83977be7df9
+created: 20101029105355000
+creator: jermolene
+modified: 20101029105355000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Logging%20into%20TiddlySpace/118435:cbc60f2146baedd143eba86d77381e7a72119ab3"
+server.host: http://jermolene.com
+server.page.revision: 118435
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Logging into TiddlySpace
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: Logging into TiddlySpace
+type: text/x-tiddlywiki
+
+Logging into TiddlySpace is currently done via a macro embedded in the backstage right menu that is available in any space that I visit.
+
+This means that when I visit http://hypothetical-bad-space.tiddlyspace.com/ and enter my login credentials, I have no confidence that executable content within the space has not tampered with the login form. It would be trivial for a space to harvest usernames and passwords of anyone who logged in through that space.
+
+I wonder therefore whether it might be easier for users to manage their credentials if TiddlySpace only enabled users to login by visiting http://tiddlyspace.com/. On the understanding that the executable code within the frontpage space is safe, users would be able to verify that they are accessing the secure login form by inspecting the URL in the browser address bar.
+
+As a paranoid user, I'd welcome the ability to perform a special ReadOnlyLogin where I use my credentials to authenticate myself, but stipulate that for this session no changes should be committed to the server. In this way I would be able to investigate unknown content in a sandbox to keeps my private data safe.

@@ -1,0 +1,24 @@
+_hash: d5d8f4918a39d19b7e0c3c8a80ab296bd0ac8e22
+created: 20110406125244000
+creator: jermolene
+modified: 20110407144511000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/TiddlySpace%20Backstage/118626:6580e246b93bc1e2d9d57d33012e6c3eaeffba8e"
+server.host: http://jermolene.com
+server.page.revision: 118626
+server.permissions: read
+server.recipe: jermolene_public
+server.title: TiddlySpace Backstage
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @april1111
+title: TiddlySpace Backstage
+type: text/x-tiddlywiki
+
+The point about the backstage is that it should be organised logically so that there are simple rules governing it's layout.
+
+It's more important that it is logical and consistent than that it is efficient - it is the job of themes to adapt the TiddlySpace interface to maximise efficiency for any particular task or context. We don't want it to become a dumping ground like the system tray in Windows.
+
+For consistency, spaces and themes should not mess with the backstage. But it would be reasonable to allow users to customise it themselves.

@@ -1,0 +1,22 @@
+_hash: b4c48a116434073fe3dd125db8ac7616ac920c98
+created: 20131111192334000
+creator: osmosoft
+modified: 20131111192334000
+modifier: osmosoft
+server.bag: tiddlyspace
+server.content-type: 
+server.etag: "tiddlyspace/ToolbarCommands/1521884:36293ea17aea4b1651855221384da0eb289c8e1f"
+server.host: http://jermolene.com
+server.page.revision: 1521884
+server.permissions: read
+server.recipe: jermolene_public
+server.title: ToolbarCommands
+server.type: tiddlyweb
+server.workspace: bags/tiddlyspace
+tags: excludeLists excludeSearch
+title: ToolbarCommands
+type: text/x-tiddlywiki
+
+|~ViewToolbar|+editTiddler +cloneTiddler > fields refreshTiddler changeToPublic changeToPrivate revisions syncing permalink references jump closeOthers < closeTiddler|
+|~EditToolbar|+saveTiddler saveDraft -cancelTiddler deleteTiddler|
+|~RevisionToolbar|> fields revert|

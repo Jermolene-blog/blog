@@ -1,0 +1,52 @@
+_hash: f9945d93da520c5095f7940974c4ccde9e9bee7b
+created: 20101116185759000
+creator: jermolene
+modified: 20110407144524000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/TiddlySpace/118623:69fed1d9378fcf151113c7dd731c6a1a675a1c87"
+server.host: http://jermolene.com
+server.page.revision: 118623
+server.permissions: read
+server.recipe: jermolene_public
+server.title: TiddlySpace
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @april1111
+title: TiddlySpace
+type: text/x-tiddlywiki
+
+Brass tacks: ''the simplest, most fun way to share non-trivial stuff on the Internet''
+
+Comparison with //blogging//: it's a better way to share your thoughts than blogging because instead of ending up with a stream of consciousness you build a coherent, interlinked systematic expression of your beliefs and responses.
+
+Comparison with //twitter//: Twitter is about tuning into streams of information that rush past you. The information is explicitly ephemeral, a running commentary on life. TiddlySpace in contrast is more like a series of pools than a stream. Information is created and curated into coherent bodies of material, with linking and tags to give structure, allowing the work to be used as a source of reference, as part of a dialogue with other users, or as the basis for a derived work.
+
+It works for individuals, for groups, for loose federations.
+
+We already know that Word, Excel, PowerPoint with their email attachments and C:/ drives are not the future. Nor is transplanting those concepts to the cloud, giving us a nightmare world of file shares, cryptic filenames and inaccurate metadata. Instead we need to move away from tools that focus on presentation and instead focus on reusing information.
+
+TiddlySpace is focussed on public discussion, situations where the value of free, open discourse is dominant. "Public" can mean public to the whole Internet, or to a subset of it, such as an intranet or home network.  Although TiddlySpace can be used to manage private stuff, that's not really it's sweet spot (however, the raw TiddlyWiki client used by TiddlySpace has excellent characteristics for managing private information).
+
+TiddlySpace is an open source service. That means that it is being built here right in front of you by people and organisations that have chosen to work together on realising a shared vision of web based collaboration in the 21st century.
+
+You can participate by using it, joining the discussion, or by working with the developer community to improve the product. Bear in mind that this is an experimental service, being run so that people can use it to help the development. We aim to operate a solid and reliable service, and will do our utmost to protect the data and privacy of our users, but we do not offer any guarantees or warranties.
+
+
+
+
+The goal is to support a form of intellectual discourse where each individual writes to build their own universe of understanding, with loose, one-way links to those of other individuals. This allows each individual to be the king of their own domain, in the sense that they can publish whatever they like, with no need to consult or worry about anyone else. And yet, they can make their contribution to the greater understanding of the group as a whole through the network of aggregated knowledge.
+
+TiddlySpace has some attitudes about:
+
+Data security models - ACLs don't get maintained, public private division is so important that we might not have the luxury of portraying anything else and asymmetric following. So, our primary model of a space is that there is a 
+
+Spam and moderation - These were the unexpected side effects of networked communities. Unlike the designers of Google Wave, I believe that designers of collaboration systems should address the challenge of creating environments that simply don't allow the possibility of spam
+
+Community scale - The standard model of collaboration is to create a space to which one invites chosen collaborators. In general the utility of these spaces seems to fall off as the size of the community increases. For instance, the TiddlyWiki group is easy for me to use, but the WebKit group, which runs on the same Google system but is much, much larger, I find much more difficult to use because there's just too much stuff flying past. YouTube comments are similarly useless because they are drawn from too large a community, and I don't tend to have anything in common with them.
+
+So, having multiple users in a space in TiddlySpace are explicitly optimised for small trusted groups, reflecting the way that our working and personal relationships work. This means that spaces don't have administrators or moderators, it's more like a sharing a flat with a group of people, any of whom can eat all the food in the fridge, or indeed change the locks and keep the others out. This sounds harsh but really just reflects reality: you shouldn't share stuff with people you don't trust.
+
+Popular Wiki-like conventions - Twitter and other services have established some useful conventions that seem widely applicable: #hashtags, @user references. People can add their own conventions through plugins, too.
+

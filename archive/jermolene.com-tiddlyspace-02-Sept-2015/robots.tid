@@ -1,0 +1,22 @@
+_hash: 35333958a4be1e71dffd5f713170f41c5785914a
+created: 20130530195018000
+creator: None
+modified: 20130530195018000
+modifier: None
+server.bag: system-info_public
+server.content-type: text/plain
+server.etag: "system-info_public/robots/1521875:aec77d059c1221c909ea6edfc8b1af8fe0c31b12"
+server.host: http://jermolene.com
+server.page.revision: 1521875
+server.permissions: read
+server.recipe: jermolene_public
+server.title: robots
+server.type: tiddlyweb
+server.workspace: bags/system-info_public
+tags: excludeLists excludeSearch
+title: robots
+type: text/x-tiddlywiki
+
+User-agent: *
+Disallow: /bags
+Disallow: /recipes

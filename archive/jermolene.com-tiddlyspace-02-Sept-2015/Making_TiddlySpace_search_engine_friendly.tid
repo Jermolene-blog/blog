@@ -1,0 +1,34 @@
+_hash: c034a90068c6f4ffdfb11c10c62ab2aba573fcc1
+created: 20100926211248000
+creator: jermolene
+modified: 20100926211401000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Making%20TiddlySpace%20search%20engine%20friendly/118445:e3601231788b3d37da2b3e4bbf64305894316425"
+server.host: http://jermolene.com
+server.page.revision: 118445
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Making TiddlySpace search engine friendly
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: Making TiddlySpace search engine friendly
+type: text/x-tiddlywiki
+
+Google published their proposal for making ajax applications crawlable early in 2010:
+
+http://code.google.com/intl/de/web/ajaxcrawling/docs/getting-started.html
+
+It doesn't seem to be yet supported by Microsoft or Yahoo or anyone else but looks like it might be reasonably simple to use it for TiddlySpace.
+
+It basically assumes that you're going to use hash fragments as the primary way of navigating your application (actually {{{#!}}}), and defines a dirt simple way for search engines to request static representations of particular URIs. It defines a way for search engines to map "pretty" hash fragment URIs  to ugly URIs that only rely on a query string:
+{{{
+www.example.com/ajax.html#!key=value
+}}}
+becomes
+{{{
+www.example.com/ajax.html?_escaped_fragment_=key=value
+}}}
+The examples in their guides seem to use {{{key=value}}} sequences, and they are the only supported syntax.

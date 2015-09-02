@@ -1,0 +1,41 @@
+_hash: b182c10523c4d9fe3f622b1529b70d43f5150701
+created: 20131111192330000
+creator: osmosoft
+modified: 20131111192330000
+modifier: osmosoft
+server.bag: system-theme_public
+server.content-type: 
+server.etag: "system-theme_public/RevisionTemplate/1521915:935a0ff4c8926d6f4a4a2cc42a16f7c06abbacee"
+server.host: http://jermolene.com
+server.page.revision: 1521915
+server.permissions: read
+server.recipe: jermolene_public
+server.title: RevisionTemplate
+server.type: tiddlyweb
+server.workspace: bags/system-theme_public
+tags: excludeLists excludeMissing excludeSearch
+title: RevisionTemplate
+type: text/x-tiddlywiki
+
+<!--{{{-->
+<div macro='slideRevision'></div>
+<div class='heading'>
+	<span class="titleBar">
+		<div class='title' macro='view title text'></div>
+	</span>
+	<span class='modifierIcon'
+		macro='view modifier SiteIcon label:no height:48 width:48 preserveAspectRatio:yes'>
+	</span>
+	<div class='toolbar'
+		macro='toolbar [[ToolbarCommands::RevisionToolbar]] icons:yes height:48 width:48 more:popup'>
+	</div>
+	<div class='tagClear'></div>
+</div>
+<div class='content'>
+	<div class='viewer' macro='view text wikified'></div>
+</div>
+<div class='tagInfo'>
+	<div class='tidTags' macro='tags'></div>
+	<div class='tagging' macro='tagging'></div>
+</div>
+<!--}}}-->

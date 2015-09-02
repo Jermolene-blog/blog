@@ -1,0 +1,22 @@
+_hash: 085bfe7e2bac6925c537c937a67378bcc0b23f16
+created: 20100616094002000
+creator: jermolene
+modified: 20100616094022000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/For%20whom%20is%20TiddlySpace%20designed%3F/118369:052fd7c8c9f3be75340247778763bf80cc0ec51a"
+server.host: http://jermolene.com
+server.page.revision: 118369
+server.permissions: read
+server.recipe: jermolene_public
+server.title: For whom is TiddlySpace designed?
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: FAQ TiddlySpace
+title: For whom is TiddlySpace designed?
+type: text/x-tiddlywiki
+
+TiddlySpace is designed for people who want to publish stuff on the internet.
+
+It can be used for keeping private stuff securely on the internet, but that is not really the goal.

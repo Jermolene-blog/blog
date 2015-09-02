@@ -1,0 +1,20 @@
+_hash: c632865df818925daec0d5040975797a27218e81
+created: 20131111192330000
+creator: osmosoft
+modified: 20131111192330000
+modifier: osmosoft
+server.bag: system-info_public
+server.content-type: 
+server.etag: "system-info_public/setDefaultTiddlers/1521878:2ac5c13c3faebc01f62658c728c53ff704000a40"
+server.host: http://jermolene.com
+server.page.revision: 1521878
+server.permissions: read
+server.recipe: jermolene_public
+server.title: setDefaultTiddlers
+server.type: tiddlyweb
+server.workspace: bags/system-info_public
+tags: excludeLists excludeSearch
+title: setDefaultTiddlers
+type: text/x-tiddlywiki
+
+Once you have some content then you may choose to determine a tiddler, or set of tiddlers to display each time you load ~TiddlySpace. This is determined by the [[DefaultTiddlers]].

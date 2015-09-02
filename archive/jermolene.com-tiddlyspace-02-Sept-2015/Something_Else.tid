@@ -1,0 +1,20 @@
+_hash: ff14a0409e4efd4ffcdb7fb1c42308603d3486b1
+created: 20130312183308000
+creator: jermolene
+modified: 20130312183308000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Something%2FElse/1145494:9b99f063d21a5b643823b049a3ba2f9d1d33d0a1"
+server.host: http://jermolene.com
+server.page.revision: 1145494
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Something/Else
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: Something/Else
+type: text/x-tiddlywiki
+
+Type the text for 'New Tiddler'

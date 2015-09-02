@@ -1,0 +1,22 @@
+_hash: 2ca7e9ec2f6a063e9966ea4b2b4a89e58d32129b
+created: 20100923105630000
+creator: jon
+modified: 20110614112717000
+modifier: jon
+server.bag: following_public
+server.content-type: 
+server.etag: "following_public/Activity/70863:6e859b98306f7a7d596eecd98f62ff586c640d8f"
+server.host: http://jermolene.com
+server.page.revision: 70863
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Activity
+server.type: tiddlyweb
+server.workspace: bags/following_public
+tags: excludeLists
+title: Activity
+type: text/x-tiddlywiki
+
+[[Replies and Notifications]]
+
+<<activity>>

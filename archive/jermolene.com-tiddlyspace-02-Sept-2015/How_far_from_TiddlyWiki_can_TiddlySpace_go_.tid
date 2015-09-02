@@ -1,0 +1,24 @@
+_hash: 0713253f3b2888bb5b17764f387e45fa99621682
+created: 20110407144438000
+creator: jermolene
+modified: 20110407144624000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/How%20far%20from%20TiddlyWiki%20can%20TiddlySpace%20go%3F/118421:b601cf231a135a2747bb53ccac52fd129ada7dcd"
+server.host: http://jermolene.com
+server.page.revision: 118421
+server.permissions: read
+server.recipe: jermolene_public
+server.title: How far from TiddlyWiki can TiddlySpace go?
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @april1111
+title: How far from TiddlyWiki can TiddlySpace go?
+type: text/x-tiddlywiki
+
+TiddlySpace is an attempt to unify a little ecosystem of tools that play to the idea that the "tiddler is the thing". TiddlyWiki and TiddlyWeb have an independent existence from TiddlySpace, and need to continue to serve their separate audiences. TiddlySpace extends both of them through plugins and other customisations. The intent is that the needs of TiddlySpace will help test the design of TiddlyWeb and TiddlySpace, and provide us with further use cases to drive their development.
+
+TiddlyWiki is definitely not the only way to access TiddlySpace. TiddlyWeb's ability to serialise tiddlers on the server was a critical motivation in it's creation (at least for me), and provides TiddlySpace's very attractive ability to serve individual tiddlers in a variety of formats.
+
+I'm interested in non-web based TiddlySpace clients in particular.

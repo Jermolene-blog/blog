@@ -1,0 +1,20 @@
+_hash: c1cd42462c1b10a4e77a891408b9c2a24da3b2e6
+created: 20131111192334000
+creator: osmosoft
+modified: 20131111192334000
+modifier: osmosoft
+server.bag: tiddlyspace
+server.content-type: image/svg+xml
+server.etag: "tiddlyspace/backstage.svg/1521885:6844b38586f3b39664acb98898b7ac9492af51e7"
+server.host: http://jermolene.com
+server.page.revision: 1521885
+server.permissions: read
+server.recipe: jermolene_public
+server.title: backstage.svg
+server.type: tiddlyweb
+server.workspace: bags/tiddlyspace
+tags: excludeLists excludeSearch
+title: backstage.svg
+type: text/x-tiddlywiki
+
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" height="100%" width="100%" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="0 0 40 40"><metadata><rdf:RDF><cc:Work rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/><dc:title/></cc:Work></rdf:RDF></metadata><defs><linearGradient id="lG3826" x1="7.0996" gradientUnits="userSpaceOnUse" y1="18.829" gradientTransform="matrix(1.5858347,0,0,1.8078238,1098.1851,351.13716)" x2="1.5461" y2="-0.95166"><stop stop-color="#000" offset="0"/><stop stop-color="#9c9b99" offset="1"/></linearGradient><linearGradient id="lG3828" y2="372.44" gradientUnits="userSpaceOnUse" y1="375.7" x2="1111.7" x1="1097.7"><stop style="stop-color:#ac9393;" offset="0"/><stop style="stop-color:#c8b7b7;" offset="1"/></linearGradient></defs><g transform="translate(-1080.9375,-357.3329)"><path style="stroke-width:0;stroke-miterlimit:4;fill:url(#lG3826);" d="m1080.9,357.32,39.996-0.0426-0.01,40.008c-15.507-25.519-15.36-25.95-39.988-39.965z"/><path style="stroke-dashoffset:0;stroke:#7aa3be;stroke-linecap:round;stroke-miterlimit:4;stroke-width:1.49999988;fill:#c1e6fd;" d="m1091.9,363.55c6.5716-6.4925,16.576-7.3925,23.147-0.90003,6.5717,6.4925,6.5717,17.019,0,23.511-4.4424-8.6113-12.288-15.713-23.147-22.611z"/><path style="stroke-dashoffset:0;stroke:#ce81b0;stroke-linecap:round;stroke-miterlimit:4;stroke-width:1.5;fill:#f4c4e2;" d="m1110.2,367.62c3.217,3.2168,3.217,8.4323,0,11.649-3.8194-4.2357-8.3307-8.1824-11.649-11.649,3.217-3.2168,8.4325-3.2168,11.649-0.00002z"/><path style="stroke-linejoin:bevel;stroke:#000000;stroke-linecap:round;stroke-dasharray:none;stroke-miterlimit:4;stroke-width:0.80000001;fill:url(#lG3828);" d="m1081,357.34c18.79,6.4752,32.53,16.56,39.894,39.892-11.19-17.028-14.878-19.19-27.352-14.96,6.2984-12.098,3.9371-13.19-12.542-24.932z"/></g></svg>

@@ -1,0 +1,30 @@
+_hash: 495c412084eed5b88d0341f106255d142f3366e7
+created: 20110205161352000
+creator: jermolene
+modified: 20110205161352000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Rethinking%20TiddlyWiki%20serversides/118487:4fbf8dfd98dbb26a2a6362b2a0ef084a9e8e7fb8"
+server.host: http://jermolene.com
+server.page.revision: 118487
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Rethinking TiddlyWiki serversides
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: Rethinking TiddlyWiki serversides
+type: text/x-tiddlywiki
+
+TiddlyWiki manages to be surprisingly useful without needing a serverside at all. A static TiddlyWiki HTML file can be put on any web server and benefits from highly optimised performance for static files.
+
+All those dynamic serversides like TiddlyWeb (and TiddlySpace) can actually be seen as a step backwards by requiring the server to process individual requests and stitch together a custom response string. The result is several orders of magnitude slower than serving a static file. In practice, caching helps a great deal, but the result is still slower and more brittle than serving a static file.
+
+It has also turned out to be quite hard for a server to efficiently generate HTML representations of individual wikitext tiddlers on the fly. The problem stems from the way that tiddlers can reference and include other tiddlers - in fact, in the worst cases, the entire TiddlyWiki document might need to be processed in order to generate a single tiddler.
+
+This suggests one simple approach to providing serverside support for TiddlyWiki: to run a long-lived serverside session process containing an instance of the TiddlyWiki client code modified to allow tiddlers to be retrieved over HTTP. However, performance would be pretty terrible, particularly if users were required to be authenticated and to each have their own dedicated session.
+
+An attractive hybrid approach might be to maintain all content in static files that can be served directly by the web server, and just to use a serverside for handling updates.
+
+The existing client side machinery for efficiently updating onscreen representations of tiddlers as their values change can be re-purposed to efficiently update on-disc representations of tiddlers.

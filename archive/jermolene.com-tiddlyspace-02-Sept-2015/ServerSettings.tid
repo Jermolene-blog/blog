@@ -1,0 +1,20 @@
+_hash: 851da9dbb817815369c42ef36bda242b902a89af
+created: 20120802122001000
+creator: cdent
+modified: 20130829082518000
+modifier: pads
+server.bag: replanadu_public
+server.content-type: text/x-tiddlywiki
+server.etag: "replanadu_public/ServerSettings/1376268:e3e5e5abb80d8ec28022b983ad93eab701bb8320"
+server.host: http://jermolene.com
+server.page.revision: 1376268
+server.permissions: read
+server.recipe: jermolene_public
+server.title: ServerSettings
+server.type: tiddlyweb
+server.workspace: bags/replanadu_public
+tags: excludeLists
+title: ServerSettings
+type: text/x-tiddlywiki
+
+index: About

@@ -1,0 +1,53 @@
+_hash: 2c0a2267a2bebd773c2eaa524418ebc7af097529
+created: 20120924172122000
+creator: cdent
+modified: 20131112153516000
+modifier: cdent
+server.bag: edit_public
+server.content-type: application/javascript
+server.etag: "edit_public/editedit.js/1524119:7e1851f3c6f728f452493c247b318f8ab927d15d"
+server.host: http://jermolene.com
+server.page.revision: 1524119
+server.permissions: read
+server.recipe: jermolene_public
+server.title: editedit.js
+server.type: tiddlyweb
+server.workspace: bags/edit_public
+tags: 
+title: editedit.js
+type: text/x-tiddlywiki
+
+$(document).ready(function() {
+    // leave if there's no tiddler to work with
+    var wholething = $('#text-html.section');
+    if (wholething.length == 0) return;
+
+    var place = $("#container").length > 0 ? $("#container")[0] : document.body;
+    var space = window.location.host.split(".")[0]
+    var title = $("#title").text();
+    var bagInfo = $('.bag').first().text().split(/_/);
+
+    // don't show edit link if tiddler is not in this space
+    if (bagInfo[0] !== space) return;
+
+    function addLink() {
+        $("<a id='editLink' />").attr('href'
+            , '/edit#' + encodeURIComponent(title))
+            .text("edit tiddler").prependTo(place);
+    }
+    
+    // add edit link if user is member
+    if (window.tiddlyweb && tiddlyweb.status) {
+        if (tiddlyweb.status.space.recipe.match(/_private$/)) {
+            addLink();
+        }
+    } else {
+        $.ajax({ url: "/spaces/" + space + "/members",
+            success: function(r) {
+                if(r) {
+                    addLink();
+                }
+            }
+        });
+    }
+});

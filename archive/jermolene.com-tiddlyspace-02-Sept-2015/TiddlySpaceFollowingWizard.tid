@@ -1,0 +1,115 @@
+_hash: 51c977fd69fe5439468369c45ad3386ad7db032e
+created: 20101222235738000
+creator: jon
+modified: 20120118140029000
+modifier: jon
+server.bag: following_public
+server.content-type: 
+server.etag: "following_public/TiddlySpaceFollowingWizard/71031:4a1d3cbb99eef624ad629ffa80d7d3d801d65278"
+server.host: http://jermolene.com
+server.page.revision: 71031
+server.permissions: read
+server.recipe: jermolene_public
+server.title: TiddlySpaceFollowingWizard
+server.type: tiddlyweb
+server.workspace: bags/following_public
+summary: 
+tags: excludeLists excludeSearch systemConfig
+title: TiddlySpaceFollowingWizard
+type: text/x-tiddlywiki
+
+/***
+|''Name''|TiddlySpaceFollowingWizard|
+|''Version''|0.7.0|
+|''Description''|Provides a following wizard macro and deleteButton view type|
+|''Author''|Jon Robson|
+|''Requires''|TiddlySpaceConfig TiddlySpaceFollowingPlugin TiddlySpaceTiddlerIconsPlugin|
+|''License''|[[BSD|http://www.opensource.org/licenses/bsd-license.php]]|
+!Usage
+{{{ <<followWizard>> }}}
+!StyleSheet
+.followWizard ul,
+.followWizard li .siteIcon,
+.followWizard li {
+	list-style: none;
+	display: inline-block;
+}
+
+.followWizard li {
+	margin-right: 8px;
+	background-color: #eee;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	padding: 4px;
+}
+!Code
+***/
+//{{{
+(function($) {
+
+var tweb = config.extensions.tiddlyweb;
+var tiddlyspace = config.extensions.tiddlyspace;
+var currentSpace = tiddlyspace.currentSpace.name;
+
+var shadows = config.shadowTiddlers;
+shadows.FollowersTemplate = "<<view server.bag SiteIcon width:24 height:24 spaceLink:yes label:no>> <<view server.bag spaceLink>>";
+shadows.FollowingTemplate = "<<view title SiteIcon width:24 height:24 spaceLink:yes label:no>> <<view title spaceLink>> <<view title deleteButton>>";
+
+var name = "StyleSheetFollowingWizard";
+shadows[name] = "/*{{{*/\n%0\n/*}}}*/".
+	format(store.getTiddlerText(tiddler.title + "##StyleSheet"));
+store.addNotification(name, refreshStyles);
+
+var wizard = config.macros.followWizard = {
+	locale: {
+		mission: "Which user or space would you like to follow?",
+		badpermissions: "Only members of the space can maintain followers.",
+		follow: "follow"
+	},
+	handler: function(place, macroName, params, wikifier, paramString, tiddler) {
+		var locale = wizard.locale;
+		var container = $("<div />").addClass("followWizard").appendTo(place)[0];
+		if(!readOnly) {
+			var form = $("<form />").addClass("followForm").appendTo(container)[0];
+			$("<span />").text(locale.mission).appendTo(form);
+			var input = $("<input />").attr("name", "space").attr("type", "text").appendTo(form);
+			$("<input />").attr("type", "submit").val(locale.follow).appendTo(form).click(function(ev) {
+				wizard.addFollowing(ev, input.val());
+				ev.preventDefault();
+			});
+		} else {
+			$(container).addClass("annotation").text(locale.badpermissions);
+		}
+	},
+	addFollowing: function(ev, space) {
+		var name = tiddlyspace.resolveSpaceName(space);
+		if(!name) {
+			alert("That doesn't appear to be a valid space name. Please check and try again.");
+			return;
+		}
+		var title = "@" + name;
+		var tiddler = store.getTiddler(title);
+		if(tiddler) {
+			tiddler.tags.push("follow");
+		} else {
+			tiddler = new Tiddler(title);
+			tiddler.tags.push("follow");
+			merge(tiddler.fields, config.defaultCustomFields);
+		}
+		store.saveTiddler(tiddler);
+		autoSaveChanges();
+	}
+};
+
+config.macros.view.views.deleteButton = function(value,place,params,wikifier,paramString,tiddler) {
+	var tid = store.getTiddler(value)
+	if(tid && config.commands.deleteTiddler.isEnabled(tid)) {
+		var handler = function(ev) {
+			config.commands.deleteTiddler.handler(ev,ev.target,value);
+		};
+		createTiddlyButton(place, "X", "delete this tiddler", handler);
+	}
+};
+
+})(jQuery);
+//}}}

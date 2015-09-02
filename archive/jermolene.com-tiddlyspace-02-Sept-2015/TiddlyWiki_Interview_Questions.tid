@@ -1,0 +1,35 @@
+_hash: d1befc0680d7a8dd298a997837f8f34b9014cb9f
+created: 20101020102221000
+creator: jermolene
+modified: 20101111171958000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/TiddlyWiki%20Interview%20Questions/118663:dbef7dde8032a264282c576d0ba9c8f549dc0d35"
+server.host: http://jermolene.com
+server.page.revision: 118663
+server.permissions: read
+server.recipe: jermolene_public
+server.title: TiddlyWiki Interview Questions
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: TiddlyWiki Interview Questions
+type: text/x-tiddlywiki
+
+//See the [[discussion on the Google group|http://groups.google.com/group/tiddlywiki/browse_thread/thread/89ae1dd8545449e]]//
+
+I'm interested in drawing up a collection of interviews with people who use TiddlyWiki. For instance, for many people it seems that there is a distinct 
+"discovery" moment when TiddlyWiki explodes in their brain. It would be cool to get some different perspectives on that. I'd like to publish the interviews as part of a larger mission of doing a better job of showcasing TiddlyWiki. Something like:
+
+http://expressionengine.com/showcase/interviews/
+http://37signals.com/customers
+
+It seems that TiddlyWiki is hard for some people to get their heads around. I'm hoping that by exploring how people who have done so think about TiddlyWiki we might be able to make it easier for others to understand what's going on. Furthermore, because TiddlyWiki is general purpose it is not always obvious how it can be used until you see how it is being used by others.
+
+The proposed questions are arranged as tiddlers in the @interview space. Here's how I imagine it working:
+* Anybody who wishes to participate answers the questions in their own space. They can do this by clicking on the "reply to this tiddler" link on the question tiddler in the @interview space, and tagging their reply "@interview"
+* The operator of the @interview space looks out for spaces answering the questions and, unless they are spam, adds the @ name of the space as a tiddler in the @interview space, tagged with "follow"
+* And then visitors to the @interview space would be able to browse the questions and flick through the different answers
+...except that it doesn't work like that at the moment, because the following macros always pick up the follow list from back in the users home space.
+

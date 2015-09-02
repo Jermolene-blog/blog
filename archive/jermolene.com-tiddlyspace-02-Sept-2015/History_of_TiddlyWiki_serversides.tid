@@ -1,0 +1,50 @@
+_hash: 034801b6b4258dbe7d92af54ab54d1288f82ea90
+created: 20110406134051000
+creator: jermolene
+modified: 20110406134051000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/History%20of%20TiddlyWiki%20serversides/118411:4da7848854b42b58815c1f6944fea17ed3d301a8"
+server.host: http://jermolene.com
+server.page.revision: 118411
+server.permissions: read
+server.recipe: jermolene_public
+server.title: History of TiddlyWiki serversides
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: TiddlySpace notes
+title: History of TiddlyWiki serversides
+type: text/x-tiddlywiki
+
+When I first published TiddlyWiki in 2004, I thought it was just a simple demo of a user interface idea, an experiment that might be sufficiently intriguing to help me prise some money from an obliging VC for some hazily defined dotcom scheme. To do that, I only had to create the things that happened in the browser, which was exceedingly handy since I didn't have any up-to-date experience with writing software that ran on web servers, nor did I have access to a proper server.
+
+So, that first version of TiddlyWiki was a simple, self-contained static 48KB HTML file. It sat on a dusty old Sun server in my friend Steph's attic. The downside of writing the first version of TiddlyWiki in that way was that it made it completely impractical to use for editing - when you click 'save changes' it just pops up a window showing the data that would be saved if it were possible for an HTML page to write to the file system.
+
+Anyhow, almost immediately after the release, people took the demo and hacked it to support saving changes to the server. These early serversides like ~PhpTiddlyWiki, ~ZiddlyWiki and ccTiddly all worked in a very simple way, doing essentially two things:
+* stitching together a TiddlyWiki file by retrieving individual tiddlers from a database
+* intercepting the {{{saveTiddler()}}} method in TiddlyWiki so that modifications to tiddlers are rippled down to the database
+The result is a kind of "one-way" cache, where the cache only reflects changes made locally, and doesn't handle simultaneous changes from other users. These restrictions turned out to be a lot less limiting in practice than I had expected, and many of the early serversides have enjoyed long and active development histories
+
+Having multiple serverside implementations supporting the same client side code turned out to be quite useful. It meant that people could choose an implementation in their favourite language or environment, and allowed TiddlyWiki to become popular outside the confines of a single serverside toolset ecosystem.
+
+However, each of the serversides was ending up re-inventing the wheel in terms of the interface to TiddlyWiki itself. So we needed properly define two interfaces: a "physical" HTTP interface, and a "logical" JavaScript interface.
+
+//to be completed...//
+----
+
+the js interface makes us independent of the http interface
+some interesting http interfaces we don't control
+so wanted to evolve a sufficiently general js interface
+socialtext gave us an opportunity to do that
+particularly supporting the offline wiki usecase, but intended to be wider by being close to a generic REST interface
+adaptor interface isn't finished yet, though
+worked with chris
+knew that he was webby, found out that he was looking for a gig
+had the opportunity to brain dump 3 years worth of thoughts and let chris make sense of them
+much more disciplined structured thinker than me, turned my watercolour blurry sketch into a blueprint
+
+security model
+everyone says they want ACLs because reflected in lots of product UIs
+but actually, not a very human metaphor
+and despite the words, the mechanism seems to be ignored and abused

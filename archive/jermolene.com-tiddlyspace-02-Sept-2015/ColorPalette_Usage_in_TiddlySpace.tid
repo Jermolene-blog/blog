@@ -1,0 +1,46 @@
+_hash: 090d45b757b1bb24078986870c79bdf3076a4e6c
+created: 20101016215858000
+creator: jermolene
+modified: 20101018145714000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/ColorPalette%20Usage%20in%20TiddlySpace/118348:3144ae9e6ee5c925c4f993f0661399327aa91323"
+server.host: http://jermolene.com
+server.page.revision: 118348
+server.permissions: read
+server.recipe: jermolene_public
+server.title: ColorPalette Usage in TiddlySpace
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: ColorPalette Usage in TiddlySpace
+type: text/x-tiddlywiki
+
+The current default theme changes the sidebar tabs to use the {{{PrimaryPale/Light/Mid/Dark}}} colour for the ColorPalette, rather than the {{{SecondaryPale/Light/Mid/Dark}}} used in classic TiddlyWiki.
+
+Structurally, I think this is a shame, as it ties together the colours of the header and the sidebar tabs, which are the two dominant visual elements, and makes it very difficult for any derived theme to use different colours for the those elements. A better way to have achieved the same effect would just have been to set the {{{SecondaryPale/Light/Mid/Dark}}} colours to be the same as the {{PrimaryPale/Light/Mid/Dark}}} colours.
+
+The current RandomColorPaletteGenerator plugin also seems to occasionally create the {{{Primary/Secondary/TertiaryDark}}} colours to {{{#000000}}}. This is wrong, as the intention is that the dark colours should still be perceptibly lighter than black.
+
+I wonder if we should introduce an extra level of indirection in the colour palette definitions. We could have this in a stylesheet:
+{{{
+.tabset {
+	color: [[ColorWays::TabForeground]];
+	background: [[ColorWays::TabBackground]];
+}
+}}}
+With this in the {{{ColorWays}}} tiddler:
+{{{
+TabForeground: [[ColorPalette::PrimaryPale]];
+TabBackground: [[ColorPalette::PrimaryDark]];
+}}}
+And this in the {{{ColorPalette}}}:
+{{{
+...
+PrimaryPale: #fea832;
+...
+PrimaryDark: #8a6212;
+...
+}}}
+In this way, it would be 

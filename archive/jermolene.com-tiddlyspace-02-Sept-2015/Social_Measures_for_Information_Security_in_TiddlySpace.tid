@@ -1,0 +1,30 @@
+_hash: 366c7883215a3f4b535bb83d45f8ce4601005f0e
+created: 20101002150806000
+creator: jermolene
+modified: 20101010192349000
+modifier: jermolene
+publish.name: Social Measures for Information Security in TiddlySpace
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Social%20Measures%20for%20Information%20Security%20in%20TiddlySpace/118517:d54f6a0456664ae51791b88f1067fb1cdfba2b28"
+server.host: http://jermolene.com
+server.page.revision: 118517
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Social Measures for Information Security in TiddlySpace
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: Social Measures for Information Security in TiddlySpace
+type: text/x-tiddlywiki
+
+As discussed in the @security space, and in SecurityHandling@tiddlyspace, TiddlySpace includes many features that could be dangerous in the hands of a mischievous or malicious person. It is expected that both technical and social measures will be taken to tackle the issues without losing the benefits that TiddlySpace provides.
+
+One class of social measures is preventing untrusted people from sharing dangerous stuff. This could be done by requiring some level of user account accreditation or payment before allowing users to become members of other spaces, create new spaces, or have their spaces included into other spaces.
+
+The general idea is to keep untrusted users in a sandbox where they don't have access to any unsafe features, but letting them buy their way out. Instead of payment, it may be sufficient for them to just provide enough information for them to be personally identified, so that they can be held accountable for any bad stuff. In practice, malicious code often spreads through people you trust who have been tricked or whose machines have been compromised, so trusting individuals isn't enough.
+
+Another potential defence is for separate servers to be be provisioned and federated for whatever size of group that does have the right level of trust for each other, and can afford collectively to defend themselves by taking backup precautions and paying the core team for clean updates. Somewhere between guilds and cliques, perhaps with the idea that these groups buy services from a combination of a computing and communications infrastructure supplier like Amazon or BT and an intellectual property centre like Osmosoft.
+
+
+

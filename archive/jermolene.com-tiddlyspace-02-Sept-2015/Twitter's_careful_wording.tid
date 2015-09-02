@@ -1,0 +1,28 @@
+_hash: 2b952e203115eb95d61e5c75ef3252cc6a4db6a1
+created: 20101203122652000
+creator: jermolene
+modified: 20101203122652000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Twitter's%20careful%20wording/118667:25af54730f4344c4089da2a932b1d1a26b2e1b9a"
+server.host: http://jermolene.com
+server.page.revision: 118667
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Twitter's careful wording
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: Twitter's careful wording
+type: text/x-tiddlywiki
+
+There is a story in today's guardian: Twitter 'did not suppress student protesters' accounts'
+
+http://www.guardian.co.uk/technology/2010/dec/01/twitter-student-protesters-accounts
+
+I thought the quote attributed to Twitter was interesting:
+<<<
+We have not, and will not, do anything to stand in the way of people using Twitter for the open exchange of information. Period
+<<<
+It seems deliberate that they leave the possibility that they might stand in the way of people using Twitter for private or covert exchange of information. A similar form of words might be useful in the TiddlySpace terms of service.

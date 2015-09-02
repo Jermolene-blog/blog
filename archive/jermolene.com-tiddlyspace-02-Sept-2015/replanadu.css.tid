@@ -1,0 +1,359 @@
+_hash: f2849a77f59b8d04868b43b08ba80333e04c0eec
+created: 20131017100756000
+creator: colmbritton
+modified: 20131017100756000
+modifier: colmbritton
+server.bag: replanadu_public
+server.content-type: text/css
+server.etag: "replanadu_public/replanadu.css/1465696:6b6d1f43dc9c6efa3ee3bc37d045da5b39c8c8ab"
+server.host: http://jermolene.com
+server.page.revision: 1465696
+server.permissions: read
+server.recipe: jermolene_public
+server.title: replanadu.css
+server.type: tiddlyweb
+server.workspace: bags/replanadu_public
+tags: 
+title: replanadu.css
+type: text/x-tiddlywiki
+
+/* Welcome to Compass.
+ * In this file you should write your main styles. (or centralize your imports)
+ * Import this file using the following HTML or equivalent:
+ * <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" /> */
+/* line 17, ../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  font-size: 100%;
+  vertical-align: baseline;
+}
+
+/* line 22, ../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+html {
+  line-height: 1;
+}
+
+/* line 24, ../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+ol, ul {
+  list-style: none;
+}
+
+/* line 26, ../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* line 28, ../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+caption, th, td {
+  text-align: left;
+  font-weight: normal;
+  vertical-align: middle;
+}
+
+/* line 30, ../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+q, blockquote {
+  quotes: none;
+}
+/* line 103, ../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+q:before, q:after, blockquote:before, blockquote:after {
+  content: "";
+  content: none;
+}
+
+/* line 32, ../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+a img {
+  border: none;
+}
+
+/* line 116, ../../../../Library/Ruby/Gems/1.8/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section, summary {
+  display: block;
+}
+
+/* line 1, ../sass/_tsbar.scss */
+nav {
+  height: 40px;
+  width: 100%;
+  background: #000b0f;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* line 10, ../sass/_tsbar.scss */
+.reply-btn,
+body #app-picker {
+  top: 6px;
+}
+
+/* line 1, ../sass/_tiddler.scss */
+.tiddler {
+  line-height: 1.444em;
+}
+/* line 4, ../sass/_tiddler.scss */
+.tiddler h1 {
+  font-size: 2.157em;
+}
+/* line 8, ../sass/_tiddler.scss */
+.tiddler h2 {
+  font-size: 1.618em;
+}
+/* line 12, ../sass/_tiddler.scss */
+.tiddler h3 {
+  font-size: 1.33em;
+}
+/* line 16, ../sass/_tiddler.scss */
+.tiddler h4 {
+  font-size: 1em;
+}
+/* line 20, ../sass/_tiddler.scss */
+.tiddler h5 {
+  font-size: 0.824em;
+  text-tranform: uppercase;
+}
+/* line 25, ../sass/_tiddler.scss */
+.tiddler h1, .tiddler h2, .tiddler h3, .tiddler h4, .tiddler h5 {
+  margin: 0.77em 0;
+}
+/* line 29, ../sass/_tiddler.scss */
+.tiddler a {
+  text-decoration: none;
+}
+/* line 32, ../sass/_tiddler.scss */
+.tiddler a:hover {
+  text-decoration: underline;
+}
+/* line 37, ../sass/_tiddler.scss */
+.tiddler header {
+  border-bottom: 1px solid #000;
+  text-align: center;
+  font-family: "Helvetica Neue";
+}
+/* line 42, ../sass/_tiddler.scss */
+.tiddler header h1 {
+  font-size: 2.337em;
+  padding: 12px 0 13px;
+  margin: 25px 0;
+}
+/* line 49, ../sass/_tiddler.scss */
+.tiddler section, .tiddler p {
+  padding: 0.72em 0;
+}
+/* line 53, ../sass/_tiddler.scss */
+.tiddler pre {
+  font-size: 0.893em;
+  padding: 0.777rem 1.444rem;
+  border: 1px solid #ccc;
+  margin: 1.444rem 0;
+  border-radius: 2px;
+}
+/* line 61, ../sass/_tiddler.scss */
+.tiddler ul, .tiddler ol {
+  margin-left: 1.33em;
+}
+/* line 65, ../sass/_tiddler.scss */
+.tiddler ul {
+  list-style: circle;
+}
+/* line 69, ../sass/_tiddler.scss */
+.tiddler ol {
+  list-style: decimal;
+}
+/* line 72, ../sass/_tiddler.scss */
+.tiddler blockquote {
+  position: relative;
+  color: #333;
+  padding: 0 1.5em;
+  margin-left: 0.72em;
+}
+/* line 78, ../sass/_tiddler.scss */
+.tiddler blockquote:before, .tiddler blockquote:after {
+  position: absolute;
+  opacity: 0.5;
+  font-size: 2em;
+}
+/* line 83, ../sass/_tiddler.scss */
+.tiddler blockquote:before {
+  content: '“';
+  top: 0;
+  left: 0;
+}
+/* line 88, ../sass/_tiddler.scss */
+.tiddler blockquote:after {
+  content: '”';
+  bottom: 0;
+  right: 0;
+}
+
+/* line 16, ../sass/replanadu.scss */
+body {
+  width: 1080px;
+  margin: 0 auto;
+  font-size: 18px;
+}
+
+/* line 22, ../sass/replanadu.scss */
+a {
+  text-decoration: none;
+}
+
+/* line 26, ../sass/replanadu.scss */
+.title {
+  font-size: 68px;
+}
+/* line 29, ../sass/replanadu.scss */
+.title a {
+  text-decoration: none;
+  color: #000b0f;
+}
+
+/* line 35, ../sass/replanadu.scss */
+header {
+  margin: 92px 0 52px;
+}
+
+/* line 39, ../sass/replanadu.scss */
+.wrapper {
+  position: relative;
+}
+
+/* line 43, ../sass/replanadu.scss */
+.original {
+  width: 600px;
+  position: relative;
+}
+
+/* line 48, ../sass/replanadu.scss */
+#local textarea {
+  height: 400px;
+  width: 99%;
+  font-size: 16px;
+  border-radius: 4px;
+  padding: 0.5em;
+  border: 2px dashed #909b9f;
+}
+
+/* line 57, ../sass/replanadu.scss */
+.pairs {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 454px;
+}
+/* line 62, ../sass/replanadu.scss */
+.pairs li {
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.2);
+  padding: 13px;
+  position: relative;
+}
+/* line 67, ../sass/replanadu.scss */
+.pairs li .meta {
+  position: absolute;
+  top: 26px;
+  left: 117px;
+  color: #909b9f;
+}
+/* line 73, ../sass/replanadu.scss */
+.pairs li .meta a {
+  color: #000b0f;
+}
+/* line 77, ../sass/replanadu.scss */
+.pairs li .meta abbr {
+  display: block;
+  line-height: 26px;
+}
+/* line 83, ../sass/replanadu.scss */
+.pairs li > a {
+  width: 78px;
+  height: 78px;
+  display: block;
+}
+/* line 89, ../sass/replanadu.scss */
+.pairs li img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+}
+/* line 96, ../sass/replanadu.scss */
+.pairs li button {
+  border: 0;
+  outline: none;
+  position: absolute;
+  right: 0;
+  top: 42px;
+}
+/* line 103, ../sass/replanadu.scss */
+.pairs li button:hover {
+  cursor: pointer;
+}
+/* line 108, ../sass/replanadu.scss */
+.pairs li .tiddler-button {
+  width: 52px;
+  height: 52px;
+  background: url(/down-tsgrey.png) no-repeat transparent;
+}
+/* line 113, ../sass/replanadu.scss */
+.pairs li .tiddler-button.open {
+  background: url(/up-tsgrey.png) no-repeat transparent;
+}
+/* line 118, ../sass/replanadu.scss */
+.pairs li .close-button {
+  width: 26px;
+  height: 26px;
+  background: transparent;
+  color: #909b9f;
+  right: 0px;
+  top: 0px;
+}
+
+/* line 129, ../sass/replanadu.scss */
+section.action-buttons {
+  padding: 0;
+  visibility: hidden;
+}
+/* line 133, ../sass/replanadu.scss */
+section.action-buttons button {
+  outline: 0;
+  border: none;
+  background: #0082af;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 16px;
+  line-height: 1.625em;
+  margin: 0;
+  padding: 0 0.5em;
+}
+/* line 144, ../sass/replanadu.scss */
+section.action-buttons button:hover {
+  cursor: pointer;
+}
+/* line 148, ../sass/replanadu.scss */
+section.action-buttons button.cancel-button {
+  background: #cc1441;
+}
+/* line 153, ../sass/replanadu.scss */
+.editable section.action-buttons {
+  visibility: visible;
+}
+
+/* line 158, ../sass/replanadu.scss */
+.open ~ .pair-content {
+  padding: 13px 4px 0;
+}

@@ -1,0 +1,20 @@
+_hash: 0f0fc6c1f84a137d07b24b6f19e3e99031aaa4a1
+created: 20100923125710000
+creator: jermolene
+modified: 20100923125710000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/ServerSide%20Wikification/118503:81468d8edad337c7e00cd5f9ac0ebf92c9b2e574"
+server.host: http://jermolene.com
+server.page.revision: 118503
+server.permissions: read
+server.recipe: jermolene_public
+server.title: ServerSide Wikification
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @bengillies @cdent
+title: ServerSide Wikification
+type: text/x-tiddlywiki
+
+I agree with @cdent that [[ServerSide Wikification]] is less important right now than overall user experience and security concerns.

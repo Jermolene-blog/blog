@@ -1,0 +1,20 @@
+_hash: c0a60eb6a55a94212e927a07e748f6ca471c39d5
+created: 20100614132834000
+creator: jermolene
+modified: 20100614132834000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/What%20does%20TiddlySpace%20do%3F/118671:d02c167bf2dc7d656d2488e924e815d4cb46a0d8"
+server.host: http://jermolene.com
+server.page.revision: 118671
+server.permissions: read
+server.recipe: jermolene_public
+server.title: What does TiddlySpace do?
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: FAQ TiddlySpace
+title: What does TiddlySpace do?
+type: text/x-tiddlywiki
+
+It allows participants to build their own distinct universe of knowledge or understanding, a space that is entirely under their own control. Spaces can link to one another, and take feeds from each other, to discuss and share content and ideas. It allows people to listen to the people they trust, and be heard by everyone. The aggregate of these individual spaces is a rich ecosystem of knowledge and discussion.

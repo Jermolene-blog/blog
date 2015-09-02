@@ -1,0 +1,20 @@
+_hash: b85ba87c205e66215937cf33cc4bdd02626b6e12
+created: 20101107213150000
+creator: jermolene
+modified: 20101108145922000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Space%20Link%20Icons/118524:ac7a72f19f1980adaf91b4ce0fa2d05eb8d39d98"
+server.host: http://jermolene.com
+server.page.revision: 118524
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Space Link Icons
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: Space Link Icons
+type: text/x-tiddlywiki
+
+Two icons designed for use within links to indicate links that will <<image "space link in.svg" height:1em width:1em>> bring content into a space versus those that <<image "space link out.svg" height:1em width:1em>>  take you out into a different space.

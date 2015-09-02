@@ -1,0 +1,45 @@
+_hash: f4d53a57931d3129a92a6a1bfa57ba75f8271c58
+created: 20101229165534000
+creator: jermolene
+modified: 20110412155604000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/TiddlySpace%20vs.%20Everything%20Else/118653:5ee6afa1c926513b486eb98a660446d098e73b25"
+server.host: http://jermolene.com
+server.page.revision: 118653
+server.permissions: read
+server.recipe: jermolene_public
+server.title: TiddlySpace vs. Everything Else
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: TiddlySpace
+title: TiddlySpace vs. Everything Else
+type: text/x-tiddlywiki
+
+TiddlySpace has a simple but powerful model of collaboration that tries to avoid some of the problems with traditional methods:
+* ''Membership-based online forums'' tend to get less useful as the number of members increases. One can see this in the poor quality of discussion on big sites like YouTube or Slashdot
+* ''Message-based collaboration'', such as traditional email, tends to lock up useful information in private inboxes where it cannot be accessed and reused by anyone else
+* ''Traditional document formats'', such as Word, Excel and Powerpoint, tend to lock information up into monolithic blobs, making it hard to merge changes from a group of collaborators. They focus on presentation and style at the expense of structure and reusability
+* ''Blogging'' and the associated infrastructure of the blogosphere, such as RSS, ping servers, feed readers and so on have given rise to a vibrant form of public discourse. However, some bloggers cite several significant niggles with the current architecture for commenting in the blogosphere. Firstly, bloggers find that they don't like the loss of control over their private space that occurs when they open their posts up for comments by their general readership. As a result, they turn comments off, and rely on Web searches and similar techniques to find the reactions to their posts. Secondly, bloggers also keenly participate in other people's blogs by leaving comments. Some of them subsequently report frustration that their blog only represents half of their output, the rest being scattered over random spaces on the Internet that they don't control
+----
+In [[TiddlySpace vs. Everything Else]]@bengillies, @bengillies has lots to say. My key response is that this tiddler is about us choosing how to position TiddlySpace against these other products. I'm not arguing that these aren't good products in their own way, but just to try to highlight how they differ from TiddlySpace. Anyhow...
+<<<
+I wouldn't really class YouTube or Slashdot as traditional membership-based online forums. Stack Overflow is much more similar to an online forum, and is hugely useful even with a large userbase. The more traditional online forums (http://ukclimbing.com/forums for example), while a significant amount of posts aren't necessarily interesting, a large proportion are really interesting and foster a close community spirit. Ignoring that though, I'd say that YouTube has become far more useful and interesting with more users, and Slashdot's comments (at least in its hey-day) were often more useful and interesting than the story they link to.
+<<<
+I'm not saying that big forums are all broken, just that in general, the utility of communities tails off as they get bigger and bigger. And I wasn't saying that YouTube wasn't useful as it got bigger, but that the discussions around the videos get less useful.
+<<<
+Email (and IM, SMS, regular post, phone calls, etc) all solve the problem of communicating directly with someone, which is something that history has proven they do really well. Sure email locks up information, but only until someone ask you for it, whereupon you forward it to them (which is really convenient, if not as optimal as it could be). Saying that though, talking to people locks up information, we still insist on doing it though, and nobody is suggesting we stop doing that.
+<<<
+The devil is in the phrase "but only until someone asks you for it" - in places that are big like BT it's pretty difficult to find out who you should ask. Talking to people doesn't lock up information in the same way. I'm also not suggesting that people stop using those tools altogether, but rather that in some situations TiddlySpace is a better fit.
+<<<
+That's maybe true, although something that Google at least seems hard at work on (and doing quite a good job of converting people). In response though, I'd like to ask another question: its only a monolithic blob if you aren't also using Word, Excel, etc, and if the downside is that it's hard to merge changes, if it's just for you, does that make it ok? Also, presentation and style seems to be something that most people care a huge deal about (look at the success of Apple for example).
+<<<
+I'm not saying that people shouldn't pay attention to presentation and style. I'm suggesting that the tools in question focus on presentation and style at the expense of structure and reusability.
+<<<
+Maybe true for some bloggers, I'm unconvinced about the majority though. Some find comments really valuable for driving traffic to their blog for example. A quick google search (admittedly not scientific in and of itself) reveals the following:
+blog with comments: 1,700,000,000 results
+blog without comments: 62,900,000 results
+I should point out that, at least on the first page, none of the results seem to suggest that the author has disabled comments, merely that they are either defending or attacking the idea of commenting on blogs. Nevertheless, comments seem to remain hugely popular.
+<<<
+I didn't claim that the majority of bloggers are concerned with the problem, nor that comments are not popular. I would imagine that the majority would continue to go along with the defaults. But I am suggesting that you look at, say, why [[John Gruber chooses not to have comments|http://shawnblanc.net/2007/07/why-daring-fireball-is-comment-free/]]. See also [[this discussion|http://www.technovia.co.uk/2010/06/john-gruber-joe-wilcox-and-why-comments-are-anti-web.html]], not that I entirely agree with it. My point is that blog comments are a brute force mechanism, and we can do better.

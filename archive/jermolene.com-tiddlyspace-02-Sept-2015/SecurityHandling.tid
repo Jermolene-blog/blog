@@ -1,0 +1,37 @@
+_hash: 8b5e795bf18ea4d6fb32fb66cf9d53d1d941c212
+created: 20101003165548000
+creator: jermolene
+modified: 20101010193320000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/SecurityHandling/118498:5e29ef90a969ef48ed31c9070644ba1929c40b40"
+server.host: http://jermolene.com
+server.page.revision: 118498
+server.permissions: read
+server.recipe: jermolene_public
+server.title: SecurityHandling
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: SecurityHandling
+type: text/x-tiddlywiki
+
+//See also: SecurityHandling@tiddlyspace in @tiddlyspace//
+
+TiddlySpace as it is currently arranged contains multiple vectors by which a mischievous person could inject executable code into another users browser session. This follows inevitably from the fact that TiddlySpace is explicitly a system designed to allow trusted decentralised groups to share JavaScript code.
+
+In mitigation, TiddlySpace is equally clearly a publishing system to help people share information, and not a system designed to securely keep secrets. TiddlyWiki itself is anyway already uniquely placed to allow individuals to manage personal information as securely as they can manage any file.
+
+The most important vectors for malicious code are consequences of intentional features of TiddlyWiki:
+* Evaluated macro parameters
+* Plugins
+* MarkupPreHead, MarkupPostHead, MarkupPreBody, MarkupPostBody tiddlers
+And some are unintentional consequences of browser behaviour or TiddlyWiki's design:
+* {{{<HTML>}}} blocks containing JavaScript
+* Stylesheets containing JavaScript
+These vectors are all going to have filtering applied to them which will effectively disable the associated features for many useful applications. Particularly for the first category, restrictions may have a significant impact on the usefulness of TiddlySpace, especially to people who are used to TiddlyWiki.
+
+In partial compensation for the removal of useful features, I propose that we add core support for [[Safe Scripted Transclusions|Safe Scripted Transclusions for TiddlySpace]].  We also need to take [[Social Measures for Information Security in TiddlySpace]].
+
+Another potential defence would be to allow users to choose different degrees of being logged in. In the safe modes private tiddlers would be readable, but not modifiable. Modification attempts in safe mode should be logged on the server so that users can see the potential impact of trusting code.

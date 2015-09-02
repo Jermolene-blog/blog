@@ -1,0 +1,36 @@
+_hash: fce9eb9b0104f40f37b3feb70c7ac5412570e586
+created: 20101120165621000
+creator: jermolene
+modified: 20101120175419000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/following/118724:fa9d56d953b780481fd6492f639203eeef2fde7b"
+server.host: http://jermolene.com
+server.page.revision: 118724
+server.permissions: read
+server.recipe: jermolene_public
+server.title: following
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @jrbl
+title: following
+type: text/x-tiddlywiki
+
+//@jrbl says://
+<<<
+Thanks for the TiddlySpaceTips@cdent, @cdent.  I still haven't finished grokking what you put there.  I have gotten the @references macro, though, which seems really nice - it's good to have BackLinks; I missed them.  But it doesn't appear to provide BackLinks across spaces?  I guess that's what @AlienInfestation is for.  Seems like a lot of fucking around to get to the level of what I expect out of a wiki.  I mean, honestly, I had to modify my ViewTemplate?  To get BackLinks that work?  WTF?
+<<<
+The general idea of TiddlySpace is to present other peoples content alongside your own. The current implementation is almost ridiculously simple:
+* apply primary filtering through a following mechanism to reduce spam
+* use string matches of title to associate tiddlers in different spaces
+* offering the related content via a speech bubble with arbitrary ranking
+The intention is to explore extending the mechanism:
+* making the declaration of following a space be more fine grained, with additional information for how to filter, rank and associate tiddlers from that space
+* allowing links between tiddlers to be used as the basis for associating tiddlers. And perhaps tags, regexps or some kind of textual analysis
+* progressively revealing the related content according to how relevant it is
+...and so on.
+
+I'm attracted to the idea that the implementation of all the social features can become social artefacts shared through the system. Thus, rather in the manner of sharing ringtones a few years ago, people might share scripts for filtering or association that work well for them. Communities within TiddlySpace might be defined by the mechanisms they've adopted for sharing, and choosing what to watch.
+
+As you're probably discovering with TiddlyWiki, the core is fairly bare bones, with much of the good stuff coming from plugins from the community. The implementation of core wiki features like references, orphans and missing is particularly creaky now that we're in TiddlySpace but, as I say, part of the goal of the project was to explore how wiki-like features would map onto the social model of shared bags of tiddlers in the sky.

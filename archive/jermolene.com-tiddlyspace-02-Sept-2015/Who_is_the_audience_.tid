@@ -1,0 +1,35 @@
+_hash: 25342a033a5270c8b24002085de239d03f01e1ed
+created: 20110407124607000
+creator: jermolene
+modified: 20110418085605000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Who%20is%20the%20audience%3F/118685:7404c386ce3ad8702e89f089e8ee66a13e6e8610"
+server.host: http://jermolene.com
+server.page.revision: 118685
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Who is the audience?
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @april1111 @billseitz TiddlySpace
+title: Who is the audience?
+type: text/x-tiddlywiki
+
+//Who is the audience for TiddlySpace?//
+
+Our audience is everybody who has the urge to organise information, and who resonates with TiddlyWiki's core user experience proposition: managing information in tiny chunks, with lashings of structure and customisation. I'd compare it with the market for Filofaxes, or for self improvement books.
+
+TiddlyWiki has given us a glimpse of the massiveness of this audience. We have seen how adoption is hindered by the unique behaviour of the tool - it is utterly unfamiliar to a mass market audience. Thus we see TiddlyWiki as something of a niche, technical product. TiddlySpace lifts users over that barrier, and gets them to the point where they can experience the product much, much more quickly.
+
+In [[Who is the audience?]]@billseitz @billseitz suggests that we pick a handful of distinct verticals. Some of the candidates that are already out there:
+* Getting Stuff Done
+* Team planning
+* Creation planning (ie novels, RPGs, etc.)
+* Notetaking & bookmarking
+* Manuals
+
+The audience is categorically not:
+* web developers
+* just existing TiddlyWiki users

@@ -1,0 +1,22 @@
+_hash: d859879ca247fb4aa254b503e5e02103969486cf
+created: 20100719151131000
+creator: jermolene
+modified: 20100915150609000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Speech%20Bubbles/118526:ca6f68e5a96c0e08dd81d0013ab25a68931b8e3e"
+server.host: http://jermolene.com
+server.page.revision: 118526
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Speech Bubbles
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: thought
+title: Speech Bubbles
+type: text/x-tiddlywiki
+
+Like these pure CSS ones:
+
+http://nicolasgallagher.com/demo/pure-css-speech-bubbles/bubbles.html

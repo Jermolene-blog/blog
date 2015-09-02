@@ -1,0 +1,20 @@
+_hash: 276c213f855e586a0ee5a34ca7cc1724626d36f9
+created: 20100923213518000
+creator: jermolene
+modified: 20100923213518000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/hello%20bauwebijl/118725:60300236590c85fdb4a279cc3aa89cba5edf721b"
+server.host: http://jermolene.com
+server.page.revision: 118725
+server.permissions: read
+server.recipe: jermolene_public
+server.title: hello bauwebijl
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: @bauwebijl
+title: hello bauwebijl
+type: text/x-tiddlywiki
+
+Hello to @bauwebijl good to see you on @tiddlyspace

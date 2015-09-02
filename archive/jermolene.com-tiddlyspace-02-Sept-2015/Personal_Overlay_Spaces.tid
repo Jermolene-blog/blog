@@ -1,0 +1,20 @@
+_hash: a70acde7b5901093df6e2354bccdddafd108b35b
+created: 20100717145431000
+creator: jermolene
+modified: 20100717145431000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/Personal%20Overlay%20Spaces/118474:ce13ebe37ee32fc17452c02d7667831ddac6467a"
+server.host: http://jermolene.com
+server.page.revision: 118474
+server.permissions: read
+server.recipe: jermolene_public
+server.title: Personal Overlay Spaces
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: 
+title: Personal Overlay Spaces
+type: text/x-tiddlywiki
+
+The idea would be to allow users to overlay a space that is placed at the front of the recipe cascade for every space that they visit. They could thus adjust the appearance of every space they visit to accommodate special accessibility needs.

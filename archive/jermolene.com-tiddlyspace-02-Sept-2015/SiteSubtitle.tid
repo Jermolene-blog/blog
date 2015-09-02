@@ -1,0 +1,20 @@
+_hash: 1c7446ce856acd9b9af1d495340c11539192c284
+created: 20100612174651000
+creator: jermolene
+modified: 20100623201950000
+modifier: jermolene
+server.bag: jermolene_public
+server.content-type: 
+server.etag: "jermolene_public/SiteSubtitle/118507:e4237fefb882176349c2485d5dc63ca12ffcea9e"
+server.host: http://jermolene.com
+server.page.revision: 118507
+server.permissions: read
+server.recipe: jermolene_public
+server.title: SiteSubtitle
+server.type: tiddlyweb
+server.workspace: bags/jermolene_public
+tags: excludeLists excludeSearch
+title: SiteSubtitle
+type: text/x-tiddlywiki
+
+a non-linear interpersonal web notebook
