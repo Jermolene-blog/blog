@@ -1,5 +1,6 @@
 {
 	"plugins": [
+		"tiddlywiki/blog",
 		"tiddlywiki/fullscreen"
 	],
 	"themes": [
@@ -16,10 +17,10 @@
 			"--savetiddlers","[tag[external-html]]",".","-dont-delete",
 			"--savetiddlers","[tag[external-image]]","images",
 			"--setfield","[tag[external-image]] [tag[external-html]]","_canonical_uri","$:/core/templates/canonical-uri-external-image","text/plain",
-			"--rendertiddler","$:/plugins/tiddlywiki/blog/templates/tiddler","index.html","text/plain",
+			"--rendertiddler","Index","index.html","text/plain","$:/plugins/tiddlywiki/blog/templates/html-page/page",
 			"--rendertiddler","$:/core/save/all","wiki/index.html","text/plain",
 			"--rendertiddler","$:/core/templates/static.template.css","static.css","text/plain",
-			"--rendertiddlers","[tag[post]]","$:/core/templates/static.tiddler.html","posts","text/plain"],
+			"--rendertiddlers","[tag[post]]","$:/plugins/tiddlywiki/blog/templates/html-page/post","posts","text/plain"],
 		"favicon": [
 			"--savetiddler","$:/favicon.ico","favicon.ico"]
 	}
