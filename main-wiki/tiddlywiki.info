@@ -13,8 +13,8 @@
 	"build": {
 		"index": [
 			"--savetiddlers","[tag[external-html-cecily]]","cecily","index.html",
-			"--savetiddlers","[tag[external-image-cecily]]","cecily","-dont-delete",
-			"--savetiddlers","[tag[external-html]]",".","-dont-delete",
+			"--savetiddlers","[tag[external-image-cecily]]","cecily","-do-not-delete",
+			"--savetiddlers","[tag[external-html]]",".","-do-not-delete",
 			"--savetiddlers","[tag[external-image]]","images",
 			"--setfield","[tag[external-image]] [tag[external-html]]","_canonical_uri","$:/core/templates/canonical-uri-external-image","text/plain",
 			"--rendertiddler","Index","index.html","text/plain","$:/plugins/tiddlywiki/blog/templates/html-page/page",
