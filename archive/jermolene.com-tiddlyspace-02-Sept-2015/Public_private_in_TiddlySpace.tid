@@ -30,7 +30,7 @@ For example:
 # click the privacy roundel on the new tiddler to open the tiddler details slider
 # click the ''public'' symbol to cause the newly created tiddler will be saved as a public tiddler
 # give the tiddler the title ''my public tiddler'', and save it
-# in another browser, check that ''my public tiddler'' is publically accessible
+# in another browser, check that ''my public tiddler'' is publicly accessible
 # click ''edit'' on the tiddler
 # modify the text of the tiddler
 # click ''save as draft'' on the tiddler. //This causes the new tiddler to be saved as a private tiddler called ''draft: my public tiddler''//
