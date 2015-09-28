@@ -1,5 +1,6 @@
 title: Index
+caption: Jermolene.com
 
-This is the dummy index page.
+//A weblog by JeremyRuston//
 
 <<timeline subfilter:"tag[post]!sort[created]">>

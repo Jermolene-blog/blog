@@ -1,0 +1,18 @@
+{
+	"description": "Server configuration of the talkytalky wiki",
+	"plugins": [
+		"tiddlywiki/tiddlyweb",
+		"tiddlywiki/filesystem",
+		"tiddlywiki/highlight"
+	],
+	"themes": [
+		"tiddlywiki/vanilla",
+		"tiddlywiki/snowwhite"
+	],
+	"includeWikis": [
+		"../talkytalky-wiki"
+	],
+	"config": {
+		"default-tiddler-location": "../talkytalky-wiki/tiddlers"
+	}
+}
