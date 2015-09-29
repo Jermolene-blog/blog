@@ -1,6 +1,9 @@
-title: Index
+title: index
 caption: Jermolene.com
+tags: page
 
-//A weblog by JeremyRuston//
+//A weblog by Jeremy Ruston//
+
+{{About}}
 
 <<timeline subfilter:"tag[post]!sort[created]">>
