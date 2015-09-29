@@ -9,7 +9,8 @@ html body .tc-titlebar h2 {
 }
 
 
-html body .tc-subtitle {
+html body .tc-subtitle,
+html body .tc-tags-wrapper {
 	display: none;
 }
 
@@ -41,11 +42,6 @@ html body .tc-story-river {
 html body .tc-tiddler-frame .tc-tiddler-title {
 	font-size: 24px;
 	line-height: 28px;
-}
-
-html body .tc-tiddler-frame .tc-tags-wrapper { 
-	font-size: 18px;
-	line-height: 22px;
 }
 
 html body .tc-tiddler-frame .tc-tiddler-body {
