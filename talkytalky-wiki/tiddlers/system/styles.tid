@@ -61,7 +61,21 @@ html body.tc-body {
 
 .tc-presentation-title {
 	font-weight: 900;
-	font-size: 3em;
+	font-size: 2em;
+}
+
+.tc-presentation-title a.tc-tiddlylink {
+    font-weight: 900;
+}
+
+a.tc-tiddlylink:hover {
+	color: <<color background>>;
+	background-color: <<color foreground>>;
+	text-decoration: none;
+}
+
+a.tc-tiddlylink-missing {
+	font-style: italic;
 }
 
 .tc-btn-big-blue {
