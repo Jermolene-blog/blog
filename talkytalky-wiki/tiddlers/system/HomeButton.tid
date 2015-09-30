@@ -1,0 +1,13 @@
+title: $:/_HomeButton
+tags: $:/tags/TopLeftBar
+caption: {{$:/core/images/home-button}} {{$:/language/Buttons/Home/Caption}}
+description: {{$:/language/Buttons/Home/Hint}}
+
+<$link tag="button" to=" " class=<<tv-config-toolbar-class>>>
+<$list filter="[<tv-config-toolbar-icons>prefix[yes]]">
+{{$:/core/images/home-button}}
+</$list>
+<$list filter="[<tv-config-toolbar-text>prefix[yes]]">
+<span class="tc-btn-text"><$text text={{$:/language/Buttons/Home/Caption}}/></span>
+</$list>
+</$link>

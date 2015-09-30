@@ -1,4 +1,4 @@
-title: $:/demoshow/styles
+title: $:/_styles
 tags: [[$:/tags/Stylesheet]]
 
 \define register-font(family,title,style,weight)
@@ -30,6 +30,10 @@ html body.tc-body {
 	font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", "DejaVu Sans", sans-serif;
 }
 
+.tc-story-river > .tc-tiddler-frame {
+	<<transition "outline-color 500ms ease-in-out, background-color 500ms ease-in-out">>
+}
+
 .tc-story-river > .tc-tiddler-frame:nth-child(5n+0) {
 	outline-color: #6DBF87;
 	background-color: #6DBF87;
@@ -55,6 +59,11 @@ html body.tc-body {
 	background-color: #A66D94;
 }
 
+.tc-presentation-title {
+	font-weight: 900;
+	font-size: 3em;
+}
+
 .tc-btn-big-blue {
 	padding: 6px;
 	margin: 4px 6px;
@@ -64,6 +73,13 @@ html body.tc-body {
 	border: none;
 	font-size: 16px;
 	line-height: 18px;
+}
+
+.tc-slide-notes {
+	border-top: 2px solid rgba(0,0,0,0.6);
+	padding-top: 4px;
+	font-size: 0.7em;
+	font-family: "Georgia", serif;
 }
 
 .tc-view-toolbar-tools {
@@ -106,14 +122,11 @@ html body.tc-body {
 	width: 2em;
 }
 
-.tc-cecily-demo {
+.tc-cecily-fan {
 	height: 7em;
 }
 
-.tc-cecily-demo-inner {
-}
-
-.tc-cecily-demo .tc-tiddler-frame {
+.tc-cecily-fan .tc-tiddler-frame {
 	background-color: white;
 	<<box-shadow "0px 0px 15px rgba(0, 0, 0, 0.3)">>
 }

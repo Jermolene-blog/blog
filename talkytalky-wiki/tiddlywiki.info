@@ -13,28 +13,22 @@
     ],
     "build": {
         "index": [
-            "--rendertiddler",
-                "$:/core/save/all",
-                "index.html",
-                "text/plain"
-        ],
-        "externalimages": [
             "--savetiddlers",
-                "[is[image]]",
+                "[tag[external-image]]",
                 "images",
             "--setfield",
-                "[is[image]]",
+                "[tag[external-image]]",
                 "_canonical_uri",
                 "$:/core/templates/canonical-uri-external-image",
                 "text/plain",
             "--setfield",
-                "[is[image]]",
+                "[tag[external-image]]",
                 "text",
                 "",
                 "text/plain",
             "--rendertiddler",
                 "$:/core/save/all",
-                "externalimages.html",
+                "index.html",
                 "text/plain"
         ],
         "static": [

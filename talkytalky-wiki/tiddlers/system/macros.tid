@@ -1,0 +1,22 @@
+title: $:/_Macros
+tags: $:/tags/Macro
+
+\define configNotes()
+<div style="font-size:0.7em; font-weight:bold; font-style: italic;">
+<$checkbox tiddler="$:/_ShowNotes" field="text" checked="yes" unchecked="no" default="no">
+//Show notes//
+</$checkbox>
+</div>
+\end
+
+\define showNotes(notes)
+<$reveal tag="div" class="tc-slide-notes" state="$:/_ShowNotes" type="match" text="yes" default="no">$notes$</$reveal>
+\end
+
+\define cecilyMap(filter:"[list[$:/StoryList]]",template:"$:/core/ui/ViewTemplate",class,width:"550px",map)
+<$scrollable class="""$class$""">
+<div>
+<$list filter="""$filter$""" template="""$template$""" storyview="cecily" cecily-width="""$width$""" cecily-map="""$map$"""/>
+</div>
+</$scrollable>
+\end

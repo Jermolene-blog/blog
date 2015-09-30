@@ -3,11 +3,20 @@ tags: [[$:/tags/Stylesheet]]
 
 \rules only filteredtranscludeinline transcludeinline macrodef macrocallinline
 
+html .tc-modal-wrapper {
+    z-index: 20000;
+}
+
+html .tc-sidebar-header > div {
+	background-color: <<colour page-background>>;
+    outline: 100vmax solid <<colour page-background>>;
+}
+
 html body .tc-titlebar h2 {
     font-size: 0.7em;
     font-weight: 700;
+    color: rgba(0,0,0,0.6);
 }
-
 
 html body .tc-subtitle,
 html body .tc-tags-wrapper {
@@ -33,10 +42,6 @@ html body .tc-tiddler-controls {
 
 html body .tc-tiddler-title {
 	background-color: inherit;
-}
-
-html body .tc-story-river {
-	margin-top: 70px;
 }
 
 html body .tc-tiddler-frame .tc-tiddler-title {

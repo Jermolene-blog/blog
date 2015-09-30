@@ -2,8 +2,6 @@ title: index
 caption: Jermolene.com
 tags: page
 
-//A weblog by Jeremy Ruston//
+//A weblog by [[Jeremy Ruston|About]]//
 
-{{About}}
-
-<<timeline subfilter:"tag[post]!sort[created]">>
+<<timeline subfilter:"tag[post]!tag[unlisted]!sort[created]">>

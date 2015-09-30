@@ -1,0 +1,37 @@
+title: $:/_NotesWindow
+
+\define showNotes(notes)
+<div class="tc-slide-notes">$notes$</div>
+\end
+
+<$tiddler tiddler={{$:/HistoryList!!current-tiddler}}>
+
+<div class="tc-tiddler-frame">
+
+<div class="tc-tiddler-title">
+
+<div class="tc-titlebar">
+
+<h2 class="tc-title">
+
+<$transclude field="caption" mode="inline">
+
+<$view field="title"/>
+
+</$transclude>
+
+</h2>
+
+</div>
+
+</div>
+
+<div class="tc-tiddler-body">
+
+<$transclude mode="block"/>
+
+</div>
+
+</div>
+
+</$tiddler>

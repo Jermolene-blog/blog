@@ -1,0 +1,11 @@
+title: $:/_NotesWindowButton
+tags: $:/tags/TopRightBar
+
+<$button message="tm-open-window" param="$:/_NotesWindow" class=<<tv-config-toolbar-class>>>
+<$list filter="[<tv-config-toolbar-icons>prefix[yes]]">
+{{$:/core/images/open-window}}
+</$list>
+<$list filter="[<tv-config-toolbar-text>prefix[yes]]">
+<span class="tc-btn-text">Open Notes</span>
+</$list>
+</$button>

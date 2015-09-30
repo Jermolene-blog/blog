@@ -1,5 +1,24 @@
+created: 20150929214256690
+modified: 20150929214257948
 title: Hackability as a Human Right
+type: text/vnd.tiddlywiki
+
+@@.tc-presentation-title
+! [[Hackability]] as a [[Human Right]]
+@@
 
 [[Jeremy Ruston]]
 
 Friday 2nd October 2015 at [[Wuthering Bytes]], [[Hebden Bridge]].
+
+<<cecilyMap
+filter:"[[Jeremy Ruston]] [[Motovun Jack.svg]] [[Motovun Jack Big.jpg]] [[Hacking Cats.gif]]"
+template:"$:/core/ui/ViewTemplate"
+class:"tc-cecily-fan"
+width:"100%"
+map:"Hackability as a Human Right Cecily Map"
+>>
+
+<<showNotes """
+Speakers notes and references
+""">>
