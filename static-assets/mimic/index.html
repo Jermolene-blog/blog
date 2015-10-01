@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>Mimic - Jeremy's JavaScript Linguistic Serendipity Generator</title>
+<style type='text/css'>
+
+	body {
+		max-width: 640px;
+		margin: 2em 2em 2em 2em;
+	}
+	
+	#sourceText {
+		width: 100%;
+	}
+	
+	#outputText {
+		padding: 1em 1em 1em 1em;
+		border: 1px solid #aaa;
+		background: #eee;
+		line-height: 1.4;
+	}
+
+</style>
+<script type='text/javascript'>
+
+/*
+The source text is scanned to build a tree of the ngram prefixes as follows:
+
+{
+	"abc": { // The ngram prefix described by this record
+		count: 42, // The number of times the prefix is found in the source text
+		next: [ // An array of information about each subsequent character encountered after the prefix
+			{char: "d", count: 41},
+			{char: " ", count: 1}
+		]
+	},
+	"def": ... etc
+}
+
+*/
+
+// Process the source text into the specified tree with the chosen ngram size
+function scanText(tree,sourceText,size) {
+	var currgram = [],ptr,c,ngram,branch,n;
+	if(sourceText.length <= size*2)
+		return tree;
+	sourceText += sourceText.substring(0,size*2-1); // Wrap the text around
+	for(ptr=0; ptr<size; ptr++) {
+		currgram.push(sourceText.substr(ptr,1));
+	}
+	while(ptr < sourceText.length) {
+		ngram = currgram.join("");
+		c = sourceText.substr(ptr++,1);
+		branch = tree[ngram];
+		if(branch === undefined) {
+			branch = tree[ngram] = {count: 0,next: []};
+		}
+		for(n = 0; n<branch.next.length; n++) {
+			if(branch.next[n].char === c)
+				break;
+		}
+		if(branch.next[n] === undefined) {
+			branch.next[n] = {char: c, count: 1};
+		} else {
+			branch.next[n].count++;
+		}
+		branch.count++;
+		currgram.push(c)
+		currgram.shift();
+	}
+	return tree;
+}
+
+// Use the tree to generate mimicry
+function generateText(tree,sourceText,size,length) {
+	var currgram = [];
+	for(var t=0; t<size; t++) {
+		currgram.push(sourceText.substr(t,1));
+	}
+	var result = [];
+	var c,ngram,branch,r,n;
+	for(t=0; t<length; t++) {
+		ngram = currgram.join("");
+		branch = tree[ngram];
+		n = 0;
+		r = Math.floor(Math.random() * branch.count);
+		while(r >= branch.next[n].count) {
+			r = r - branch.next[n].count;
+			n++;
+		}
+		c = branch.next[n].char;
+		result.push(c);
+		currgram.push(c)
+		currgram.shift();
+	}
+	return result.join("");
+}
+
+function mimic() {
+	var tree = {};
+	var sourceText = document.getElementById("sourceText").value;
+	var size = parseInt(document.getElementById("ngramSize").value,10);
+	scanText(tree,sourceText,size);
+	var output = generateText(tree,sourceText,size,50*1000).split("\n");
+	var outputText = document.getElementById("outputText");
+	if(outputText.hasChildNodes())
+	{
+	    while(outputText.childNodes.length >= 1)
+	    {
+	        outputText.removeChild(outputText.firstChild);       
+	    } 
+	}
+	for(var t=0; t<output.length; t++) {
+		var para = document.createElement("p");
+		para.appendChild(document.createTextNode(output[t]));
+		outputText.appendChild(para);
+	}
+}
+
+</script>
+</head>
+<body>
+<h1>Mimic - Jeremy's JavaScript Linguistic Serendipity Generator</h1>
+<p>You can use this valuable tool to help brainstorming sessions, find names for your new startup, or for your own hilarious amusement. Follow in the footsteps of <a href="http://en.wikipedia.org/wiki/Oblique_Strategies">Brian Eno</a>, <a href="http://en.wikipedia.org/wiki/Cut-up_technique">David Bowie</a>, and <a href="http://en.wikipedia.org/wiki/The_Dice_Man">Luke Rhinehart</a> and use randomness to stimulate your creativity.</p>
+<p>Type or paste as much source text as you like into the box below, dial up the gibberish index and click the button. The text never leaves your browser, so you can safely use confidential or personal information.</p>
+<textarea rows=15 id="sourceText">
+The Shawshank Redemption
+The Godfather
+The Godfather: Part II
+The Good, the Bad and the Ugly
+Pulp Fiction
+12 Angry Men
+Schindler's List
+One Flew Over the Cuckoo's Nest
+The Dark Knight
+The Lord of the Rings: The Return of the King
+Star Wars: Episode V - The Empire Strikes Back
+Inception
+Seven Samurai
+Fight Club
+Goodfellas
+Star Wars: Episode IV - A New Hope
+The Lord of the Rings: The Fellowship of the Ring
+City of God
+Casablanca
+Once Upon a Time in the West
+The Matrix
+Rear Window
+Indiana Jones and the Raiders of the Lost Ark
+The Silence of the Lambs
+The Usual Suspects
+Psycho
+Se7en
+Forrest Gump
+It's a Wonderful Life
+The Lord of the Rings: The Two Towers
+Memento
+Sunset Boulevard
+Leon
+Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb
+Apocalypse Now
+American History X
+North by Northwest
+Citizen Kane
+Toy Story 3
+American Beauty
+Terminator 2: Judgment Day
+Saving Private Ryan
+Taxi Driver
+Alien
+Spirited Away
+Vertigo
+City Lights
+The Shining
+Amelie
+Paths of Glory
+The Pianist
+M
+WALL·E
+The Lives of Others
+Double Indemnity
+The Departed
+Lawrence of Arabia
+A Clockwork Orange
+Aliens
+To Kill a Mockingbird
+Modern Times
+Requiem for a Dream
+Das Boot
+Eternal Sunshine of the Spotless Mind
+Life Is Beautiful
+Reservoir Dogs
+Back to the Future
+The Third Man
+L.A. Confidential
+Chinatown
+The Prestige
+The Treasure of the Sierra Madre
+Cinema Paradiso
+The Green Mile
+Monty Python and the Holy Grail
+Once Upon a Time in America
+Raging Bull
+Rashomon
+The Great Dictator
+Amadeus
+Some Like It Hot
+Singin' in the Rain
+Full Metal Jacket
+All About Eve
+Pan's Labyrinth
+The Bridge on the River Kwai
+Bicycle Thieves
+Gladiator
+2001: A Space Odyssey
+Braveheart
+Metropolis
+The Apartment
+Oldboy
+Downfall
+Unforgiven
+Inglourious Basterds
+The Sting
+Star Wars: Episode VI - Return of the Jedi
+The Elephant Man
+Gran Torino
+Mr. Smith Goes to Washington
+Up
+Princess Mononoke
+Indiana Jones and the Last Crusade
+The Maltese Falcon
+On the Waterfront
+Die Hard
+Rebecca
+The Great Escape
+The Seventh Seal
+Sin City
+Batman Begins
+Grave of the Fireflies
+Black Swan
+Yojimbo
+The Lion King
+Heat
+For a Few Dollars More
+The General
+Blade Runner
+Fargo
+Witness for the Prosecution
+Snatch.
+The King's Speech
+Hotel Rwanda
+Jaws
+Ran
+Wild Strawberries
+No Country for Old Men
+Touch of Evil
+Drive
+The Wizard of Oz
+The Big Lebowski
+The Deer Hunter
+Toy Story
+The Sixth Sense
+Harry Potter and the Deathly Hallows: Part 2
+Cool Hand Luke
+Annie Hall
+Strangers on a Train
+Slumdog Millionaire
+Kill Bill: Vol. 1
+It Happened One Night
+Platoon
+High Noon
+Donnie Darko
+Scarface
+Into the Wild
+Ikiru
+Trainspotting
+The Gold Rush
+Butch Cassidy and the Sundance Kid
+Million Dollar Baby
+Gone with the Wind
+The Kid
+The Wages of Fear
+Notorious
+There Will Be Blood
+The Grapes of Wrath
+Sunrise: A Song of Two Humans
+The Secret in Their Eyes
+Lock, Stock and Two Smoking Barrels
+Amores Perros
+Groundhog Day
+District 9
+Ben-Hur
+Life of Brian
+Casino
+The Graduate
+The Thing
+Finding Nemo
+The Big Sleep
+The Terminator
+The Best Years of Our Lives
+The Manchurian Candidate
+Stand by Me
+Les Diaboliques
+The Bourne Ultimatum
+Dog Day Afternoon
+V for Vendetta
+Twelve Monkeys
+How to Train Your Dragon
+My Neighbour Totoro
+A Separation
+Judgement at Nuremberg
+The Wrestler
+Gandhi
+Good Will Hunting
+Network
+The Night of the Hunter
+8½
+The Battle of Algiers
+The 400 Blows
+Mary and Max
+Ratatouille
+Avatar
+The Princess Bride
+The Killing
+Dial M for Murder
+The Hustler
+Persona
+La Strada
+Star Trek
+Who's Afraid of Virginia Woolf?
+The Diving Bell and the Butterfly
+The Exorcist
+The Wild Bunch
+Stalag 17
+A Streetcar Named Desire
+Fanny and Alexander
+The Passion of Joan of Arc
+Barry Lyndon
+Kind Hearts and Coronets
+Rocky
+The Truman Show
+All Quiet on the Western Front
+Howl's Moving Castle
+Sherlock Jr.
+The Incredibles
+In Bruges
+Mystic River
+The Social Network
+Nights of Cabiria
+Let the Right One In
+Rosemary's Baby
+Magnolia
+Big Fish
+Infernal Affairs
+Ed Wood
+Roman Holiday
+Pirates of the Caribbean: The Curse of the Black Pearl
+Manhattan
+Festen
+Rope
+The Man Who Shot Liberty Valance
+Kill Bill: Vol. 2
+Children of Men
+Ip Man
+Shutter Island
+Patton
+A Beautiful Mind
+Sleuth
+Stalker
+Elite Squad 2
+Tokyo Story
+Rain Man
+Monsters, Inc.
+Spring, Summer, Autumn, Winter... and Spring
+Nausicaä of the Valley of the Wind
+Castle in the Sky
+</textarea>
+<select id="ngramSize">
+	<option value="2">Two letter ngrams (near gibberish)</option>
+	<option value="3">Three letter ngrams (plausible gibberish)</option>
+	<option value="4" selected>Four letter ngrams (confusingly reasonable)</option>
+	<option value="5">Five letter ngrams (nearly sensible)</option>
+</select>
+<button onclick="mimic();">Mimic</button>
+<div id="outputText"></div>
+<div id="bottomMarker">&nbsp;</div>
+<p>Built by <a href="http://twitter.com/Jermolene">@Jermolene</a></p>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-34831587-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+</body>
+</html>
