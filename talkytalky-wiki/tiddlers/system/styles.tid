@@ -69,8 +69,8 @@ html body.tc-body {
 }
 
 a.tc-tiddlylink:hover {
-	color: <<color background>>;
-	background-color: <<color foreground>>;
+	color: rgba(255,255,255,0.4);
+	background-color: rgba(0,0,0,0.6);
 	text-decoration: none;
 }
 
@@ -102,6 +102,10 @@ a.tc-tiddlylink-missing {
 
 .tc-view-toolbar-tools p {
 	margin: 0;
+}
+
+.tc-media img, .tc-media video {
+	width: 100%;
 }
 
 .tc-edit-bitmapeditor-width,

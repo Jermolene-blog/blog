@@ -5,7 +5,11 @@ type: text/vnd.tiddlywiki
 
 <a href="https://www.youtube.com/watch?v=auyIhw8MTmQ" target="_blank">
 
-[img[Jeremy on TV.gif]]
+<div class="tc-media">
+
+[img [Jeremy on TV.gif]]
+
+</div>
 
 </a>
 
