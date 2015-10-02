@@ -1,0 +1,13 @@
+title: Cecily Fan
+
+\define showNotes()
+<$text text=""/>
+\end
+
+<<cecilyMap
+filter:"[[Jeremy Ruston]] [[BBC Micro]] [[My MK14]] [[PESpot]] [[Closing]] [[TiddlyWiki]] "
+template:"$:/core/ui/ViewTemplate"
+class:"tc-cecily-fan"
+width:"100%"
+map:"Hackability as a Human Right Cecily Map"
+>>

@@ -1,0 +1,23 @@
+created: 20151001220813691
+modified: 20151002075622776
+title: TiddlyWiki
+type: text/vnd.tiddlywiki
+
+TiddlyWiki is a web notebook that can run as a standalone HTML file in the browser, or as a server application under Node.js.
+
+It is based on the idea that information is more reusable if it is sliced up into the smallest semantically meaningful chunks, and then woven back together to make narratives and stories.
+
+Wikitext, like Markdown, makes the punctuation of writing explicit and visible. Complex applications can be built by combining simple primitives. In fact,  like Smalltalk or FORTH, the user interface of the application is recursively constructed, itself created from wikitext.
+
+It's for hacking information, and it is itself hackable.
+
+My current favourite example of what people can do with it is [[PESpot]].
+
+<<showNotes """
+* Everybody wants to be more organised
+* TiddlyWiki responds to that urge with an infinitely customisable tool that recognises the individuality of needs
+* We all seem to have an obsession with world-building. People do it explicitly for novels and games. Developers do it when they start a project, choosing the language and conventions of their society
+** Making an online shop entirely static: http://t.co/9xjgovhfDM
+** Choose your own adventure for Git: http://t.co/eO7Po7Rvir
+* 20 years ago, Microsoft Office was the premier hacking platform
+""">>

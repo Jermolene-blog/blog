@@ -30,6 +30,39 @@ html body.tc-body {
 	font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", "DejaVu Sans", sans-serif;
 }
 
+.tc-presentation-title {
+	font-weight: 900;
+	font-size: 2em;
+}
+
+.tc-presentation-title a.tc-tiddlylink {
+    font-weight: 900;
+}
+
+html body.tc-body a.tc-tiddlylink {
+	color: rgba(255,0,0,0.5);
+}
+
+a.tc-tiddlylink:hover {
+	color: rgba(255,255,255,0.4);
+	background-color: rgba(255,0,0,0.3);
+	text-decoration: none;
+}
+
+a.tc-tiddlylink-missing {
+	font-style: italic;
+}
+
+html body.tc-body .tc-tiddlylink-external {
+	color: rgba(0,0,255,0.5);
+	text-decoration: none;
+}
+
+html body.tc-body .tc-tiddlylink-external:hover {
+	color: rgba(255,255,255,0.4);
+	background-color: rgba(0,0,255,0.3);
+}
+
 .tc-story-river > .tc-tiddler-frame {
 	<<transition "outline-color 500ms ease-in-out, background-color 500ms ease-in-out">>
 }
@@ -57,25 +90,6 @@ html body.tc-body {
 .tc-story-river > .tc-tiddler-frame:nth-child(5n+4) {
 	outline-color: #A66D94;
 	background-color: #A66D94;
-}
-
-.tc-presentation-title {
-	font-weight: 900;
-	font-size: 2em;
-}
-
-.tc-presentation-title a.tc-tiddlylink {
-    font-weight: 900;
-}
-
-a.tc-tiddlylink:hover {
-	color: rgba(255,255,255,0.4);
-	background-color: rgba(0,0,0,0.6);
-	text-decoration: none;
-}
-
-a.tc-tiddlylink-missing {
-	font-style: italic;
 }
 
 .tc-btn-big-blue {
@@ -147,4 +161,10 @@ a.tc-tiddlylink-missing {
 .tc-cecily-fan .tc-tiddler-frame {
 	background-color: white;
 	<<box-shadow "0px 0px 15px rgba(0, 0, 0, 0.3)">>
+}
+
+.tc-single-tiddler-window .tc-cecily-fan,
+.tc-single-tiddler-window .tc-media
+{
+	display: none;
 }

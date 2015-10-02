@@ -1,7 +1,33 @@
 created: 20150929214312698
-modified: 20150929214343288
+modified: 20151002071545064
 tags: 
 title: PESpot
 type: text/vnd.tiddlywiki
 
+<a href="http://pespot.tiddlyspot.com/" target="_blank">
+
+<div class="tc-media">
+
 [img[PESpot Thumbnail.gif]]
+
+</div>
+
+</a>
+
+Illustrating much that is magical about hacking and open source.
+
+And finally, in [[closing|Closing]].
+
+<<showNotes """
+* [ext[Local backup|./archive/pespot.tiddlyspot.com.html]]
+* A beautiful, self-made tool that precisely matches specific needs
+* The creator isn't a developer
+* Taken advantage of the community to figure out how to do things
+* Single file instantation enables development by trial and error
+* Collaborating with a JS developer on a smartphone
+* Being a BDFL and the missing Jeremy story
+* Hacking has given rise to open source. It's an attempt to solve the difficulties of software development and collaboration. Contains deep insights that will eventually spread to every human discipline
+** Continuously shipping software makes you happy
+* Turns out it's not just about a mysterious army of invisible elves doing the work you want for you, it's much better. Like being an author, one gets to meet people who have been inside your head
+* Now we've got politicians citing "open source" as a force in democracy
+""">>

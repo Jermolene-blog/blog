@@ -1,0 +1,24 @@
+created: 20151001221317642
+modified: 20151002075104646
+title: Closing
+type: text/vnd.tiddlywiki
+
+<div class="tc-media">
+
+[img[Hacking Cats.gif]]
+
+</div>
+
+<<showNotes """
+* It's the hacking instinct that drove our technological evolution
+* There's just a chance that with more hackers we'll go faster
+* But my easy, utopian stance faces challenges. For example, the iPhone jailbreak industry. Hackers in the glorious tradition, or a sophisticated operation by scammers to have people voluntarily infect their trusted devices. Friends don't let friends jailbreak
+* Frustration of Apple TV being potentially one of the exotic user agents in the last 15 years of specs, but actually being closed
+** But Apple could establish a non-profit with protocols to allow sharing trade secrets
+* The web, two classes of citizen
+** Size of transmitters vs. receivers AGB story. Irony that it's easier to transmit than to receive. Same with web servers vs. browsers
+* Why oh why is progress so slow? The 12 year old me would be deeply disappointed to have had to wait 36 years for a full colour 300dpi display. Speech recognition
+* My lifetime has been dominated by drastic change brought about by the progress of technology. Sometimes painful, but almost always predictable. Mainstream media has been no help to people; Radio 4 spent the '90s covering stem cell research and cloning, not, say, the apocalypse that was about to engulf copyright industries like publishing and media
+* There are plenty of people like me; but not everybody is like me. I've got to help build a world for people that are not like me
+* Perhaps that's what really separates me from the boy who badly soldered the MK14: I understand just a little more about what it's like to not be me. My urge to hack is still a selfish, internal fire, but I've learned how to use it to express altruism
+""">>

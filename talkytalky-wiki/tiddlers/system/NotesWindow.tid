@@ -1,7 +1,11 @@
 title: $:/_NotesWindow
 
 \define showNotes(notes)
-<div class="tc-slide-notes">$notes$</div>
+<div class="tc-slide-notes">
+
+$notes$
+
+</div>
 \end
 
 <$tiddler tiddler={{$:/HistoryList!!current-tiddler}}>

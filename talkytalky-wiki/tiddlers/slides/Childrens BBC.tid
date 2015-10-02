@@ -1,7 +1,22 @@
+created: 20151001220725965
+modified: 20151002075503251
 title: Childrens BBC
+type: text/vnd.tiddlywiki
 
 <div class="tc-media">
 
 {{bbc1childrens1985a.mp4}}
 
 </div>
+
+(There's [[one more animation|Childrens BBC 2]] that has survived -- out of perhaps 40.)
+
+And then, after 20 years of learning, I released the first version of [[TiddlyWiki]].
+
+<<showNotes """
+* Staying up all night working on some crazy idea of an elephant knocking over a lorry, then going to TV Centre and watching it being transmitted. And then being replaced by Philip Schofield
+* Knowing every memory location, every IO port of a device. Amazing feeling, that has largely vanished with the complexity of modern devices. Disassembling BASIC ROM
+* The BBC Micro never went away; stardot.org has lively discussions. Joining the forum felt like going back to the village you came from, and finding the all the old characters still there
+* Still having a recurring daydream of doing a Kickstarter to write a new operating system for the BBC Micro. Just what the world needs, no?
+* Today I'd just be another teenager that you didn't realise was a teenager, publishing a blog or youtube channel
+""">>

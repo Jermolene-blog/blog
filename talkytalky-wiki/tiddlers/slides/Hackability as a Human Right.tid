@@ -1,24 +1,38 @@
 created: 20150929214256690
-modified: 20150929214257948
+modified: 20151002071017036
 title: Hackability as a Human Right
 type: text/vnd.tiddlywiki
 
 @@.tc-presentation-title
-! [[Hackability]] as a [[Human Right]]
+! Hackability as a Human Right
 @@
 
-[[Jeremy Ruston]]
+[[Jeremy Ruston]], [[@Jermolene|https://twitter.com/Jermolene]]
 
-Friday 2nd October 2015 at [[Wuthering Bytes]], [[Hebden Bridge]].
+Friday 2nd October 2015 at [[Wuthering Bytes|http://wutheringbytes.com]], Hebden Bridge.
 
-<<cecilyMap
-filter:"[[Jeremy Ruston]] [[Motovun Jack.svg]] [[Motovun Jack Big.jpg]] [[Hacking Cats.gif]]"
-template:"$:/core/ui/ViewTemplate"
-class:"tc-cecily-fan"
-width:"100%"
-map:"Hackability as a Human Right Cecily Map"
->>
+This presentation on the web: http://jermolene.com/talkytalky
+
+{{Cecily Fan}}
 
 <<showNotes """
-Speakers notes and references
+
+|''Twitter'' |https://twitter.com/Jermolene |
+|~|https://twitter.com/TiddlyWiki |
+|''~GitHub'' |https://github.com/Jermolene |
+|''~YouTube'' |http://www.youtube.com/c/JeremyRuston |
+|''~LinkedIn'' |https://uk.linkedin.com/in/jermy |
+
+* Source of this presentation: https://github.com/Jermolene-blog/blog/talkytalky-wiki
+* By hacking, I mean "changing your environment or experience via technology" (if not "technology", at least "cunning")
+* An environment that you can't change is like a prison. The impulse to hack is the impulse to improve the world around you
+* So, we could call it “jailbreaking”
+* Hackers are individuals following their own interests, but part of a herd that looks to their community for validation and support
+* We need to hack the world because it isn't perfect; hacking is a way of trying to improve it that doesn't tend to make things worse (as governments and corporations are apt to do). The losses of failed experiments are generally restricted to the individual concerned, but the community as a whole benefits from the successes. The failure mode is embarrassment
+* The urge to hack seems to be instinctive; Minecraft taps into very young children is an environment designed to be hacked. There's no "game" in the conventional sense, just worldbuilding
+*> "Human rights encompasses a wide variety of rights such as the right to a fair trial, protection against enslavement, prohibition of genocide, free speech, or a right to education"
+
+...and there's already controversy over which rights should be classified as human rights.
+
 """>>
+

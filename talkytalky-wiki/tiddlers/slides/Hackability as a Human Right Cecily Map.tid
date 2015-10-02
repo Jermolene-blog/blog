@@ -4,12 +4,12 @@ type: application/json
 {
 	"newTiddlerPosition": {"x": 360,"y": 100},
 	"positions": {
-		"Jeremy Ruston":			{"x":  10,"y": 15,"w": 140,"h": 140, "r": 3},
-		"Motovun Jack.svg":			{"x": 150,"y": 13,"w": 140,"h": 140, "r": -1},
-		"Motovun Jack Big.jpg":		{"x": 300,"y": 18,"w": 140,"h": 140, "r": 4},
-		"Hacking Cats.gif":			{"x": 450,"y": 12,"w": 140,"h": 140, "r": -3},
-		"Audio":					{"x": 600,"y": 14,"w": 140,"h": 140, "r": 16},
-		"Tags":						{"x": 750,"y": 15,"w": 140,"h": 140, "r": 20},
+		"Jeremy Ruston":			{"x":  20,"y": 15,"w": 140,"h": 140, "r": 3},
+		"BBC Micro":				{"x":  50,"y": 13,"w": 140,"h": 140, "r": -1},
+		"My MK14":					{"x":  80,"y": 18,"w": 140,"h": 140, "r": 4},
+		"PESpot":					{"x": 110,"y": 12,"w": 140,"h": 140, "r": -3},
+		"Closing":					{"x": 140,"y":  7,"w": 140,"h": 140, "r": 6},
+		"TiddlyWiki":				{"x": 170,"y": 10,"w": 140,"h": 140, "r": -4},
 		"Transclusion":				{"x": 240,"y": 16,"w": 140,"h": 140, "r": -4},
 		"Lists":					{"x": 275,"y": 13,"w": 140,"h": 140, "r": 6},
 		"Customisation":			{"x": 310,"y": 19,"w": 140,"h": 140, "r": -5},

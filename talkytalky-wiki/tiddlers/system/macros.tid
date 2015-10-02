@@ -10,7 +10,11 @@ tags: $:/tags/Macro
 \end
 
 \define showNotes(notes)
-<$reveal tag="div" class="tc-slide-notes" state="$:/_ShowNotes" type="match" text="yes" default="no">$notes$</$reveal>
+<$reveal tag="div" class="tc-slide-notes" state="$:/_ShowNotes" type="match" text="yes" default="no">
+
+$notes$
+
+</$reveal>
 \end
 
 \define cecilyMap(filter:"[list[$:/StoryList]]",template:"$:/core/ui/ViewTemplate",class,width:"550px",map)
