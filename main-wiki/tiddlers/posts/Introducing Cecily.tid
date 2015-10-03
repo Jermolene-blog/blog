@@ -3,4 +3,14 @@ tags: post
 created: 20080602123008381
 modified: 20080602123008381
 
+I've been interested for a long time in combining a wiki with a [ext[zooming user interface|https://en.wikipedia.org/wiki/Zooming_user_interface]]. The idea is to lay out the pages of the wiki over an infinite 2D plain. The user can move them around and resize them, using size and position to convey relationships between items. As one moves between pages, the characteristic behaviour of a ZUI is to zoom out to reveal both the source and the target, and then zoom back down to the target.
+
+I did early experiments in Visual Basic, Java, and JavaScript using canvas before the launch of [ext[CSS transforms|https://www.webkit.org/blog/130/css-transforms/]] made it possible to implement it much more easily. This version of Cecily launched at [ext[OpenTech 2008|http://www.opentech.org.uk/events/opentech2008/]].
+
+<a href="https://www.flickr.com/photos/oreillygmt/2641502091" target="_blank">
+
+[img width=200 [Jeremy at OpenTech 2008]]
+
+</a>
+
 Cecily can be found at [ext[http://jermolene.com/cecily|../cecily/index.html]]
