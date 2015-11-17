@@ -1,0 +1,16 @@
+title: Remembering FridgyWiki
+tags: post
+created: 20151116105759731
+modified: 20151116105759731
+
+This was an experiment I made back in June 2005 (a year after starting work on ~TiddlyWiki; nine months since its release). It explores a similar area to [ext[Cecily|../posts/Introducing%2520Cecily.html]], notably the idea of arranging tiddlers on a two dimensional plane, with position and size being used to convey relationships between them.
+
+[img width=600 [FridgyWiki.png]]
+
+In Cecily, there are two separate interactions to adjust the size and position of a tiddler. In ~FridgyWiki I was exploring the idea of simplifying things so that the user can only drag to adjust the position of a tiddler, with its size being a property of the location on the plane.
+
+In the demo, you can drag fridge magnets representing each tiddler around a black plane. As the magnets move to the right, they get smoothly smaller.
+
+The hypothesis was that the user would arrange important items on the left, with less important items stacked up in columns towards the right. Perhaps the tiddlers would flow to the right as new items arrive at the left. I was also interested in the idea of non-linear maps, for example, a fish-eye-like area in the middle that shows tiddlers larger than around the edges.
+
+The ~FridgyWiki demo can be found at [ext[http://jermolene.com/fridgywiki|../fridgywiki/index.html]]
