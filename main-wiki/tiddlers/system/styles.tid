@@ -29,3 +29,23 @@ tags: [[$:/tags/Stylesheet]]
 html body.tc-body {
 	font-family: "Lato", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", "DejaVu Sans", sans-serif;
 }
+
+html .tc-page-container {
+	text-align: center;
+}
+
+html .tc-story-river {
+	position: relative;
+	width: 770px;
+	padding: 42px;
+	margin: 0 auto;
+	text-align: left;
+}
+
+.tc-blog-menu {
+	text-align: center;
+}
+
+.tc-blog-menu-item {
+	display: inline-block;
+}
