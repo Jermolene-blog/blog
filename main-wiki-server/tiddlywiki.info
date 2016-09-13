@@ -1,5 +1,4 @@
 {
-	"description": "Server configuration of Santovia Doc Workbench",
 	"plugins": [
 		"tiddlywiki/tiddlyweb",
 		"tiddlywiki/filesystem"
