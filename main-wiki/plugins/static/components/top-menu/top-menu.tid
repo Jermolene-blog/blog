@@ -1,0 +1,16 @@
+title: $:/plugins/tiddlywiki/static/components/top-menu
+tags: $:/tags/Static/Component
+
+This component provides a menu of links across the top of the page.
+
+Entries for the menu should be tiddlers with the tag `$:/tags/Static/TopMenu` and the following fields:
+
+|!Field name |!Description |
+|caption |Text of menu link |
+|icon |Optional title of tiddler containing icon for menu link |
+|target |Target of link |
+
+Specify the colours for the top menu by defining these custom colours in your palette:
+
+* `top-menu-background`: top menu bar background colour
+* `top-menu-foreground`: top menu bar foreground colour

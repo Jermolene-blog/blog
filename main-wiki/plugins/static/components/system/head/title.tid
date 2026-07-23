@@ -1,0 +1,5 @@
+title: $:/plugins/tiddlywiki/static/components/system/head/title
+tags: $:/tags/Static/HTML/Head
+component: system
+
+<title><$text text=<<tv-page-title>>/></title>

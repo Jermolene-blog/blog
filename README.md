@@ -2,7 +2,9 @@
 
 This is the source code for my blog which you will find at http://jermolene.com.
 
-It is created using TiddlyWiki running under Node.js, generating static HTML files that are hosted in GitHub Pages.
+It is created using TiddlyWiki running under Node.js, generating static HTML files that are hosted in an Amazon S3 bucket (previously GitHub Pages, and for a while generated via Xememex).
+
+The main wiki uses the `tiddlywiki/static` plugin (vendored in `main-wiki/plugins/static`) to render each tiddler as a flat, slugified, extensionless HTML file (eg `/about`, `/introducing-cecily`), plus a "tiddler river" of all posts at `/index.html`.
 
 ## Contents
 
@@ -32,6 +34,7 @@ The batch scripts assume a directory layout like this:
 In other words, the folder containing this repository should be a sibling of a folder called "jermolene-blog.github.io" that will contain the output static files.
 
 * **bld.sh**: build all the components of the site, leaving them in the wiki output folders
+* **deploy-s3.sh**: sync the staged site to the jermolene.com S3 bucket
 * **github-push.sh**: push the "jermolene-blog.github.io" folder to GitHub
 * **serve.sh**: serve the main wiki at http://127.0.0.1:8080
 * **stage.sh**: copy all the output components across to the "jermolene-blog.github.io" folder

@@ -1,0 +1,23 @@
+title: $:/plugins/tiddlywiki/static/templates/components/page
+
+\define tv-config-toolbar-icons() no
+\define tv-config-toolbar-text() no
+\define tv-config-toolbar-class() tc-btn-invisible
+<$importvariables filter="[[$:/core/ui/PageMacros]] [all[shadows+tiddlers]tag[$:/tags/Macro]!has[draft.of]]">
+<$importvariables filter="[all[shadows+tiddlers]tag[$:/tags/StaticMacro]!has[draft.of]]">
+`<!doctype html>
+<html>
+<head>`
+<<include-component "$:/tags/Static/HTML/Head/Raw">>
+<<include-component-wikified "$:/tags/Static/HTML/Head">>
+`</head>
+<body class="tc-body">`
+<<include-component "$:/tags/Static/HTML/Body/Raw">>
+<<include-component-wikified "$:/tags/Static/HTML/Body">>
+`</body>
+<script>`
+<<include-component "$:/tags/Static/JS">>
+`</script>
+</html>`
+</$importvariables>
+</$importvariables>

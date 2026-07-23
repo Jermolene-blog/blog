@@ -1,0 +1,5 @@
+title: $:/plugins/tiddlywiki/static/components/system/head/apple-mobile-web-app-capable
+tags: $:/tags/Static/HTML/Head
+component: system
+
+<meta name="apple-mobile-web-app-capable" content="yes" />

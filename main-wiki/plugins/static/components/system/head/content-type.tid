@@ -1,0 +1,6 @@
+title: $:/plugins/tiddlywiki/static/components/system/head/content-type
+tags: $:/tags/Static/HTML/Head
+component: system
+list-before:
+
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />

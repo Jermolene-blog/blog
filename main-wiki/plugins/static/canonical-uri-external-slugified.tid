@@ -1,0 +1,8 @@
+title: $:/plugins/tiddlywiki/static/canonical-uri-external-slugified
+
+<!--
+
+This template is used to assign the ''_canonical_uri'' field to external raw files that are stored in the same directory with slugified filenames
+
+-->
+<$text text={{{ [<currentTiddler>slugify[]] }}}/>

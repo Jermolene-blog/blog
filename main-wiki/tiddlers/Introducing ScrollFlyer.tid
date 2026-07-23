@@ -1,0 +1,10 @@
+created: 20160913143705588
+modified: 20160913144154959
+tags: draft-post
+title: Introducing ScrollFlyer
+type: text/vnd.tiddlywiki
+
+ScrollFlyer is a tiny (<200 lines) JavaScript library that enhances a standard HTML file such that scrolling to the top of the page smoothly rearranges the content into clickable thumbnails. It gives each page an integrated overview of the entire content of the page, encouraging browsing.
+
+You can see it in action in the new [[Federatial site|https://federatial.com]].
+

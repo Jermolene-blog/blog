@@ -1,0 +1,5 @@
+title: $:/plugins/tiddlywiki/static/components/system/head/generator
+tags: $:/tags/Static/HTML/Head
+component: system
+
+<meta name="generator" content="TiddlyWiki" />

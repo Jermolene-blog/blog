@@ -1,0 +1,9 @@
+title: $:/plugins/tiddlywiki/static/components/system/styles/story-river
+tags: $:/tags/Static/CSS
+component: system
+
+\rules only filteredtranscludeinline transcludeinline macrodef macrocallinline
+
+.tc-story-river {
+	margin-top: 4em;
+}

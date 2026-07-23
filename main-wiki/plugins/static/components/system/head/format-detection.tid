@@ -1,0 +1,5 @@
+title: $:/plugins/tiddlywiki/static/components/system/head/format-detection
+tags: $:/tags/Static/HTML/Head
+component: system
+
+<meta name="format-detection" content="telephone=no"/>

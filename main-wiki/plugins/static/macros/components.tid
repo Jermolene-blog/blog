@@ -1,0 +1,10 @@
+title: $:/plugins/tiddlywiki/static/macros/components
+tags: $:/tags/Macro
+
+\define include-component(tag,mode:"inline")
+<$list filter="[all[shadows+tiddlers]tag[$tag$]!has[draft.of]]" variable="listItem"><$set name="visibilityStateTiddler" value={{{ [<listItem>get[component]] [[system]] +[addprefix[$:/config/Static/Components/]limit[1]] }}}><$set name="visibility" tiddler=<<visibilityStateTiddler>> default="hide"><$list filter="[<visibility>prefix[show]limit[1]]" variable="filteredListItem"><$transclude tiddler=<<listItem>> mode="""$mode$""" }}}/></$list></$set></$set></$list>
+\end
+
+\define include-component-wikified(tag,mode:"inline")
+<$list filter="[all[shadows+tiddlers]tag[$tag$]!has[draft.of]]" variable="listItem"><$set name="visibilityStateTiddler" value={{{ [<listItem>get[component]] [[system]] +[addprefix[$:/config/Static/Components/]limit[1]] }}}><$set name="visibility" tiddler=<<visibilityStateTiddler>> default="hide"><$list filter="[<visibility>prefix[show]limit[1]]" variable="filteredListItem"><$view tiddler=<<listItem>> format="htmlwikified" mode="""$mode$""" }}}/></$list></$set></$set></$list>
+\end

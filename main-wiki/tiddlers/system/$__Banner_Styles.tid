@@ -1,0 +1,36 @@
+tags: $:/tags/Static/CSS
+title: $:/Banner/Styles
+
+\rules only filteredtranscludeinline transcludeinline macrodef macrocallinline
+
+.jermolene-page-banner {
+	height: 200px;
+	background: <<color jermolene-mid>>;
+    background: url(../banner.jpg) center center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+.jermolene-page-banner .jermolene-page-title {
+	font-weight: 700;
+	font-size: 50px;
+    padding: 75px 0 0 42px;
+	color: <<color jermolene-white>>;
+    text-shadow: 1px 1px 6px <<color jermolene-black>>;
+}
+
+.jermolene-page-banner .jermolene-page-subtitle {
+	display: inline-block;
+	font-size: 17px;
+    margin: 0 0 0 42px;
+    padding: 2px 8px;
+    color: <<color jermolene-black>>;
+    font-weight: bold;
+    text-shadow: 1px 1px 6px #ffffff;
+    background: rgba(255,255,255,0.5);
+}
+
+<<centered-panel ".jermolene-page-banner-inner">>
+

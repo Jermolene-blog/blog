@@ -1,0 +1,33 @@
+created: 20181109092328641
+creator: jeremy
+modified: 20181209192632937
+modifier: jeremy
+slug: intertwingling
+tags: post
+title: "Intertwingling the TiddlyWiki"
+
+I'm speaking with [[Joe Armstrong|https://www.sics.se/SSW2016/speakers/joe-armstrong]] at [[CodeMesh 2018|http://codesync.global/conferences/code-mesh-2018/]] on "Intertwingling the ~TiddlyWiki".
+
+Here are some links to things we plan to reference in the talk:
+
+* Early versions of ~TiddlyWiki:
+** [[TwiddlyWiki|https://classic.tiddlywiki.com/archive/twiddlywiki.html]] - the first unreleased version
+** [[First Version|https://classic.tiddlywiki.com/archive/firstversion.html]] - the first released version from 20th September 2004
+** [[Second Version|https://classic.tiddlywiki.com/archive/secondversion.html]] - cleaned up, practical version
+** [[v2.6.5|https://classic.tiddlywiki.com/archive/index.2.6.5.html]] - the version that BT acquired in 2007
+* Current versions of ~TiddlyWiki
+** [[TiddlyWiki v5.1.18|https://tiddlywiki.com/]] - latest version of the post-Groundhog TW5 (also [[on GitHub|https://github.com/Jermolene/TiddlyWiki5]])
+*** Here's a [[demo of the task management technique|https://tiddlywiki.com/#TaskManagementExample]]  that we'll mention
+** [[TiddlyWiki v2.9.1|https://classic.tiddlywiki.com/]] - the latest version of the pre-Groundhog ~TiddlyWikiClassic
+* [[High School Volleyball Demo|http://pespot.tiddlyspot.com]]
+* [[Trello built in TiddlyWiki|https://ibnishak.github.io/Tekkan/Tekkan%20Demo.html]] - press one of the buttons to return to a normal TW view
+* The [[external-tasks|https://github.com/Jermolene/TiddlyWiki5/tree/external-tasks]] branch of TW5 on ~GitHub contains the code for connecting ~TiddlyWiki to Erlang processes (or anything else that can listen on a socket). There's also a [[pull request|https://github.com/Jermolene/TiddlyWiki5/pull/3461]] that contains some discussion about it
+* The book [[From Papyrus to Hypertext|https://www.press.uillinois.edu/books/catalog/34shn8cs9780252034350.html]], a highly recommended exploration of hypertext and the history of writing
+
+---
+
+''Update: 9th December 2018''
+
+Here's the video:
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/Uv1UfLPK7_Q" frameborder="0" allowfullscreen></iframe>

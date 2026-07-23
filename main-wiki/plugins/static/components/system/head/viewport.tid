@@ -1,0 +1,5 @@
+title: $:/plugins/tiddlywiki/static/components/system/head/viewport
+tags: $:/tags/Static/HTML/Head
+component: system
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />

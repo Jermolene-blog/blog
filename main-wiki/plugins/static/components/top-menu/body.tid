@@ -1,0 +1,8 @@
+title: $:/plugins/tiddlywiki/static/components/top-menu/body
+tags: $:/tags/Static/HTML/Body
+component: top-menu
+list-before:
+
+<nav class="tc-hamburger-menu">
+<<include-component "$:/tags/Static/TopMenu/Slices">>
+</nav>

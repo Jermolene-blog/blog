@@ -1,0 +1,113 @@
+title: $:/plugins/tiddlywiki/static/components/stacked-view/styles
+tags: $:/tags/Static/CSS
+component: stacked-view
+
+\rules only filteredtranscludeinline transcludeinline macrodef macrocallinline
+
+/*
+** Use a hand cursor for the thumbnails
+*/
+
+body.scrolled-top .tc-tiddler-frame, body.scrolled-mid .tc-tiddler-frame {
+    cursor: pointer;
+}
+
+/*
+** Adjust rotation point of tiddlers
+*/
+
+.tc-tiddler-frame {
+	transform-origin: 50% 0%;
+}
+
+/*
+** Page scroll prompt
+*/
+
+html div.tc-page-scroll-prompt {
+	position: fixed;
+	bottom: 0;
+	left: 50%;
+	right: 50%;
+	transition: opacity 500ms ease-in-out;
+	opacity: 0;
+}
+
+body.scrolled-top div.tc-page-scroll-prompt {
+	opacity: 1;
+}
+
+html div.tc-page-scroll-prompt a {
+	display: inline-block;
+	line-height: 0;
+    border-top-left-radius: 40px;
+    border-top-right-radius: 40px;
+    padding: 12px;
+    background-color: <<colour foreground>>;
+    fill: <<colour background>>;
+    padding-bottom: 4em;
+    margin-bottom: -4em;
+	-moz-animation: bounce 2s infinite;
+	-webkit-animation: bounce 2s infinite;
+	animation: bounce 2s infinite;
+	opacity: 0.3;
+	transition: opacity 500ms ease-in-out;
+}
+
+html div.tc-page-scroll-prompt a:hover {
+	opacity: 1;
+}
+
+html div.tc-page-scroll-prompt a svg {
+	width: 1em;
+	height: 1em;
+}
+
+@-moz-keyframes bounce {
+	0%, 20%, 50%, 80%, 100% {
+		-moz-transform: translateY(0);
+		transform: translateY(0);
+	}
+	40% {
+		-moz-transform: translateY(-10px);
+		transform: translateY(-10px);
+	}
+	60% {
+		-moz-transform: translateY(-5px);
+		transform: translateY(-5px);
+	}
+}
+@-webkit-keyframes bounce {
+	0%, 20%, 50%, 80%, 100% {
+		-webkit-transform: translateY(0);
+		transform: translateY(0);
+	}
+	40% {
+		-webkit-transform: translateY(-10px);
+		transform: translateY(-10px);
+	}
+	60% {
+		-webkit-transform: translateY(-5px);
+		transform: translateY(-5px);
+	}
+}
+@keyframes bounce {
+	0%, 20%, 50%, 80%, 100% {
+		-moz-transform: translateY(0);
+		-ms-transform: translateY(0);
+		-webkit-transform: translateY(0);
+		transform: translateY(0);
+	}
+	40% {
+		-moz-transform: translateY(-10px);
+		-ms-transform: translateY(-10px);
+		-webkit-transform: translateY(-10px);
+		transform: translateY(-10px);
+	}
+	60% {
+		-moz-transform: translateY(-5px);
+		-ms-transform: translateY(-5px);
+		-webkit-transform: translateY(-5px);
+		transform: translateY(-5px);
+	}
+}

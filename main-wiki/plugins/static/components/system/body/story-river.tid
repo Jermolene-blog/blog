@@ -1,0 +1,11 @@
+title: $:/plugins/tiddlywiki/static/components/system/body/story-river
+tags: $:/tags/Static/HTML/Body
+component: system
+
+<section class="tc-story-river">
+<<include-component "$:/tags/Static/StoryRiver/Top">>
+<$list filter=<<tv-river-filter>>>
+<$transclude tiddler="$:/plugins/tiddlywiki/static/templates/components/tiddler" mode="inline"/>
+</$list>
+<<include-component "$:/tags/Static/StoryRiver/Bottom">>
+</section>

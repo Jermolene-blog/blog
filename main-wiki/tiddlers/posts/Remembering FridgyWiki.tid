@@ -1,9 +1,9 @@
-title: Remembering FridgyWiki
-tags: post
 created: 20151116105759731
 modified: 20151116105759731
+tags: post
+title: Remembering FridgyWiki
 
-This was an experiment I made back in June 2005 (a year after starting work on ~TiddlyWiki; nine months since its release). It explores a similar area to [ext[Cecily|../posts/Introducing%2520Cecily.html]], notably the idea of arranging tiddlers on a two dimensional plane, with position and size being used to convey relationships between them.
+This was an experiment I made back in June 2005 (a year after starting work on ~TiddlyWiki; nine months since its release). It explores a similar area to [[Cecily|Introducing Cecily]], notably the idea of arranging tiddlers on a two dimensional plane, with position and size being used to convey relationships between them.
 
 [img width=600 [FridgyWiki.png]]
 

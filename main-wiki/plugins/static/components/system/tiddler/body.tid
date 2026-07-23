@@ -1,0 +1,9 @@
+title: $:/plugins/tiddlywiki/static/components/system/tiddler/body
+tags: $:/tags/Static/Tiddler
+component: system
+
+<div class="tc-tiddler-body">
+
+<$transclude/>
+
+</div>

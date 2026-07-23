@@ -1,0 +1,24 @@
+title: $:/plugins/tiddlywiki/static/components/top-menu/menu-inner
+tags: $:/tags/Static/TopMenu/Slices
+component: top-menu
+
+<div class="tc-hamburger-menu-inner">
+<ul>
+<$list filter="[all[shadows+tiddlers]tag[$:/tags/Static/TopMenu]!has[draft.of]]">
+<li style={{!!custom-menu-styles}}>
+<$transclude field="custom-menu-content">
+<$link to={{!!target}}>
+<$transclude field="caption"/>
+</$link>
+</$transclude>
+</li>
+</$list>
+</ul>
+<div class="tc-hamburger-menu-dropdowns">
+<$list filter="[all[shadows+tiddlers]tag[$:/tags/Static/TopMenuDropDown]!has[draft.of]]">
+<div class="tc-hamburger-menu-dropdown" data-dropdown-title=<<currentTiddler>>>
+<$transclude mode="block"/>
+</div>
+</$list>
+</div>
+</div>

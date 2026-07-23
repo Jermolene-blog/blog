@@ -1,0 +1,47 @@
+@media print {
+
+	@page {
+		size: landscape;
+	}
+
+	html, body {
+		margin: 0;
+		padding: 0;
+	}
+
+	.ui {
+		display: none;
+	}
+
+	#outputWrapper {
+		margin: 0;
+	}
+
+	/* Override some of pico.css print CSS */
+
+	html body>header {
+		display: none;
+	}
+
+	.container {
+		width: auto;
+		max-width: none;
+		padding: 0;
+		margin: 0;
+	}
+}
+
+.imagePreview {
+	width: 100%;
+}
+
+.photoCredit {
+	font-style: italic;
+	font-size: 0.8em;
+}
+
+#outputWrapper {
+	position: relative;
+	width: 100%;
+	margin-bottom: var(--typography-spacing-vertical);
+}

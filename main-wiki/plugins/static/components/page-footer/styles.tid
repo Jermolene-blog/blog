@@ -1,0 +1,24 @@
+title: $:/plugins/tiddlywiki/static/components/page-footer/styles
+tags: $:/tags/Static/CSS
+component: page-footer
+
+\rules only filteredtranscludeinline transcludeinline macrodef macrocallinline
+
+.tc-page-footer {
+	color: <<colour foreground>>;
+	background-color: <<colour page-footer-background>>;
+	color: <<colour page-footer-foreground>>;
+    padding-top: 1em;
+    padding-bottom: 1em;
+}
+
+.tc-page-footer-inner {
+    padding: 0 0 0 42px;
+    font-size: 0.8em;
+}
+
+<<centered-panel ".tc-page-footer-inner">>
+
+.tc-page-footer .tc-page-footer-logo img {
+	width: 160px;
+}

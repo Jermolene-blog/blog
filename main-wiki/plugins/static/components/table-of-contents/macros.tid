@@ -1,0 +1,52 @@
+title: $:/plugins/tiddlywiki/static/components/table-of-contents/macros
+tags: $:/tags/StaticMacro
+component: table-of-contents
+
+\define toc-caption()
+<$link>
+	<$transclude field="caption">
+		<$view field="title"/>
+	</$transclude>
+</$link>
+\end
+
+\define toc-unlinked-caption()
+<$set name="tv-wikilinks" value="no">
+	<$transclude field="caption">
+		<$view field="title"/>
+	</$transclude>
+</$set>
+\end
+
+\define toc-body(tag,sort:"",itemClassFilter,exclude,path,depth)
+<$list filter="[enlist[$depth$]] +[limit[1]]" emptyMessage="(Overflow)">
+<ol class="""tc-toc""">
+	<$list filter="""[all[shadows+tiddlers]tag[$tag$]!has[draft.of]$sort$] -[[$tag$]] $exclude$""">
+		<$vars item=<<currentTiddler>> path="""$path$/$tag$""" excluded="""$exclude$ -[[$tag$]]""">
+			<$set name="depth" filter="[enlist[$depth$]butfirst[]]">
+			<$set name="toc-item-class" filter="""$itemClassFilter$""" emptyValue="tc-toc-item">
+				<li class=<<toc-item-class>>>
+					<$list filter="[all[current]tagging[]limit[1]]" variable="ignore">
+						<button class="tc-toc-expand tc-dropdown-keep">
+						+
+						</button>
+						<button class="tc-toc-contract tc-dropdown-keep">
+						-
+						</button>
+					</$list>
+					<$list filter="[all[current]toc-link[no]]" emptyMessage=<<toc-caption>>>
+						<<toc-unlinked-caption>>
+					</$list>
+					<$macrocall $name="toc-body" tag=<<item>> sort="""$sort$""" itemClassFilter="""$itemClassFilter$""" exclude=<<excluded>> path=<<path>> depth=<<depth>>/>
+				</li>
+			</$set>
+			</$set>
+		</$vars>
+	</$list>
+</ol>
+</$list>
+\end
+
+\define toc-selective-expandable(tag,sort:"",itemClassFilter:" ",depth:"1 2 3 4 5 6 7 8 9")
+<<toc-body tag:"""$tag$""" sort:"""$sort$""" itemClassFilter:"""$itemClassFilter$""" depth:"""$depth$""">>
+\end

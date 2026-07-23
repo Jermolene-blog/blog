@@ -1,0 +1,16 @@
+title: $:/plugins/tiddlywiki/static/macros/centered-panel
+tags: $:/tags/Macro
+
+\define centered-panel(selector,width:"{{$:/plugins/tiddlywiki/static/components/metrics/bodywidth}}",breakpoint:"{{$:/plugins/tiddlywiki/static/components/metrics/breakpoint}}")
+@media (min-width: $breakpoint$) {
+	$selector$ {
+		width: $width$;
+		margin: 0 auto;
+	}
+}
+@media (max-width: $breakpoint$) {
+	$selector$ {
+		margin: 0 0;
+	}
+}
+\end

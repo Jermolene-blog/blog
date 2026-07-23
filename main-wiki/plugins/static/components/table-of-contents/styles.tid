@@ -1,0 +1,101 @@
+title: $:/plugins/tiddlywiki/static/components/table-of-contents/styles
+tags: $:/tags/Static/CSS
+component: table-of-contents
+
+\rules only filteredtranscludeinline transcludeinline macrodef macrocallinline
+
+.tc-table-of-contents ol {
+	list-style-type: none;
+    padding-left: 30px;
+    margin: 0;
+}
+
+.tc-table-of-contents ol ol {
+	padding-left: 1em;
+}
+
+.tc-table-of-contents li {
+	font-size: 1.0em;
+}
+
+.tc-table-of-contents li a {
+	font-weight: 900;
+}
+
+.tc-table-of-contents li li {
+	font-size: 0.95em;
+}
+
+.tc-table-of-contents li li a {
+	font-weight: 700;
+}
+
+.tc-table-of-contents li li li {
+	font-size: 0.95em;
+}
+
+.tc-table-of-contents li li li a {
+	font-weight: 500;
+}
+
+.tc-table-of-contents li li li li {
+	font-size: 0.95em;
+}
+
+.tc-table-of-contents li li li li a {
+	font-weight: 400;
+}
+
+.tc-table-of-contents li li li li li {
+	font-size: 0.95em;
+}
+
+.tc-table-of-contents li li li li li a {
+	font-weight: 300;
+}
+
+.tc-table-of-contents li.tc-toc-item {
+	position: relative;
+}
+
+.tc-table-of-contents li.tc-toc-item > button {
+    position: absolute;
+    margin: 0 0 0 -30px;
+	padding: 0;
+	background: none;
+	border: none;
+    cursor: pointer;
+    width: 30px;
+	color: <<colour primary>>;
+	fill: <<colour primary>>;    
+}
+
+.tc-table-of-contents li.tc-toc-item > button:hover {
+	background-color: <<colour primary>>;
+	color: <<colour background>>;
+	fill: <<colour background>>;
+}
+
+.tc-table-of-contents li.tc-toc-item > ol {
+	display: none;
+}
+
+.tc-table-of-contents li.tc-toc-item.tc-toc-expanded > ol {
+	display: block;
+}
+
+.tc-table-of-contents li.tc-toc-item > button.tc-toc-expand {
+	display: block;
+}
+
+.tc-table-of-contents li.tc-toc-item > button.tc-toc-contract {
+	display: none;
+}
+
+.tc-table-of-contents li.tc-toc-item.tc-toc-expanded > button.tc-toc-expand {
+	display: none;
+}
+
+.tc-table-of-contents li.tc-toc-item.tc-toc-expanded > button.tc-toc-contract {
+	display: block;
+}

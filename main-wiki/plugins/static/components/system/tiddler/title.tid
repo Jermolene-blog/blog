@@ -1,0 +1,18 @@
+title: $:/plugins/tiddlywiki/static/components/system/tiddler/title
+tags: $:/tags/Static/Tiddler
+list-before:
+component: system
+
+<div class="tc-tiddler-title">
+<div class="tc-titlebar">
+<div class="tc-tiddler-controls">
+<<include-component "$:/tags/Static/Tiddler/Controls">>
+</div>
+<h2 class="tc-title">
+<a class="tc-tiddler-anchor" id={{{ [<currentTiddler>slugify[]] }}}/>
+<$transclude field="caption" mode="inline">
+<$view field="title"/>
+</$transclude>
+</h2>
+</div>
+</div>

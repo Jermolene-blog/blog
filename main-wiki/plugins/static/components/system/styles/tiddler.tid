@@ -1,0 +1,77 @@
+title: $:/plugins/tiddlywiki/static/components/system/styles/tiddler
+tags: $:/tags/Static/CSS
+component: system
+
+\rules only filteredtranscludeinline transcludeinline macrodef macrocallinline
+
+.tc-tiddler-frame {
+	position: relative;
+    word-wrap: break-word;
+	margin-bottom: 28px;
+	background-color: <<colour tiddler-background>>;
+	border: 1px solid <<colour tiddler-border>>;
+    padding: 28px 42px 42px 42px;
+    border-radius: 2px;
+	<<box-shadow "1px 1px 5px rgba(0, 0, 0, 0.3)">>
+}
+
+.tc-tiddler-frame pre > code {
+    padding: 0;
+    border: none;
+    background-color: inherit;
+    color: inherit;
+    word-break: normal;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    font-family: Monaco, Consolas, "Lucida Console", "DejaVu Sans Mono", monospace;
+}
+
+.tc-tiddler-frame code {
+    color: #dd1144;
+    background-color: #f7f7f9;
+    border: 1px solid #e1e1e8;
+    white-space: pre-wrap;
+    padding: 0 3px 2px;
+    border-radius: 3px;
+    font-family: Monaco, Consolas, "Lucida Console", "DejaVu Sans Mono", monospace;
+}
+
+.tc-titlebar {
+	font-weight: 300;
+	font-size: 2.35em;
+	line-height: 1.2em;
+	color: <<colour tiddler-title-foreground>>;
+	margin: 0;
+}
+
+.tc-tiddler-controls {
+	float: right;
+}
+
+.tc-tiddler-controls a {
+	fill: <<colour muted-foreground>>;
+	color: <<colour muted-foreground>>;
+}
+
+.tc-tiddler-controls a:hover {
+	background-color: inherit;
+	fill: <<colour foreground>>;
+	color: <<colour foreground>>;
+}
+
+.tc-titlebar h2 {
+	font-size: 1em;
+	display: inline;
+}
+
+.tc-subtitle {
+	font-size: 0.9em;
+	color: <<colour tiddler-subtitle-foreground>>;
+	font-weight: 300;
+}
+
+.tc-tiddler-body iframe,
+.tc-tiddler-body svg,
+.tc-tiddler-body img {
+	max-width: 100%;
+}

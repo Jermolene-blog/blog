@@ -1,0 +1,30 @@
+title: $:/plugins/tiddlywiki/static/components/system/styles/social-links
+tags: $:/tags/Static/CSS
+component: system
+
+\rules only filteredtranscludeinline transcludeinline macrodef macrocallinline
+
+.tc-social-list ul {
+	list-style: none;
+	padding-left: 0;
+}
+
+.tc-social-list.tc-social-list-horizontal.tc-social-list-centered ul {
+	text-align: center;
+}
+
+.tc-social-list ul li {
+    margin: 3px;
+}
+
+.tc-social-list ul li a {
+    display: inline-block;
+}
+
+.tc-social-list ul li a svg,
+.tc-social-list ul li a:visited svg {
+	vertical-align: middle;
+	width: 1em;
+	height: 1em;
+}
+

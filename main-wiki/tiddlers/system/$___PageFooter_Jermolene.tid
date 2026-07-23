@@ -1,0 +1,16 @@
+created: 20221218221032060
+creator: jeremy
+modified: 20221218221035939
+modifier: jeremy
+tags: $:/tags/Static/PageFooter
+title: $:/_PageFooter/Jermolene
+
+<div class="tc-social-list tc-social-list-horizontal">
+
+{{$:/_JermoleneSocial}}
+
+</div>
+
+Copyright &copy; 2022 Jeremy Ruston
+
+Powered by [[TiddlyWiki|http://tiddlywiki.com]] and [[Xememex|https://xememex.com]]

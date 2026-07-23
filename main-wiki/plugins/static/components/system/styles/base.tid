@@ -1,0 +1,40 @@
+title: $:/plugins/tiddlywiki/static/components/system/styles/base
+tags: $:/tags/Static/CSS
+component: system
+
+\rules only filteredtranscludeinline transcludeinline macrodef macrocallinline
+
+html {
+	font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", "DejaVu Sans", sans-serif;
+    font-size: {{$:/plugins/tiddlywiki/static/components/metrics/fontsize}};
+    line-height: {{$:/plugins/tiddlywiki/static/components/metrics/lineheight}};
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+}
+
+html a {
+	-webkit-text-decoration-skip: auto; /* normalize.css bafflingly sets this to "objects" */
+}
+
+html a,
+html a:visited {
+	text-decoration: none;
+	font-weight: 500;
+	color: <<colour primary>>;
+	padding: 2px 2px;
+    margin: -2px -2px;
+}
+
+html a:hover {
+	background-color: <<colour primary>>;
+	color: <<colour background>>;
+	fill: <<colour background>>;
+	text-shadow: none;
+	border-radius: 2px;
+}
+
+html body {
+	background-color: <<colour page-background>>;
+}
+
+<<centered-panel ".tc-story-river">>

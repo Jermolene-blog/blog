@@ -1,0 +1,7 @@
+{
+	"title": "$:/plugins/tiddlywiki/static",
+	"description": "Static publishing tools",
+	"author": "JeremyRuston",
+	"core-version": ">=5.0.0",
+	"list": "readme docs"
+}

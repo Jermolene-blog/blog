@@ -1,0 +1,12 @@
+tags: $:/tags/Static/CSS
+title: $:/_UseFonts
+
+\rules only filteredtranscludeinline transcludeinline macrodef macrocallinline
+
+html {
+	font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', 'DejaVu Sans', sans-serif;
+}
+
+html h1, html h2, html h3, html h4, html h5, html h6 {
+	font-family: 'Merriweather', serif;	
+}

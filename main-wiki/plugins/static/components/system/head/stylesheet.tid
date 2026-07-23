@@ -1,0 +1,10 @@
+title: $:/plugins/tiddlywiki/static/components/system/head/stylesheet
+tags: $:/tags/Static/HTML/Head
+component: system
+
+<link rel="stylesheet" href="static/static.css"/>
+<!--- Variant for embedded stylesheet
+<style>
+<$view tiddler="$:/plugins/tiddlywiki/static/templates/pages/styles" format="plainwikified"/>
+</style>
+--->

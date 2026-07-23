@@ -1,0 +1,10 @@
+title: $:/plugins/tiddlywiki/static/components/scroll-flyer/prompt
+tags: $:/tags/Static/HTML/Body
+list-after: $:/plugins/tiddlywiki/static/components/system/body/story-river
+component: scroll-flyer
+
+<div class="tc-page-scroll-prompt">
+<$link to="HelloThere">
+{{$:/core/images/chevron-down}}
+</$link>
+</div>

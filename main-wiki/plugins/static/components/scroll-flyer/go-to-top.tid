@@ -1,0 +1,7 @@
+title: $:/plugins/tiddlywiki/static/components/scroll-flyer/go-to-top
+tags: $:/tags/Static/Tiddler/Controls
+component: scroll-flyer
+
+<a href="#__top">
+{{$:/core/images/up-arrow}}
+</a>

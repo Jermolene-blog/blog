@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>The Lenticulator by Jermolene</title>
+	<meta property="og:title" content="The Lenticulator by Jermolene">
+	<meta property="og:type" content="article" />
+	<meta property="og:description" content="Print and fold lenticular pictures that change as the observer moves">
+	<meta property="og:image" content="https://jermolene.com/lenticulator/screenshot.png">
+	<meta property="og:url" content="https://jermolene.com/lenticulator/index.htm">
+	<meta name="twitter:card" content="summary_large_image">
+	<link rel="stylesheet" href="pico.min.css">
+	<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+	<header>
+		<div class="container ui">
+			<h1>The Lenticulator by <a href="https://jermolene.com">Jermolene</a></h1>
+			<p>The Lenticulator is a web toy that helps you print and fold eye-baffling illusions whereby one picture blends into another as the observer moves from one side to the other.</p>
+			<p>Note that your pictures do not leave your computer, and are not uploaded to any server.</p>
+		</div>
+	</header>
+	<div class="container">
+		<div class="ui">
+			<h2>Step 1: Choose Images</h2>
+			<p>Choose the two images. Landscape orientation images work best. They should be the same size or have the same aspect ratio.</p>
+			<div class="grid">
+				<div>
+				<h3>Left Image</h3>
+					<img src="motovun-jack.jpg" id="leftImagePreview" class="imagePreview">
+					<input id="leftImageInput" type="file" accept="image/png, image/jpeg, image/webp"/>
+				</div>
+				<div>
+					<h3>Right Image</h3>
+					<img src="albox-dog.jpg" id="rightImagePreview" class="imagePreview"/>
+					<input id="rightImageInput" type="file" accept="image/png, image/jpeg, image/webp"/>
+				</div>
+			</div>
+			<h2>Step 2: Choose Difficulty</h2>
+			<p>Select the number of strips into which each image should be sliced.</p>
+			<p>Larger numbers will give a more effective illusion but the narrow width of each strip may present more difficulties in scoring and folding accurately.</p>
+			<div>
+				Number of output slices: <select id="inputNumberOfOutputSlices">
+					<option value="16">16 slices - easy</option>
+					<option value="20">20 slices - fairly easy</option>
+					<option value="24">24 slices - straightforward</option>
+					<option value="28" selected>28 slices - medium</option>
+					<option value="32">32 slices - pretty fiddly</option>
+					<option value="48">48 slices - very tricky</option>
+					<option value="64">64 slices - difficult</option>
+				</select>
+			</div>
+			<h2>Step 3: Print</h2>
+			<p>Print this page by clicking this button:</p>
+			<div><button id="btnPrint">Print</button></div>
+			<p>Select landscape mode to ensure the largest print area. Some printers also let you disable the usual print margins for an even larger print area</p>
+			<p>These instructions will not appear in the printed output.</p>
+		</div>
+		<div id="outputWrapper">
+		</div>
+		<div class="ui">
+			<h2>Step 4: Trim</h2>
+			<p>Trim the excess paper with scissors or a guillotine</p>
+			<h2>Step 5: Score</h2>
+			<p>Score a line inbetween each slice of the picture. Use a blunt knife and a ruler, or a special scoring machine.</p>
+			<h2>Step 6: Fold</h2>
+			<p>Fold the picture into a concertina by folding in alternate directions.</p>
+			<h2>Step 7: Enjoy</h2>
+			<p>Tweak the folds until they are even and the picture is clear.</p>
+		</div>
+	</div>
+<footer class="container ui">
+	<p class="credits">Created by <a href="https://jermolene.com">Jeremy Ruston</a> of <a href="http://federatial.com/">Federatial</a></p>
+	<p class="credits">This project is on <a href="https://github.com/Jermolene/lenticulator">GitHub</a></p>
+	<div class="photoCredit">
+		<p>Photographs by Jeremy Ruston.</p>
+	</div>
+</footer>
+</body>
+<script src="app.js"></script>
+</html>

@@ -1,0 +1,3 @@
+list: $:/_Menu/Home $:/_Menu/About $:/_Menu/Archive
+title: $:/tags/Static/TopMenu
+

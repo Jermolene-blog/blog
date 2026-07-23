@@ -1,0 +1,11 @@
+title: $:/plugins/tiddlywiki/static/components/system/tiddler/subtitle
+tags: $:/tags/Static/Tiddler
+list-before: $:/plugins/tiddlywiki/static/components/system/tiddler/body
+component: system
+
+<div class="tc-subtitle">
+
+<$view field="modified" format="date" template="DDth MMM YYYY"/>
+
+</div>
+

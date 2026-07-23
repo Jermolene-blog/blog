@@ -1,0 +1,89 @@
+title: $:/plugins/tiddlywiki/static/components/top-menu/styles
+tags: $:/tags/Static/CSS
+component: top-menu
+
+\rules only filteredtranscludeinline transcludeinline macrodef macrocallinline
+
+nav.tc-hamburger-menu {
+	z-index: 990;
+	background: <<colour top-menu-background foreground>>;
+	backdrop-filter: blur(4px);
+	-webkit-backdrop-filter: blur(4px);
+}
+
+<<centered-panel "div.tc-hamburger-menu-inner">>
+
+nav.tc-hamburger-menu ul {
+	position: relative;
+	list-style-type: none;
+	margin: 0;
+    padding: 0 0 0 42px;
+}
+
+nav.tc-hamburger-menu ul li {
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+}
+
+nav.tc-hamburger-menu ul li a {
+	display: block;
+	font-weight: 700;
+	color: <<colour top-menu-foreground background>>;
+	fill: <<colour top-menu-foreground background>>;
+	text-decoration: none;
+	padding: 0.5em;
+	margin: 0;
+	background: none;
+	border: none;
+    cursor: pointer;
+    text-transform: inherit;
+    border-radius: 0;
+}
+
+nav.tc-hamburger-menu ul li a.tc-dropdown-trigger-selected {
+	background: <<colour top-menu-foreground background>>;
+	color: <<colour top-menu-background foreground>>;
+	fill: <<colour top-menu-background foreground>>;
+}
+
+nav.tc-hamburger-menu ul li svg {
+	width: 1em;
+	height: 1em;
+}
+
+nav.tc-hamburger-menu ul li a:hover {
+	background: rgba(0,0,0,0.25);
+    border-radius: 0;
+}
+
+.tc-tiddler-anchor {
+	display: block;
+	position: relative;
+	top: -3em;
+	visibility: hidden;
+}
+
+nav.tc-hamburger-menu .tc-hamburger-menu-dropdowns {
+	position: relative;
+}
+
+nav.tc-hamburger-menu .tc-hamburger-menu-dropdown {
+	z-index: 990;
+	display: none;
+	position: absolute;
+	background: <<colour top-menu-background foreground>>;
+	color: <<colour top-menu-foreground background>>;
+	fill: <<colour top-menu-foreground background>>;
+	overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 1em;
+    margin: 0;
+	<<box-shadow "1px 1px 5px rgba(0, 0, 0, 0.3)">>
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+nav.tc-hamburger-menu .tc-hamburger-menu-dropdown a {
+	display: block;
+}

@@ -1,0 +1,14 @@
+list-before: $:/plugins/tiddlywiki/static/components/top-menu/body
+tags: $:/tags/Static/HTML/Body
+title: $:/Banner
+
+<div class="jermolene-page-banner">
+<div class="jermolene-page-banner-inner">
+<div class="jermolene-page-title">
+{{$:/SiteTitle}}
+</div>
+<div class="jermolene-page-subtitle">
+{{$:/SiteSubtitle}}
+</div>
+</div>
+</div>

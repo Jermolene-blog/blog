@@ -1,0 +1,6 @@
+title: $:/plugins/tiddlywiki/static/components/page-footer
+tags: $:/tags/Static/Component
+
+This component provides a customisable footer at the bottom of the page.
+
+Entries for the footer should be tiddlers with the tag `$:/tags/Static/PageFooter`.
