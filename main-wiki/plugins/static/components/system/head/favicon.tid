@@ -2,4 +2,4 @@ title: $:/plugins/tiddlywiki/static/components/system/head/favicon
 tags: $:/tags/Static/HTML/Head
 component: system
 
-<link id="faviconLink" rel="shortcut icon" href="favicon.ico"/>
+<link id="faviconLink" rel="shortcut icon" href="/favicon.ico"/>

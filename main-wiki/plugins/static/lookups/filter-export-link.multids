@@ -1,4 +1,4 @@
 title: $:/plugins/tiddlywiki/static/lookups/filter-export-link/
 
 internal: [slugify[]addprefix[#]]
-external: [slugify[]]
+external: [slugify[]addprefix[/]]

@@ -8,4 +8,5 @@ mkdir -p ../jermolene-blog.github.io/talkytalky/
 
 cp -R talkytalky-wiki/output/* ../jermolene-blog.github.io/talkytalky/
 
-cp -R static-assets/* ../jermolene-blog.github.io/
+# Trailing /. so that dotfiles (.nojekyll) are copied too
+cp -R static-assets/. ../jermolene-blog.github.io/
