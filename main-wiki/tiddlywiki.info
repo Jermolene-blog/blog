@@ -1,14 +1,12 @@
 {
 	"plugins": [
-		"tiddlywiki/blog",
-		"tiddlywiki/fullscreen"
+		"tiddlywiki/blog"
 	],
 	"themes": [
 		"tiddlywiki/vanilla",
 		"tiddlywiki/snowwhite"
 	],
 	"languages": [
-		"en-GB"
 	],
 	"build": {
 		"index": [
