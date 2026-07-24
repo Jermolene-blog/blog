@@ -1,0 +1,7 @@
+title: $:/plugins/tiddlywiki/static/components/system/head/canonical
+tags: $:/tags/Static/HTML/Head
+component: system
+
+<$list filter="[<tv-canonical-path>!is[blank]]" variable="ignore">
+<link rel="canonical" href={{{ [<tv-canonical-path>addprefix{$:/config/static/base-url}] }}}/>
+</$list>

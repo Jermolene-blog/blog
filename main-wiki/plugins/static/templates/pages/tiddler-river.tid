@@ -3,6 +3,7 @@ title: $:/plugins/tiddlywiki/static/templates/pages/tiddler-river
 <$vars
 	tv-river-filter={{$:/DefaultTiddlers}}
 	tv-filter-export-link={{{ [{$:/config/plugins/tiddlywiki/static/link-type-tiddler-river}lookup:external[$:/plugins/tiddlywiki/static/lookups/filter-export-link/]] }}}
+	tv-canonical-path="/"
 >
 <$wikify name="tv-page-title" text={{$:/core/wiki/title}} output="text">
 {{||$:/plugins/tiddlywiki/static/templates/components/page}}

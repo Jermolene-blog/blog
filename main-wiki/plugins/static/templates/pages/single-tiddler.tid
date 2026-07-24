@@ -7,6 +7,7 @@ title: $:/plugins/tiddlywiki/static/templates/pages/single-tiddler
 <$vars
 	tv-river-filter="[all[current]]"
 	tv-filter-export-link={{{ [{$:/config/plugins/tiddlywiki/static/link-type-single-tiddler}lookup:external[$:/plugins/tiddlywiki/static/lookups/filter-export-link/]] }}}
+	tv-canonical-path={{{ [<currentTiddler>subfilter{$:/config/static/route-filter}addprefix[/]] }}}
 >
 <$wikify name="tv-page-title" text=<<tv-page-title-source>> output="text">
 {{||$:/plugins/tiddlywiki/static/templates/components/page}}
