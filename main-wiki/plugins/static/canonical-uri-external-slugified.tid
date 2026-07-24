@@ -2,7 +2,7 @@ title: $:/plugins/tiddlywiki/static/canonical-uri-external-slugified
 
 <!--
 
-This template is used to assign the ''_canonical_uri'' field to external raw files that are stored at the root of the site with slugified filenames
+This template is used to assign the ''_canonical_uri'' field to external raw files, using the site route filter to determine their location
 
 -->
-<$text text={{{ [<currentTiddler>slugify[]addprefix[/]] }}}/>
+<$text text={{{ [<currentTiddler>subfilter{$:/config/static/route-filter}addprefix[/]] }}}/>
