@@ -28,7 +28,7 @@
 				"",
 				"text/plain",
 			"--render",
-				"[all[shadows+tiddlers]!is[system]!is[image]]",
+				"[tag[post]] [tag[page]]",
 				"[slugify[]addsuffix[/index.html]]",
 				"text/plain",
 				"$:/plugins/tiddlywiki/static/templates/pages/single-tiddler",
