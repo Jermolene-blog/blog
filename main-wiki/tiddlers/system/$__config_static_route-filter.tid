@@ -1,3 +1,6 @@
 title: $:/config/static/route-filter
 
-[tag[post]slugify[]addprefix[post/]] [!tag[post]slugify[]]
+[tag[post]slugify[]addprefix[post/]]
+[!tag[post]!is[system]is[image]slugify[]addprefix[images/]]
+[!tag[post]is[system]is[image]slugify[]]
+[!tag[post]!is[image]slugify[]]

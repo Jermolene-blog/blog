@@ -6,7 +6,7 @@ title: $:/Banner/Styles
 .jermolene-page-banner {
 	height: 200px;
 	background: <<color jermolene-mid>>;
-    background: url(../banner.jpg) center center;
+    background: url(../images/banner.jpg) center center;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
