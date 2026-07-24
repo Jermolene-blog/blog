@@ -28,7 +28,7 @@
 				"",
 				"text/plain",
 			"--render",
-				"[tag[post]] [tag[page]]",
+				"[tag[post]] [tag[page]] -[[index]]",
 				"[slugify[]addsuffix[/index.html]]",
 				"text/plain",
 				"$:/plugins/tiddlywiki/static/templates/pages/single-tiddler",
