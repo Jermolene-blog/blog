@@ -4,7 +4,21 @@ This is the source code for my blog which you will find at http://jermolene.com.
 
 It is created using TiddlyWiki running under Node.js, generating static HTML files that are hosted on GitHub Pages (for a while the site was generated via Xememex and hosted on Amazon S3).
 
-The main wiki uses the `tiddlywiki/static` plugin (vendored in `main-wiki/plugins/static`) to render each tiddler as a flat, slugified, extensionless HTML file (eg `/about`, `/introducing-cecily`), plus a "tiddler river" of all posts at `/index.html`.
+The main wiki uses the `tiddlywiki/static` plugin (vendored in `main-wiki/plugins/static`) to render tiddlers as slugified, extensionless HTML files, plus a "tiddler river" of all posts at `/index.html`.
+
+## URL Scheme
+
+The mapping from tiddler title to site path is centralised in the filter in `$:/config/static/route-filter` (in `main-wiki/tiddlers/system`), which is used by the build filters in `tiddlywiki.info`, the static plugin's link generation, and the `_canonical_uri` template:
+
+* Tiddlers tagged `post` are rendered at `/post/<slug>` (eg `/post/introducing-cecily`)
+* Tiddlers tagged `page` are rendered at the root (eg `/about`, `/archive`)
+* Content images are saved at `/images/<slug>`
+* Interactive toys live at `/toys/<name>` and preserved old sites at `/archive/<name>`, both copied verbatim from `static-assets`
+* The full interactive wiki is at `/wiki/`
+
+GitHub Pages has no server-side redirects, so old URLs are covered by meta-refresh stub pages: the build renders one at each post's legacy root-level slug, and `static-assets` contains hand-written stubs at the old toy locations (`/mimic`, `/lenticulator`, `/engravery`, `/cecily`, `/fridgywiki`). Note that `/mimic` deliberately redirects to the toy at `/toys/mimic/`, not the post; static assets are copied after the wiki output and overwrite it on conflict.
+
+All rendered pages carry a `rel=canonical` link derived from the route filter and the base URL in `$:/config/static/base-url`.
 
 ## Contents
 
