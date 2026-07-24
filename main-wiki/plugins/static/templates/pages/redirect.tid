@@ -1,0 +1,22 @@
+title: $:/plugins/tiddlywiki/static/templates/pages/redirect
+
+<!--
+
+This template renders a tiddler as a stub page that redirects to the URL given by the route filter. It is rendered at the tiddler's legacy URL so that old inbound links continue to work
+
+-->
+<$vars target={{{ [<currentTiddler>subfilter{$:/config/static/route-filter}addprefix[/]] }}}>
+`<!doctype html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta http-equiv="refresh" content="0; url=`<$text text=<<target>>/>`"/>
+<link rel="canonical" href="`<$text text={{{ [<target>addprefix{$:/config/static/base-url}] }}}/>`"/>
+<title>Redirecting: `<$text text=<<currentTiddler>>/>`</title>
+</head>
+<body>
+<p>This page has moved to <a href="`<$text text=<<target>>/>`">`<$text text=<<target>>/>`</a>.</p>
+</body>
+</html>`
+</$vars>
