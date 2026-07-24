@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Engravery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F6F5F1;
+  --ink:#101010;
+  --line:#D8D6CF;
+  --accent:#2038E6;
+  --mono:'Space Mono',monospace;
+}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Archivo',system-ui,sans-serif;
+  font-size:14px;
+  display:flex;flex-direction:column;
+}
+header{
+  padding:18px 24px 14px;
+  border-bottom:1px solid var(--ink);
+  display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;
+}
+h1{
+  font-family:'Archivo Black',sans-serif;
+  font-size:clamp(22px,4vw,34px);
+  letter-spacing:.01em;
+  line-height:1;
+  background:repeating-linear-gradient(45deg,var(--ink) 0 5px,transparent 5px 7px);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+}
+header p{font-size:13px;color:#555;max-width:46ch}
+main{
+  flex:1;display:grid;grid-template-columns:1fr 280px;min-height:0;
+}
+#stage{
+  position:relative;display:flex;align-items:center;justify-content:center;
+  padding:24px;overflow:hidden;background:
+    repeating-linear-gradient(45deg,#0000 0 14px,#00000006 14px 15px);
+}
+#stage.drag::after{
+  content:"Drop photo";
+  position:absolute;inset:12px;border:2px dashed var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);color:var(--accent);background:#f6f5f1e6;
+}
+canvas#out{
+  max-width:100%;max-height:100%;
+  box-shadow:0 1px 0 var(--ink),0 0 0 1px var(--ink);
+  background:#fff;
+}
+aside{
+  border-left:1px solid var(--ink);
+  padding:18px 20px 28px;overflow-y:auto;
+  display:flex;flex-direction:column;gap:16px;
+}
+fieldset{border:0;display:flex;flex-direction:column;gap:14px}
+legend{
+  font-family:var(--mono);font-size:11px;text-transform:uppercase;
+  letter-spacing:.12em;color:#666;padding-bottom:8px;
+  border-bottom:1px solid var(--line);width:100%;
+}
+.ctl label{display:flex;justify-content:space-between;margin-bottom:4px}
+.ctl output{font-family:var(--mono);font-size:12px;color:#444}
+input[type=range]{
+  width:100%;appearance:none;height:2px;background:var(--ink);outline-offset:4px;
+}
+input[type=range]::-webkit-slider-thumb{
+  appearance:none;width:14px;height:14px;border-radius:50%;
+  background:var(--paper);border:2px solid var(--ink);cursor:pointer;
+}
+input[type=range]:focus-visible::-webkit-slider-thumb{border-color:var(--accent)}
+input[type=range]::-moz-range-thumb{
+  width:12px;height:12px;border-radius:50%;
+  background:var(--paper);border:2px solid var(--ink);cursor:pointer;
+}
+.row{display:flex;gap:10px;align-items:center}
+.row label{display:flex;gap:6px;align-items:center;cursor:pointer}
+input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px}
+input[type=color]{
+  width:34px;height:26px;padding:0;border:1px solid var(--ink);background:none;cursor:pointer;
+}
+select{
+  width:100%;font-family:'Archivo',sans-serif;font-size:13px;
+  padding:7px 8px;border:1px solid var(--ink);background:var(--paper);
+  color:var(--ink);cursor:pointer;border-radius:0;
+}
+select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button,.filebtn{
+  font-family:'Archivo',sans-serif;font-weight:500;font-size:14px;
+  padding:10px 14px;border:1px solid var(--ink);background:var(--paper);
+  color:var(--ink);cursor:pointer;text-align:center;
+}
+button:hover,.filebtn:hover{background:var(--ink);color:var(--paper)}
+button.primary{background:var(--ink);color:var(--paper)}
+button.primary:hover{background:var(--accent);border-color:var(--accent)}
+button:focus-visible,.filebtn:focus-within,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.filebtn input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+.filebtn{position:relative;display:block}
+.hint{font-size:12px;color:#666;line-height:1.5}
+@media (max-width:760px){
+  main{grid-template-columns:1fr}
+  aside{border-left:0;border-top:1px solid var(--ink)}
+  #stage{min-height:52vh}
+}
+@media (prefers-reduced-motion:no-preference){
+  h1{background-size:200% 200%}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>ENGRAVERY</h1>
+  <p>Hide a photo in parallel lines. Squint to see it</p>
+</header>
+<main>
+  <div id="stage">
+    <canvas id="out" aria-label="Line illusion result"></canvas>
+  </div>
+  <aside>
+    <fieldset>
+      <legend>Photo</legend>
+      <label class="filebtn">Choose photo<input type="file" id="file" accept="image/*"></label>
+      <label class="filebtn">Take photo<input type="file" id="camera" accept="image/*" capture="environment"></label>
+      <button id="live">Live video</button>
+      <p class="hint">Or drag a photo onto the canvas. High-contrast subjects on plain backgrounds work best.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Lines</legend>
+      <div class="ctl"><label for="geometry">Pattern</label>
+        <select id="geometry">
+          <option value="lines" selected>Parallel lines</option>
+          <option value="circles">Concentric circles</option>
+          <option value="spiral">Spiral</option>
+        </select></div>
+      <div class="ctl"><label for="angle">Angle <output id="angleV"></output></label>
+        <input type="range" id="angle" min="0" max="180" step="1" value="45"></div>
+      <div class="ctl"><label for="spacing">Spacing <output id="spacingV"></output></label>
+        <input type="range" id="spacing" min="4" max="40" step="1" value="11"></div>
+      <div class="ctl"><label for="weight">Weight <output id="weightV"></output></label>
+        <input type="range" id="weight" min="0.15" max="1" step="0.01" value="0.62"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Perturbation</legend>
+      <div class="ctl"><label for="depth">Width response <output id="depthV"></output></label>
+        <input type="range" id="depth" min="0" max="1" step="0.01" value="0.85"></div>
+      <div class="ctl"><label for="wobble">Wobble <output id="wobbleV"></output></label>
+        <input type="range" id="wobble" min="0" max="12" step="0.1" value="2"></div>
+      <div class="row">
+        <label><input type="checkbox" id="gradWobble">Bend around features</label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Image</legend>
+      <div class="ctl"><label for="blur">Smoothing <output id="blurV"></output></label>
+        <input type="range" id="blur" min="0" max="10" step="0.5" value="2"></div>
+      <div class="ctl"><label for="contrast">Contrast <output id="contrastV"></output></label>
+        <input type="range" id="contrast" min="0.5" max="3" step="0.05" value="1.3"></div>
+      <div class="ctl"><label for="tone">Tone <output id="toneV"></output></label>
+        <input type="range" id="tone" min="0.4" max="1.6" step="0.05" value="0.75"></div>
+      <div class="row">
+        <label><input type="checkbox" id="colour">Colour</label>
+        <label><input type="checkbox" id="invert">Invert</label>
+        <label>Ink <input type="color" id="ink" value="#101010"></label>
+        <label>Paper <input type="color" id="paper" value="#ffffff"></label>
+      </div>
+    </fieldset>
+
+    <button class="primary" id="download">Download PNG</button>
+    <button id="downloadSvg">Download SVG</button>
+  </aside>
+</main>
+
+<script>
+(() => {
+"use strict";
+const $ = id => document.getElementById(id);
+const out = $("out"), ctx = out.getContext("2d");
+
+// ---------- source image ----------
+let img = null;           // HTMLImageElement or canvas
+let lum = null;           // Float32Array luminance 0..1 (1 = white)
+let chR = null, chG = null, chB = null;  // per-channel 0..1
+let LW = 0, LH = 0;       // luminance buffer size
+const MAX_OUT = 1400;     // longest output edge
+
+function demoImage() {
+  const c = document.createElement("canvas");
+  c.width = 900; c.height = 900;
+  const g = c.getContext("2d");
+  g.fillStyle = "#fff"; g.fillRect(0, 0, 900, 900);
+  g.fillStyle = "#000";
+  g.font = "700px 'Archivo Black', sans-serif";
+  g.textAlign = "center"; g.textBaseline = "middle";
+  g.fillText("👁", 450, 500);
+  return c;
+}
+
+let video = null, rafId = 0, lastStill = null;
+
+function setSource(source) {
+  if (source !== video) {
+    lastStill = source;
+    if (video) stopVideo(false);
+  }
+  img = source;
+  fitOutput();
+  buildLuminance();
+  requestRender();
+}
+
+function fitOutput() {
+  const w = img.videoWidth || img.naturalWidth || img.width;
+  const h = img.videoHeight || img.naturalHeight || img.height;
+  const cap = img === video ? 900 : MAX_OUT;    // keep live mode light
+  const s = Math.min(1, cap / Math.max(w, h));
+  out.width = Math.round(w * s);
+  out.height = Math.round(h * s);
+}
+
+// cached sampling canvas + buffers, rebuilt only on size change
+let sampC = null, sampG = null;
+function buildLuminance() {
+  const scale = 0.5;
+  const w = Math.max(2, Math.round(out.width * scale));
+  const h = Math.max(2, Math.round(out.height * scale));
+  if (!sampC || w !== LW || h !== LH) {
+    LW = w; LH = h;
+    sampC = document.createElement("canvas");
+    sampC.width = LW; sampC.height = LH;
+    sampG = sampC.getContext("2d", { willReadFrequently: true });
+    const n = LW * LH;
+    lum = new Float32Array(n);
+    chR = new Float32Array(n); chG = new Float32Array(n); chB = new Float32Array(n);
+  }
+  const b = +$("blur").value;
+  sampG.filter = b > 0 ? `blur(${b}px)` : "none";
+  sampG.save();
+  if (img === video) {                          // mirror the camera
+    sampG.translate(LW, 0); sampG.scale(-1, 1);
+  }
+  sampG.drawImage(img, 0, 0, LW, LH);
+  sampG.restore();
+  const d = sampG.getImageData(0, 0, LW, LH).data;
+  for (let i = 0, p = 0; i < LW * LH; i++, p += 4) {
+    chR[i] = d[p] / 255; chG[i] = d[p + 1] / 255; chB[i] = d[p + 2] / 255;
+    lum[i] = 0.2126 * chR[i] + 0.7152 * chG[i] + 0.0722 * chB[i];
+  }
+}
+
+// ---------- live video ----------
+async function startVideo() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "user", width: { ideal: 1280 } }, audio: false,
+    });
+    video = document.createElement("video");
+    video.srcObject = stream;
+    video.muted = true;
+    video.playsInline = true;
+    await video.play();
+    img = video;
+    fitOutput();
+    $("live").textContent = "Stop video";
+    const loop = () => {
+      buildLuminance();
+      render();
+      rafId = requestAnimationFrame(loop);
+    };
+    loop();
+  } catch (err) {
+    alert("Couldn't open the camera. If this is running inside the Claude app, " +
+      "the artifact sandbox may block camera access — download the HTML file " +
+      "and open it directly in a browser.");
+    video = null;
+  }
+}
+
+function stopVideo(restore = true) {
+  cancelAnimationFrame(rafId);
+  if (video && video.srcObject) {
+    for (const t of video.srcObject.getTracks()) t.stop();
+  }
+  video = null;
+  $("live").textContent = "Live video";
+  if (restore) setSource(lastStill || demoImage());
+}
+
+// darkness (0 = white, 1 = black) at P-space coords, with contrast, tone, invert
+function darkness(arr, x, y, P) {
+  const ix = Math.max(0, Math.min(LW - 1, (x * LW / P.W) | 0));
+  const iy = Math.max(0, Math.min(LH - 1, (y * LH / P.H) | 0));
+  let v = arr[iy * LW + ix];
+  v = (v - 0.5) * P.contrast + 0.5;
+  if (v < 0) v = 0; else if (v > 1) v = 1;
+  let dark = 1 - v;
+  if (P.invert) dark = 1 - dark;
+  return Math.pow(dark, P.tone);   // gamma: <1 lifts midtones toward ink
+}
+
+// ---------- render ----------
+let pending = false;
+function requestRender() {
+  if (pending) return;
+  pending = true;
+  requestAnimationFrame(() => { pending = false; render(); });
+}
+
+function readParams() {
+  return {
+    W: out.width, H: out.height,
+    spacing: +$("spacing").value,
+    angle: +$("angle").value * Math.PI / 180,
+    weight: +$("weight").value,
+    depth: +$("depth").value,
+    wobble: +$("wobble").value,
+    gradWobble: $("gradWobble").checked,
+    tone: +$("tone").value,
+    contrast: +$("contrast").value,
+    invert: $("invert").checked,
+    colour: $("colour").checked,
+    geometry: $("geometry").value,
+  };
+}
+
+// Generate the ribbon polygons for one field, widths driven by `arr`,
+// centrelines shifted along the local normal by `shift` (colour fringe).
+// emit(kind, top, bot): flat [x0,y0,x1,y1,...] arrays; kind is
+// "open" (lines, spiral) or "ring" (circles: top=outer, bot=inner loop).
+function generateRibbons(arr, shift, P, emit) {
+  const maxHW = P.spacing * P.weight / 2;
+  const cxm = P.W / 2, cym = P.H / 2;
+  const diag = Math.hypot(P.W, P.H);
+  const maxR = diag / 2 + P.spacing;
+
+  // sample one centreline point with normal (nx,ny); push perturbed edges
+  function point(x, y, nx, ny, top, bot) {
+    const dark = darkness(arr, x, y, P);
+    let disp;
+    if (P.gradWobble) {
+      // displace by the darkness gradient along the normal: lines bend
+      // around features rather than shifting across them
+      const g = P.spacing * 0.6;
+      const grad = darkness(arr, x + nx * g, y + ny * g, P)
+                 - darkness(arr, x - nx * g, y - ny * g, P);
+      disp = P.wobble * Math.max(-1, Math.min(1, grad * 2));
+    } else {
+      disp = P.wobble * (dark - 0.5);
+    }
+    x += nx * disp; y += ny * disp;
+    const hw = maxHW * ((1 - P.depth) + P.depth * dark);
+    top.push(x + nx * hw, y + ny * hw);
+    bot.push(x - nx * hw, y - ny * hw);
+  }
+
+  if (P.geometry === "lines") {
+    const dx = Math.cos(P.angle), dy = Math.sin(P.angle);
+    const nx = -dy, ny = dx;
+    const half = Math.ceil(diag / 2 / P.spacing) + 1;
+    for (let k = -half; k <= half; k++) {
+      const off = k * P.spacing + shift;
+      const top = [], bot = [];
+      for (let t = -diag / 2; t <= diag / 2; t += 2) {
+        point(cxm + dx * t + nx * off, cym + dy * t + ny * off, nx, ny, top, bot);
+      }
+      emit("open", top, bot);
+    }
+  } else if (P.geometry === "circles") {
+    for (let r = P.spacing + shift; r <= maxR; r += P.spacing) {
+      const top = [], bot = [];                 // outer / inner loop
+      const steps = Math.max(24, Math.ceil(2 * Math.PI * r / 2));
+      for (let i = 0; i < steps; i++) {
+        const th = P.angle + i * 2 * Math.PI / steps;
+        const nx = Math.cos(th), ny = Math.sin(th);   // radial normal
+        point(cxm + nx * r, cym + ny * r, nx, ny, top, bot);
+      }
+      emit("ring", top, bot);
+    }
+  } else {                                      // spiral
+    const b = P.spacing / (2 * Math.PI);        // radial growth per radian
+    let th = P.angle, r = P.spacing * 0.35 + shift;
+    const top = [], bot = [];
+    while (r <= maxR) {
+      const nx = Math.cos(th), ny = Math.sin(th);
+      point(cxm + nx * r, cym + ny * r, nx, ny, top, bot);
+      th += 2.2 / Math.max(r, 2);               // ~2.2px arc step
+      r = P.spacing * 0.35 + shift + b * (th - P.angle);
+    }
+    emit("open", top, bot);
+  }
+}
+
+function emitTo(g) {
+  return (kind, top, bot) => {
+    g.beginPath();
+    g.moveTo(top[0], top[1]);
+    for (let i = 2; i < top.length; i += 2) g.lineTo(top[i], top[i + 1]);
+    if (kind === "ring") {
+      g.closePath();
+      g.moveTo(bot[bot.length - 2], bot[bot.length - 1]);
+      for (let i = bot.length - 4; i >= 0; i -= 2) g.lineTo(bot[i], bot[i + 1]);
+    } else {
+      for (let i = bot.length - 2; i >= 0; i -= 2) g.lineTo(bot[i], bot[i + 1]);
+    }
+    g.closePath();
+    g.fill();
+  };
+}
+
+const CMY = [                                   // [buffer index, ink, fringe sign]
+  ["r", "#00b7eb", -1],                         // cyan from red
+  ["g", "#ec1e8e", 0],                          // magenta from green
+  ["b", "#f7d500", 1],                          // yellow from blue
+];
+const chan = { get r() { return chR; }, get g() { return chG; }, get b() { return chB; } };
+
+function paint(g, P) {
+  const emit = emitTo(g);
+  g.globalCompositeOperation = "source-over";
+  g.fillStyle = $("paper").value;
+  g.fillRect(0, 0, P.W, P.H);
+
+  if (P.colour) {
+    const fringe = Math.min(1.6 * P.scale, P.spacing * 0.1);
+    g.globalCompositeOperation = "multiply";
+    for (const [c, ink, s] of CMY) {
+      g.fillStyle = ink;
+      generateRibbons(chan[c], s * fringe, P, emit);
+    }
+    g.globalCompositeOperation = "source-over";
+  } else {
+    g.fillStyle = $("ink").value;
+    generateRibbons(lum, 0, P, emit);
+  }
+}
+
+function render() {
+  if (!lum) return;
+  paint(ctx, { ...readParams(), scale: 1 });
+}
+
+// params scaled for an s× supersampled render
+function scaledParams(s) {
+  const P = readParams();
+  return { ...P, W: P.W * s, H: P.H * s, spacing: P.spacing * s,
+           wobble: P.wobble * s, scale: s };
+}
+
+// ---------- SVG export ----------
+function buildSVG() {
+  const P = readParams();
+  const r1 = v => Math.round(v * 10) / 10;
+  function fieldPath(arr, shift, fill, blend) {
+    let d = "";
+    generateRibbons(arr, shift, P, (kind, top, bot) => {
+      d += "M" + r1(top[0]) + " " + r1(top[1]);
+      for (let i = 2; i < top.length; i += 2) d += "L" + r1(top[i]) + " " + r1(top[i + 1]);
+      if (kind === "ring") d += "ZM" + r1(bot[bot.length - 2]) + " " + r1(bot[bot.length - 1]);
+      for (let i = bot.length - (kind === "ring" ? 4 : 2); i >= 0; i -= 2)
+        d += "L" + r1(bot[i]) + " " + r1(bot[i + 1]);
+      d += "Z";
+    });
+    return `<path d="${d}" fill="${fill}" fill-rule="nonzero"` +
+      (blend ? ' style="mix-blend-mode:multiply"' : "") + "/>\n";
+  }
+  let body = `<rect width="${P.W}" height="${P.H}" fill="${$("paper").value}"/>\n`;
+  if (P.colour) {
+    const fringe = Math.min(1.6, P.spacing * 0.1);
+    for (const [c, ink, s] of CMY) body += fieldPath(chan[c], s * fringe, ink, true);
+  } else {
+    body += fieldPath(lum, 0, $("ink").value, false);
+  }
+  return `<?xml version="1.0" encoding="UTF-8"?>\n` +
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${P.W}" height="${P.H}" ` +
+    `viewBox="0 0 ${P.W} ${P.H}">\n${body}</svg>\n`;
+}
+
+// ---------- wiring ----------
+const sliders = ["angle", "spacing", "weight", "depth", "wobble", "blur", "contrast", "tone"];
+const units = { angle: "°", spacing: "px", wobble: "px", blur: "px" };
+function showValue(id) {
+  const el = $(id);
+  $(id + "V").textContent = (+el.value).toString() + (units[id] || "");
+}
+for (const id of sliders) {
+  showValue(id);
+  $(id).addEventListener("input", () => {
+    showValue(id);
+    if (id === "blur") buildLuminance();
+    requestRender();
+  });
+}
+for (const id of ["colour", "invert", "ink", "paper", "geometry", "gradWobble"]) {
+  $(id).addEventListener("input", requestRender);
+}
+
+$("downloadSvg").addEventListener("click", () => {
+  const a = document.createElement("a");
+  a.download = "hidden-lines.svg";
+  a.href = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(buildSVG());
+  a.click();
+});
+
+let userLoaded = false;
+function loadFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const im = new Image();
+    im.onload = () => { userLoaded = true; setSource(im); };
+    im.onerror = () => alert("Couldn't decode that image — try a JPEG or PNG.");
+    im.src = reader.result;
+  };
+  reader.onerror = () => alert("Couldn't read that file.");
+  reader.readAsDataURL(file);
+}
+$("file").addEventListener("change", e => {
+  loadFile(e.target.files[0]);
+  e.target.value = "";
+});
+$("camera").addEventListener("change", e => {
+  loadFile(e.target.files[0]);
+  e.target.value = "";
+});
+
+const stage = $("stage");
+for (const ev of ["dragenter", "dragover"]) {
+  stage.addEventListener(ev, e => { e.preventDefault(); stage.classList.add("drag"); });
+}
+for (const ev of ["dragleave", "drop"]) {
+  stage.addEventListener(ev, e => { e.preventDefault(); stage.classList.remove("drag"); });
+}
+stage.addEventListener("drop", e => loadFile(e.dataTransfer.files[0]));
+
+$("live").addEventListener("click", () => {
+  if (video) stopVideo(); else startVideo();
+});
+
+$("download").addEventListener("click", () => {
+  const P = scaledParams(2);                    // 2× supersample for clean edges
+  const c = document.createElement("canvas");
+  c.width = P.W; c.height = P.H;
+  paint(c.getContext("2d"), P);
+  const a = document.createElement("a");
+  a.download = "hidden-lines.png";
+  a.href = c.toDataURL("image/png");
+  a.click();
+});
+
+document.fonts.ready.then(() => { if (!userLoaded) setSource(demoImage()); });
+setSource(demoImage());
+})();
+</script>
+</body>
+</html>
