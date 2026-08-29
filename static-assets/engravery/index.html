@@ -512,16 +512,12 @@ $("downloadSvg").addEventListener("click", () => {
   const svg = buildSVG();
   const a = document.createElement("a");
   a.download = "hidden-lines.svg";
-  try {
-    const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" }));
-    a.href = url;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
-  } catch (e) {
-    // blob URLs unavailable: small exports can still go via data URL
-    a.href = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
-    a.click();
-  }
+  // Data URL rather than a blob URL: iPad Safari silently fails to download
+  // programmatically-clicked blob: URLs
+  a.href = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
 });
 
 let userLoaded = false;
