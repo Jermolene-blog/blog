@@ -1,0 +1,29 @@
+caption: Toys
+tags: page
+title: Toys
+
+//Interactive things//
+
+<div class="jermolene-toy-listing">
+
+<$list filter="[tag[toy]sort[caption]]">
+
+<div class="jermolene-toy">
+
+!!! <a href={{!!url}}><$view field="caption"/></a>
+
+<$list filter="[all[current]has[description]]" variable="ignore">
+
+<div class="jermolene-toy-description">
+
+<$view field="description"/>
+
+</div>
+
+</$list>
+
+</div>
+
+</$list>
+
+</div>

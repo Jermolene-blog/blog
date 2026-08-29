@@ -1,0 +1,23 @@
+tags: $:/tags/Static/CSS
+title: $:/Toys/Styles
+
+\rules only filteredtranscludeinline transcludeinline macrodef macrocallinline
+
+.jermolene-toy-listing .jermolene-toy {
+	margin: 1.5em 0;
+	padding: 0 0 1.5em 0;
+	border-bottom: 1px solid <<colour jermolene-bright>>;
+}
+
+.jermolene-toy-listing .jermolene-toy:last-child {
+	border-bottom: none;
+}
+
+.jermolene-toy-listing .jermolene-toy h3 {
+	margin: 0 0 0.25em 0;
+}
+
+.jermolene-toy-listing .jermolene-toy .jermolene-toy-description {
+	margin: 0;
+	color: <<colour jermolene-grey>>;
+}
