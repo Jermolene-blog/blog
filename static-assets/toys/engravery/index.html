@@ -526,7 +526,10 @@ function saveFile(filename, type, data) {
 }
 
 $("downloadSvg").addEventListener("click", () => {
-  saveFile("hidden-lines.svg", "image/svg+xml", buildSVG());
+  // Generic MIME type rather than image/svg+xml: iOS maps SVG to an image
+  // UTI, making the share sheet offer "Save Image" (to Photos, which cannot
+  // hold SVGs) instead of "Save to Files"
+  saveFile("hidden-lines.svg", "application/octet-stream", buildSVG());
 });
 
 let userLoaded = false;
