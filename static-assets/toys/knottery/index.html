@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Knottery</title>
+<meta name="description" content="Draw Celtic knots freehand: strokes become woven ribbons, and a tap on a crossing flips which strand passes over">
+<style>
+  :root{ --ink:#1c1a17; --paper:#f2ede3; --line:#d8cfbd; --accent:#7a3b2e; --muted:#8a7f70; }
+  *{ box-sizing:border-box; }
+  html, body{
+    margin:0; height:100%; overflow:hidden; overscroll-behavior:none;
+    position:fixed; inset:0; width:100%;
+  }
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+    display:flex; flex-direction:column;
+  }
+  header{
+    flex:0 0 auto;
+    display:flex; flex-wrap:wrap; gap:8px 16px; align-items:flex-end;
+    padding:8px 14px;
+    background:#fff; border-bottom:1px solid var(--line);
+  }
+  header h1{ font-size:16px; margin:0 6px 3px 0; font-weight:600; align-self:center; }
+  header h1 a{ color:inherit; text-decoration:none; }
+  header h1 a:hover{ color:var(--accent); }
+  .field{ display:flex; flex-direction:column; gap:3px; }
+  .field label{ font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+  .field.disabled label{ opacity:.4; }
+  input[type=range]{ width:88px; }
+  input[type=color]{ width:38px; height:28px; border:1px solid #cfc4b3; border-radius:4px; padding:2px; background:#fff; }
+  input[type=color]:disabled{ opacity:.35; }
+  input[type=checkbox]{ width:20px; height:20px; margin:4px 0 0; }
+  select{ font-size:13px; padding:5px 6px; border:1px solid #cfc4b3; border-radius:5px; background:#fff; color:var(--ink); }
+  .buttons{ display:flex; gap:6px; align-items:center; }
+  button{ padding:7px 11px; border:1px solid var(--ink); background:#fff; color:var(--ink);
+    border-radius:5px; font-size:13px; cursor:pointer; }
+  button.primary{ background:var(--ink); color:#fff; }
+  button:hover:not(:disabled){ background:var(--ink); color:#fff; }
+  button.primary:hover:not(:disabled){ background:var(--accent); border-color:var(--accent); }
+  button.danger:hover:not(:disabled){ background:#8a2f22; border-color:#8a2f22; color:#fff; }
+  button:disabled{ opacity:.35; cursor:default; }
+  .status{ font-size:12px; color:var(--muted); align-self:center; }
+  #stage{
+    flex:1 1 auto; position:relative; background:#fffdf8;
+    touch-action:none; overscroll-behavior:none;
+    -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;
+  }
+  #canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><a href="/toys/">Knottery</a></h1>
+  <div class="field">
+    <label for="brush">Brush</label>
+    <select id="brush">
+      <option value="Ribbon" selected>Ribbon</option>
+      <option value="Rope">Rope</option>
+      <option value="Snake">Snake</option>
+      <option value="Steel Tube">Steel Tube</option>
+    </select>
+  </div>
+  <div class="field"><label for="ribbonWidth">Ribbon</label><input id="ribbonWidth" type="range" min="8" max="48" value="22"></div>
+  <div class="field"><label for="borderWidth">Border</label><input id="borderWidth" type="range" min="1" max="14" value="4"></div>
+  <div class="field"><label for="gapSize">Gap</label><input id="gapSize" type="range" min="0" max="60" value="26"></div>
+  <div class="field" id="fillField"><label for="fillColour">Ribbon colour</label><input id="fillColour" type="color" value="#fdfaf3"></div>
+  <div class="field" id="borderField"><label for="borderColour">Border colour</label><input id="borderColour" type="color" value="#171310"></div>
+  <div class="field"><label for="closePaths">Close paths</label><input id="closePaths" type="checkbox"></div>
+  <div class="buttons">
+    <button id="undo">Undo</button>
+    <button id="redo">Redo</button>
+    <button id="clear" class="danger">Clear</button>
+    <button id="export" class="primary">Export SVG</button>
+  </div>
+  <span class="status" id="status"></span>
+</header>
+
+<div id="stage">
+  <svg id="canvas" xmlns="http://www.w3.org/2000/svg"></svg>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+/*
+Knottery — a Celtic-knot ribbon drawer.
+
+Draw freehand strokes; each is painted as a ribbon (a light fill inside a dark
+border, or a warped brush). Where strokes cross, one strand passes over the
+other, and tapping a crossing flips which. The drawing surface *is* an SVG, so
+exporting is just serialising it, and canvas and export are identical by
+construction.
+
+The model is deliberately small:
+
+  strokes:   [ { points:[{x,y}...], isClosed } ]   points are RDP-simplified
+  crossings: [ { x, y, hits:[{si,param},{si,param}], overIndex } ]  derived
+
+Crossings are recomputed from scratch whenever the strokes change, with manual
+over/under flips carried across by proximity. Smoothing happens only at render
+time; all geometry runs on the simplified polylines.
+
+Three limitations come with the approach and are left as they are:
+
+  * patches are painted on top, so two crossings closer together than a patch
+    length on the same strands can interfere;
+  * a crossing very near a stroke's end cannot extend its patch past that end,
+    so an acute crossing there may clip slightly;
+  * a stroke ending on another strand merges with it without a border between
+    the two, which is usually the seamless join you wanted.
+*/
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+const $ = id => document.getElementById(id);
+
+const svg = $("canvas");
+const stage = $("stage");
+
+// Interaction constants (tuned by hand; a stroke below MIN_STROKE_LEN is
+// treated as an accidental blob, movement within TOGGLE_SLOP as tap jitter)
+const TOGGLE_SLOP = 20;
+const MIN_STROKE_LEN = 15;
+const MIN_POINT_DIST = 1.5;
+const RDP_EPSILON = 2.2;
+const CANVAS_COLOUR = "#fffdf8";
+
+const state = { strokes: [], crossings: [] };
+const undoStack = [], redoStack = [];
+let drawing = null;          // raw in-progress points
+let pendingToggle = -1;      // index of the crossing a tap may flip
+let downPt = null;
+
+// ---------------------------------------------------------------- geometry
+
+function dist(a, b){ return Math.hypot(a.x - b.x, a.y - b.y); }
+function samePoint(a, b){ return a.x === b.x && a.y === b.y; }
+function mid(a, b){ return { x:(a.x + b.x) / 2, y:(a.y + b.y) / 2 }; }
+
+function strokeLength(pts){
+  let total = 0;
+  for(let i = 0; i < pts.length - 1; i++) total += dist(pts[i], pts[i + 1]);
+  return total;
+}
+
+// Ramer–Douglas–Peucker simplification of the raw captured path
+function rdp(points, epsilon){
+  if(points.length < 3) return points.slice();
+  function perpDist(pt, a, b){
+    const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
+    if(len === 0) return dist(pt, a);
+    const t = ((pt.x - a.x) * dx + (pt.y - a.y) * dy) / (len * len);
+    return Math.hypot(pt.x - (a.x + t * dx), pt.y - (a.y + t * dy));
+  }
+  function recurse(pts){
+    if(pts.length < 3) return pts;
+    let maxD = 0, idx = 0;
+    for(let i = 1; i < pts.length - 1; i++){
+      const d = perpDist(pts[i], pts[0], pts[pts.length - 1]);
+      if(d > maxD){ maxD = d; idx = i; }
+    }
+    if(maxD > epsilon){
+      return recurse(pts.slice(0, idx + 1)).slice(0, -1).concat(recurse(pts.slice(idx)));
+    }
+    return [pts[0], pts[pts.length - 1]];
+  }
+  return recurse(points);
+}
+
+// Parametric segment intersection, rejecting near-parallel pairs and hits
+// that merely touch an endpoint
+function segIntersect(p1, p2, p3, p4){
+  const d1x = p2.x - p1.x, d1y = p2.y - p1.y;
+  const d2x = p4.x - p3.x, d2y = p4.y - p3.y;
+  const denom = d1x * d2y - d1y * d2x;
+  if(Math.abs(denom) < 1e-9) return null;
+  const t = ((p3.x - p1.x) * d2y - (p3.y - p1.y) * d2x) / denom;
+  const u = ((p3.x - p1.x) * d1y - (p3.y - p1.y) * d1x) / denom;
+  const eps = 1e-6;
+  if(t > eps && t < 1 - eps && u > eps && u < 1 - eps){
+    return { x:p1.x + t * d1x, y:p1.y + t * d1y, t, u };
+  }
+  return null;
+}
+
+// Unit tangent of the polyline at fractional segment position `param`
+// (floor = segment index, fraction = position along it)
+function tangentAt(pts, param){
+  const i = Math.min(Math.floor(param), pts.length - 2);
+  const dx = pts[i + 1].x - pts[i].x, dy = pts[i + 1].y - pts[i].y;
+  const len = Math.hypot(dx, dy) || 1;
+  return { x:dx / len, y:dy / len };
+}
+
+// Sub-polyline centred at `param`, extending `halfLen` of arc length each way
+// and interpolating the final partial segment. Clips at the ends.
+function subPath(pts, param, halfLen){
+  const i = Math.min(Math.floor(param), pts.length - 2);
+  const t = param - i;
+  const centre = {
+    x: pts[i].x + (pts[i + 1].x - pts[i].x) * t,
+    y: pts[i].y + (pts[i + 1].y - pts[i].y) * t
+  };
+  function walk(from, step, limit){
+    const out = [];
+    let remaining = halfLen, prev = centre;
+    for(let j = from; j !== limit; j += step){
+      const p = pts[j];
+      const d = dist(prev, p);
+      if(d >= remaining){
+        const f = remaining / d;
+        out.push({ x:prev.x + (p.x - prev.x) * f, y:prev.y + (p.y - prev.y) * f });
+        break;
+      }
+      out.push(p);
+      remaining -= d;
+      prev = p;
+      if(remaining <= 0) break;
+    }
+    return out;
+  }
+  const back = walk(i, -1, -1);
+  const forward = walk(i + 1, 1, pts.length);
+  return back.reverse().concat([centre], forward);
+}
+
+// --------------------------------------------------------------- crossings
+
+// Brute force over every non-adjacent segment pair. Fine for real drawings;
+// a spatial index would only be worth it for far denser knots.
+function computeCrossings(strokes){
+  const segs = [];
+  strokes.forEach((stroke, si) => {
+    const pts = stroke.points;
+    for(let i = 0; i < pts.length - 1; i++) segs.push({ si, i, p1:pts[i], p2:pts[i + 1] });
+  });
+  const out = [];
+  for(let a = 0; a < segs.length; a++){
+    for(let b = a + 1; b < segs.length; b++){
+      const A = segs[a], B = segs[b];
+      if(A.si === B.si && Math.abs(A.i - B.i) <= 1) continue;
+      const hit = segIntersect(A.p1, A.p2, B.p1, B.p2);
+      if(!hit) continue;
+      const hA = { si:A.si, param:A.i + hit.t };
+      const hB = { si:B.si, param:B.i + hit.u };
+      // hits are chronological: the earlier pass is index 0, so the default
+      // overIndex of 1 puts the most recently drawn pass on top, like ink
+      const chronoFirst = (hA.si < hB.si) || (hA.si === hB.si && hA.param < hB.param);
+      out.push({ x:hit.x, y:hit.y, hits:chronoFirst ? [hA, hB] : [hB, hA], overIndex:1 });
+    }
+  }
+  return out;
+}
+
+// Match each new crossing to the nearest old one (greedy, each old used once)
+// and inherit its overIndex, so manual flips survive a recompute
+function carryOverFlips(oldCrossings, newCrossings, tol = 4){
+  if(!oldCrossings.length) return newCrossings;
+  const used = new Set();
+  for(const nc of newCrossings){
+    let best = tol, bi = -1;
+    oldCrossings.forEach((oc, oi) => {
+      if(used.has(oi)) return;
+      const d = dist(nc, oc);
+      if(d <= best){ best = d; bi = oi; }
+    });
+    if(bi >= 0){ used.add(bi); nc.overIndex = oldCrossings[bi].overIndex; }
+  }
+  return newCrossings;
+}
+
+function recomputeCrossings(){
+  state.crossings = carryOverFlips(state.crossings, computeCrossings(state.strokes));
+}
+
+// --------------------------------------------------------------- smoothing
+
+function num(v){
+  const r = Math.round(v * 1000) / 1000;
+  return Object.is(r, -0) ? "0" : String(r);
+}
+
+// Quadratic midpoint smoothing: move to the first point, curve through each
+// interior point to the midpoint of it and its successor, line to the last
+function smoothPathData(points){
+  if(points.length < 2) return "";
+  if(points.length === 2){
+    return `M ${num(points[0].x)} ${num(points[0].y)} L ${num(points[1].x)} ${num(points[1].y)}`;
+  }
+  let d = `M ${num(points[0].x)} ${num(points[0].y)}`;
+  for(let i = 1; i < points.length - 1; i++){
+    const m = mid(points[i], points[i + 1]);
+    d += ` Q ${num(points[i].x)} ${num(points[i].y)} ${num(m.x)} ${num(m.y)}`;
+  }
+  const last = points[points.length - 1];
+  return d + ` L ${num(last.x)} ${num(last.y)}`;
+}
+
+// Closed strokes curve through *every* point with the midpoints wrapping
+// around, so the seam is as smooth as the rest of the loop. The stored wrap
+// point (last === first) is dropped first.
+function smoothClosedPathData(points){
+  const pts = points.slice();
+  if(pts.length >= 2 && samePoint(pts[pts.length - 1], pts[0])) pts.pop();
+  if(pts.length < 3) return smoothPathData(points);
+  const start = mid(pts[0], pts[1]);
+  let d = `M ${num(start.x)} ${num(start.y)}`;
+  for(let i = 1; i <= pts.length; i++){
+    const p = pts[i % pts.length];
+    const m = mid(p, pts[(i + 1) % pts.length]);
+    d += ` Q ${num(p.x)} ${num(p.y)} ${num(m.x)} ${num(m.y)}`;
+  }
+  return d + " Z";
+}
+
+function strokePathData(stroke){
+  return stroke.isClosed ? smoothClosedPathData(stroke.points) : smoothPathData(stroke.points);
+}
+
+function polylinePathData(points){
+  if(points.length < 2) return "";
+  let d = `M ${num(points[0].x)} ${num(points[0].y)}`;
+  for(let i = 1; i < points.length; i++) d += ` L ${num(points[i].x)} ${num(points[i].y)}`;
+  return d;
+}
+
+// ------------------------------------------------- the flattened render curve
+
+/*
+Patches are carved from a dense flattening of the *rendered* curve, not from
+the raw polyline. Smoothing a sub-polyline independently gives a curve that
+does not coincide with the full stroke's curve — the inserted centre and cut
+points change the quad control structure — which showed up as jagged steps in
+the border at patch edges that moved with the gap slider.
+*/
+
+const SAMPLES_PER_QUAD = 8;
+
+function appendQuadSamples(start, control, end, dense){
+  for(let j = 1; j <= SAMPLES_PER_QUAD; j++){
+    const t = j / SAMPLES_PER_QUAD, mt = 1 - t;
+    dense.push({
+      x: mt * mt * start.x + 2 * mt * t * control.x + t * t * end.x,
+      y: mt * mt * start.y + 2 * mt * t * control.y + t * t * end.y
+    });
+  }
+}
+
+// Dense polyline lying exactly on the stroke's rendered curve. Quad i's
+// endpoint lands exactly at dense index i * SAMPLES_PER_QUAD, which the param
+// mapping below relies on.
+function flattenedCurve(stroke){
+  const pts = stroke.points;
+  if(pts.length < 3) return pts.slice();
+
+  if(stroke.isClosed){
+    const u = pts.slice();
+    if(u.length >= 2 && samePoint(u[u.length - 1], u[0])) u.pop();
+    if(u.length >= 3){
+      let anchor = mid(u[0], u[1]);
+      const dense = [anchor];
+      for(let i = 1; i <= u.length; i++){
+        const control = u[i % u.length];
+        const end = mid(control, u[(i + 1) % u.length]);
+        appendQuadSamples(anchor, control, end, dense);
+        anchor = end;
+      }
+      return dense;
+    }
+    // degenerate closed stroke: falls through to open smoothing
+  }
+
+  let anchor = pts[0];
+  const dense = [anchor];
+  for(let i = 1; i < pts.length - 1; i++){
+    const end = mid(pts[i], pts[i + 1]);
+    appendQuadSamples(anchor, pts[i], end, dense);
+    anchor = end;
+  }
+  dense.push(pts[pts.length - 1]);
+  return dense;
+}
+
+// Nearest point on the dense curve, searched only within a window around the
+// estimate: a global search could land the patch on the wrong pass of a
+// self-crossing stroke
+function denseParam(target, dense, estimatedIndex){
+  const lo = Math.max(0, Math.floor(estimatedIndex) - SAMPLES_PER_QUAD);
+  const hi = Math.min(dense.length - 2, Math.ceil(estimatedIndex) + SAMPLES_PER_QUAD);
+  if(lo > hi) return Math.min(Math.max(estimatedIndex, 0), dense.length - 1);
+  let bestParam = lo, bestDistance = Infinity;
+  for(let i = lo; i <= hi; i++){
+    const a = dense[i], b = dense[i + 1];
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const lengthSquared = dx * dx + dy * dy;
+    let t = 0;
+    if(lengthSquared > 0){
+      t = ((target.x - a.x) * dx + (target.y - a.y) * dy) / lengthSquared;
+      t = Math.min(1, Math.max(0, t));
+    }
+    const d = Math.hypot(target.x - (a.x + t * dx), target.y - (a.y + t * dy));
+    if(d < bestDistance){ bestDistance = d; bestParam = i + t; }
+  }
+  return bestParam;
+}
+
+/*
+Patch half-lengths. The patch's border is what visually severs the under
+strand, so it must extend until the under ribbon has fully cleared the over
+ribbon — a distance growing as 1/sin(theta) of the crossing angle, clamped to
+a 5x stretch for near-tangential crossings. The fill runs longer still so the
+border's own butt caps never show as dark bars across the over strand.
+*/
+function patchHalfLengths(crossing, strokes, settings){
+  if(crossing.hits.length !== 2) return null;
+  const over = crossing.hits[crossing.overIndex];
+  const under = crossing.hits[1 - crossing.overIndex];
+  if(!strokes[over.si] || !strokes[under.si]) return null;
+  const t1 = tangentAt(strokes[over.si].points, over.param);
+  const t2 = tangentAt(strokes[under.si].points, under.param);
+  const sinTheta = Math.max(0.2, Math.abs(t1.x * t2.y - t1.y * t2.x));
+  const baseHalf = (settings.gap + settings.ribbon) / 2 + settings.border;
+  const halfBorder = baseHalf / sinTheta;
+  return { halfBorder, halfFill: halfBorder + settings.border * 2 + 2 };
+}
+
+// Where a crossing's over-patch sits on the flattened render curve
+function patchLocation(crossing, strokes, flattened, settings){
+  const half = patchHalfLengths(crossing, strokes, settings);
+  if(!half) return null;
+  const over = crossing.hits[crossing.overIndex];
+  const dense = flattened[over.si];
+  if(!dense || dense.length < 2) return null;
+  const stroke = strokes[over.si];
+  // Quad boundaries (params i + 0.5) land exactly at index i * SAMPLES_PER_QUAD
+  let q = over.param;
+  if(stroke.isClosed && q < 0.5) q += Math.max(1, stroke.points.length - 1);
+  return {
+    si: over.si,
+    param: denseParam(crossing, dense, (q - 0.5) * SAMPLES_PER_QUAD),
+    halfBorder: half.halfBorder,
+    halfFill: half.halfFill
+  };
+}
+
+// ------------------------------------------------------------- brush tiles
+
+/*
+A brush is a set of small SVG tiles warped along the stroke: the tile's
+viewBox height maps to the ribbon width, its x axis to arc length. Segment
+tiles repeat (stretched slightly so a whole number fit); optional cap tiles
+sit at the ends of open strokes. For the weave to sever cleanly the middle of
+a tile must be opaque edge to edge.
+
+The parser is deliberately small: paths (no arcs), rect, circle, ellipse,
+polygon and line, painted with a colour or a userSpaceOnUse linear gradient.
+Every shape is flattened to polylines in tile space up front, so warping is
+just a per-vertex map.
+*/
+
+const TILES = {
+  "rope.segment": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100">
+  <defs>
+    <linearGradient id="round" x1="0" y1="0" x2="0" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2b1c08" stop-opacity="0.55"/>
+      <stop offset="0.18" stop-color="#2b1c08" stop-opacity="0.12"/>
+      <stop offset="0.40" stop-color="#fff6df" stop-opacity="0.45"/>
+      <stop offset="0.55" stop-color="#fff6df" stop-opacity="0.15"/>
+      <stop offset="0.80" stop-color="#241503" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#241503" stop-opacity="0.62"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="60" height="100" fill="#5f4720"/>
+  <path d="M -30 100 C -15 65 -15 35 10 0 L 30 0 C 5 35 5 65 -10 100 Z" fill="#c99b52" stroke="#463212" stroke-width="2.5"/>
+  <path d="M -10 100 C 5 65 5 35 30 0 L 50 0 C 25 35 25 65 10 100 Z" fill="#c99b52" stroke="#463212" stroke-width="2.5"/>
+  <path d="M 10 100 C 25 65 25 35 50 0 L 70 0 C 45 35 45 65 30 100 Z" fill="#c99b52" stroke="#463212" stroke-width="2.5"/>
+  <path d="M 30 100 C 45 65 45 35 70 0 L 90 0 C 65 35 65 65 50 100 Z" fill="#c99b52" stroke="#463212" stroke-width="2.5"/>
+  <path d="M -19 97 C -6 64 -6 36 21 3" fill="none" stroke="#ecd6a0" stroke-width="5" opacity="0.55"/>
+  <path d="M 1 97 C 14 64 14 36 41 3" fill="none" stroke="#ecd6a0" stroke-width="5" opacity="0.55"/>
+  <path d="M 21 97 C 34 64 34 36 61 3" fill="none" stroke="#ecd6a0" stroke-width="5" opacity="0.55"/>
+  <path d="M 41 97 C 54 64 54 36 81 3" fill="none" stroke="#ecd6a0" stroke-width="5" opacity="0.55"/>
+  <rect x="0" y="0" width="60" height="100" fill="url(#round)"/>
+</svg>`,
+  "rope.cap-start": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 100">
+  <defs>
+    <linearGradient id="round" x1="0" y1="0" x2="0" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2b1c08" stop-opacity="0.55"/>
+      <stop offset="0.18" stop-color="#2b1c08" stop-opacity="0.12"/>
+      <stop offset="0.40" stop-color="#fff6df" stop-opacity="0.45"/>
+      <stop offset="0.55" stop-color="#fff6df" stop-opacity="0.15"/>
+      <stop offset="0.80" stop-color="#241503" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#241503" stop-opacity="0.62"/>
+    </linearGradient>
+  </defs>
+  <path d="M 30 1.5 C 6 12 6 88 30 98.5 L 30 1.5 Z" fill="#b98e48" stroke="#463212" stroke-width="2.5"/>
+  <rect x="15" y="1" width="12" height="98" fill="#8a6a33" stroke="#463212" stroke-width="2"/>
+  <line x1="19" y1="2" x2="19" y2="98" stroke="#5d451c" stroke-width="1.4"/>
+  <line x1="23" y1="2" x2="23" y2="98" stroke="#5d451c" stroke-width="1.4"/>
+  <rect x="0" y="0" width="30" height="100" fill="url(#round)"/>
+</svg>`,
+  "snake.segment": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 100">
+  <defs>
+    <linearGradient id="skin" x1="0" y1="0" x2="0" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#24401a"/>
+      <stop offset="0.14" stop-color="#3f682a"/>
+      <stop offset="0.50" stop-color="#93b95e"/>
+      <stop offset="0.86" stop-color="#3f682a"/>
+      <stop offset="1" stop-color="#24401a"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0c1607" stop-opacity="0.35"/>
+      <stop offset="0.22" stop-color="#0c1607" stop-opacity="0"/>
+      <stop offset="0.38" stop-color="#f8ffe8" stop-opacity="0.30"/>
+      <stop offset="0.52" stop-color="#f8ffe8" stop-opacity="0.05"/>
+      <stop offset="0.78" stop-color="#0c1607" stop-opacity="0"/>
+      <stop offset="1" stop-color="#0c1607" stop-opacity="0.35"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="50" height="100" fill="url(#skin)"/>
+  <path d="M 25 30 C 33 36 39 43 41 50 C 39 57 33 64 25 70 C 17 64 11 57 9 50 C 11 43 17 36 25 30 Z" fill="#1d3a14" opacity="0.95"/>
+  <path d="M 0 36 C 6 40 10 45 12 50 C 10 55 6 60 0 64 C -6 60 -10 55 -12 50 C -10 45 -6 40 0 36 Z" fill="#152c0e" opacity="0.9"/>
+  <path d="M 50 36 C 56 40 60 45 62 50 C 60 55 56 60 50 64 C 44 60 40 55 38 50 C 40 45 44 40 50 36 Z" fill="#152c0e" opacity="0.9"/>
+  <circle cx="12" cy="20" r="2" fill="#dbe6ba" opacity="0.4"/>
+  <circle cx="40" cy="24" r="1.5" fill="#dbe6ba" opacity="0.35"/>
+  <circle cx="10" cy="79" r="1.6" fill="#dbe6ba" opacity="0.35"/>
+  <circle cx="38" cy="76" r="2" fill="#dbe6ba" opacity="0.4"/>
+  <rect x="0" y="0" width="50" height="100" fill="url(#sheen)"/>
+</svg>`,
+  "snake.cap-start": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 100">
+  <defs>
+    <linearGradient id="skin" x1="0" y1="0" x2="0" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#24401a"/>
+      <stop offset="0.14" stop-color="#3f682a"/>
+      <stop offset="0.50" stop-color="#93b95e"/>
+      <stop offset="0.86" stop-color="#3f682a"/>
+      <stop offset="1" stop-color="#24401a"/>
+    </linearGradient>
+  </defs>
+  <path d="M 70 0 C 34 4 14 26 0 50 C 14 74 34 96 70 100 Z" fill="url(#skin)"/>
+  <path d="M 48 36 C 54 40 58 45 60 50 C 58 55 54 60 48 64 C 42 60 38 55 36 50 C 38 45 42 40 48 36 Z" fill="#1d3a14" opacity="0.9"/>
+  <path d="M 18 44 C 21 46 23 48 24 50 C 23 52 21 54 18 56 C 15 54 13 52 12 50 C 13 48 15 46 18 44 Z" fill="#1d3a14" opacity="0.8"/>
+</svg>`,
+  "snake.cap-end": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 110 100">
+  <defs>
+    <linearGradient id="skin" x1="0" y1="0" x2="0" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#24401a"/>
+      <stop offset="0.14" stop-color="#3f682a"/>
+      <stop offset="0.50" stop-color="#93b95e"/>
+      <stop offset="0.86" stop-color="#3f682a"/>
+      <stop offset="1" stop-color="#24401a"/>
+    </linearGradient>
+  </defs>
+  <path d="M 102 50 C 107 49 109 46 110 42" fill="none" stroke="#a8232d" stroke-width="2" stroke-linecap="round"/>
+  <path d="M 102 50 C 107 51 109 54 110 58" fill="none" stroke="#a8232d" stroke-width="2" stroke-linecap="round"/>
+  <path d="M 0 0 C 24 -10 52 -14 68 0 C 88 14 100 32 103 50 C 100 68 88 86 68 100 C 52 114 24 110 0 100 Z" fill="url(#skin)"/>
+  <path d="M 6 40 C 30 34 52 34 72 44 C 76 46 78 48 78 50 C 78 52 76 54 72 56 C 52 66 30 66 6 60 C 2 56 2 44 6 40 Z" fill="#1d3a14" opacity="0.85"/>
+  <circle cx="56" cy="16" r="6" fill="#14200c"/>
+  <circle cx="54" cy="14" r="2" fill="#f3f7e4" opacity="0.85"/>
+  <circle cx="56" cy="84" r="6" fill="#14200c"/>
+  <circle cx="54" cy="82" r="2" fill="#f3f7e4" opacity="0.85"/>
+</svg>`,
+  "tube.segment": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 100">
+  <defs>
+    <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1b1e22"/>
+      <stop offset="0.16" stop-color="#8f99a3"/>
+      <stop offset="0.30" stop-color="#e9eef3"/>
+      <stop offset="0.40" stop-color="#ffffff"/>
+      <stop offset="0.52" stop-color="#b6bfc8"/>
+      <stop offset="0.72" stop-color="#59636c"/>
+      <stop offset="0.88" stop-color="#2a3036"/>
+      <stop offset="1" stop-color="#101316"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="90" height="100" fill="url(#chrome)"/>
+  <rect x="85" y="0" width="5" height="100" fill="#20262b" opacity="0.5"/>
+  <rect x="83.2" y="0" width="1.8" height="100" fill="#dfe6ec" opacity="0.55"/>
+  <rect x="0" y="0" width="90" height="1.8" fill="#0c0e10"/>
+  <rect x="0" y="98.2" width="90" height="1.8" fill="#0c0e10"/>
+</svg>`,
+  "tube.cap-start": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 100">
+  <defs>
+    <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1b1e22"/>
+      <stop offset="0.16" stop-color="#8f99a3"/>
+      <stop offset="0.30" stop-color="#e9eef3"/>
+      <stop offset="0.40" stop-color="#ffffff"/>
+      <stop offset="0.52" stop-color="#b6bfc8"/>
+      <stop offset="0.72" stop-color="#59636c"/>
+      <stop offset="0.88" stop-color="#2a3036"/>
+      <stop offset="1" stop-color="#101316"/>
+    </linearGradient>
+  </defs>
+  <path d="M 26 1 C -5 12 -5 88 26 99 L 26 1 Z" fill="url(#chrome)"/>
+  <path d="M 21 8 C 6 22 6 78 21 92" fill="none" stroke="#ffffff" stroke-width="2.2" opacity="0.35"/>
+  <rect x="22" y="0" width="4" height="100" fill="#313a41" opacity="0.55"/>
+</svg>`
+};
+
+const CURVE_SAMPLES = 16;
+const ELLIPSE_SAMPLES = 48;
+
+function parseColour(text, opacity){
+  if(!text) return null;
+  const value = text.trim();
+  if(value === "none") return null;
+  const alpha = opacity === undefined || Number.isNaN(opacity) ? 1 : opacity;
+  if(value.startsWith("#")){
+    let hex = value.slice(1);
+    if(hex.length === 3) hex = hex.split("").map(c => c + c).join("");
+    const n = parseInt(hex, 16);
+    return { r:(n >> 16) & 255, g:(n >> 8) & 255, b:n & 255, a:alpha };
+  }
+  const rgb = value.match(/rgba?\(([^)]+)\)/);
+  if(rgb){
+    const parts = rgb[1].split(/[\s,\/]+/).filter(Boolean).map(Number);
+    return { r:parts[0] || 0, g:parts[1] || 0, b:parts[2] || 0, a:alpha * (parts.length > 3 ? parts[3] : 1) };
+  }
+  return { r:0, g:0, b:0, a:alpha };
+}
+
+function hex(colour){
+  const channel = v => Math.round(Math.min(255, Math.max(0, v))).toString(16).padStart(2, "0");
+  return "#" + channel(colour.r) + channel(colour.g) + channel(colour.b);
+}
+
+// Flatten a path `d` to subpaths of points. M L H V C S Q T Z only — the tile
+// format has no arcs.
+function flattenPathData(d){
+  const tokens = d.match(/[a-zA-Z]|-?\d*\.?\d+(?:e[-+]?\d+)?/gi) || [];
+  const subpaths = [];
+  let current = null, cursor = { x:0, y:0 }, start = { x:0, y:0 };
+  let lastControl = null, lastCommand = "";
+  let i = 0;
+
+  const number = () => parseFloat(tokens[i++]);
+  const begin = p => { current = { points:[p], closed:false }; subpaths.push(current); };
+  const lineTo = p => { if(current) current.points.push(p); };
+  const cubic = (p1, p2, p3) => {
+    const p0 = cursor;
+    for(let s = 1; s <= CURVE_SAMPLES; s++){
+      const t = s / CURVE_SAMPLES, mt = 1 - t;
+      lineTo({
+        x: mt*mt*mt*p0.x + 3*mt*mt*t*p1.x + 3*mt*t*t*p2.x + t*t*t*p3.x,
+        y: mt*mt*mt*p0.y + 3*mt*mt*t*p1.y + 3*mt*t*t*p2.y + t*t*t*p3.y
+      });
+    }
+  };
+  const quad = (p1, p2) => {
+    const p0 = cursor;
+    for(let s = 1; s <= CURVE_SAMPLES; s++){
+      const t = s / CURVE_SAMPLES, mt = 1 - t;
+      lineTo({
+        x: mt*mt*p0.x + 2*mt*t*p1.x + t*t*p2.x,
+        y: mt*mt*p0.y + 2*mt*t*p1.y + t*t*p2.y
+      });
+    }
+  };
+
+  while(i < tokens.length){
+    let command = tokens[i];
+    if(/[a-zA-Z]/.test(command)){
+      i++;
+    } else {
+      // repeated coordinates continue the previous command (M implies L)
+      command = lastCommand === "M" ? "L" : lastCommand === "m" ? "l" : lastCommand;
+      if(!command) break;
+    }
+    const relative = command === command.toLowerCase();
+    const upper = command.toUpperCase();
+    const base = relative ? cursor : { x:0, y:0 };
+
+    if(upper === "M"){
+      cursor = { x:base.x + number(), y:base.y + number() };
+      start = cursor;
+      begin(cursor);
+    } else if(upper === "L"){
+      cursor = { x:base.x + number(), y:base.y + number() };
+      lineTo(cursor);
+    } else if(upper === "H"){
+      cursor = { x:base.x + number(), y:cursor.y };
+      lineTo(cursor);
+    } else if(upper === "V"){
+      cursor = { x:cursor.x, y:base.y + number() };
+      lineTo(cursor);
+    } else if(upper === "C" || upper === "S"){
+      let p1;
+      if(upper === "C"){
+        p1 = { x:base.x + number(), y:base.y + number() };
+      } else {
+        // S reflects the previous cubic's second control point
+        p1 = lastControl && /[CS]/.test(lastCommand.toUpperCase())
+          ? { x:2 * cursor.x - lastControl.x, y:2 * cursor.y - lastControl.y }
+          : cursor;
+      }
+      const p2 = { x:base.x + number(), y:base.y + number() };
+      const p3 = { x:base.x + number(), y:base.y + number() };
+      cubic(p1, p2, p3);
+      lastControl = p2;
+      cursor = p3;
+    } else if(upper === "Q" || upper === "T"){
+      let p1;
+      if(upper === "Q"){
+        p1 = { x:base.x + number(), y:base.y + number() };
+      } else {
+        p1 = lastControl && /[QT]/.test(lastCommand.toUpperCase())
+          ? { x:2 * cursor.x - lastControl.x, y:2 * cursor.y - lastControl.y }
+          : cursor;
+      }
+      const p2 = { x:base.x + number(), y:base.y + number() };
+      quad(p1, p2);
+      lastControl = p1;
+      cursor = p2;
+    } else if(upper === "Z"){
+      if(current) current.closed = true;
+      cursor = start;
+    } else {
+      break;  // unsupported command (arcs): stop rather than misread the rest
+    }
+    if(!/[CSQT]/.test(upper)) lastControl = null;
+    lastCommand = command;
+  }
+  return subpaths.filter(sp => sp.points.length >= 2);
+}
+
+function ellipsePoints(cx, cy, rx, ry){
+  const points = [];
+  for(let i = 0; i < ELLIPSE_SAMPLES; i++){
+    const a = (i / ELLIPSE_SAMPLES) * Math.PI * 2;
+    points.push({ x:cx + Math.cos(a) * rx, y:cy + Math.sin(a) * ry });
+  }
+  return points;
+}
+
+function flattenElement(elem){
+  const attr = (name, fallback = 0) => {
+    const value = parseFloat(elem.getAttribute(name));
+    return Number.isNaN(value) ? fallback : value;
+  };
+  switch(elem.tagName){
+    case "path":
+      return flattenPathData(elem.getAttribute("d") || "");
+    case "rect": {
+      const x = attr("x"), y = attr("y"), w = attr("width"), h = attr("height");
+      return [{ points:[{x,y}, {x:x+w,y}, {x:x+w,y:y+h}, {x,y:y+h}], closed:true }];
+    }
+    case "circle": {
+      const r = attr("r");
+      return [{ points:ellipsePoints(attr("cx"), attr("cy"), r, r), closed:true }];
+    }
+    case "ellipse":
+      return [{ points:ellipsePoints(attr("cx"), attr("cy"), attr("rx"), attr("ry")), closed:true }];
+    case "polygon": {
+      const nums = (elem.getAttribute("points") || "").trim().split(/[\s,]+/).map(Number);
+      const points = [];
+      for(let i = 0; i + 1 < nums.length; i += 2) points.push({ x:nums[i], y:nums[i + 1] });
+      return points.length >= 2 ? [{ points, closed:true }] : [];
+    }
+    case "line":
+      return [{ points:[{ x:attr("x1"), y:attr("y1") }, { x:attr("x2"), y:attr("y2") }], closed:false }];
+    default:
+      return [];
+  }
+}
+
+function parseTile(source){
+  const doc = new DOMParser().parseFromString(source, "image/svg+xml");
+  const root = doc.documentElement;
+  const box = (root.getAttribute("viewBox") || "0 0 100 100").trim().split(/[\s,]+/).map(Number);
+  const viewBox = { x:box[0], y:box[1], w:box[2], h:box[3] };
+
+  const gradients = {};
+  for(const g of root.querySelectorAll("linearGradient")){
+    const stops = [...g.querySelectorAll("stop")].map(stop => ({
+      offset: parseFloat(stop.getAttribute("offset") || "0"),
+      colour: parseColour(stop.getAttribute("stop-color") || "#000000",
+        parseFloat(stop.getAttribute("stop-opacity") || "1"))
+    })).filter(stop => stop.colour);
+    gradients[g.getAttribute("id")] = {
+      start: { x:parseFloat(g.getAttribute("x1") || "0"), y:parseFloat(g.getAttribute("y1") || "0") },
+      end: { x:parseFloat(g.getAttribute("x2") || "0"), y:parseFloat(g.getAttribute("y2") || "0") },
+      stops
+    };
+  }
+
+  const shapes = [];
+  for(const elem of root.children){
+    if(elem.tagName === "defs") continue;
+    const subpaths = flattenElement(elem);
+    if(!subpaths.length) continue;
+
+    const fillAttr = elem.getAttribute("fill");
+    const fillOpacity = parseFloat(elem.getAttribute("fill-opacity") || "1");
+    let fill = null;
+    if(fillAttr === null){
+      // the SVG default fill is black, but an unfilled <line> is just a line
+      if(elem.tagName !== "line") fill = { type:"colour", colour:{ r:0, g:0, b:0, a:fillOpacity } };
+    } else {
+      const gradientRef = fillAttr.match(/^url\(#([^)]+)\)$/);
+      if(gradientRef){
+        fill = { type:"gradient", id:gradientRef[1] };
+      } else {
+        const colour = parseColour(fillAttr, fillOpacity);
+        if(colour) fill = { type:"colour", colour };
+      }
+    }
+
+    shapes.push({
+      subpaths,
+      fill,
+      stroke: parseColour(elem.getAttribute("stroke"),
+        parseFloat(elem.getAttribute("stroke-opacity") || "1")),
+      strokeWidth: parseFloat(elem.getAttribute("stroke-width") || "1"),
+      opacity: parseFloat(elem.getAttribute("opacity") || "1")
+    });
+  }
+  return { viewBox, shapes, gradients };
+}
+
+// Brushes, parsed once. A missing end cap means the start cap is mirrored.
+const BRUSHES = {};
+for(const [name, prefix] of [["Rope", "rope"], ["Snake", "snake"], ["Steel Tube", "tube"]]){
+  const segment = parseTile(TILES[prefix + ".segment"]);
+  const capStart = TILES[prefix + ".cap-start"] ? parseTile(TILES[prefix + ".cap-start"]) : null;
+  const capEnd = TILES[prefix + ".cap-end"] ? parseTile(TILES[prefix + ".cap-end"]) : null;
+  BRUSHES[name] = { name, segment, capStart, capEnd:capEnd || capStart, capEndMirrored:!capEnd };
+}
+
+// ------------------------------------------------------------ brush warping
+
+// Arc-length view over a flattened curve: point and unit normal at any arc
+// position, wrapping when the stroke is closed and clamping when it is open
+function brushArc(dense, isClosed){
+  const cumulative = [0];
+  let running = 0;
+  for(let i = 1; i < dense.length; i++){
+    running += dist(dense[i - 1], dense[i]);
+    cumulative.push(running);
+  }
+  return {
+    points: dense,
+    cumulative,
+    total: running,
+    isClosed,
+    sample(s){
+      if(dense.length < 2 || running <= 0){
+        return { point:dense[0] || { x:0, y:0 }, normal:{ x:0, y:1 } };
+      }
+      if(isClosed){
+        s = s % running;
+        if(s < 0) s += running;
+      } else {
+        s = Math.min(Math.max(s, 0), running);
+      }
+      let lo = 0, hi = cumulative.length - 1;
+      while(lo + 1 < hi){
+        const middle = (lo + hi) >> 1;
+        if(cumulative[middle] <= s) lo = middle; else hi = middle;
+      }
+      const a = dense[lo], b = dense[lo + 1];
+      const segment = cumulative[lo + 1] - cumulative[lo];
+      const t = segment > 0 ? (s - cumulative[lo]) / segment : 0;
+      let dx = b.x - a.x, dy = b.y - a.y;
+      const len = Math.hypot(dx, dy);
+      if(len > 0){ dx /= len; dy /= len; } else { dx = 1; dy = 0; }
+      return {
+        point: { x:a.x + (b.x - a.x) * t, y:a.y + (b.y - a.y) * t },
+        normal: { x:-dy, y:dx }
+      };
+    },
+    arcPosition(param){
+      if(dense.length < 2) return 0;
+      const i = Math.min(Math.max(Math.floor(param), 0), dense.length - 2);
+      const t = param - i;
+      return cumulative[i] + (cumulative[i + 1] - cumulative[i]) * t;
+    }
+  };
+}
+
+// Caps at the ends of open strokes with a whole number of segment tiles
+// stretched to fit exactly in between; closed strokes get segments all the
+// way round, meeting at the seam
+function layoutTiles(brush, arc, ribbonWidth){
+  const box = brush.segment.viewBox;
+  if(!(box.w > 0 && box.h > 0 && arc.total > 0)) return [];
+  const scaleY = ribbonWidth / box.h;
+  const naturalLength = box.w * scaleY;
+
+  function segmentRun(startArc, length){
+    const count = Math.max(1, Math.round(length / naturalLength));
+    const unit = length / (count * box.w);
+    const run = [];
+    for(let i = 0; i < count; i++){
+      run.push({ tile:brush.segment, startArc:startArc + i * box.w * unit, unitLength:unit, scaleY, mirrored:false });
+    }
+    return run;
+  }
+
+  if(arc.isClosed) return segmentRun(0, arc.total);
+
+  const capStartLength = (brush.capStart ? brush.capStart.viewBox.w : 0) * scaleY;
+  const capEndLength = (brush.capEnd ? brush.capEnd.viewBox.w : 0) * scaleY;
+  const middle = arc.total - capStartLength - capEndLength;
+  // too short for caps: cover the whole stroke with segments
+  if(middle < naturalLength * 0.5) return segmentRun(0, arc.total);
+
+  const placements = [];
+  if(brush.capStart){
+    placements.push({ tile:brush.capStart, startArc:0, unitLength:scaleY, scaleY, mirrored:false });
+  }
+  placements.push(...segmentRun(capStartLength, middle));
+  if(brush.capEnd){
+    placements.push({
+      tile:brush.capEnd, startArc:arc.total - capEndLength,
+      unitLength:scaleY, scaleY, mirrored:brush.capEndMirrored
+    });
+  }
+  return placements;
+}
+
+// tile x → arc length, tile y → offset along the curve normal
+function warpPoint(p, placement, arc){
+  const box = placement.tile.viewBox;
+  const localX = placement.mirrored ? (box.x + box.w - p.x) : (p.x - box.x);
+  const s = placement.startArc + localX * placement.unitLength;
+  const lateral = (p.y - (box.y + box.h / 2)) * placement.scaleY;
+  const { point, normal } = arc.sample(s);
+  return { x:point.x + normal.x * lateral, y:point.y + normal.y * lateral };
+}
+
+function warpedShapes(placement, arc){
+  return placement.tile.shapes.map(shape => {
+    let fill = null;
+    if(shape.fill && shape.fill.type === "colour"){
+      fill = { type:"colour", colour:shape.fill.colour };
+    } else if(shape.fill && shape.fill.type === "gradient"){
+      const gradient = placement.tile.gradients[shape.fill.id];
+      if(gradient){
+        fill = {
+          type: "gradient",
+          stops: gradient.stops,
+          start: warpPoint(gradient.start, placement, arc),
+          end: warpPoint(gradient.end, placement, arc)
+        };
+      }
+    }
+    return {
+      subpaths: shape.subpaths.map(sp => ({
+        points: sp.points.map(p => warpPoint(p, placement, arc)),
+        closed: sp.closed
+      })),
+      fill,
+      stroke: shape.stroke,
+      strokeWidth: shape.strokeWidth * placement.scaleY,
+      opacity: shape.opacity
+    };
+  });
+}
+
+// All of a stroke's warped shapes, optionally only those overlapping an arc
+// range (used when repainting the over strand at a crossing)
+function strokeShapes(brush, arc, ribbonWidth, arcRange){
+  let placements = layoutTiles(brush, arc, ribbonWidth);
+  if(arcRange){
+    // Only the tiles overlapping the patch are repainted: repainting all of a
+    // closed stroke's tiles would paint its *other* passes back over the halo,
+    // undoing the sever exactly where a closed stroke crosses itself. On a
+    // closed stroke the range can straddle the seam, so a tile's span is also
+    // tested against the range shifted a full turn either way.
+    const shifts = arc.isClosed ? [-arc.total, 0, arc.total] : [0];
+    placements = placements.filter(p => {
+      // a tile's art can spill past its own span — the rope's strands run a
+      // whole tile either side — so the span is padded before testing
+      const length = p.tile.viewBox.w * p.unitLength;
+      return shifts.some(shift =>
+        p.startArc - length <= arcRange[1] + shift &&
+        p.startArc + length * 2 >= arcRange[0] + shift);
+    });
+  }
+  return placements.flatMap(p => warpedShapes(p, arc));
+}
+
+// Closed polygon around a sub-curve at ±halfWidth, used to clip patch repaints
+function swathPolygon(points, halfWidth){
+  if(points.length < 2) return [];
+  const left = [], right = [];
+  for(let i = 0; i < points.length; i++){
+    const a = points[Math.max(0, i - 1)], b = points[Math.min(points.length - 1, i + 1)];
+    let dx = b.x - a.x, dy = b.y - a.y;
+    const len = Math.hypot(dx, dy);
+    if(len > 0){ dx /= len; dy /= len; } else { dx = 1; dy = 0; }
+    const n = { x:-dy, y:dx };
+    left.push({ x:points[i].x + n.x * halfWidth, y:points[i].y + n.y * halfWidth });
+    right.push({ x:points[i].x - n.x * halfWidth, y:points[i].y - n.y * halfWidth });
+  }
+  return left.concat(right.reverse());
+}
+
+// --------------------------------------------------------------- rendering
+
+function el(name, attrs){
+  const node = document.createElementNS(SVG_NS, name);
+  for(const key in attrs) node.setAttribute(key, attrs[key]);
+  return node;
+}
+
+function settings(){
+  return {
+    ribbon: +$("ribbonWidth").value,
+    border: +$("borderWidth").value,
+    gap: +$("gapSize").value,
+    fill: $("fillColour").value,
+    borderColour: $("borderColour").value,
+    brush: BRUSHES[$("brush").value] || null
+  };
+}
+
+function ribbonPair(d, cap, s){
+  const g = el("g");
+  g.appendChild(el("path", {
+    d, fill:"none", stroke:s.borderColour, "stroke-width":num(s.ribbon + s.border * 2),
+    "stroke-linecap":cap, "stroke-linejoin":"round"
+  }));
+  g.appendChild(el("path", {
+    d, fill:"none", stroke:s.fill, "stroke-width":num(s.ribbon),
+    "stroke-linecap":cap, "stroke-linejoin":"round"
+  }));
+  return g;
+}
+
+// Painter's algorithm: every stroke full length in draw order, then a short
+// over-patch on top at each crossing. The patch's border severs the under
+// strand exactly along the over strand's outline, at any angle.
+function drawClassic(artwork, flattened, s){
+  state.strokes.forEach(stroke => {
+    if(stroke.points.length < 2) return;
+    artwork.appendChild(ribbonPair(strokePathData(stroke), "round", s));
+  });
+  state.crossings.forEach(crossing => {
+    const location = patchLocation(crossing, state.strokes, flattened, s);
+    if(!location) return;
+    const dense = flattened[location.si];
+    const borderPoints = subPath(dense, location.param, location.halfBorder);
+    const fillPoints = subPath(dense, location.param, location.halfFill);
+    if(borderPoints.length < 2 || fillPoints.length < 2) return;
+    const g = el("g");
+    g.appendChild(el("path", {
+      d:polylinePathData(borderPoints), fill:"none", stroke:s.borderColour,
+      "stroke-width":num(s.ribbon + s.border * 2), "stroke-linecap":"butt", "stroke-linejoin":"round"
+    }));
+    g.appendChild(el("path", {
+      d:polylinePathData(fillPoints), fill:"none", stroke:s.fill,
+      "stroke-width":num(s.ribbon), "stroke-linecap":"butt", "stroke-linejoin":"round"
+    }));
+    artwork.appendChild(g);
+  });
+}
+
+function shapeElement(shape, defs, ids){
+  let d = "";
+  shape.subpaths.forEach(sp => {
+    if(sp.points.length < 2) return;
+    d += polylinePathData(sp.points) + (sp.closed ? " Z " : " ");
+  });
+  d = d.trim();
+  if(!d) return null;
+
+  const attrs = { d };
+  if(shape.fill && shape.fill.type === "colour"){
+    attrs.fill = hex(shape.fill.colour);
+    if(shape.fill.colour.a < 1) attrs["fill-opacity"] = num(shape.fill.colour.a);
+  } else if(shape.fill && shape.fill.type === "gradient"){
+    const id = "grad" + (++ids.gradient);
+    const gradient = el("linearGradient", {
+      id, gradientUnits:"userSpaceOnUse",
+      x1:num(shape.fill.start.x), y1:num(shape.fill.start.y),
+      x2:num(shape.fill.end.x), y2:num(shape.fill.end.y)
+    });
+    shape.fill.stops.forEach(stop => {
+      const attrsStop = { offset:num(stop.offset), "stop-color":hex(stop.colour) };
+      if(stop.colour.a < 1) attrsStop["stop-opacity"] = num(stop.colour.a);
+      gradient.appendChild(el("stop", attrsStop));
+    });
+    defs.appendChild(gradient);
+    attrs.fill = `url(#${id})`;
+  } else {
+    attrs.fill = "none";
+  }
+
+  if(shape.stroke){
+    attrs.stroke = hex(shape.stroke);
+    attrs["stroke-width"] = num(shape.strokeWidth);
+    attrs["stroke-linecap"] = "round";
+    attrs["stroke-linejoin"] = "round";
+    if(shape.stroke.a < 1) attrs["stroke-opacity"] = num(shape.stroke.a);
+  }
+  if(shape.opacity < 1) attrs.opacity = num(shape.opacity);
+  return el("path", attrs);
+}
+
+// Brush weave: all strokes' tiles, then per crossing the over strand's tiles
+// repainted over a canvas-coloured halo, clipped to a swath. Alignment is
+// exact because the repaint reuses the same deterministic warp.
+function drawBrush(artwork, defs, flattened, s, ids, size){
+  const brush = s.brush;
+  const arcs = state.strokes.map((stroke, i) => brushArc(flattened[i], stroke.isClosed));
+
+  // the halo paints in the canvas colour, so the background belongs to the
+  // artwork (and therefore to the export)
+  artwork.appendChild(el("rect", { width:num(size.w), height:num(size.h), fill:CANVAS_COLOUR }));
+
+  state.strokes.forEach((stroke, i) => {
+    if(stroke.points.length < 2) return;
+    strokeShapes(brush, arcs[i], s.ribbon).forEach(shape => {
+      const node = shapeElement(shape, defs, ids);
+      if(node) artwork.appendChild(node);
+    });
+  });
+
+  state.crossings.forEach(crossing => {
+    const location = patchLocation(crossing, state.strokes, flattened, s);
+    if(!location) return;
+    const dense = flattened[location.si];
+    const haloPoints = subPath(dense, location.param, location.halfBorder);
+    const spinePoints = subPath(dense, location.param, location.halfFill);
+    if(haloPoints.length < 2 || spinePoints.length < 2) return;
+
+    const clipId = "patchclip" + (++ids.clip);
+    const clip = el("clipPath", { id:clipId });
+    clip.appendChild(el("path", {
+      d: polylinePathData(swathPolygon(spinePoints, s.ribbon / 2 + s.border + 2)) + " Z"
+    }));
+    defs.appendChild(clip);
+
+    const g = el("g", { "clip-path":`url(#${clipId})` });
+    g.appendChild(el("path", {
+      d:polylinePathData(haloPoints), fill:"none", stroke:CANVAS_COLOUR,
+      "stroke-width":num(s.ribbon + s.border * 2), "stroke-linecap":"butt", "stroke-linejoin":"round"
+    }));
+    const arc = arcs[location.si];
+    const at = arc.arcPosition(location.param);
+    strokeShapes(brush, arc, s.ribbon, [at - location.halfFill - 2, at + location.halfFill + 2])
+      .forEach(shape => {
+        const node = shapeElement(shape, defs, ids);
+        if(node) g.appendChild(node);
+      });
+    artwork.appendChild(g);
+  });
+}
+
+function render(){
+  const s = settings();
+  const size = { w:Math.max(1, stage.clientWidth), h:Math.max(1, stage.clientHeight) };
+  svg.setAttribute("viewBox", `0 0 ${size.w} ${size.h}`);
+  while(svg.firstChild) svg.removeChild(svg.firstChild);
+
+  const flattened = state.strokes.map(flattenedCurve);
+  const defs = el("defs");
+  const artwork = el("g", { id:"artwork" });
+  const ids = { gradient:0, clip:0 };
+
+  if(s.brush) drawBrush(artwork, defs, flattened, s, ids, size);
+  else drawClassic(artwork, flattened, s);
+
+  svg.appendChild(defs);
+  svg.appendChild(artwork);
+
+  // hints and preview live outside #artwork so export can drop them wholesale
+  const overlay = el("g", { id:"overlay", "pointer-events":"none" });
+  state.crossings.forEach(crossing => {
+    overlay.appendChild(el("circle", {
+      cx:num(crossing.x), cy:num(crossing.y), r:3, fill:"rgba(122,59,46,0.35)"
+    }));
+  });
+  svg.appendChild(overlay);
+  updatePreview();
+  updateStatus();
+}
+
+// The artwork only changes when a stroke is committed, so the live preview is
+// updated on its own during a drag
+function updatePreview(){
+  const existing = svg.querySelector("#preview");
+  if(existing) existing.remove();
+  if(!drawing || pendingToggle >= 0 || drawing.points.length < 2) return;
+  svg.appendChild(el("path", {
+    id:"preview", d:smoothPathData(drawing.points), fill:"none",
+    stroke:"#999", "stroke-width":2, "stroke-dasharray":"4 4", "pointer-events":"none"
+  }));
+}
+
+function updateStatus(){
+  const strokes = state.strokes.length, crossings = state.crossings.length;
+  $("status").textContent = strokes === 0
+    ? "Draw a stroke. Tap a crossing to flip which strand is on top."
+    : `${strokes} stroke${strokes === 1 ? "" : "s"} · ${crossings} crossing${crossings === 1 ? "" : "s"}`;
+  $("undo").disabled = undoStack.length === 0;
+  $("redo").disabled = redoStack.length === 0;
+  $("clear").disabled = strokes === 0;
+  $("export").disabled = strokes === 0;
+}
+
+let renderQueued = false;
+function scheduleRender(){
+  if(renderQueued) return;
+  renderQueued = true;
+  requestAnimationFrame(() => { renderQueued = false; render(); });
+}
+
+// --------------------------------------------------------------- undo/redo
+
+// The whole document is tiny, so snapshots beat computing inverse operations
+function snapshot(){
+  return JSON.parse(JSON.stringify({ strokes:state.strokes, crossings:state.crossings }));
+}
+function pushUndo(){
+  undoStack.push(snapshot());
+  redoStack.length = 0;
+}
+function restore(doc){
+  state.strokes = doc.strokes;
+  state.crossings = doc.crossings;
+}
+
+$("undo").addEventListener("click", () => {
+  if(!undoStack.length) return;
+  redoStack.push(snapshot());
+  restore(undoStack.pop());
+  render();
+});
+$("redo").addEventListener("click", () => {
+  if(!redoStack.length) return;
+  undoStack.push(snapshot());
+  restore(redoStack.pop());
+  render();
+});
+$("clear").addEventListener("click", () => {
+  if(!state.strokes.length && !state.crossings.length) return;
+  pushUndo();
+  state.strokes = [];
+  state.crossings = [];
+  render();
+});
+
+// ------------------------------------------------------------- interaction
+
+/*
+One tool. A touch is either a tap on a crossing or a new stroke: press near a
+crossing and it becomes a pending toggle, and only movement beyond the slop
+radius turns it back into a stroke (with nothing lost — every point collected
+since the press is kept).
+*/
+
+function eventPoint(evt){
+  const rect = stage.getBoundingClientRect();
+  return { x:evt.clientX - rect.left, y:evt.clientY - rect.top };
+}
+
+function nearestCrossing(pt, radius){
+  let best = -1, bestD = radius;
+  state.crossings.forEach((crossing, i) => {
+    const d = dist(pt, crossing);
+    if(d <= bestD){ bestD = d; best = i; }
+  });
+  return best;
+}
+
+function onDown(evt){
+  if(drawing) return;
+  evt.preventDefault();
+  const pt = eventPoint(evt);
+  pendingToggle = nearestCrossing(pt, Math.max(18, +$("ribbonWidth").value));
+  downPt = pt;
+  drawing = { points:[pt] };
+  stage.setPointerCapture(evt.pointerId);
+  stage.addEventListener("pointermove", onMove, { passive:false });
+  stage.addEventListener("pointerup", onUp, { once:true });
+  stage.addEventListener("pointercancel", onCancel, { once:true });
+}
+
+function onMove(evt){
+  if(!drawing) return;
+  evt.preventDefault();
+  const pt = eventPoint(evt);
+  const last = drawing.points[drawing.points.length - 1];
+  if(dist(pt, last) < MIN_POINT_DIST) return;
+  drawing.points.push(pt);
+  if(pendingToggle >= 0){
+    if(dist(downPt, pt) <= TOGGLE_SLOP) return;   // tap jitter: no preview yet
+    pendingToggle = -1;
+  }
+  updatePreview();
+}
+
+function onUp(evt){
+  if(evt) evt.preventDefault();
+  stage.removeEventListener("pointermove", onMove);
+  stage.removeEventListener("pointercancel", onCancel);
+
+  if(pendingToggle >= 0 && state.crossings[pendingToggle]){
+    pushUndo();
+    const crossing = state.crossings[pendingToggle];
+    crossing.overIndex = crossing.overIndex === 0 ? 1 : 0;
+  } else if(drawing.points.length > 2 && strokeLength(drawing.points) >= MIN_STROKE_LEN){
+    pushUndo();
+    const points = rdp(drawing.points, RDP_EPSILON);
+    let isClosed = false;
+    // closing a two-point stroke would just double it back on itself
+    if($("closePaths").checked && points.length >= 3){
+      if(!samePoint(points[points.length - 1], points[0])) points.push(points[0]);
+      isClosed = true;
+    }
+    state.strokes.push({ points, isClosed });
+    recomputeCrossings();
+  }
+  // anything shorter is discarded as an accidental blob
+  drawing = null;
+  pendingToggle = -1;
+  render();
+}
+
+function onCancel(){
+  stage.removeEventListener("pointermove", onMove);
+  drawing = null;
+  pendingToggle = -1;
+  render();
+}
+
+stage.addEventListener("pointerdown", onDown, { passive:false });
+stage.addEventListener("touchstart", e => e.preventDefault(), { passive:false });
+stage.addEventListener("touchmove", e => e.preventDefault(), { passive:false });
+
+// ------------------------------------------------------------------ export
+
+// iPadOS/iOS Safari silently ignores programmatically-clicked download
+// anchors, so hand the file to the share sheet there ("Save to Files");
+// iPads masquerade as MacIntel but report touch points
+const isIOS = /iP(ad|hone|od)/.test(navigator.platform) ||
+  (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+function saveFile(filename, type, data){
+  const file = new File([data], filename, { type });
+  if(isIOS && navigator.canShare && navigator.canShare({ files:[file] })){
+    navigator.share({ files:[file] }).catch(() => {});
+    return;
+  }
+  const a = document.createElement("a");
+  a.download = filename;
+  a.href = URL.createObjectURL(file);
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+}
+
+// The canvas is already the finished SVG, so exporting is a clone with the
+// hint dots and preview stripped
+$("export").addEventListener("click", () => {
+  const clone = svg.cloneNode(true);
+  clone.querySelectorAll("#overlay, #preview").forEach(node => node.remove());
+  clone.removeAttribute("id");
+  const box = svg.viewBox.baseVal;
+  clone.setAttribute("width", num(box.width));
+  clone.setAttribute("height", num(box.height));
+  clone.setAttribute("xmlns", SVG_NS);
+  const out = '<?xml version="1.0" encoding="UTF-8"?>\n' + clone.outerHTML + "\n";
+  // a generic MIME type rather than image/svg+xml: iOS maps SVG to an image
+  // UTI, so the share sheet would offer "Save Image" (to Photos, which cannot
+  // hold SVGs) instead of "Save to Files"
+  saveFile("knot.svg", "application/octet-stream", out);
+});
+
+// -------------------------------------------------------------- the controls
+
+["ribbonWidth", "borderWidth", "gapSize", "fillColour", "borderColour"].forEach(id => {
+  $(id).addEventListener("input", scheduleRender);
+});
+$("closePaths").addEventListener("change", scheduleRender);
+$("brush").addEventListener("change", () => {
+  // the ribbon and border colours belong to the classic renderer; brushes
+  // carry their own artwork
+  const classic = !BRUSHES[$("brush").value];
+  $("fillColour").disabled = !classic;
+  $("borderColour").disabled = !classic;
+  $("fillField").classList.toggle("disabled", !classic);
+  $("borderField").classList.toggle("disabled", !classic);
+  scheduleRender();
+});
+
+window.addEventListener("resize", scheduleRender);
+render();
+})();
+</script>
+</body>
+</html>
