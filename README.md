@@ -20,6 +20,15 @@ GitHub Pages has no server-side redirects, so old URLs are covered by meta-refre
 
 All rendered pages carry a `rel=canonical` link derived from the route filter and the base URL in `$:/config/static/base-url`.
 
+## Toys
+
+Each toy is a self-contained folder under `static-assets/toys`, published verbatim at `/toys/<name>` and reached from the "Toys" item in the top menu. The index page at `/toys` is generated from the folder listing, so adding, renaming or re-describing a toy requires no other change:
+
+* `build-toys.js` scans `static-assets/toys/*/index.html` and writes one tiddler per toy, tagged `toy`, to `main-wiki/tiddlers/generated/toys.json`. It is run automatically by `bld.sh` and `serve.sh`, and its output is committed so that the wiki also builds without it
+* Each toy describes itself in the `<head>` of its own `index.html`: the caption comes from `<meta name="toy-title">`, falling back to `og:title` and then `<title>`, and the description from `<meta name="toy-description">`, falling back to the standard `description` and then `og:description`. A toy with no description generates a build warning
+* The `Toys` page tiddler (tagged `page`, so rendered at `/toys`) lists the tiddlers tagged `toy`, sorted by caption
+* A folder without an `index.html` is skipped
+
 ## Contents
 
 This repository contains the following top level folders:
@@ -48,6 +57,7 @@ The batch scripts assume a directory layout like this:
 In other words, the folder containing this repository should be a sibling of a folder called "jermolene-blog.github.io" that will contain the output static files.
 
 * **bld.sh**: build all the components of the site, leaving them in the wiki output folders
+* **build-toys.js**: regenerate the tiddlers behind the `/toys` index from the contents of `static-assets/toys` (run automatically by `bld.sh` and `serve.sh`)
 * **github-push.sh**: push the "jermolene-blog.github.io" folder to GitHub
 * **serve.sh**: serve the main wiki at http://127.0.0.1:8080
 * **stage.sh**: copy all the output components across to the "jermolene-blog.github.io" folder
