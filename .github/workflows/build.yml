@@ -1,0 +1,56 @@
+name: Build and deploy site
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: build-and-deploy
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout blog
+        uses: actions/checkout@v4
+        with:
+          path: blog
+
+      # The site is built with the prerelease TiddlyWiki from the master
+      # branch, matching the npm-linked setup used for local builds
+      - name: Checkout TiddlyWiki5
+        uses: actions/checkout@v4
+        with:
+          repository: TiddlyWiki/TiddlyWiki5
+          ref: master
+          path: TiddlyWiki5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install TiddlyWiki
+        run: npm install -g ./TiddlyWiki5
+
+      - name: Build
+        working-directory: blog
+        run: ./bld.sh
+
+      # stage.sh expects the output repo as a sibling folder of the blog repo
+      - name: Stage
+        run: |
+          mkdir -p jermolene-blog.github.io
+          cd blog
+          ./stage.sh
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          external_repository: Jermolene-blog/jermolene-blog.github.io
+          publish_branch: master
+          publish_dir: ./jermolene-blog.github.io
