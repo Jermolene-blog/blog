@@ -1,0 +1,34 @@
+[
+	{
+		"title": "Toys/engravery",
+		"caption": "Engravery",
+		"description": "Hide a photo in a field of parallel lines, then squint to see it reappear",
+		"url": "/toys/engravery/",
+		"tags": "toy",
+		"text": ""
+	},
+	{
+		"title": "Toys/mimic",
+		"caption": "Mimic",
+		"description": "Feed in any text and dial up the gibberish index to generate new phrases in the same style",
+		"url": "/toys/mimic/",
+		"tags": "toy",
+		"text": ""
+	},
+	{
+		"title": "Toys/lenticulator",
+		"caption": "The Lenticulator",
+		"description": "Print and fold lenticular pictures that change as the observer moves",
+		"url": "/toys/lenticulator/",
+		"tags": "toy",
+		"text": ""
+	},
+	{
+		"title": "Toys/vectorious",
+		"caption": "Vectorious",
+		"description": "Quantise a photo to black and white and trace it into a vector drawing, downloadable as SVG or PDF",
+		"url": "/toys/vectorious/",
+		"tags": "toy",
+		"text": ""
+	}
+]

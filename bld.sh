@@ -6,6 +6,9 @@
 # were removed from the TiddlyWiki5 core repo)
 export TIDDLYWIKI_PLUGIN_PATH="$(dirname "$0")/plugins"
 
+# Regenerate the tiddlers listing the toys in static-assets/toys
+node "$(dirname "$0")/build-toys.js"
+
 rm -Rf main-wiki/output/*
 rm -Rf talkytalky-wiki/output/*
 
