@@ -505,11 +505,28 @@ for (const id of ["colour", "invert", "ink", "paper", "geometry", "gradWobble"])
   $(id).addEventListener("input", requestRender);
 }
 
-$("downloadSvg").addEventListener("click", () => {
+// iPadOS/iOS Safari silently ignores programmatically-clicked download
+// anchors, so hand the file to the share sheet there ("Save to Files");
+// iPads masquerade as MacIntel but report touch points
+const isIOS = /iP(ad|hone|od)/.test(navigator.platform) ||
+  (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+function saveFile(filename, type, data) {
+  const file = new File([data], filename, { type });
+  if (isIOS && navigator.canShare && navigator.canShare({ files: [file] })) {
+    navigator.share({ files: [file] }).catch(() => {});
+    return;
+  }
   const a = document.createElement("a");
-  a.download = "hidden-lines.svg";
-  a.href = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(buildSVG());
+  a.download = filename;
+  a.href = URL.createObjectURL(file);
+  document.body.appendChild(a);
   a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+}
+
+$("downloadSvg").addEventListener("click", () => {
+  saveFile("hidden-lines.svg", "image/svg+xml", buildSVG());
 });
 
 let userLoaded = false;
@@ -552,10 +569,8 @@ $("download").addEventListener("click", () => {
   const c = document.createElement("canvas");
   c.width = P.W; c.height = P.H;
   paint(c.getContext("2d"), P);
-  const a = document.createElement("a");
-  a.download = "hidden-lines.png";
-  a.href = c.toDataURL("image/png");
-  a.click();
+  const bin = atob(c.toDataURL("image/png").split(",")[1]);
+  saveFile("hidden-lines.png", "image/png", Uint8Array.from(bin, ch => ch.charCodeAt(0)));
 });
 
 document.fonts.ready.then(() => { if (!userLoaded) setSource(demoImage()); });
