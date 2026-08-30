@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Over-Underiser</title>
+<meta name="description" content="Open an SVG and weave it: wherever closed shapes overlap, a click cycles which one passes over the top">
+<style>
+  :root{ --ink:#1c1a17; --paper:#f2ede3; --line:#d8cfbd; --accent:#7a3b2e; --muted:#8a7f70; }
+  *{ box-sizing:border-box; }
+  html, body{
+    margin:0; height:100%; overflow:hidden; overscroll-behavior:none;
+    position:fixed; inset:0; width:100%;
+  }
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+    display:flex; flex-direction:column;
+  }
+  header{
+    flex:0 0 auto;
+    display:flex; flex-wrap:wrap; gap:8px 16px; align-items:flex-end;
+    padding:8px 14px;
+    background:#fff; border-bottom:1px solid var(--line);
+  }
+  header h1{ font-size:16px; margin:0 6px 3px 0; font-weight:600; align-self:center; }
+  header h1 a{ color:inherit; text-decoration:none; }
+  header h1 a:hover{ color:var(--accent); }
+  .field{ display:flex; flex-direction:column; gap:3px; }
+  .field label{ font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+  input[type=range]{ width:88px; }
+  input[type=color]{ width:38px; height:28px; border:1px solid #cfc4b3; border-radius:4px; padding:2px; background:#fff; }
+  input[type=checkbox]{ width:20px; height:20px; margin:4px 0 0; }
+  select{ font-size:13px; padding:5px 6px; border:1px solid #cfc4b3; border-radius:5px; background:#fff; color:var(--ink); }
+  .buttons{ display:flex; gap:6px; align-items:center; }
+  button{ padding:7px 11px; border:1px solid var(--ink); background:#fff; color:var(--ink);
+    border-radius:5px; font-size:13px; cursor:pointer; }
+  button.primary{ background:var(--ink); color:#fff; }
+  button:hover:not(:disabled){ background:var(--ink); color:#fff; }
+  button.primary:hover:not(:disabled){ background:var(--accent); border-color:var(--accent); }
+  button:disabled{ opacity:.35; cursor:default; }
+  .status{ font-size:12px; color:var(--muted); align-self:center; }
+  #stage{
+    flex:1 1 auto; position:relative; background:#fffdf8;
+    touch-action:none; overscroll-behavior:none;
+    -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;
+  }
+  #stage.dropping{ box-shadow:inset 0 0 0 3px var(--accent); }
+  #canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+  /* the source drawing is grafted in here to be measured and to have its
+     styles resolved: parked off-stage rather than hidden, because
+     visibility and display would be inherited by what we are reading */
+  #source{ position:absolute; left:-20000px; top:0; width:1px; height:1px; overflow:hidden; pointer-events:none; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><a href="/toys/">Over-Underiser</a></h1>
+  <div class="field">
+    <label for="sample">Example</label>
+    <select id="sample">
+      <option value="" hidden>Opened file</option>
+      <option value="Rings" selected>Rings</option>
+      <option value="Basket">Basket</option>
+      <option value="Rosette">Rosette</option>
+    </select>
+  </div>
+  <div class="field"><label for="paper">Paper</label><input id="paper" type="color" value="#fdfaf3"></div>
+  <div class="field"><label for="edgeWidth">Edge</label><input id="edgeWidth" type="range" min="0" max="300" value="100"></div>
+  <div class="field"><label for="edgeColour">Edge colour</label><input id="edgeColour" type="color" value="#171310"></div>
+  <div class="field"><label for="inkEdges">Ink edges</label><input id="inkEdges" type="checkbox" checked></div>
+  <div class="buttons">
+    <button id="open">Open SVG</button>
+    <button id="shuffle">Shuffle</button>
+    <button id="reset">Reset</button>
+    <button id="fit">Fit</button>
+    <button id="undo">Undo</button>
+    <button id="redo">Redo</button>
+    <button id="export" class="primary">Export SVG</button>
+  </div>
+  <span class="status" id="status"></span>
+</header>
+
+<div id="stage">
+  <svg id="canvas" xmlns="http://www.w3.org/2000/svg"></svg>
+  <div id="source"></div>
+</div>
+<input id="file" type="file" accept=".svg,image/svg+xml" style="display:none">
+
+<script>
+(() => {
+"use strict";
+
+/*
+Over-Underiser — weaves an existing SVG.
+
+Open a drawing, and wherever its closed shapes overlap you get a region you
+can click: each click cycles which of the shapes covering that region passes
+over the top. Do that at every crossing of a few rings and you have plaited
+them; the drawing you started with is unchanged everywhere else.
+
+The whole thing rests on one construction. The closed shapes are flattened to
+polygons and fed to a planar arrangement: every outline is cut at every
+crossing, the pieces are stitched into a half-edge graph, and walking that
+graph yields the *faces* — the tiles the drawing is divided into, each one
+covered by exactly the same set of shapes throughout. A face is the unit of
+over-and-under. It carries a winner, the shape shown on top there, and that is
+the only state the toy holds:
+
+  shapes:  [ { d, matrix, rings, fill, stroke, ... } ]   from the source SVG
+  faces:   [ { outer, holes, covers:[shapeIndex...] } ]  derived, never edited
+  winners: [ shapeIndex per face ]                       what a click changes
+
+Because the faces tile the drawing and each has one winner, rendering needs no
+z-order at all. Each shape is painted once, clipped to the union of the faces
+it wins, and the clips are disjoint by construction. Strokes are drawn at
+double width and land inside their own clip, so an outline shows its full
+weight where its shape is on top and stops dead against the outline of
+whatever covers it — which is exactly how a strand passing under looks.
+
+Three consequences of the model are worth knowing:
+
+  * shapes are paper. A shape with no fill is painted in the paper colour so
+    that it can occlude; a translucent fill composites against the paper
+    rather than against the shape beneath it;
+  * only closed shapes take part. Open paths, text, images and <use> are left
+    out of both the weave and the export, and are counted in the status line;
+  * a region is a face of the arrangement, not a crossing. Two overlapping
+    discs meet in a single lens, so they can only be stacked, not plaited.
+    Two overlapping *rings* meet in two separate faces, one per crossing,
+    which is what makes a knot possible.
+*/
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+const $ = id => document.getElementById(id);
+
+const svg = $("canvas");
+const stage = $("stage");
+const sourceHolder = $("source");
+
+// Interaction constants: movement beyond TAP_SLOP screen pixels is a pan
+// rather than a tap, and the arrangement is abandoned above these sizes
+// rather than locking up the page
+const TAP_SLOP = 6;
+const MAX_SHAPES = 240;
+const MAX_SEGMENTS = 40000;
+
+const state = {
+  shapes: [],        // closed shapes lifted out of the source SVG
+  faces: [],         // tiles of the planar arrangement
+  winners: [],       // shape index shown on top of each face
+  defs: [],          // cloned <defs> from the source, so url(#...) paints work
+  box: { x:0, y:0, w:100, h:100 },
+  ignored: 0,
+  note: ""
+};
+const view = { x:0, y:0, w:100, h:100 };
+const undoStack = [], redoStack = [];
+let hovered = -1;
+let precision = 2;
+
+// ---------------------------------------------------------------- geometry
+
+function num(v){
+  const r = +v.toFixed(precision);
+  return Object.is(r, -0) ? "0" : String(r);
+}
+
+function signedArea(ring){
+  let a = 0;
+  for(let i = 0, n = ring.length; i < n; i++){
+    const p = ring[i], q = ring[(i + 1) % n];
+    a += p.x * q.y - q.x * p.y;
+  }
+  return a / 2;
+}
+
+function pointInRing(pt, ring){
+  let inside = false;
+  for(let i = 0, j = ring.length - 1; i < ring.length; j = i++){
+    const a = ring[i], b = ring[j];
+    if((a.y > pt.y) !== (b.y > pt.y)){
+      const x = a.x + (pt.y - a.y) * (b.x - a.x) / (b.y - a.y);
+      if(x > pt.x) inside = !inside;
+    }
+  }
+  return inside;
+}
+
+function windingNumber(pt, ring){
+  let w = 0;
+  for(let i = 0, n = ring.length; i < n; i++){
+    const a = ring[i], b = ring[(i + 1) % n];
+    const side = (b.x - a.x) * (pt.y - a.y) - (pt.x - a.x) * (b.y - a.y);
+    if(a.y <= pt.y){ if(b.y > pt.y && side > 0) w++; }
+    else if(b.y <= pt.y && side < 0) w--;
+  }
+  return w;
+}
+
+function pointInShape(shape, pt){
+  if(shape.fillRule === "evenodd"){
+    let inside = false;
+    for(const ring of shape.rings) if(pointInRing(pt, ring)) inside = !inside;
+    return inside;
+  }
+  let w = 0;
+  for(const ring of shape.rings) w += windingNumber(pt, ring);
+  return w !== 0;
+}
+
+function pointInFace(pt, face){
+  if(!pointInRing(pt, face.outer)) return false;
+  for(const hole of face.holes) if(pointInRing(pt, hole)) return false;
+  return true;
+}
+
+// ------------------------------------------------------- path data flattening
+
+/*
+Path data in, polylines out. Every command including elliptical arcs is
+handled, because the input is somebody else's drawing rather than something
+this toy wrote. Curves are subdivided to a chord tolerance rather than a fixed
+count so that a huge shape and a tiny one both come out smooth.
+*/
+
+function arcToCubics(from, rx, ry, rotation, largeArc, sweep, to){
+  if(!rx || !ry) return [[from, to, to]];
+  rx = Math.abs(rx); ry = Math.abs(ry);
+  const phi = rotation * Math.PI / 180, cosPhi = Math.cos(phi), sinPhi = Math.sin(phi);
+  const dx = (from.x - to.x) / 2, dy = (from.y - to.y) / 2;
+  const x1 = cosPhi * dx + sinPhi * dy, y1 = -sinPhi * dx + cosPhi * dy;
+  const lambda = (x1 * x1) / (rx * rx) + (y1 * y1) / (ry * ry);
+  if(lambda > 1){ const s = Math.sqrt(lambda); rx *= s; ry *= s; }
+  const denom = rx * rx * y1 * y1 + ry * ry * x1 * x1;
+  const numer = Math.max(0, rx * rx * ry * ry - denom);
+  const coeff = (largeArc !== sweep ? 1 : -1) * Math.sqrt(denom ? numer / denom : 0);
+  const cxp = coeff * rx * y1 / ry, cyp = -coeff * ry * x1 / rx;
+  const cx = cosPhi * cxp - sinPhi * cyp + (from.x + to.x) / 2;
+  const cy = sinPhi * cxp + cosPhi * cyp + (from.y + to.y) / 2;
+  const angle = (ux, uy, vx, vy) => {
+    const len = Math.sqrt((ux * ux + uy * uy) * (vx * vx + vy * vy)) || 1;
+    const cos = Math.min(1, Math.max(-1, (ux * vx + uy * vy) / len));
+    return (ux * vy - uy * vx < 0 ? -1 : 1) * Math.acos(cos);
+  };
+  const ux = (x1 - cxp) / rx, uy = (y1 - cyp) / ry;
+  const vx = (-x1 - cxp) / rx, vy = (-y1 - cyp) / ry;
+  let start = angle(1, 0, ux, uy), sweepAngle = angle(ux, uy, vx, vy);
+  if(!sweep && sweepAngle > 0) sweepAngle -= 2 * Math.PI;
+  else if(sweep && sweepAngle < 0) sweepAngle += 2 * Math.PI;
+
+  const count = Math.max(1, Math.ceil(Math.abs(sweepAngle) / (Math.PI / 2)));
+  const step = sweepAngle / count, k = 4 / 3 * Math.tan(step / 4);
+  const at = t => ({
+    x: cx + cosPhi * rx * Math.cos(t) - sinPhi * ry * Math.sin(t),
+    y: cy + sinPhi * rx * Math.cos(t) + cosPhi * ry * Math.sin(t)
+  });
+  const slope = t => ({
+    x: -cosPhi * rx * Math.sin(t) - sinPhi * ry * Math.cos(t),
+    y: -sinPhi * rx * Math.sin(t) + cosPhi * ry * Math.cos(t)
+  });
+  const cubics = [];
+  for(let i = 0; i < count; i++){
+    const t1 = start + step * i, t2 = t1 + step;
+    const p1 = at(t1), p2 = at(t2), d1 = slope(t1), d2 = slope(t2);
+    cubics.push([
+      { x:p1.x + k * d1.x, y:p1.y + k * d1.y },
+      { x:p2.x - k * d2.x, y:p2.y - k * d2.y },
+      p2
+    ]);
+  }
+  return cubics;
+}
+
+function flattenPathData(d, tolerance){
+  const tokens = d.match(/[a-zA-Z]|[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?/g) || [];
+  const subpaths = [];
+  let current = null, cursor = { x:0, y:0 }, start = { x:0, y:0 };
+  let lastControl = null, lastCommand = "";
+  let i = 0;
+
+  const number = () => parseFloat(tokens[i++]);
+  const flag = () => {
+    // arc flags may be written unseparated ("1 0 1" or "101"), but the
+    // tokeniser keeps digits together, so peel a single character off
+    const token = tokens[i];
+    if(token && token.length > 1 && /^[01]/.test(token)){
+      tokens[i] = token.slice(1);
+      return token[0] === "1";
+    }
+    return number() !== 0;
+  };
+  const begin = p => { current = { points:[p], closed:false }; subpaths.push(current); };
+  const lineTo = p => { if(current) current.points.push(p); else begin(p); };
+  const steps = length => Math.max(2, Math.min(96, Math.ceil(Math.sqrt(length / (4 * tolerance)))));
+  const span = (...pts) => {
+    let total = 0;
+    for(let k = 0; k + 1 < pts.length; k++) total += Math.hypot(pts[k + 1].x - pts[k].x, pts[k + 1].y - pts[k].y);
+    return total;
+  };
+  const cubic = (p1, p2, p3) => {
+    const p0 = cursor, n = steps(span(p0, p1, p2, p3));
+    for(let s = 1; s <= n; s++){
+      const t = s / n, mt = 1 - t;
+      lineTo({
+        x: mt*mt*mt*p0.x + 3*mt*mt*t*p1.x + 3*mt*t*t*p2.x + t*t*t*p3.x,
+        y: mt*mt*mt*p0.y + 3*mt*mt*t*p1.y + 3*mt*t*t*p2.y + t*t*t*p3.y
+      });
+    }
+  };
+  const quad = (p1, p2) => {
+    const p0 = cursor, n = steps(span(p0, p1, p2));
+    for(let s = 1; s <= n; s++){
+      const t = s / n, mt = 1 - t;
+      lineTo({
+        x: mt*mt*p0.x + 2*mt*t*p1.x + t*t*p2.x,
+        y: mt*mt*p0.y + 2*mt*t*p1.y + t*t*p2.y
+      });
+    }
+  };
+
+  while(i < tokens.length){
+    let command = tokens[i];
+    if(/[a-zA-Z]/.test(command)){
+      i++;
+    } else {
+      // repeated coordinates continue the previous command (M implies L)
+      command = lastCommand === "M" ? "L" : lastCommand === "m" ? "l" : lastCommand;
+      if(!command) break;
+    }
+    const relative = command === command.toLowerCase();
+    const upper = command.toUpperCase();
+    const base = relative ? cursor : { x:0, y:0 };
+
+    if(upper === "M"){
+      cursor = { x:base.x + number(), y:base.y + number() };
+      start = cursor;
+      begin(cursor);
+    } else if(upper === "L"){
+      cursor = { x:base.x + number(), y:base.y + number() };
+      lineTo(cursor);
+    } else if(upper === "H"){
+      cursor = { x:base.x + number(), y:cursor.y };
+      lineTo(cursor);
+    } else if(upper === "V"){
+      cursor = { x:cursor.x, y:base.y + number() };
+      lineTo(cursor);
+    } else if(upper === "C" || upper === "S"){
+      const p1 = upper === "C"
+        ? { x:base.x + number(), y:base.y + number() }
+        : lastControl && /[CS]/.test(lastCommand.toUpperCase())
+          ? { x:2 * cursor.x - lastControl.x, y:2 * cursor.y - lastControl.y }
+          : cursor;
+      const p2 = { x:base.x + number(), y:base.y + number() };
+      const p3 = { x:base.x + number(), y:base.y + number() };
+      cubic(p1, p2, p3);
+      lastControl = p2;
+      cursor = p3;
+    } else if(upper === "Q" || upper === "T"){
+      const p1 = upper === "Q"
+        ? { x:base.x + number(), y:base.y + number() }
+        : lastControl && /[QT]/.test(lastCommand.toUpperCase())
+          ? { x:2 * cursor.x - lastControl.x, y:2 * cursor.y - lastControl.y }
+          : cursor;
+      const p2 = { x:base.x + number(), y:base.y + number() };
+      quad(p1, p2);
+      lastControl = p1;
+      cursor = p2;
+    } else if(upper === "A"){
+      const rx = number(), ry = number(), rotation = number();
+      const largeArc = flag(), sweep = flag();
+      const to = { x:base.x + number(), y:base.y + number() };
+      for(const [c1, c2, end] of arcToCubics(cursor, rx, ry, rotation, largeArc, sweep, to)){
+        cubic(c1, c2, end);
+        cursor = end;
+      }
+      lastControl = null;
+    } else if(upper === "Z"){
+      if(current) current.closed = true;
+      cursor = start;
+      current = null;
+    } else {
+      break;  // an unreadable command: stop rather than misinterpret the rest
+    }
+    if(!/[CSQT]/.test(upper)) lastControl = null;
+    lastCommand = command;
+  }
+  return subpaths.filter(sp => sp.points.length >= 3);
+}
+
+// ------------------------------------------------------ reading a source SVG
+
+// Primitives become path data so that everything downstream — flattening,
+// painting, exporting — has a single shape of thing to deal with
+function elementPathData(elem){
+  const attr = (name, fallback = 0) => {
+    const value = parseFloat(elem.getAttribute(name));
+    return Number.isNaN(value) ? fallback : value;
+  };
+  const list = name => (elem.getAttribute(name) || "").trim().split(/[\s,]+/).map(Number).filter(v => !Number.isNaN(v));
+  switch(elem.tagName){
+    case "path":
+      return elem.getAttribute("d") || "";
+    case "rect": {
+      const x = attr("x"), y = attr("y"), w = attr("width"), h = attr("height");
+      if(w <= 0 || h <= 0) return "";
+      let rx = elem.hasAttribute("rx") ? attr("rx") : attr("ry");
+      let ry = elem.hasAttribute("ry") ? attr("ry") : rx;
+      rx = Math.min(Math.abs(rx), w / 2); ry = Math.min(Math.abs(ry), h / 2);
+      if(!rx || !ry) return `M ${x} ${y} H ${x + w} V ${y + h} H ${x} Z`;
+      return `M ${x + rx} ${y} H ${x + w - rx} A ${rx} ${ry} 0 0 1 ${x + w} ${y + ry}` +
+        ` V ${y + h - ry} A ${rx} ${ry} 0 0 1 ${x + w - rx} ${y + h}` +
+        ` H ${x + rx} A ${rx} ${ry} 0 0 1 ${x} ${y + h - ry}` +
+        ` V ${y + ry} A ${rx} ${ry} 0 0 1 ${x + rx} ${y} Z`;
+    }
+    case "circle": {
+      const r = attr("r"), cx = attr("cx"), cy = attr("cy");
+      return r > 0 ? `M ${cx - r} ${cy} a ${r} ${r} 0 1 0 ${2 * r} 0 a ${r} ${r} 0 1 0 ${-2 * r} 0 Z` : "";
+    }
+    case "ellipse": {
+      const rx = attr("rx"), ry = attr("ry"), cx = attr("cx"), cy = attr("cy");
+      return rx > 0 && ry > 0
+        ? `M ${cx - rx} ${cy} a ${rx} ${ry} 0 1 0 ${2 * rx} 0 a ${rx} ${ry} 0 1 0 ${-2 * rx} 0 Z` : "";
+    }
+    case "polygon": {
+      const nums = list("points");
+      if(nums.length < 6) return "";
+      let d = `M ${nums[0]} ${nums[1]}`;
+      for(let i = 2; i + 1 < nums.length; i += 2) d += ` L ${nums[i]} ${nums[i + 1]}`;
+      return d + " Z";
+    }
+    default:
+      return "";
+  }
+}
+
+// Transform to the root's user space, composed by hand rather than read from
+// getCTM so that it does not depend on the hidden holder having a layout
+function matrixOf(elem, root){
+  const chain = [];
+  for(let node = elem; node && node !== root; node = node.parentNode) chain.push(node);
+  let matrix = new DOMMatrix();
+  for(let i = chain.length - 1; i >= 0; i--){
+    const list = chain[i].transform && chain[i].transform.baseVal;
+    const consolidated = list && list.numberOfItems ? list.consolidate() : null;
+    if(consolidated) matrix = matrix.multiply(consolidated.matrix);
+  }
+  return matrix;
+}
+
+const SKIP_INSIDE = new Set(["defs", "clipPath", "mask", "marker", "symbol", "pattern"]);
+const CANDIDATES = new Set(["path", "rect", "circle", "ellipse", "polygon"]);
+const DRAWABLE = new Set(["path", "rect", "circle", "ellipse", "polygon", "polyline", "line", "text", "image", "use"]);
+
+function readDocument(source){
+  const parsed = new DOMParser().parseFromString(source, "image/svg+xml");
+  if(parsed.querySelector("parsererror")) throw new Error("that file is not readable SVG");
+  const root = parsed.documentElement;
+  if(root.tagName !== "svg") throw new Error("that file is not an SVG");
+
+  // resolving fill, stroke and inherited style needs the document laid out,
+  // so it is grafted into a hidden holder and removed again once read
+  sourceHolder.innerHTML = "";
+  const live = document.importNode(root, true);
+  sourceHolder.appendChild(live);
+  try {
+    return extractShapes(live);
+  } finally {
+    sourceHolder.innerHTML = "";
+  }
+}
+
+function extractShapes(live){
+  const viewBox = (live.getAttribute("viewBox") || "").trim().split(/[\s,]+/).map(Number);
+  let box = viewBox.length === 4 && viewBox.every(v => !Number.isNaN(v))
+    ? { x:viewBox[0], y:viewBox[1], w:viewBox[2], h:viewBox[3] }
+    : { x:0, y:0, w:parseFloat(live.getAttribute("width")) || 0, h:parseFloat(live.getAttribute("height")) || 0 };
+
+  const extent = Math.max(box.w, box.h) || 1000;
+  const tolerance = extent / 4000;
+  const shapes = [];
+  let ignored = 0, capped = false;
+
+  for(const elem of live.querySelectorAll("*")){
+    if(!DRAWABLE.has(elem.tagName)) continue;
+    let skip = false;
+    for(let node = elem.parentNode; node && node !== live; node = node.parentNode){
+      if(SKIP_INSIDE.has(node.tagName)){ skip = true; break; }
+    }
+    if(skip) continue;
+
+    const style = getComputedStyle(elem);
+    if(style.display === "none" || style.visibility === "hidden") continue;
+    if(!CANDIDATES.has(elem.tagName)){ ignored++; continue; }
+
+    const d = elementPathData(elem);
+    if(!d){ ignored++; continue; }
+    const matrix = matrixOf(elem, live);
+    const scale = Math.sqrt(Math.abs(matrix.a * matrix.d - matrix.b * matrix.c)) || 1;
+    const fill = style.fill;
+    const subpaths = flattenPathData(d, Math.max(tolerance / scale, 1e-9));
+
+    // "Closed" means every subpath either says so or ends where it began. A
+    // path carrying a fill is closed implicitly, which is how the browser
+    // fills it, so it counts too.
+    const filled = fill && fill !== "none";
+    const rings = [];
+    for(const sp of subpaths){
+      const first = sp.points[0], last = sp.points[sp.points.length - 1];
+      const closed = sp.closed || filled ||
+        Math.hypot(first.x - last.x, first.y - last.y) <= tolerance / scale;
+      if(!closed) continue;
+      const ring = sp.points.map(p => ({
+        x: matrix.a * p.x + matrix.c * p.y + matrix.e,
+        y: matrix.b * p.x + matrix.d * p.y + matrix.f
+      }));
+      if(Math.hypot(ring[0].x - ring[ring.length - 1].x, ring[0].y - ring[ring.length - 1].y) <= tolerance) ring.pop();
+      if(ring.length >= 3 && Math.abs(signedArea(ring)) > tolerance * tolerance) rings.push(ring);
+    }
+    if(!rings.length){ ignored++; continue; }
+
+    shapes.push({
+      d, matrix, rings, scale,
+      label: elem.getAttribute("id") ? "#" + elem.getAttribute("id") : elem.tagName + " " + (shapes.length + 1),
+      fill: filled ? fill : null,
+      fillRule: style.fillRule === "evenodd" ? "evenodd" : "nonzero",
+      fillOpacity: style.fillOpacity,
+      stroke: style.stroke && style.stroke !== "none" ? style.stroke : null,
+      strokeWidth: parseFloat(style.strokeWidth) || 0,
+      strokeOpacity: style.strokeOpacity,
+      linejoin: style.strokeLinejoin,
+      opacity: style.opacity
+    });
+    if(shapes.length >= MAX_SHAPES){ capped = true; break; }
+  }
+
+  if(!(box.w > 0 && box.h > 0)){
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for(const shape of shapes) for(const ring of shape.rings) for(const p of ring){
+      minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
+      minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
+    }
+    const pad = Math.max(maxX - minX, maxY - minY) * 0.02 || 1;
+    box = shapes.length
+      ? { x:minX - pad, y:minY - pad, w:maxX - minX + 2 * pad, h:maxY - minY + 2 * pad }
+      : { x:0, y:0, w:100, h:100 };
+  }
+
+  const defs = [...live.querySelectorAll("defs")].map(node => node.cloneNode(true));
+  return { shapes, box, defs, ignored, capped };
+}
+
+// ------------------------------------------------------- the arrangement
+
+function makeWelder(eps){
+  const buckets = new Map(), points = [];
+  return {
+    points,
+    add(p){
+      const gi = Math.round(p.x / eps), gj = Math.round(p.y / eps);
+      for(let di = -1; di <= 1; di++) for(let dj = -1; dj <= 1; dj++){
+        const list = buckets.get((gi + di) + "," + (gj + dj));
+        if(!list) continue;
+        for(const index of list){
+          const q = points[index];
+          if(Math.abs(q.x - p.x) <= eps && Math.abs(q.y - p.y) <= eps) return index;
+        }
+      }
+      const index = points.length;
+      points.push({ x:p.x, y:p.y });
+      const key = gi + "," + gj;
+      let list = buckets.get(key);
+      if(!list) buckets.set(key, list = []);
+      list.push(index);
+      return index;
+    }
+  };
+}
+
+/*
+Cut every outline at every crossing, weld the endpoints, and walk the
+resulting half-edge graph. Each walk closes a cycle; the cycles that come back
+anticlockwise bound the faces, and the ones that come back clockwise are the
+holes punched in them or the outside of a disconnected component.
+*/
+function buildArrangement(shapes, extent){
+  const segments = [];
+  for(const shape of shapes){
+    for(const ring of shape.rings){
+      for(let i = 0, n = ring.length; i < n; i++){
+        const a = ring[i], b = ring[(i + 1) % n];
+        if(a.x !== b.x || a.y !== b.y) segments.push({ a, b, cuts:[] });
+      }
+    }
+  }
+  if(!segments.length || segments.length > MAX_SEGMENTS){
+    return { faces:[], overflowed:segments.length > MAX_SEGMENTS };
+  }
+  const eps = extent * 1e-7;
+  const touch = extent * 1e-6;
+
+  // a uniform grid over segment bounding boxes, so only neighbours are tested
+  const cell = Math.max(extent / 96, 1e-9);
+  const grid = new Map();
+  const cellsOf = seg => {
+    const i0 = Math.floor(Math.min(seg.a.x, seg.b.x) / cell), i1 = Math.floor(Math.max(seg.a.x, seg.b.x) / cell);
+    const j0 = Math.floor(Math.min(seg.a.y, seg.b.y) / cell), j1 = Math.floor(Math.max(seg.a.y, seg.b.y) / cell);
+    const out = [];
+    for(let i = i0; i <= i1; i++) for(let j = j0; j <= j1; j++) out.push(i + "," + j);
+    return out;
+  };
+  segments.forEach((seg, index) => {
+    for(const key of cellsOf(seg)){
+      let list = grid.get(key);
+      if(!list) grid.set(key, list = []);
+      list.push(index);
+    }
+  });
+
+  // a T junction leaves no crossing to compute: one segment simply ends on
+  // the other, and that landing point still has to become a node
+  function projectCut(seg, p){
+    const dx = seg.b.x - seg.a.x, dy = seg.b.y - seg.a.y;
+    const lengthSquared = dx * dx + dy * dy;
+    if(!lengthSquared) return;
+    const t = ((p.x - seg.a.x) * dx + (p.y - seg.a.y) * dy) / lengthSquared;
+    if(t <= 0 || t >= 1) return;
+    if(Math.hypot(p.x - (seg.a.x + t * dx), p.y - (seg.a.y + t * dy)) > touch) return;
+    seg.cuts.push({ t, p:{ x:p.x, y:p.y } });
+  }
+
+  const tested = new Set();
+  segments.forEach((A, ia) => {
+    for(const key of cellsOf(A)){
+      const list = grid.get(key);
+      if(!list) continue;
+      for(const ib of list){
+        if(ib <= ia) continue;
+        const pairKey = ia * segments.length + ib;
+        if(tested.has(pairKey)) continue;
+        tested.add(pairKey);
+        const B = segments[ib];
+        const d1x = A.b.x - A.a.x, d1y = A.b.y - A.a.y;
+        const d2x = B.b.x - B.a.x, d2y = B.b.y - B.a.y;
+        const denom = d1x * d2y - d1y * d2x;
+        if(Math.abs(denom) > 1e-12){
+          const t = ((B.a.x - A.a.x) * d2y - (B.a.y - A.a.y) * d2x) / denom;
+          const u = ((B.a.x - A.a.x) * d1y - (B.a.y - A.a.y) * d1x) / denom;
+          if(t > 0 && t < 1 && u > 0 && u < 1){
+            const p = { x:A.a.x + t * d1x, y:A.a.y + t * d1y };
+            A.cuts.push({ t, p });
+            B.cuts.push({ t:u, p });
+            continue;
+          }
+        }
+        projectCut(A, B.a); projectCut(A, B.b);
+        projectCut(B, A.a); projectCut(B, A.b);
+      }
+    }
+  });
+
+  const welder = makeWelder(eps);
+  const edgeKeys = new Set(), edges = [];
+  for(const seg of segments){
+    seg.cuts.sort((m, n) => m.t - n.t);
+    const chain = [welder.add(seg.a)];
+    for(const cut of seg.cuts) chain.push(welder.add(cut.p));
+    chain.push(welder.add(seg.b));
+    for(let i = 0; i + 1 < chain.length; i++){
+      const a = chain[i], b = chain[i + 1];
+      if(a === b) continue;
+      const key = a < b ? a + ":" + b : b + ":" + a;
+      if(edgeKeys.has(key)) continue;
+      edgeKeys.add(key);
+      edges.push([a, b]);
+    }
+  }
+  const points = welder.points;
+  if(!edges.length) return { faces:[] };
+
+  const outgoing = points.map(() => []);
+  edges.forEach(([a, b], e) => { outgoing[a].push(2 * e); outgoing[b].push(2 * e + 1); });
+  const origin = d => edges[d >> 1][d & 1];
+  const target = d => edges[d >> 1][1 - (d & 1)];
+  const rank = new Int32Array(edges.length * 2);
+  for(const darts of outgoing){
+    darts.sort((d1, d2) => {
+      const o = points[origin(d1)], p = points[target(d1)], q = points[target(d2)];
+      return Math.atan2(p.y - o.y, p.x - o.x) - Math.atan2(q.y - o.y, q.x - o.x);
+    });
+    darts.forEach((d, i) => { rank[d] = i; });
+  }
+
+  // Walking a face: leave along a dart, arrive at the far node, and take the
+  // neighbour one step back around it from the way you came. Every dart lies
+  // on exactly one cycle, and every cycle bounds exactly one face.
+  const next = d => {
+    const twin = d ^ 1;
+    const darts = outgoing[origin(twin)];
+    return darts[(rank[twin] - 1 + darts.length) % darts.length];
+  };
+
+  const dartCycle = new Int32Array(edges.length * 2).fill(-1);
+  const seen = new Uint8Array(edges.length * 2);
+  const cycles = [];
+  for(let d = 0; d < edges.length * 2; d++){
+    if(seen[d]) continue;
+    const ring = [], index = cycles.length;
+    let cur = d;
+    while(!seen[cur]){
+      seen[cur] = 1;
+      dartCycle[cur] = index;
+      ring.push(points[origin(cur)]);
+      cur = next(cur);
+    }
+    cycles.push({ ring, area:signedArea(ring) });
+  }
+
+  // That traversal rule walks bounded faces anticlockwise, which is a positive
+  // shoelace area whichever way the y axis happens to point
+  const faces = [], owner = new Int32Array(cycles.length).fill(-2);
+  cycles.forEach((cycle, i) => {
+    if(cycle.area > 0){ owner[i] = faces.length; faces.push({ outer:cycle.ring, holes:[] }); }
+  });
+
+  /*
+  Which face is a hole punched in? Shoot a ray leftwards from the hole's
+  leftmost vertex: immediately to its left lies the material of that very
+  face, so the first edge the ray meets is part of its boundary. Take the
+  half-edge whose face lies on the +x side; its cycle is either the face
+  itself or another hole in the same face, so follow the chain. A ray that
+  hits nothing was cast from the outside of a component, where the face is the
+  infinite one and there is nothing to paint.
+  */
+  function ownerOfHole(index, depth){
+    if(owner[index] !== -2) return owner[index];
+    owner[index] = -1;                       // also breaks a pathological loop
+    if(depth > cycles.length) return -1;
+    const ring = cycles[index].ring;
+    let v = ring[0];
+    for(const p of ring) if(p.x < v.x || (p.x === v.x && p.y < v.y)) v = p;
+    let bestDistance = Infinity, bestDart = -1;
+    for(let e = 0; e < edges.length; e++){
+      const a = points[edges[e][0]], b = points[edges[e][1]];
+      if((a.y > v.y) === (b.y > v.y)) continue;
+      const distance = v.x - (a.x + (v.y - a.y) * (b.x - a.x) / (b.y - a.y));
+      if(distance <= 0 || distance >= bestDistance) continue;
+      bestDistance = distance;
+      bestDart = b.y - a.y < 0 ? 2 * e : 2 * e + 1;
+    }
+    if(bestDart < 0) return -1;
+    const hit = dartCycle[bestDart];
+    if(hit < 0) return -1;
+    return owner[index] = cycles[hit].area > 0 ? owner[hit] : ownerOfHole(hit, depth + 1);
+  }
+  cycles.forEach((cycle, i) => {
+    if(cycle.area >= 0) return;
+    const parent = ownerOfHole(i, 0);
+    if(parent >= 0) faces[parent].holes.push(cycle.ring);
+  });
+
+  const out = [];
+  for(const face of faces){
+    const inside = representativePoint(face);
+    if(!inside) continue;
+    face.covers = [];
+    shapes.forEach((shape, index) => { if(pointInShape(shape, inside)) face.covers.push(index); });
+    if(!face.covers.length) continue;   // bare paper: nothing to paint or click
+    face.d = ringsPathData([face.outer].concat(face.holes));
+    out.push(face);
+  }
+  return { faces:out };
+}
+
+// A point strictly inside a face: scan a line between two distinct vertex
+// heights and take the middle of the first span the even-odd rule keeps
+function representativePoint(face){
+  const rings = [face.outer].concat(face.holes);
+  const ys = [];
+  for(const ring of rings) for(const p of ring) ys.push(p.y);
+  ys.sort((a, b) => a - b);
+  for(let i = 0; i + 1 < ys.length; i++){
+    if(ys[i + 1] - ys[i] < 1e-9) continue;
+    const y = (ys[i] + ys[i + 1]) / 2, xs = [];
+    for(const ring of rings){
+      for(let k = 0, n = ring.length; k < n; k++){
+        const a = ring[k], b = ring[(k + 1) % n];
+        if((a.y > y) !== (b.y > y)) xs.push(a.x + (y - a.y) * (b.x - a.x) / (b.y - a.y));
+      }
+    }
+    xs.sort((a, b) => a - b);
+    for(let k = 0; k + 1 < xs.length; k += 2){
+      if(xs[k + 1] - xs[k] > 1e-9) return { x:(xs[k] + xs[k + 1]) / 2, y };
+    }
+  }
+  return null;
+}
+
+function ringsPathData(rings){
+  let d = "";
+  for(const ring of rings){
+    if(ring.length < 3) continue;
+    d += "M " + num(ring[0].x) + " " + num(ring[0].y);
+    for(let i = 1; i < ring.length; i++) d += " L " + num(ring[i].x) + " " + num(ring[i].y);
+    d += " Z ";
+  }
+  return d.trim();
+}
+
+// --------------------------------------------------------------- rendering
+
+function el(name, attrs){
+  const node = document.createElementNS(SVG_NS, name);
+  for(const key in attrs) if(attrs[key] !== null && attrs[key] !== undefined) node.setAttribute(key, attrs[key]);
+  return node;
+}
+
+function settings(){
+  return {
+    paper: $("paper").value,
+    edge: +$("edgeWidth").value / 100,
+    edgeColour: $("edgeColour").value,
+    ink: $("inkEdges").checked
+  };
+}
+
+// The apparent outline weight in root units: the source stroke if there is
+// one, otherwise a width proportional to the drawing when inking is on
+function edgeWidth(shape, s, extent){
+  const source = shape.stroke ? shape.strokeWidth * shape.scale : 0;
+  return (source || (s.ink ? extent / 320 : 0)) * s.edge;
+}
+
+function render(){
+  const s = settings();
+  const extent = Math.max(state.box.w, state.box.h) || 1;
+  svg.setAttribute("viewBox", `${num(view.x)} ${num(view.y)} ${num(view.w)} ${num(view.h)}`);
+  while(svg.firstChild) svg.removeChild(svg.firstChild);
+
+  const defs = el("defs");
+  for(const node of state.defs) defs.appendChild(node.cloneNode(true));
+  svg.appendChild(defs);
+  svg.appendChild(el("rect", {
+    id:"paper", x:num(state.box.x), y:num(state.box.y),
+    width:num(state.box.w), height:num(state.box.h), fill:s.paper
+  }));
+
+  // One clip per shape, holding every face that shape has won. The faces tile
+  // the drawing and each has a single winner, so the clips never overlap and
+  // the order the shapes are painted in cannot matter.
+  const clips = state.shapes.map(() => "");
+  state.faces.forEach((face, i) => {
+    const winner = state.winners[i];
+    if(winner >= 0) clips[winner] += face.d + " ";
+  });
+
+  // an SVG viewer crops at the viewBox, so the canvas does too and what you
+  // see is exactly what gets exported
+  const page = el("clipPath", { id:"ou-page" });
+  page.appendChild(el("rect", {
+    x:num(state.box.x), y:num(state.box.y), width:num(state.box.w), height:num(state.box.h)
+  }));
+  defs.appendChild(page);
+  const artwork = el("g", { id:"artwork", "clip-path":"url(#ou-page)" });
+  state.shapes.forEach((shape, i) => {
+    if(!clips[i]) return;
+    const clip = el("clipPath", { id:"ou-clip-" + i });
+    clip.appendChild(el("path", { d:clips[i].trim() }));
+    defs.appendChild(clip);
+
+    const width = edgeWidth(shape, s, extent);
+    const group = el("g", { "clip-path":`url(#ou-clip-${i})`, opacity:shape.opacity !== "1" ? shape.opacity : null });
+    const inner = el("g", { transform:`matrix(${shape.matrix.a} ${shape.matrix.b} ${shape.matrix.c} ${shape.matrix.d} ${shape.matrix.e} ${shape.matrix.f})` });
+    inner.appendChild(el("path", {
+      d: shape.d,
+      // a shape without a fill is still a piece of paper: it has to be opaque
+      // to pass over anything
+      fill: shape.fill || s.paper,
+      "fill-rule": shape.fillRule,
+      "fill-opacity": shape.fill ? shape.fillOpacity : null,
+      // the clip stops at the shape's own outline, so the stroke is drawn at
+      // double weight and half of it lands inside
+      stroke: width > 0 ? (s.ink ? s.edgeColour : shape.stroke) : null,
+      "stroke-width": width > 0 ? num(2 * width / shape.scale) : null,
+      "stroke-opacity": width > 0 && !s.ink ? shape.strokeOpacity : null,
+      "stroke-linejoin": shape.linejoin
+    }));
+    group.appendChild(inner);
+    artwork.appendChild(group);
+  });
+  svg.appendChild(artwork);
+
+  const overlay = el("g", { id:"overlay", "pointer-events":"none" });
+  if(hovered >= 0 && state.faces[hovered]){
+    overlay.appendChild(el("path", {
+      d: state.faces[hovered].d, "fill-rule":"evenodd",
+      fill:"#ffffff", "fill-opacity":0.34,
+      stroke:"#7a3b2e", "stroke-width":1.5, "stroke-dasharray":"5 3",
+      "vector-effect":"non-scaling-stroke"
+    }));
+  }
+  svg.appendChild(overlay);
+  updateStatus();
+}
+
+let renderQueued = false;
+function scheduleRender(){
+  if(renderQueued) return;
+  renderQueued = true;
+  requestAnimationFrame(() => { renderQueued = false; render(); });
+}
+
+function describeStack(face){
+  const order = face.covers.filter(i => i !== state.winners[face.index]);
+  order.push(state.winners[face.index]);
+  return order.reverse().map(i => state.shapes[i].label).join(" over ");
+}
+
+function updateStatus(){
+  const overlaps = state.faces.filter(f => f.covers.length > 1).length;
+  let text;
+  if(state.note) text = state.note;
+  else if(!state.shapes.length) text = "Open an SVG, or drop one here";
+  else if(hovered >= 0) text = describeStack(state.faces[hovered]);
+  else {
+    text = `${state.shapes.length} shape${state.shapes.length === 1 ? "" : "s"} · ` +
+      `${overlaps} overlap${overlaps === 1 ? "" : "s"}` +
+      (state.ignored ? ` · ${state.ignored} not closed` : "") +
+      (overlaps ? " — click an overlap to change which shape is on top" : "");
+  }
+  $("status").textContent = text;
+  $("undo").disabled = undoStack.length === 0;
+  $("redo").disabled = redoStack.length === 0;
+  const idle = !overlaps;
+  $("shuffle").disabled = idle;
+  $("reset").disabled = idle;
+  $("export").disabled = !state.shapes.length;
+}
+
+// ----------------------------------------------------------- winners
+
+function defaultWinner(face){
+  return face.covers.length ? face.covers[face.covers.length - 1] : -1;
+}
+
+function pushUndo(){
+  undoStack.push(state.winners.slice());
+  if(undoStack.length > 200) undoStack.shift();
+  redoStack.length = 0;
+}
+
+function restore(winners){
+  state.winners = winners;
+  scheduleRender();
+}
+
+$("undo").addEventListener("click", () => {
+  if(!undoStack.length) return;
+  redoStack.push(state.winners.slice());
+  restore(undoStack.pop());
+});
+
+$("redo").addEventListener("click", () => {
+  if(!redoStack.length) return;
+  undoStack.push(state.winners.slice());
+  restore(redoStack.pop());
+});
+
+$("reset").addEventListener("click", () => {
+  pushUndo();
+  state.winners = state.faces.map(defaultWinner);
+  scheduleRender();
+});
+
+$("shuffle").addEventListener("click", () => {
+  pushUndo();
+  state.winners = state.faces.map(face =>
+    face.covers[Math.floor(Math.random() * face.covers.length)]);
+  scheduleRender();
+});
+
+// ------------------------------------------------------------- interaction
+
+function userPoint(evt){
+  const ctm = svg.getScreenCTM();
+  if(!ctm) return { x:0, y:0 };
+  const p = new DOMPoint(evt.clientX, evt.clientY).matrixTransform(ctm.inverse());
+  return { x:p.x, y:p.y };
+}
+
+// only overlaps answer to a click, so only overlaps light up
+function faceAt(pt){
+  for(let i = 0; i < state.faces.length; i++){
+    if(state.faces[i].covers.length > 1 && pointInFace(pt, state.faces[i])) return i;
+  }
+  return -1;
+}
+
+const pointers = new Map();
+let gesture = null;
+
+function onDown(evt){
+  try { stage.setPointerCapture(evt.pointerId); } catch(e){ /* a pointer already gone */ }
+  pointers.set(evt.pointerId, { x:evt.clientX, y:evt.clientY });
+  if(pointers.size === 1){
+    gesture = { moved:false, start:{ x:evt.clientX, y:evt.clientY }, view:{ ...view } };
+  } else {
+    gesture = null;      // a second finger turns the drag into a pinch
+  }
+}
+
+function onMove(evt){
+  if(!pointers.has(evt.pointerId)){
+    const face = faceAt(userPoint(evt));
+    if(face !== hovered){ hovered = face; scheduleRender(); }
+    return;
+  }
+  const previous = pointers.get(evt.pointerId);
+  pointers.set(evt.pointerId, { x:evt.clientX, y:evt.clientY });
+
+  if(pointers.size >= 2){
+    const [a, b] = [...pointers.values()];
+    if(!gesture || !gesture.pinch){
+      gesture = { pinch:true, span:Math.hypot(a.x - b.x, a.y - b.y), mid:{ x:(a.x + b.x) / 2, y:(a.y + b.y) / 2 } };
+      return;
+    }
+    const span = Math.hypot(a.x - b.x, a.y - b.y);
+    const mid = { x:(a.x + b.x) / 2, y:(a.y + b.y) / 2 };
+    const rect = stage.getBoundingClientRect();
+    const scale = gesture.span > 0 ? gesture.span / Math.max(span, 1) : 1;
+    zoomAbout(gesture.mid, scale);
+    panBy((mid.x - gesture.mid.x) / rect.width * view.w, (mid.y - gesture.mid.y) / rect.height * view.h);
+    gesture.span = span;
+    gesture.mid = mid;
+    scheduleRender();
+    return;
+  }
+  if(!gesture) return;
+  const dx = evt.clientX - gesture.start.x, dy = evt.clientY - gesture.start.y;
+  if(!gesture.moved && Math.hypot(dx, dy) < TAP_SLOP) return;
+  gesture.moved = true;
+  const rect = stage.getBoundingClientRect();
+  const scale = Math.max(view.w / rect.width, view.h / rect.height);
+  view.x = gesture.view.x - dx * scale;
+  view.y = gesture.view.y - dy * scale;
+  scheduleRender();
+  evt.preventDefault();
+}
+
+function onUp(evt){
+  const tapped = gesture && !gesture.moved && !gesture.pinch && pointers.size === 1;
+  const point = userPoint(evt);
+  pointers.delete(evt.pointerId);
+  if(pointers.size === 0) gesture = null;
+  if(!tapped) return;
+
+  const index = faceAt(point);
+  hovered = index;
+  if(index < 0){ scheduleRender(); return; }
+  const face = state.faces[index];
+  pushUndo();
+  const at = face.covers.indexOf(state.winners[index]);
+  state.winners[index] = face.covers[(at + 1) % face.covers.length];
+  scheduleRender();
+}
+
+function panBy(dx, dy){ view.x -= dx; view.y -= dy; }
+
+function zoomAbout(clientPoint, scale){
+  const rect = stage.getBoundingClientRect();
+  const fx = (clientPoint.x - rect.left) / rect.width;
+  const fy = (clientPoint.y - rect.top) / rect.height;
+  const limit = Math.max(state.box.w, state.box.h) || 1;
+  const next = Math.min(Math.max(view.w * scale, limit / 400), limit * 8);
+  const ratio = next / view.w;
+  view.x += (view.w - view.w * ratio) * fx;
+  view.y += (view.h - view.h * ratio) * fy;
+  view.w *= ratio;
+  view.h *= ratio;
+}
+
+stage.addEventListener("pointerdown", onDown);
+stage.addEventListener("pointermove", onMove, { passive:false });
+stage.addEventListener("pointerup", onUp);
+stage.addEventListener("pointercancel", evt => { pointers.delete(evt.pointerId); gesture = null; });
+stage.addEventListener("pointerleave", () => { if(hovered >= 0){ hovered = -1; scheduleRender(); } });
+stage.addEventListener("wheel", evt => {
+  evt.preventDefault();
+  zoomAbout({ x:evt.clientX, y:evt.clientY }, Math.exp(evt.deltaY * 0.0016));
+  scheduleRender();
+}, { passive:false });
+stage.addEventListener("touchstart", e => e.preventDefault(), { passive:false });
+stage.addEventListener("touchmove", e => e.preventDefault(), { passive:false });
+
+function fitView(){
+  const rect = stage.getBoundingClientRect();
+  const pad = 1.04;
+  const box = state.box;
+  const stageRatio = rect.width && rect.height ? rect.width / rect.height : 1;
+  let w = box.w * pad, h = box.h * pad;
+  if(w / h < stageRatio) w = h * stageRatio; else h = w / stageRatio;
+  view.x = box.x + box.w / 2 - w / 2;
+  view.y = box.y + box.h / 2 - h / 2;
+  view.w = w;
+  view.h = h;
+}
+
+$("fit").addEventListener("click", () => { fitView(); scheduleRender(); });
+window.addEventListener("resize", scheduleRender);
+
+// ------------------------------------------------------------------ loading
+
+function load(source, note){
+  state.note = "Reading…";
+  updateStatus();
+  let doc;
+  try {
+    doc = readDocument(source);
+  } catch(e){
+    state.note = "Could not read that file: " + e.message;
+    updateStatus();
+    return;
+  }
+  state.shapes = doc.shapes;
+  state.box = doc.box;
+  state.defs = doc.defs;
+  state.ignored = doc.ignored;
+  precision = Math.min(6, Math.max(1, Math.ceil(4 - Math.log10(Math.max(doc.box.w, doc.box.h) || 1))));
+
+  const built = buildArrangement(doc.shapes, Math.max(doc.box.w, doc.box.h) || 1);
+  state.faces = built.faces;
+  state.faces.forEach((face, i) => { face.index = i; });
+  state.winners = state.faces.map(defaultWinner);
+  undoStack.length = 0;
+  redoStack.length = 0;
+  hovered = -1;
+  state.note = built.overflowed
+    ? "That drawing has too many outline segments to weave"
+    : !doc.shapes.length ? "No closed shapes in that drawing"
+    : doc.capped ? `Only the first ${MAX_SHAPES} closed shapes were taken`
+    : (note || "");
+  fitView();
+  render();
+  if(state.note){
+    const shown = state.note;
+    setTimeout(() => { if(state.note === shown){ state.note = ""; updateStatus(); } }, 4000);
+  }
+}
+
+$("open").addEventListener("click", () => $("file").click());
+$("file").addEventListener("change", evt => {
+  const file = evt.target.files && evt.target.files[0];
+  if(!file) return;
+  file.text().then(text => { $("sample").value = ""; load(text, "Opened " + file.name); });
+  evt.target.value = "";
+});
+
+stage.addEventListener("dragover", evt => { evt.preventDefault(); stage.classList.add("dropping"); });
+stage.addEventListener("dragleave", () => stage.classList.remove("dropping"));
+stage.addEventListener("drop", evt => {
+  evt.preventDefault();
+  stage.classList.remove("dropping");
+  const file = evt.dataTransfer.files && evt.dataTransfer.files[0];
+  if(file) file.text().then(text => { $("sample").value = ""; load(text, "Opened " + file.name); });
+});
+
+// ------------------------------------------------------------------ export
+
+// iPadOS/iOS Safari silently ignores programmatically-clicked download
+// anchors, so hand the file to the share sheet there ("Save to Files");
+// iPads masquerade as MacIntel but report touch points
+const isIOS = /iP(ad|hone|od)/.test(navigator.platform) ||
+  (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+function saveFile(filename, type, data){
+  const file = new File([data], filename, { type });
+  if(isIOS && navigator.canShare && navigator.canShare({ files:[file] })){
+    navigator.share({ files:[file] }).catch(() => {});
+    return;
+  }
+  const a = document.createElement("a");
+  a.download = filename;
+  a.href = URL.createObjectURL(file);
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+}
+
+// The canvas is already the finished drawing, so exporting is a clone with
+// the hover highlight stripped and the framing put back to the whole page
+$("export").addEventListener("click", () => {
+  render();                       // never export a frame that is still pending
+  const clone = svg.cloneNode(true);
+  clone.querySelectorAll("#overlay").forEach(node => node.remove());
+  clone.removeAttribute("id");
+  clone.setAttribute("viewBox", `${num(state.box.x)} ${num(state.box.y)} ${num(state.box.w)} ${num(state.box.h)}`);
+  clone.setAttribute("width", num(state.box.w));
+  clone.setAttribute("height", num(state.box.h));
+  clone.setAttribute("xmlns", SVG_NS);
+  const out = '<?xml version="1.0" encoding="UTF-8"?>\n' + clone.outerHTML + "\n";
+  // a generic MIME type rather than image/svg+xml: iOS maps SVG to an image
+  // UTI, so the share sheet would offer "Save Image" (to Photos, which cannot
+  // hold SVGs) instead of "Save to Files"
+  saveFile("woven.svg", "application/octet-stream", out);
+});
+
+// ------------------------------------------------------------------ examples
+
+const PALETTE = ["#c0563a", "#3f6a94", "#4f7d6b", "#c9973f", "#7a4a86", "#b4485f"];
+
+// a ring as one shape: two circles in the same direction, so the even-odd
+// rule empties the middle
+function ringPath(cx, cy, r, band){
+  const inner = r - band;
+  const circle = radius =>
+    `M ${cx - radius} ${cy} a ${radius} ${radius} 0 1 0 ${2 * radius} 0 a ${radius} ${radius} 0 1 0 ${-2 * radius} 0 Z`;
+  return circle(r) + " " + circle(inner);
+}
+
+function wrap(width, height, body){
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">` +
+    body + "</svg>";
+}
+
+const SAMPLES = {
+  Rings(){
+    const rings = [[185, 160], [335, 160], [260, 290]].map(([x, y], i) =>
+      `<path d="${ringPath(x, y, 118, 34)}" fill-rule="evenodd" fill="${PALETTE[i]}" stroke="#171310" stroke-width="3"/>`);
+    return wrap(520, 450, rings.join(""));
+  },
+  Basket(){
+    const bands = [];
+    for(let i = 0; i < 5; i++){
+      const at = 46 + i * 88;
+      bands.push(`<rect x="-20" y="${at}" width="520" height="54" rx="27" fill="${PALETTE[i % 2]}" stroke="#171310" stroke-width="3"/>`);
+    }
+    for(let i = 0; i < 5; i++){
+      const at = 46 + i * 88;
+      bands.push(`<rect x="${at}" y="-20" width="54" height="520" rx="27" fill="${PALETTE[2 + i % 2]}" stroke="#171310" stroke-width="3"/>`);
+    }
+    return wrap(480, 480, bands.join(""));
+  },
+  Rosette(){
+    const petals = [];
+    for(let i = 0; i < 6; i++){
+      const angle = i / 6 * Math.PI * 2;
+      petals.push(`<path d="${ringPath(260 + Math.cos(angle) * 92, 260 + Math.sin(angle) * 92, 118, 26)}"` +
+        ` fill-rule="evenodd" fill="${PALETTE[i]}" stroke="#171310" stroke-width="3"/>`);
+    }
+    return wrap(520, 520, petals.join(""));
+  }
+};
+
+$("sample").addEventListener("change", () => load(SAMPLES[$("sample").value]()));
+["paper", "edgeWidth", "edgeColour"].forEach(id => $(id).addEventListener("input", scheduleRender));
+$("inkEdges").addEventListener("change", scheduleRender);
+
+load(SAMPLES.Rings());
+})();
+</script>
+</body>
+</html>

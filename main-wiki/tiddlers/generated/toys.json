@@ -24,6 +24,14 @@
 		"text": ""
 	},
 	{
+		"title": "Toys/over-underiser",
+		"caption": "Over-Underiser",
+		"description": "Open an SVG and weave it: wherever closed shapes overlap, a click cycles which one passes over the top",
+		"url": "/toys/over-underiser/",
+		"tags": "toy",
+		"text": ""
+	},
+	{
 		"title": "Toys/lenticulator",
 		"caption": "The Lenticulator",
 		"description": "Print and fold lenticular pictures that change as the observer moves",
