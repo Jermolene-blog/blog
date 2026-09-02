@@ -4635,12 +4635,26 @@ var JpxImage = (function () {
       origCanvas = $("orig"), bitCanvas = $("bit"), svgHost = $("svgHost"),
       panels = $("panels"), zoomSlider = $("zoom"), zoomVal = $("zoomValue");
 
-  var MAX_DIM = 1600;          // larger images are scaled down before tracing
+  // Larger images are scaled down before tracing. This is a budget on total
+  // pixels rather than on the longest side, because what constrains it is the
+  // canvas: iOS Safari refuses one over 16.7 million pixels, and three are
+  // built per image. Keep it as high as that allows: downscaling an engraving
+  // turns its hatching into stipple, and outlining stipple costs potrace nearly
+  // as much as tracing the clean lines would have. One hatched type specimen
+  // measured here came to 1.20 MB of SVG squeezed into 1600 px and 1.28 MB at
+  // its full 2652 px: shrinking it bought almost nothing and lost the hatching.
+  var MAX_PIXELS = 12e6;
   var gray = null, W = 0, H = 0, otsuValue = 128;
   var lastDataURL = null, lastSVG = null, baseName = "traced";
   var quantCanvas = document.createElement("canvas");
 
   function setStatus(text) { statusEl.textContent = text; }
+
+  // How much to shrink a w×h image to fit the pixel budget; 1 for anything
+  // already within it, which is the common case and leaves the image untouched.
+  function fitScale(w, h) {
+    return Math.min(1, Math.sqrt(MAX_PIXELS / (w * h)));
+  }
 
   // --- Loading -----------------------------------------------------------
 
@@ -4704,48 +4718,70 @@ var JpxImage = (function () {
   // greyscale, three or more as RGB — which covers everything archive.org
   // publishes, and everything short of a CMYK codestream.
   //
-  // A page scan runs to 13 megapixels or more, and iOS Safari refuses a canvas
-  // over 16.7 million pixels (much less on a low-memory device), so rather than
-  // build the image at full size and let ingest() shrink it, box-average
-  // straight down to the size ingest() is going to want. Returns the scaled
-  // canvas along with the true dimensions, which ingest() reports.
+  // Anything within the pixel budget is copied over sample for sample, which is
+  // what keeps a hatched engraving's lines from turning into stipple. Only an
+  // image over the budget is scaled, and then by box-averaging here rather than
+  // by building a full-resolution canvas and letting ingest() shrink it — such
+  // an image is precisely the one whose canvas iOS Safari would refuse.
+  // Returns the scaled canvas along with the true dimensions, which ingest()
+  // reports.
   function jpxToCanvas(bytes) {
     var jpx = new JpxImage();
     jpx.parse(bytes);
     var w = jpx.width, h = jpx.height, n = jpx.componentsCount;
     if (!w || !h) { throw new Error("it has no pixels"); }
 
-    var scale = Math.min(1, MAX_DIM / Math.max(w, h));
+    var scale = fitScale(w, h);
     var tw = Math.max(1, Math.round(w * scale)), th = Math.max(1, Math.round(h * scale));
-    var nc = n < 3 ? 1 : 3;                       // channels worth accumulating
-    var sums = new Float32Array(tw * th * nc), counts = new Uint32Array(tw * th);
-
-    for (var t = 0; t < jpx.tiles.length; t++) {
-      var tile = jpx.tiles[t], src = tile.items;
-      for (var y = 0; y < tile.height; y++) {
-        var ty = Math.min(th - 1, ((tile.top + y) * th / h) | 0);
-        var k = y * tile.width * n;
-        for (var x = 0; x < tile.width; x++, k += n) {
-          var tx = Math.min(tw - 1, ((tile.left + x) * tw / w) | 0);
-          var bin = ty * tw + tx;
-          counts[bin]++;
-          for (var c = 0; c < nc; c++) { sums[bin * nc + c] += src[k + c]; }
-        }
-      }
-    }
-
     var canvas = document.createElement("canvas");
     canvas.width = tw;
     canvas.height = th;
     var ctx = canvas.getContext("2d");
     var out = ctx.createImageData(tw, th), rgba = out.data;
-    for (var i = 0, j = 0; i < counts.length; i++, j += 4) {
-      var m = counts[i] || 1;                     // empty bins can't happen, but be safe
-      rgba[j] = sums[i * nc] / m;
-      rgba[j + 1] = (nc === 1 ? sums[i * nc] : sums[i * nc + 1]) / m;
-      rgba[j + 2] = (nc === 1 ? sums[i * nc] : sums[i * nc + 2]) / m;
-      rgba[j + 3] = 255;
+    var t, tile, src, x, y, j, k;
+
+    if (tw === w && th === h) {
+      for (t = 0; t < jpx.tiles.length; t++) {
+        tile = jpx.tiles[t];
+        src = tile.items;
+        for (y = 0; y < tile.height; y++) {
+          j = ((tile.top + y) * w + tile.left) * 4;
+          k = y * tile.width * n;
+          for (x = 0; x < tile.width; x++, j += 4, k += n) {
+            rgba[j] = src[k];
+            rgba[j + 1] = n < 3 ? src[k] : src[k + 1];
+            rgba[j + 2] = n < 3 ? src[k] : src[k + 2];
+            rgba[j + 3] = 255;
+          }
+        }
+      }
+    } else {
+      var nc = n < 3 ? 1 : 3;                     // channels worth accumulating
+      var sums = new Float32Array(tw * th * nc), counts = new Uint32Array(tw * th);
+      for (t = 0; t < jpx.tiles.length; t++) {
+        tile = jpx.tiles[t];
+        src = tile.items;
+        for (y = 0; y < tile.height; y++) {
+          var ty = Math.min(th - 1, ((tile.top + y) * th / h) | 0);
+          k = y * tile.width * n;
+          for (x = 0; x < tile.width; x++, k += n) {
+            var tx = Math.min(tw - 1, ((tile.left + x) * tw / w) | 0);
+            var bin = ty * tw + tx;
+            counts[bin]++;
+            for (var c = 0; c < nc; c++) { sums[bin * nc + c] += src[k + c]; }
+          }
+        }
+      }
+      for (var i = 0; i < counts.length; i++) {
+        var m = counts[i] || 1;                   // empty bins can't happen, but be safe
+        j = i * 4;
+        rgba[j] = sums[i * nc] / m;
+        rgba[j + 1] = (nc === 1 ? sums[i * nc] : sums[i * nc + 1]) / m;
+        rgba[j + 2] = (nc === 1 ? sums[i * nc] : sums[i * nc + 2]) / m;
+        rgba[j + 3] = 255;
+      }
     }
+
     ctx.putImageData(out, 0, 0);
     return { canvas: canvas, width: w, height: h };
   }
@@ -4756,7 +4792,7 @@ var JpxImage = (function () {
     var w = srcW || source.naturalWidth || source.width,
         h = srcH || source.naturalHeight || source.height;
     if (!w || !h) { setStatus("Image has no pixels."); return; }
-    var scale = Math.min(1, MAX_DIM / Math.max(w, h));
+    var scale = fitScale(w, h);
     W = Math.max(1, Math.round(w * scale));
     H = Math.max(1, Math.round(h * scale));
     origCanvas.width = W; origCanvas.height = H;
