@@ -8,6 +8,14 @@
 		"text": ""
 	},
 	{
+		"title": "Toys/jpegulator",
+		"caption": "Jpegulator",
+		"description": "Turn PNG, WebP, TIFF and other images into JPEGs, cropped and resized alike, one at a time or a whole folder into a ZIP",
+		"url": "/toys/jpegulator/",
+		"tags": "toy",
+		"text": ""
+	},
+	{
 		"title": "Toys/knottery",
 		"caption": "Knottery",
 		"description": "Draw Celtic knots freehand: strokes become woven ribbons, and a tap on a crossing flips which strand passes over",

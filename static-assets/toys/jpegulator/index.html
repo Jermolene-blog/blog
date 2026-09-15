@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jpegulator</title>
+<meta name="description" content="Turn PNG, WebP, TIFF and other images into JPEGs, cropped and resized alike, one at a time or a whole folder into a ZIP">
+<style>
+  :root{
+    --ink:#1f1d1a; --paper:#efece4; --panel:#fff; --line:#d9d3c6; --muted:#7f786b;
+    --accent:#c2562b; --stage:#e4e0d6; --shade:rgba(20,18,15,.55);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --ink:#ece8df; --paper:#1b1a18; --panel:#252321; --line:#3a3733; --muted:#9a9388;
+      --accent:#e7804f; --stage:#121110; --shade:rgba(0,0,0,.6);
+    }
+  }
+  *{ box-sizing:border-box; }
+  [hidden]{ display:none !important; }
+  html, body{ margin:0; height:100%; }
+  body{
+    background:var(--paper); color:var(--ink);
+    font:13px/1.35 -apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  header{
+    flex:0 0 auto; display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center;
+    padding:8px 14px; background:var(--panel); border-bottom:1px solid var(--line);
+  }
+  header h1{ font-size:16px; margin:0 6px 0 0; font-weight:600; }
+  header h1 a{ color:inherit; text-decoration:none; }
+  header h1 a:hover{ color:var(--accent); }
+  .buttons{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+  .buttons.end{ margin-left:auto; }
+  button{
+    padding:6px 11px; border:1px solid var(--ink); background:var(--panel); color:var(--ink);
+    border-radius:5px; font:inherit; cursor:pointer; white-space:nowrap;
+  }
+  button:hover:not(:disabled){ background:var(--ink); color:var(--panel); }
+  button.primary{ background:var(--ink); color:var(--panel); }
+  button.primary:hover:not(:disabled){ background:var(--accent); border-color:var(--accent); color:#fff; }
+  button:disabled{ opacity:.35; cursor:default; }
+  button.icon{ font-size:17px; line-height:15px; padding:6px 9px; }
+  .status{ color:var(--muted); font-size:12px; }
+  main{ flex:1 1 auto; display:flex; min-height:0; }
+  aside{
+    flex:0 0 240px; overflow-y:auto; background:var(--panel); border-right:1px solid var(--line);
+    padding:4px 14px 14px;
+  }
+  aside section{ padding:10px 0 12px; border-bottom:1px solid var(--line); display:flex; flex-direction:column; gap:8px; }
+  aside h2{ font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:0; font-weight:600; }
+  .ctl{ display:flex; flex-direction:column; gap:3px; }
+  .ctl > label{ font-size:12px; display:flex; justify-content:space-between; }
+  .row{ display:flex; gap:6px; align-items:flex-end; }
+  .row .ctl{ flex:1 1 0; min-width:0; }
+  .row .times{ padding-bottom:6px; color:var(--muted); }
+  select, input[type=number]{
+    font:inherit; padding:5px 6px; border:1px solid var(--line); border-radius:5px;
+    background:var(--panel); color:var(--ink); width:100%; min-width:0;
+  }
+  input[type=range]{ width:100%; accent-color:var(--accent); }
+  input[type=color]{ width:44px; height:28px; border:1px solid var(--line); border-radius:4px; padding:2px; background:var(--panel); }
+  label.check{ display:flex; gap:6px; align-items:center; font-size:12px; }
+  label.check input{ margin:0; accent-color:var(--accent); }
+  output{ color:var(--muted); font-variant-numeric:tabular-nums; }
+  .hint{ color:var(--muted); font-size:11.5px; margin:12px 0 0; }
+  #work{ flex:1 1 auto; display:flex; flex-direction:column; min-width:0; }
+  #viewbar{
+    flex:0 0 auto; display:flex; gap:10px; align-items:center; padding:6px 12px;
+    border-bottom:1px solid var(--line); min-height:41px;
+  }
+  .seg{ display:flex; }
+  .seg button{ border-radius:0; }
+  .seg button:first-child{ border-radius:5px 0 0 5px; }
+  .seg button:last-child{ border-radius:0 5px 5px 0; margin-left:-1px; }
+  .seg button.on{ background:var(--ink); color:var(--panel); }
+  #info{ color:var(--muted); font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-variant-numeric:tabular-nums; }
+  #stage{ flex:1 1 auto; position:relative; background:var(--stage); overflow:hidden; min-height:120px; }
+  #stage.dropping{ box-shadow:inset 0 0 0 3px var(--accent); }
+  #view{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+  #crop{
+    position:absolute; box-shadow:0 0 0 100000px var(--shade); outline:1px solid rgba(255,255,255,.9);
+    cursor:move; touch-action:none;
+    background-image:
+      linear-gradient(rgba(255,255,255,.35),rgba(255,255,255,.35)),
+      linear-gradient(rgba(255,255,255,.35),rgba(255,255,255,.35)),
+      linear-gradient(rgba(255,255,255,.35),rgba(255,255,255,.35)),
+      linear-gradient(rgba(255,255,255,.35),rgba(255,255,255,.35));
+    background-size:1px 100%, 1px 100%, 100% 1px, 100% 1px;
+    background-position:33.333% 0, 66.667% 0, 0 33.333%, 0 66.667%;
+    background-repeat:no-repeat;
+  }
+  #crop .h{ position:absolute; width:12px; height:12px; margin:-6px 0 0 -6px; background:#fff; border:1px solid #333; border-radius:2px; }
+  #crop .h::before{ content:""; position:absolute; inset:-10px; }
+  #crop .h[data-h=nw]{ left:0; top:0; cursor:nwse-resize; }
+  #crop .h[data-h=n]{ left:50%; top:0; cursor:ns-resize; }
+  #crop .h[data-h=ne]{ left:100%; top:0; cursor:nesw-resize; }
+  #crop .h[data-h=e]{ left:100%; top:50%; cursor:ew-resize; }
+  #crop .h[data-h=se]{ left:100%; top:100%; cursor:nwse-resize; }
+  #crop .h[data-h=s]{ left:50%; top:100%; cursor:ns-resize; }
+  #crop .h[data-h=sw]{ left:0; top:100%; cursor:nesw-resize; }
+  #crop .h[data-h=w]{ left:0; top:50%; cursor:ew-resize; }
+  #resultWrap{ position:absolute; inset:0; overflow:auto; display:flex; cursor:zoom-in; }
+  #resultWrap img{ margin:auto; max-width:calc(100% - 32px); max-height:calc(100% - 32px); box-shadow:0 1px 6px rgba(0,0,0,.25); }
+  #resultWrap.actual{ cursor:zoom-out; }
+  #resultWrap.actual img{ max-width:none; max-height:none; margin:16px; }
+  #empty{
+    position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:10px; color:var(--muted); text-align:center; padding:20px;
+  }
+  #empty strong{ color:var(--ink); font-size:18px; font-weight:600; }
+  #busy{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    background:var(--panel); padding:10px 16px; border-radius:6px; box-shadow:0 2px 12px rgba(0,0,0,.25);
+  }
+  #strip{
+    flex:0 0 auto; display:flex; gap:8px; overflow-x:auto; padding:8px 12px 10px;
+    background:var(--panel); border-top:1px solid var(--line);
+  }
+  .card{
+    flex:0 0 auto; width:128px; position:relative; border:1px solid var(--line); border-radius:6px;
+    padding:5px; cursor:pointer; background:var(--panel);
+  }
+  .card.selected{ border-color:var(--accent); box-shadow:0 0 0 1px var(--accent); }
+  .card .pic{ height:88px; background:var(--stage); border-radius:3px; overflow:hidden; }
+  .card canvas{ width:100%; height:100%; object-fit:contain; display:block; }
+  .card .name{ font-size:11px; margin-top:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .card .meta{ font-size:10.5px; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .card .meta.error{ color:var(--accent); }
+  .card .own{ position:absolute; left:9px; top:9px; font-size:9.5px; background:var(--accent); color:#fff; padding:1px 4px; border-radius:3px; }
+  .card .remove{
+    position:absolute; right:2px; top:2px; width:22px; height:22px; padding:0; border-radius:11px;
+    line-height:1; font-size:14px; opacity:0; border-color:var(--line);
+  }
+  .card:hover .remove, .card.selected .remove{ opacity:1; }
+  @media (max-width: 700px){
+    body{ overflow:auto; height:auto; }
+    main{ flex-direction:column-reverse; }
+    aside{ flex:none; border-right:none; border-top:1px solid var(--line); }
+    #stage{ flex:none; height:62vh; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><a href="/toys/">Jpegulator</a></h1>
+  <div class="buttons">
+    <button id="open">Open images</button>
+    <button id="samples">Samples</button>
+    <button id="clear">Clear</button>
+  </div>
+  <span class="status" id="status"></span>
+  <div class="buttons end">
+    <button id="saveOne" class="primary">Save JPG</button>
+    <button id="saveZip" class="primary">Save all as ZIP</button>
+  </div>
+</header>
+
+<main>
+  <aside>
+    <section>
+      <h2>Crop &amp; rotate</h2>
+      <div class="ctl">
+        <label for="aspect">Aspect ratio</label>
+        <select id="aspect">
+          <option value="free">Free</option>
+          <option value="original">Original</option>
+          <option value="1:1">Square 1:1</option>
+          <option value="3:2">3:2</option>
+          <option value="4:3">4:3</option>
+          <option value="5:4">5:4</option>
+          <option value="16:9">16:9</option>
+          <option value="custom">Custom…</option>
+        </select>
+      </div>
+      <div class="row" id="customRow">
+        <div class="ctl"><label for="aspectW">Across</label><input id="aspectW" type="number" min="1" step="any" value="7"></div>
+        <span class="times">:</span>
+        <div class="ctl"><label for="aspectH">Down</label><input id="aspectH" type="number" min="1" step="any" value="5"></div>
+      </div>
+      <label class="check" id="turnRow"><input id="turn" type="checkbox" checked> Stand it up for portrait images</label>
+      <div class="buttons">
+        <button id="rotL" class="icon" title="Rotate anticlockwise">↺</button>
+        <button id="rotR" class="icon" title="Rotate clockwise">↻</button>
+        <button id="flip" title="Mirror left to right">Flip</button>
+        <button id="resetCrop">Reset</button>
+      </div>
+      <label class="check" id="ownRow"><input id="own" type="checkbox"> Crop this image on its own</label>
+    </section>
+    <section>
+      <h2>Size</h2>
+      <div class="ctl">
+        <label for="resize">Resize</label>
+        <select id="resize">
+          <option value="none">Keep size</option>
+          <option value="long">Longest side</option>
+          <option value="width">Width</option>
+          <option value="height">Height</option>
+          <option value="box">Fit inside</option>
+          <option value="exact">Exact size</option>
+          <option value="percent">Percentage</option>
+        </select>
+      </div>
+      <div class="row" id="dimRow">
+        <div class="ctl" id="wField"><label for="rw">Width</label><input id="rw" type="number" min="1" step="1" value="1600"></div>
+        <span class="times" id="timesSign">×</span>
+        <div class="ctl" id="hField"><label for="rh">Height</label><input id="rh" type="number" min="1" step="1" value="1200"></div>
+      </div>
+      <div class="ctl" id="percentRow">
+        <label for="percent">Scale <output id="percentV"></output></label>
+        <input id="percent" type="range" min="5" max="200" step="5" value="50">
+      </div>
+      <label class="check" id="enlargeRow"><input id="enlarge" type="checkbox"> Allow enlarging</label>
+    </section>
+    <section>
+      <h2>JPEG</h2>
+      <div class="ctl">
+        <label for="quality">Quality <output id="qualityV"></output></label>
+        <input id="quality" type="range" min="10" max="100" step="1" value="85">
+      </div>
+      <div class="row" style="align-items:center">
+        <input id="background" type="color" value="#ffffff">
+        <label for="background" style="font-size:12px">Background for transparent areas</label>
+      </div>
+    </section>
+    <p class="hint">Everything happens in this page; nothing is uploaded. Crop and size settings apply to every image. Colours come out as sRGB, and metadata such as camera details is left behind.</p>
+  </aside>
+
+  <div id="work">
+    <div id="viewbar">
+      <div class="seg">
+        <button id="viewCrop" class="on">Crop</button>
+        <button id="viewResult">Result</button>
+      </div>
+      <span id="info"></span>
+    </div>
+    <div id="stage">
+      <canvas id="view"></canvas>
+      <div id="crop" hidden>
+        <div class="h" data-h="nw"></div><div class="h" data-h="n"></div><div class="h" data-h="ne"></div><div class="h" data-h="e"></div>
+        <div class="h" data-h="se"></div><div class="h" data-h="s"></div><div class="h" data-h="sw"></div><div class="h" data-h="w"></div>
+      </div>
+      <div id="resultWrap" hidden title="Click to switch between fitting the window and actual pixels"><img id="result" alt="Converted JPEG"></div>
+      <div id="empty">
+        <strong>Drop images here</strong>
+        <span>PNG, JPEG, WebP, TIFF, GIF, BMP, AVIF… one at a time, a handful, or a whole folder</span>
+        <div class="buttons"><button id="open2">Open images</button><button id="samples2">Try samples</button></div>
+      </div>
+      <div id="busy" hidden></div>
+    </div>
+    <div id="strip" hidden></div>
+  </div>
+</main>
+<input id="file" type="file" multiple accept="image/*,.tif,.tiff" hidden>
+
+<script>
+(() => {
+"use strict";
+
+/*
+Jpegulator — images in, JPEGs out.
+
+Drop in one image or a pile of them. Every image goes through the same recipe,
+and the recipe is the only state that matters:
+
+  frame:    { rotate, flip, crop:{ cx, cy, zw, zh, zoom } }   where to cut
+  settings: { aspect, resize, width, height, percent, quality, background, ... }
+
+The crop is stored relative to the image rather than in pixels, so a single
+crop can be laid over images of any size and shape. Its centre (cx, cy) is a
+fraction of the image. Its extent is either a fraction of each side (zw, zh,
+when the aspect ratio is free) or a zoom into the largest rectangle of the
+chosen aspect ratio that fits (zoom, when the ratio is fixed). Dragging the
+crop box on one image therefore does the sensible thing to all of them, and
+an image that needs different treatment can be given a frame of its own.
+
+Output is rendered lazily. A background queue re-encodes each image whenever
+the recipe changes, so the filmstrip can show the real size of every JPEG and
+the ZIP is usually ready by the time it is asked for. Only the selected image
+is kept decoded at full size; the rest are held as their original files plus
+a small thumbnail, so a batch of hundreds of photos doesn't exhaust memory.
+
+Browsers decode PNG, JPEG, WebP, GIF, BMP and AVIF themselves, but only Safari
+decodes TIFF, so TIFF files are decoded here (uncompressed, PackBits, LZW,
+Deflate and JPEG compression; 1 to 32 bits; grey, RGB, palette, CMYK; strips
+or tiles; chunky or planar). The ZIP is written here too, using the "stored"
+method, since JPEG data doesn't compress any further.
+*/
+
+const $ = id => document.getElementById(id);
+
+// ------------------------------------------------------------------ TIFF
+
+/*
+Returns a canvas holding the first full-resolution image in the file, with
+the TIFF Orientation tag applied. Throws for anything it can't handle, so that
+the caller can fall back to the browser's own decoder.
+*/
+
+const TIFF_TAGS_WANTED = new Set([254,256,257,258,259,262,266,273,274,277,278,279,284,317,320,322,323,324,325,338,339,347,530]);
+const TIFF_TYPE_SIZES = { 1:1, 2:1, 3:2, 4:4, 5:8, 6:1, 7:1, 8:2, 9:4, 10:8, 11:4, 12:8, 13:4, 16:8, 17:8, 18:8 };
+
+function isTiff(b){
+  return b.length >= 4 && ((b[0] === 0x49 && b[1] === 0x49 && (b[2] === 42 || b[2] === 43) && b[3] === 0) ||
+    (b[0] === 0x4d && b[1] === 0x4d && b[2] === 0 && (b[3] === 42 || b[3] === 43)));
+}
+
+async function decodeTiff(buffer){
+  const bytes = new Uint8Array(buffer), view = new DataView(buffer);
+  const le = bytes[0] === 0x49;
+  const big = view.getUint16(2, le) === 43;
+  const u16 = o => view.getUint16(o, le), u32 = o => view.getUint32(o, le);
+  const u64 = o => le ? u32(o) + u32(o + 4) * 4294967296 : u32(o) * 4294967296 + u32(o + 4);
+  const offsetAt = o => big ? u64(o) : u32(o);
+
+  function readValue(type, o){
+    switch(type){
+      case 1: case 2: case 7: return bytes[o];
+      case 6: return view.getInt8(o);
+      case 3: return u16(o);
+      case 8: return view.getInt16(o, le);
+      case 4: case 13: return u32(o);
+      case 9: return view.getInt32(o, le);
+      case 5: return u32(o) / (u32(o + 4) || 1);
+      case 10: return view.getInt32(o, le) / (view.getInt32(o + 4, le) || 1);
+      case 11: return view.getFloat32(o, le);
+      case 12: return view.getFloat64(o, le);
+      case 16: case 18: return u64(o);
+      case 17: return Number(view.getBigInt64(o, le));
+    }
+  }
+
+  function readIfd(offset){
+    const count = big ? u64(offset) : u16(offset);
+    const entrySize = big ? 20 : 12, inlineSize = big ? 8 : 4;
+    let p = offset + (big ? 8 : 2);
+    const tags = new Map();
+    for(let i = 0; i < count; i++, p += entrySize){
+      const tag = u16(p), type = u16(p + 2), size = TIFF_TYPE_SIZES[type];
+      if(!TIFF_TAGS_WANTED.has(tag) || !size) continue;
+      const n = big ? u64(p + 4) : u32(p + 4);
+      const at = size * n <= inlineSize ? p + (big ? 12 : 8) : offsetAt(p + (big ? 12 : 8));
+      if(at + size * n > bytes.length) continue;
+      if(tag === 347){ tags.set(tag, bytes.subarray(at, at + n)); continue; }
+      const values = new Array(n);
+      for(let j = 0; j < n; j++) values[j] = readValue(type, at + j * size);
+      tags.set(tag, values);
+    }
+    return { tags, next: offsetAt(p) };
+  }
+
+  // Walk the chain of image directories, preferring the first that isn't a
+  // reduced-resolution preview
+  const ifds = [], seen = new Set();
+  for(let o = offsetAt(big ? 8 : 4); o && o < bytes.length && !seen.has(o) && ifds.length < 256; ){
+    seen.add(o);
+    const ifd = readIfd(o);
+    if(ifd.tags.has(256) && ifd.tags.has(257)) ifds.push(ifd.tags);
+    o = ifd.next;
+  }
+  if(!ifds.length) throw new Error("No image found in TIFF");
+  const tags = ifds.find(t => !((t.get(254) || [0])[0] & 1)) || ifds[0];
+
+  const one = (tag, fallback) => tags.has(tag) ? tags.get(tag)[0] : fallback;
+  const width = one(256), height = one(257);
+  const spp = one(277, 1), bits = one(258, 1);
+  const compression = one(259, 1), planar = spp > 1 ? one(284, 1) : 1;
+  const photometric = one(262, spp >= 3 ? 2 : 1);
+  const predictor = one(317, 1), sampleFormat = one(339, 1), fillOrder = one(266, 1);
+  const tiled = tags.has(322);
+  const blockW = tiled ? one(322) : width;
+  const blockH = tiled ? one(323) : Math.min(one(278, height), height);
+  const offsets = tags.get(tiled ? 324 : 273);
+  if(!width || !height || !offsets) throw new Error("Incomplete TIFF");
+  if(width * height > 400e6) throw new Error("TIFF too large");
+  const across = Math.ceil(width / blockW), down = Math.ceil(height / blockH);
+  const planes = planar === 2 ? spp : 1;
+  const blockSpp = planar === 2 ? 1 : spp;
+  const bytesPerRow = Math.ceil(blockW * blockSpp * bits / 8);
+  const counts = tags.get(tiled ? 325 : 279) ||
+    offsets.map(() => bytesPerRow * blockH);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width; canvas.height = height;
+  const ctx = canvas.getContext("2d");
+
+  if(compression === 7){
+    await decodeTiffJpegBlocks();
+  } else {
+    decodeTiffPixels(await decodeBlocks());
+  }
+  return orientCanvas(canvas, one(274, 1));
+
+  // JPEG-compressed TIFFs hold a JPEG stream per strip or tile, sharing
+  // tables kept in the JPEGTables tag. The browser decodes each stream.
+  async function decodeTiffJpegBlocks(){
+    if(planes !== 1) throw new Error("Planar JPEG TIFF not supported");
+    const tables = tags.get(347);
+    // A JPEG with three components is assumed to be YCbCr unless an Adobe
+    // marker says otherwise, so RGB data gets one
+    const adobe = photometric === 6 || spp !== 3 ? null :
+      new Uint8Array([0xff,0xee,0,14,0x41,0x64,0x6f,0x62,0x65,0,100,0,0,0,0,0]);
+    for(let i = 0; i < offsets.length && i < across * down; i++){
+      const data = bytes.subarray(offsets[i], offsets[i] + counts[i]);
+      const parts = [new Uint8Array([0xff, 0xd8])];
+      if(adobe) parts.push(adobe);
+      if(tables && tables.length > 4) parts.push(tables.subarray(2, tables.length - 2));
+      parts.push(data.subarray(2));
+      // Firefox won't decode a Blob made of several parts, so join them first
+      const jpeg = new Uint8Array(parts.reduce((sum, part) => sum + part.length, 0));
+      parts.reduce((at, part) => (jpeg.set(part, at), at + part.length), 0);
+      const tile = await createImageBitmap(new Blob([jpeg], { type:"image/jpeg" }));
+      ctx.drawImage(tile, (i % across) * blockW, Math.floor(i / across) * blockH);
+      tile.close();
+    }
+  }
+
+  async function decodeBlocks(){
+    const blocks = [];
+    for(let i = 0; i < offsets.length; i++){
+      const row = Math.floor((i % (across * down)) / across);
+      const rows = tiled ? blockH : Math.min(blockH, height - row * blockH);
+      const expected = bytesPerRow * rows;
+      let data = bytes.subarray(offsets[i], offsets[i] + counts[i]);
+      if(fillOrder === 2) data = reverseBits(data);
+      data = await decompress(data, compression, expected);
+      if(data.length < expected){ const padded = new Uint8Array(expected); padded.set(data); data = padded; }
+      blocks.push({ data, le, rows });
+    }
+    for(const block of blocks) undoPredictor(block);
+    return blocks;
+  }
+
+  function undoPredictor(block){
+    if(predictor === 2){
+      const { data } = block, bps = bits / 8;
+      if(bits === 8){
+        for(let r = 0; r < block.rows; r++){
+          const start = r * bytesPerRow;
+          for(let i = start + blockSpp, end = start + bytesPerRow; i < end; i++) data[i] = (data[i] + data[i - blockSpp]) & 255;
+        }
+      } else if(bits === 16 || bits === 32){
+        const dv = new DataView(data.buffer, data.byteOffset, data.length);
+        const get = bits === 16 ? (o => dv.getUint16(o, le)) : (o => dv.getUint32(o, le));
+        const set = bits === 16 ? ((o, v) => dv.setUint16(o, v, le)) : ((o, v) => dv.setUint32(o, v, le));
+        const step = blockSpp * bps;
+        for(let r = 0; r < block.rows; r++){
+          const start = r * bytesPerRow;
+          for(let o = start + step, end = start + bytesPerRow; o < end; o += bps) set(o, get(o) + get(o - step));
+        }
+      }
+    } else if(predictor === 3){
+      // Floating point: bytes are differenced across the row, having been
+      // regrouped so that all the most significant bytes come first
+      const bps = bits / 8, count = blockW * blockSpp, { data } = block;
+      const tmp = new Uint8Array(bytesPerRow);
+      for(let r = 0; r < block.rows; r++){
+        const row = data.subarray(r * bytesPerRow, (r + 1) * bytesPerRow);
+        for(let i = blockSpp; i < row.length; i++) row[i] = (row[i] + row[i - blockSpp]) & 255;
+        for(let j = 0; j < count; j++) for(let b = 0; b < bps; b++) tmp[j * bps + b] = row[b * count + j];
+        row.set(tmp);
+      }
+      block.le = false;
+    }
+  }
+
+  function decodeTiffPixels(blocks){
+    const extra = tags.get(338) || [];
+    const colours = photometric === 2 || photometric === 6 ? 3 :
+      photometric === 5 ? Math.max(1, spp - extra.length) : 1;
+    const alphaKind = spp > colours ? (extra[0] || 0) : 0;   // 1 premultiplied, 2 straight
+    if(![0,1,2,3,5,6].includes(photometric)) throw new Error(`TIFF photometric ${photometric} not supported`);
+    if(photometric === 6){
+      const sub = tags.get(530) || [2, 2];
+      if(sub[0] !== 1 || sub[1] !== 1) throw new Error("Subsampled YCbCr TIFF not supported");
+    }
+    const colorMap = tags.get(320);
+    if(photometric === 3 && !colorMap) throw new Error("Palette TIFF without a colour map");
+    const maxValue = 2 ** Math.min(bits, 32) - 1;
+    const image = ctx.createImageData(width, height), out = image.data;
+    const px = new Float64Array(spp);
+
+    for(let b = 0; b < across * down; b++){
+      const bx = (b % across) * blockW, by = Math.floor(b / across) * blockH;
+      const readers = [];
+      for(let p = 0; p < planes; p++) readers.push(sampleReader(blocks[p * across * down + b]));
+      const w = Math.min(blockW, width - bx), h = Math.min(blockH, height - by);
+      for(let y = 0; y < h; y++){
+        let o = ((by + y) * width + bx) * 4;
+        for(let x = 0; x < w; x++, o += 4){
+          if(planes === 1) for(let s = 0; s < spp; s++) px[s] = readers[0](y, x * spp + s);
+          else for(let s = 0; s < spp; s++) px[s] = readers[s](y, x);
+          let r, g, bl, a = 255;
+          switch(photometric){
+            case 0: r = g = bl = 255 - norm(px[0]); break;
+            case 1: r = g = bl = norm(px[0]); break;
+            case 2: r = norm(px[0]); g = norm(px[1]); bl = norm(px[2]); break;
+            case 3: {
+              const n = 1 << bits, i = px[0] | 0;
+              r = colorMap[i] >> 8; g = colorMap[n + i] >> 8; bl = colorMap[2 * n + i] >> 8;
+              break;
+            }
+            case 5:
+              if(colours >= 4){
+                const k = 255 - norm(px[3]);
+                r = (255 - norm(px[0])) * k / 255; g = (255 - norm(px[1])) * k / 255; bl = (255 - norm(px[2])) * k / 255;
+              } else r = g = bl = 255 - norm(px[0]);
+              break;
+            case 6: {
+              const Y = norm(px[0]), cb = norm(px[1]) - 128, cr = norm(px[2]) - 128;
+              r = Y + 1.402 * cr; g = Y - 0.344136 * cb - 0.714136 * cr; bl = Y + 1.772 * cb;
+              break;
+            }
+          }
+          if(alphaKind){
+            a = norm(px[colours]);
+            if(alphaKind === 1 && a > 0 && a < 255){ r = r * 255 / a; g = g * 255 / a; bl = bl * 255 / a; }
+          }
+          out[o] = r; out[o + 1] = g; out[o + 2] = bl; out[o + 3] = a;
+        }
+      }
+    }
+    ctx.putImageData(image, 0, 0);
+
+    function norm(v){
+      if(sampleFormat === 3) return v * 255;
+      if(sampleFormat === 2) return bits === 1 ? v * 255 : (v + (maxValue + 1) / 2) * 255 / maxValue;
+      return bits === 8 ? v : v * 255 / maxValue;
+    }
+  }
+
+  // Returns a function (row, sampleIndexInRow) -> raw sample value
+  function sampleReader(block){
+    if(!block) return () => 0;
+    const { data } = block;
+    if(bits === 8) return sampleFormat === 2 ? ((r, i) => (data[r * bytesPerRow + i] << 24) >> 24) : ((r, i) => data[r * bytesPerRow + i]);
+    if(bits < 8){
+      const mask = (1 << bits) - 1;
+      return (r, i) => {
+        const bit = r * bytesPerRow * 8 + i * bits;
+        const v = (data[bit >> 3] << 8) | (data[(bit >> 3) + 1] || 0);
+        return (v >> (16 - (bit & 7) - bits)) & mask;
+      };
+    }
+    const dv = new DataView(data.buffer, data.byteOffset, data.length), bLe = block.le, bps = bits / 8;
+    const at = (r, i) => r * bytesPerRow + i * bps;
+    if(sampleFormat === 3){
+      if(bits === 32) return (r, i) => Math.min(1, Math.max(0, dv.getFloat32(at(r, i), bLe)));
+      if(bits === 64) return (r, i) => Math.min(1, Math.max(0, dv.getFloat64(at(r, i), bLe)));
+      if(bits === 16) return (r, i) => Math.min(1, Math.max(0, halfFloat(dv.getUint16(at(r, i), bLe))));
+    }
+    if(bits === 16) return sampleFormat === 2 ? ((r, i) => dv.getInt16(at(r, i), bLe)) : ((r, i) => dv.getUint16(at(r, i), bLe));
+    if(bits === 32) return sampleFormat === 2 ? ((r, i) => dv.getInt32(at(r, i), bLe)) : ((r, i) => dv.getUint32(at(r, i), bLe));
+    throw new Error(`TIFF with ${bits} bits per sample not supported`);
+  }
+}
+
+function halfFloat(h){
+  const e = (h >> 10) & 31, f = h & 1023, s = h & 0x8000 ? -1 : 1;
+  return e === 0 ? s * f / 1024 * 2 ** -14 : e === 31 ? (f ? NaN : s * Infinity) : s * (1 + f / 1024) * 2 ** (e - 15);
+}
+
+let reversedBitsTable = null;
+function reverseBits(data){
+  if(!reversedBitsTable){
+    reversedBitsTable = new Uint8Array(256);
+    for(let i = 0; i < 256; i++){ let r = 0; for(let b = 0; b < 8; b++) if(i & (1 << b)) r |= 128 >> b; reversedBitsTable[i] = r; }
+  }
+  return data.map(v => reversedBitsTable[v]);
+}
+
+async function decompress(data, compression, expected){
+  switch(compression){
+    case 1: return data;
+    case 5: return lzwDecode(data, expected);
+    case 32773: return unpackBits(data, expected);
+    case 8: case 32946: {
+      const stream = new Blob([data]).stream().pipeThrough(new DecompressionStream("deflate"));
+      return new Uint8Array(await new Response(stream).arrayBuffer());
+    }
+    default: throw new Error(`TIFF compression ${compression} not supported`);
+  }
+}
+
+function unpackBits(input, expected){
+  const out = new Uint8Array(expected);
+  let ip = 0, op = 0;
+  while(ip < input.length && op < expected){
+    const n = (input[ip++] << 24) >> 24;
+    if(n >= 0){
+      const run = input.subarray(ip, ip + n + 1).subarray(0, expected - op);
+      out.set(run, op); op += n + 1; ip += n + 1;
+    } else if(n !== -128){
+      out.fill(input[ip++], op, Math.min(expected, op + 1 - n)); op += 1 - n;
+    }
+  }
+  return out;
+}
+
+// TIFF's LZW: codes are packed most significant bit first, and the code
+// width grows one code earlier than in GIF's variant
+function lzwDecode(input, expected){
+  const out = new Uint8Array(expected);
+  const prefix = new Uint16Array(4096), suffix = new Uint8Array(4096);
+  const first = new Uint8Array(4096), length = new Uint16Array(4096);
+  for(let i = 0; i < 256; i++){ suffix[i] = first[i] = i; length[i] = 1; }
+  const totalBits = input.length * 8;
+  let bitPos = 0, width = 9, next = 258, old = -1, op = 0;
+  while(bitPos + width <= totalBits && op < expected){
+    const i = bitPos >> 3;
+    const v = (input[i] << 16) | ((input[i + 1] || 0) << 8) | (input[i + 2] || 0);
+    const code = (v >> (24 - (bitPos & 7) - width)) & ((1 << width) - 1);
+    bitPos += width;
+    if(code === 257) break;
+    if(code === 256){ width = 9; next = 258; old = -1; continue; }
+    if(old < 0){
+      if(code > 255) break;
+      out[op++] = code; old = code; continue;
+    }
+    if(code > next) break;
+    if(next < 4096){
+      prefix[next] = old; suffix[next] = code < next ? first[code] : first[old];
+      first[next] = first[old]; length[next] = length[old] + 1;
+      next++;
+    } else if(code >= next) break;
+    // emit the string for code, which now certainly exists
+    const len = length[code];
+    for(let k = len - 1, c = code; k >= 0; k--, c = prefix[c]) if(op + k < expected) out[op + k] = suffix[c];
+    op += len;
+    old = code;
+    if(next + 1 >= (1 << width) && width < 12) width++;
+  }
+  return out;
+}
+
+// -------------------------------------------------------------- geometry
+
+/*
+Rotation is clockwise in quarter turns and is applied before the mirror flip.
+"Display" space is the image as it appears after both; the crop lives there.
+*/
+
+function orientMatrix(rotate, flip, w, h){
+  const turned = rotate === 90 || rotate === 270;
+  let m;
+  switch(rotate){
+    case 90: m = new DOMMatrix([0, 1, -1, 0, h, 0]); break;
+    case 180: m = new DOMMatrix([-1, 0, 0, -1, w, h]); break;
+    case 270: m = new DOMMatrix([0, -1, 1, 0, 0, w]); break;
+    default: m = new DOMMatrix();
+  }
+  if(flip) m = new DOMMatrix([-1, 0, 0, 1, turned ? h : w, 0]).multiply(m);
+  return m;
+}
+
+function displaySize(frame, w, h){
+  return frame.rotate === 90 || frame.rotate === 270 ? { w:h, h:w } : { w, h };
+}
+
+// TIFF orientation tag values expressed as rotate-then-flip
+const ORIENTATIONS = { 2:[0,true], 3:[180,false], 4:[180,true], 5:[90,true], 6:[90,false], 7:[270,true], 8:[270,false] };
+
+function orientCanvas(canvas, orientation){
+  const o = ORIENTATIONS[orientation];
+  if(!o) return canvas;
+  const size = displaySize({ rotate:o[0] }, canvas.width, canvas.height);
+  const out = document.createElement("canvas");
+  out.width = size.w; out.height = size.h;
+  const ctx = out.getContext("2d");
+  ctx.setTransform(orientMatrix(o[0], o[1], canvas.width, canvas.height));
+  ctx.drawImage(canvas, 0, 0);
+  return out;
+}
+
+function aspectRatio(W, H){
+  let a;
+  if(settings.resize === "exact") return settings.width / settings.height;
+  if(settings.aspect === "free") return null;
+  if(settings.aspect === "original") return W / H;
+  if(settings.aspect === "custom") a = settings.aspectW / settings.aspectH;
+  else { const [x, y] = settings.aspect.split(":").map(Number); a = x / y; }
+  if(!(a > 0) || !isFinite(a)) return null;
+  if(settings.turn && a !== 1 && (W < H) !== (a < 1)) a = 1 / a;
+  return a;
+}
+
+// The crop rectangle in display pixels for an image of display size W x H
+function cropRect(frame, W, H){
+  const c = frame.crop, a = aspectRatio(W, H);
+  let w, h;
+  if(a){
+    let mw = W, mh = W / a;
+    if(mh > H){ mh = H; mw = H * a; }
+    w = mw * c.zoom; h = mh * c.zoom;
+  } else {
+    w = W * c.zw; h = H * c.zh;
+  }
+  w = Math.min(W, Math.max(1, w)); h = Math.min(H, Math.max(1, h));
+  const x = Math.min(W - w, Math.max(0, c.cx * W - w / 2));
+  const y = Math.min(H - h, Math.max(0, c.cy * H - h / 2));
+  return { x, y, w, h };
+}
+
+function outputSize(cw, ch){
+  const s = settings;
+  let k;
+  switch(s.resize){
+    case "long": k = s.long / Math.max(cw, ch); break;
+    case "width": k = s.width / cw; break;
+    case "height": k = s.height / ch; break;
+    case "box": k = Math.min(s.width / cw, s.height / ch); break;
+    case "exact": return { w: Math.max(1, Math.round(s.width)), h: Math.max(1, Math.round(s.height)) };
+    case "percent": k = s.percent / 100; break;
+    default: k = 1;
+  }
+  if(!(k > 0) || !isFinite(k)) k = 1;
+  if(!s.enlarge) k = Math.min(1, k);
+  return { w: Math.max(1, Math.round(cw * k)), h: Math.max(1, Math.round(ch * k)) };
+}
+
+function frameFor(item){ return item.frame || sharedFrame; }
+
+// The size of the JPEG an item will produce
+function plan(item, frame = frameFor(item)){
+  const d = displaySize(frame, item.width, item.height);
+  const crop = cropRect(frame, d.w, d.h);
+  return { display:d, crop, out: outputSize(crop.w, crop.h) };
+}
+
+/*
+Draws the cropped, turned and resized image. `source` may be the full image
+or a smaller stand-in for it (a thumbnail), in which case `fullW`/`fullH` say
+how big the real thing is, and `scale` shrinks the output to match.
+
+Big reductions go through repeated halving first: a single bilinear step
+from thousands of pixels down to hundreds only samples a scattering of them
+and looks gritty.
+*/
+function render(source, fullW, fullH, frame, scale = 1, background = settings.background){
+  const { display, crop, out } = plan({ width:fullW, height:fullH }, frame);
+  const ow = Math.max(1, Math.round(out.w * scale)), oh = Math.max(1, Math.round(out.h * scale));
+  const sx = source.width / fullW, sy = source.height / fullH;
+
+  // The crop mapped back into source pixels
+  const toDisplay = orientMatrix(frame.rotate, frame.flip, fullW, fullH);
+  const back = toDisplay.inverse();
+  const corners = [[crop.x, crop.y], [crop.x + crop.w, crop.y + crop.h]].map(([x, y]) => back.transformPoint({ x, y }));
+  const rx = Math.min(corners[0].x, corners[1].x), ry = Math.min(corners[0].y, corners[1].y);
+  const rw = Math.abs(corners[1].x - corners[0].x), rh = Math.abs(corners[1].y - corners[0].y);
+  const turned = frame.rotate === 90 || frame.rotate === 270;
+  const targetW = turned ? oh : ow, targetH = turned ? ow : oh;
+
+  let img = source, ix = rx * sx, iy = ry * sy, iw = rw * sx, ih = rh * sy;
+  while(iw > targetW * 2 || ih > targetH * 2){
+    const nw = Math.max(targetW, Math.ceil(iw / 2)), nh = Math.max(targetH, Math.ceil(ih / 2));
+    const step = document.createElement("canvas");
+    step.width = nw; step.height = nh;
+    const sctx = step.getContext("2d");
+    sctx.imageSmoothingQuality = "high";
+    sctx.drawImage(img, ix, iy, iw, ih, 0, 0, nw, nh);
+    if(img !== source) img.width = 0;
+    img = step; ix = 0; iy = 0; iw = nw; ih = nh;
+  }
+
+  const canvas = document.createElement("canvas");
+  canvas.width = ow; canvas.height = oh;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = background;
+  ctx.fillRect(0, 0, ow, oh);
+  ctx.imageSmoothingQuality = "high";
+  ctx.setTransform(new DOMMatrix()
+    .scale(ow / crop.w, oh / crop.h)
+    .translate(-crop.x, -crop.y)
+    .multiply(toDisplay));
+  ctx.drawImage(img, ix, iy, iw, ih, rx, ry, rw, rh);
+  if(img !== source) img.width = 0;
+  return canvas;
+}
+
+function encodeJpeg(canvas, quality){
+  return new Promise((resolve, reject) => canvas.toBlob(
+    blob => blob ? resolve(blob) : reject(new Error("The browser couldn't encode this image")),
+    "image/jpeg", quality / 100));
+}
+
+// ------------------------------------------------------------- decoding
+
+async function decodeFile(file){
+  const head = new Uint8Array(await file.slice(0, 4).arrayBuffer());
+  if(isTiff(head)){
+    try {
+      return await decodeTiff(await file.arrayBuffer());
+    } catch(error){
+      // Safari can decode some TIFFs that we can't
+      try { return await decodeNatively(file); } catch(_) { throw error; }
+    }
+  }
+  return decodeNatively(file);
+}
+
+async function decodeNatively(file){
+  try {
+    return await createImageBitmap(file);
+  } catch(_) {
+    // Some formats (SVG, or HEIC in Safari) only decode through <img>
+    const url = URL.createObjectURL(file);
+    try {
+      const img = new Image();
+      img.src = url;
+      await img.decode();
+      if(!img.naturalWidth) throw new Error();
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+      canvas.getContext("2d").drawImage(img, 0, 0);
+      return canvas;
+    } catch(_) {
+      throw new Error("Not an image this browser can read");
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+}
+
+function releaseImage(img){
+  if(!img) return;
+  if(img.close) img.close();
+  else img.width = 0;
+}
+
+// ------------------------------------------------------------------ ZIP
+
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for(let n = 0; n < 256; n++){
+    let c = n;
+    for(let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+    t[n] = c >>> 0;
+  }
+  return t;
+})();
+
+function crc32(bytes){
+  let c = 0xffffffff;
+  for(let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 255] ^ (c >>> 8);
+  return (c ^ 0xffffffff) >>> 0;
+}
+
+// entries: [{ name, blob, crc }] -> a Blob of a ZIP archive, stored uncompressed
+function makeZip(entries){
+  const encoder = new TextEncoder(), now = new Date();
+  const time = (now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1);
+  const date = ((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
+  const parts = [], directory = [];
+  let offset = 0;
+  for(const entry of entries){
+    const name = encoder.encode(entry.name), size = entry.blob.size;
+    const local = new DataView(new ArrayBuffer(30));
+    local.setUint32(0, 0x04034b50, true);
+    local.setUint16(4, 20, true);
+    local.setUint16(6, 0x0800, true);            // names are UTF-8
+    local.setUint16(10, time, true);
+    local.setUint16(12, date, true);
+    local.setUint32(14, entry.crc, true);
+    local.setUint32(18, size, true);
+    local.setUint32(22, size, true);
+    local.setUint16(26, name.length, true);
+    parts.push(local, name, entry.blob);
+
+    const central = new DataView(new ArrayBuffer(46));
+    central.setUint32(0, 0x02014b50, true);
+    central.setUint16(4, 20, true);
+    central.setUint16(6, 20, true);
+    central.setUint16(8, 0x0800, true);
+    central.setUint16(12, time, true);
+    central.setUint16(14, date, true);
+    central.setUint32(16, entry.crc, true);
+    central.setUint32(20, size, true);
+    central.setUint32(24, size, true);
+    central.setUint16(28, name.length, true);
+    central.setUint32(42, offset, true);
+    directory.push(central, name);
+
+    offset += 30 + name.length + size;
+    if(offset > 0xffffffff) throw new Error("That's more than a ZIP can hold (4 GB)");
+  }
+  const directorySize = directory.reduce((sum, part) => sum + part.byteLength, 0);
+  const end = new DataView(new ArrayBuffer(22));
+  end.setUint32(0, 0x06054b50, true);
+  end.setUint16(8, entries.length, true);
+  end.setUint16(10, entries.length, true);
+  end.setUint32(12, directorySize, true);
+  end.setUint32(16, offset, true);
+  return new Blob([...parts, ...directory, end], { type:"application/zip" });
+}
+
+function download(blob, name){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+
+// ----------------------------------------------------------------- state
+
+const DEFAULT_SETTINGS = {
+  aspect:"free", aspectW:7, aspectH:5, turn:true,
+  resize:"none", width:1600, height:1200, long:1600, percent:50, enlarge:false,
+  quality:85, background:"#ffffff"
+};
+const SETTINGS_KEY = "jpegulator-settings";
+const CARD_PIXELS = 240;       // longest side of the thumbnails kept for each image
+const PREVIEW_PIXELS = 2400;   // longest side of the selected image as shown on stage
+
+const settings = loadSettings();
+const newFrame = () => ({ rotate:0, flip:false, crop:{ cx:.5, cy:.5, zw:1, zh:1, zoom:1 } });
+const sharedFrame = newFrame();
+
+// { id, file, name, status:"loading"|"ready"|"error", error, width, height,
+//   thumb, frame, blob, blobKey, blobUrl, crc, failedKey, card }
+const items = [];
+let selected = null;
+let viewMode = "crop";
+let nextId = 1;
+let full = { item:null, img:null, preview:null };
+let fullLoading = null;
+
+function loadSettings(){
+  try {
+    const stored = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
+    return Object.assign({}, DEFAULT_SETTINGS, stored);
+  } catch(_) {
+    return Object.assign({}, DEFAULT_SETTINGS);
+  }
+}
+
+function saveSettings(){
+  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch(_) {}
+}
+
+function recipeKey(item){
+  return JSON.stringify([settings, frameFor(item)]);
+}
+
+const readyItems = () => items.filter(item => item.status === "ready");
+
+function formatBytes(n){
+  if(n < 1024) return n + " B";
+  if(n < 1024 * 1024) return Math.round(n / 1024) + " KB";
+  return (n / 1024 / 1024).toFixed(1) + " MB";
+}
+
+function jpegName(name){
+  return (name.replace(/\.[^.\/]*$/, "") || "image") + ".jpg";
+}
+
+function formatName(item){
+  const ext = /\.([^.]+)$/.exec(item.name);
+  return (item.file.type.replace(/^image\/(x-)?/, "") || (ext ? ext[1] : "image")).toUpperCase().replace("SVG+XML", "SVG");
+}
+
+// Downscale by repeated halving to fit within max pixels on the longest side
+function shrink(img, max){
+  const k = Math.min(1, max / Math.max(img.width, img.height));
+  const w = Math.max(1, Math.round(img.width * k)), h = Math.max(1, Math.round(img.height * k));
+  let cur = img;
+  do {
+    const nw = Math.max(w, Math.ceil(cur.width / 2)), nh = Math.max(h, Math.ceil(cur.height / 2));
+    const c = document.createElement("canvas");
+    c.width = nw; c.height = nh;
+    const ctx = c.getContext("2d");
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(cur, 0, 0, nw, nh);
+    if(cur !== img) cur.width = 0;
+    cur = c;
+  } while(cur.width > w || cur.height > h);
+  return cur;
+}
+
+// ------------------------------------------------------------- images in
+
+async function addFiles(fileList){
+  const files = [...fileList].filter(f => /^image\//.test(f.type) || /\.(tiff?|heic|heif|avif|jxl|webp)$/i.test(f.name));
+  if(!files.length){
+    setStatus(fileList.length ? "Those don't look like images" : "");
+    return;
+  }
+  const added = files.map(file => {
+    const item = { id:nextId++, file, name:file.name || "pasted.png", status:"loading", frame:null };
+    items.push(item);
+    buildCard(item);
+    return item;
+  });
+  if(!selected || selected.status === "error") select(added[0]);
+  updateUi();
+  for(const item of added) if(items.includes(item)) await loadItem(item);
+}
+
+async function loadItem(item){
+  try {
+    const img = await decodeFile(item.file);
+    if(!items.includes(item)){ releaseImage(img); return; }
+    item.width = img.width;
+    item.height = img.height;
+    item.thumb = shrink(img, CARD_PIXELS);
+    item.status = "ready";
+    if(item === selected) setFull(item, img);
+    else releaseImage(img);
+  } catch(error){
+    item.status = "error";
+    item.error = error.message;
+  }
+  refreshCard(item);
+  if(item === selected) drawStage();
+  updateUi();
+  scheduleEncode();
+}
+
+function setFull(item, img){
+  if(full.item && full.item !== item) dropFull();
+  if(full.item === item) return;
+  full = { item, img, preview:shrink(img, PREVIEW_PIXELS) };
+}
+
+function dropFull(){
+  releaseImage(full.img);
+  releaseImage(full.preview);
+  full = { item:null, img:null, preview:null };
+}
+
+// The selected image stays decoded; any other is decoded on demand, and the
+// caller should release it with doneWith()
+function fullImage(item){
+  if(full.item === item) return Promise.resolve(full.img);
+  if(fullLoading && fullLoading.item === item) return fullLoading.promise;
+  const promise = decodeFile(item.file).then(img => {
+    if(fullLoading && fullLoading.item === item) fullLoading = null;
+    if(selected === item) setFull(item, img);
+    return img;
+  }, error => {
+    if(fullLoading && fullLoading.item === item) fullLoading = null;
+    throw error;
+  });
+  if(selected === item) fullLoading = { item, promise };
+  return promise;
+}
+
+function doneWith(img){
+  if(img !== full.img) releaseImage(img);
+}
+
+function removeItem(item){
+  const index = items.indexOf(item);
+  if(index < 0) return;
+  items.splice(index, 1);
+  item.card.root.remove();
+  if(item.blobUrl) URL.revokeObjectURL(item.blobUrl);
+  if(item.thumb) item.thumb.width = 0;
+  if(full.item === item) dropFull();
+  if(selected === item) select(items[Math.min(index, items.length - 1)] || null);
+  updateUi();
+}
+
+// ------------------------------------------------------------ JPEGs out
+
+let encodeTimer = 0, encoding = false;
+
+function scheduleEncode(delay = 250){
+  clearTimeout(encodeTimer);
+  encodeTimer = setTimeout(pumpEncode, delay);
+}
+
+function needsEncoding(item){
+  if(item.status !== "ready") return false;
+  const key = recipeKey(item);
+  return item.blobKey !== key && item.failedKey !== key;
+}
+
+async function pumpEncode(){
+  if(encoding) return;
+  encoding = true;
+  updateUi();
+  try {
+    for(;;){
+      const pending = items.filter(needsEncoding);
+      if(!pending.length) break;
+      await encodeItem(pending.includes(selected) ? selected : pending[0]);
+    }
+  } finally {
+    encoding = false;
+    updateUi();
+  }
+}
+
+async function encodeItem(item){
+  const key = recipeKey(item);
+  let img = null;
+  try {
+    img = await fullImage(item);
+    if(!items.includes(item) || recipeKey(item) !== key) return;
+    const canvas = render(img, item.width, item.height, frameFor(item));
+    doneWith(img);
+    img = null;
+    const blob = await encodeJpeg(canvas, settings.quality);
+    canvas.width = 0;
+    if(recipeKey(item) !== key) return;
+    if(item.blobUrl) URL.revokeObjectURL(item.blobUrl);
+    Object.assign(item, { blob, blobKey:key, blobUrl:null, crc:null, failedKey:null, encodeError:null });
+  } catch(error){
+    item.failedKey = key;
+    item.encodeError = error.message;
+  } finally {
+    if(img) doneWith(img);
+  }
+  if(!items.includes(item)) return;
+  refreshCard(item);
+  if(item === selected){
+    updateInfo();
+    if(viewMode === "result") drawStage();
+  }
+}
+
+async function ensureEncoded(item){
+  while(needsEncoding(item)) await encodeItem(item);
+  return item.blobKey === recipeKey(item);
+}
+
+async function saveOne(){
+  const item = selected;
+  if(!item || item.status !== "ready") return;
+  showBusy("Converting…");
+  try {
+    if(await ensureEncoded(item)) download(item.blob, jpegName(item.name));
+    else setStatus(`Couldn't convert ${item.name}: ${item.encodeError}`);
+  } finally {
+    showBusy(null);
+  }
+}
+
+async function saveZip(){
+  const todo = readyItems();
+  if(!todo.length) return;
+  const entries = [], used = new Set(), failed = [];
+  try {
+    for(let i = 0; i < todo.length; i++){
+      const item = todo[i];
+      showBusy(`Converting ${i + 1} of ${todo.length}…`);
+      if(!items.includes(item)) continue;
+      if(!(await ensureEncoded(item))){ failed.push(item.name); continue; }
+      if(item.crc == null) item.crc = crc32(new Uint8Array(await item.blob.arrayBuffer()));
+      let name = jpegName(item.name), n = 1;
+      while(used.has(name.toLowerCase())) name = jpegName(item.name).replace(/\.jpg$/, `-${++n}.jpg`);
+      used.add(name.toLowerCase());
+      entries.push({ name, blob:item.blob, crc:item.crc });
+    }
+    if(entries.length) download(makeZip(entries), "jpegs.zip");
+    setStatus(failed.length ? `Left out ${failed.length} that couldn't be converted: ${failed.join(", ")}` : "");
+  } catch(error){
+    setStatus(error.message);
+  } finally {
+    showBusy(null);
+  }
+}
+
+// -------------------------------------------------------------- controls
+
+const controls = {
+  aspect:$("aspect"), aspectW:$("aspectW"), aspectH:$("aspectH"), turn:$("turn"),
+  resize:$("resize"), rw:$("rw"), rh:$("rh"), percent:$("percent"), enlarge:$("enlarge"),
+  quality:$("quality"), background:$("background")
+};
+const stage = $("stage"), viewCanvas = $("view"), cropBox = $("crop"), strip = $("strip");
+let message = "";
+
+function syncControls(){
+  const s = settings, c = controls;
+  const put = (el, value) => { if(el !== document.activeElement || el.type !== "number") el.value = value; };
+  c.aspect.value = s.aspect; put(c.aspectW, s.aspectW); put(c.aspectH, s.aspectH); c.turn.checked = s.turn;
+  c.resize.value = s.resize; c.percent.value = s.percent; c.enlarge.checked = s.enlarge;
+  put(c.rw, s.resize === "long" ? s.long : s.width); put(c.rh, s.height);
+  c.quality.value = s.quality; c.background.value = s.background;
+  $("percentV").textContent = s.percent + "%";
+  $("qualityV").textContent = s.quality;
+
+  const exact = s.resize === "exact";
+  c.aspect.disabled = exact;
+  c.aspect.title = exact ? "Set by the exact size" : "";
+  $("customRow").hidden = exact || s.aspect !== "custom";
+  $("turnRow").hidden = exact || ["free", "original", "1:1"].includes(s.aspect);
+  $("dimRow").hidden = !["long", "width", "height", "box", "exact"].includes(s.resize);
+  $("wField").hidden = s.resize === "height";
+  $("hField").hidden = s.resize === "long" || s.resize === "width";
+  $("timesSign").hidden = !(s.resize === "box" || exact);
+  $("wField").querySelector("label").textContent = s.resize === "long" ? "Longest side" : "Width";
+  $("percentRow").hidden = s.resize !== "percent";
+  $("enlargeRow").hidden = s.resize === "none" || exact;
+  $("ownRow").hidden = !(selected && items.length > 1);
+  $("own").checked = !!(selected && selected.frame);
+}
+
+// Which image each frame is judged against when its aspect ratio changes
+function framesInView(){
+  const pairs = [];
+  const sharedOwner = selected && !selected.frame ? selected : readyItems().find(item => !item.frame);
+  if(sharedOwner && sharedOwner.status === "ready") pairs.push([sharedFrame, sharedOwner]);
+  for(const item of readyItems()) if(item.frame) pairs.push([item.frame, item]);
+  return pairs.map(([frame, item]) => {
+    const d = displaySize(frame, item.width, item.height);
+    return { frame, d, aspect:aspectRatio(d.w, d.h), rect:cropRect(frame, d.w, d.h) };
+  });
+}
+
+function readControls(){
+  const before = framesInView();
+  const s = settings, c = controls, num = (el, fallback) => { const v = parseFloat(el.value); return v > 0 ? v : fallback; };
+  s.aspect = c.aspect.value;
+  s.aspectW = num(c.aspectW, s.aspectW); s.aspectH = num(c.aspectH, s.aspectH);
+  s.turn = c.turn.checked;
+  const oldResize = s.resize;
+  s.resize = c.resize.value;
+  if(s.resize === oldResize){
+    if(s.resize === "long") s.long = Math.round(num(c.rw, s.long));
+    else s.width = Math.round(num(c.rw, s.width));
+    s.height = Math.round(num(c.rh, s.height));
+  }
+  s.percent = +c.percent.value; s.enlarge = c.enlarge.checked;
+  s.quality = +c.quality.value; s.background = c.background.value;
+  // Keep each crop roughly where it was when its shape changes
+  for(const { frame, d, aspect, rect } of before){
+    if(aspectRatio(d.w, d.h) !== aspect) setCropFromRect(frame, rect, d.w, d.h);
+  }
+  saveSettings();
+  syncControls();
+  recipeChanged();
+}
+
+function setCropFromRect(frame, r, W, H){
+  const c = frame.crop, a = aspectRatio(W, H);
+  c.cx = (r.x + r.w / 2) / W;
+  c.cy = (r.y + r.h / 2) / H;
+  c.zw = Math.min(1, r.w / W);
+  c.zh = Math.min(1, r.h / H);
+  if(a){
+    let mw = W, mh = W / a;
+    if(mh > H){ mh = H; mw = H * a; }
+    c.zoom = Math.min(1, Math.sqrt(r.w * r.h / (mw * mh)));
+  }
+}
+
+function recipeChanged(){
+  scheduleCards();
+  drawStage();
+  updateInfo();
+  updateUi();
+  scheduleEncode();
+}
+
+function editableFrame(){
+  return selected && selected.frame ? selected.frame : sharedFrame;
+}
+
+function turnBy(degrees){
+  const frame = editableFrame();
+  frame.rotate = (frame.rotate + degrees + 360) % 360;
+  // a quarter turn swaps which way the crop is laid out
+  if(degrees % 180){
+    const c = frame.crop;
+    [c.cx, c.cy] = degrees > 0 ? [1 - c.cy, c.cx] : [c.cy, 1 - c.cx];
+    [c.zw, c.zh] = [c.zh, c.zw];
+  }
+  recipeChanged();
+}
+
+function flip(){
+  const frame = editableFrame();
+  frame.flip = !frame.flip;
+  frame.crop.cx = 1 - frame.crop.cx;
+  recipeChanged();
+}
+
+function resetCrop(){
+  const frame = editableFrame();
+  Object.assign(frame, newFrame());
+  recipeChanged();
+}
+
+// --------------------------------------------------------------- stage
+
+let layout = null;   // where the selected image sits on stage: { k, ox, oy, W, H }
+
+function showBusy(text){
+  $("busy").hidden = !text;
+  $("busy").textContent = text || "";
+}
+
+function drawStage(){
+  const item = selected;
+  const rect = stage.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  const cw = Math.round(rect.width * dpr), ch = Math.round(rect.height * dpr);
+  if(viewCanvas.width !== cw || viewCanvas.height !== ch){ viewCanvas.width = cw; viewCanvas.height = ch; }
+  const ctx = viewCanvas.getContext("2d");
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, cw, ch);
+  layout = null;
+  $("empty").hidden = items.length > 0;
+  $("viewCrop").classList.toggle("on", viewMode === "crop");
+  $("viewResult").classList.toggle("on", viewMode === "result");
+
+  const ready = item && item.status === "ready";
+  const showResult = ready && viewMode === "result";
+  cropBox.hidden = !ready || showResult;
+  viewCanvas.hidden = showResult;
+  $("resultWrap").hidden = !showResult;
+  if(!ready) return;
+
+  if(showResult){
+    const img = $("result");
+    if(item.blob){
+      if(!item.blobUrl) item.blobUrl = URL.createObjectURL(item.blob);
+      if(img.getAttribute("src") !== item.blobUrl) img.src = item.blobUrl;
+      img.style.opacity = item.blobKey === recipeKey(item) ? 1 : .6;
+    } else {
+      img.removeAttribute("src");
+    }
+    return;
+  }
+
+  const frame = frameFor(item), d = displaySize(frame, item.width, item.height);
+  const pad = 28;
+  const k = Math.min((rect.width - 2 * pad) / d.w, (rect.height - 2 * pad) / d.h);
+  if(!(k > 0)) return;
+  const ox = (rect.width - d.w * k) / 2, oy = (rect.height - d.h * k) / 2;
+  layout = { k, ox, oy, W:d.w, H:d.h };
+
+  const src = full.item === item ? full.preview : item.thumb;
+  ctx.setTransform(new DOMMatrix().scale(dpr).translate(ox, oy).scale(k).multiply(orientMatrix(frame.rotate, frame.flip, item.width, item.height)));
+  ctx.imageSmoothingQuality = "high";
+  ctx.fillStyle = settings.background;
+  ctx.fillRect(0, 0, item.width, item.height);
+  ctx.drawImage(src, 0, 0, item.width, item.height);
+  positionCrop();
+
+  if(full.item !== item) fullImage(item).then(() => { if(selected === item) drawStage(); }, () => {});
+}
+
+function positionCrop(){
+  if(!layout || !selected) return;
+  const r = cropRect(frameFor(selected), layout.W, layout.H), { k, ox, oy } = layout;
+  Object.assign(cropBox.style, {
+    left:(ox + r.x * k) + "px", top:(oy + r.y * k) + "px",
+    width:Math.max(1, r.w * k) + "px", height:Math.max(1, r.h * k) + "px"
+  });
+}
+
+function dragRect(handle, r0, dx, dy, W, H, a){
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+  if(handle === "move"){
+    return { x:clamp(r0.x + dx, 0, W - r0.w), y:clamp(r0.y + dy, 0, H - r0.h), w:r0.w, h:r0.h };
+  }
+  const min = Math.min(W, H, Math.max(8, Math.min(W, H) * .01));
+  const hx = handle.includes("w") ? -1 : handle.includes("e") ? 1 : 0;
+  const hy = handle.includes("n") ? -1 : handle.includes("s") ? 1 : 0;
+  let left = r0.x, top = r0.y, right = r0.x + r0.w, bottom = r0.y + r0.h;
+  if(!a){
+    if(hx < 0) left = clamp(left + dx, 0, right - min);
+    if(hx > 0) right = clamp(right + dx, left + min, W);
+    if(hy < 0) top = clamp(top + dy, 0, bottom - min);
+    if(hy > 0) bottom = clamp(bottom + dy, top + min, H);
+    return { x:left, y:top, w:right - left, h:bottom - top };
+  }
+  // With the ratio fixed, the opposite corner (or edge midpoint) stays put
+  const ax = hx < 0 ? right : hx > 0 ? left : (left + right) / 2;
+  const ay = hy < 0 ? bottom : hy > 0 ? top : (top + bottom) / 2;
+  const wantW = hx ? hx * ((hx > 0 ? right : left) + dx - ax) : -Infinity;
+  const wantH = hy ? hy * ((hy > 0 ? bottom : top) + dy - ay) : -Infinity;
+  let w = Math.max(wantW, wantH * a);
+  const roomX = hx > 0 ? W - ax : hx < 0 ? ax : 2 * Math.min(ax, W - ax);
+  const roomY = hy > 0 ? H - ay : hy < 0 ? ay : 2 * Math.min(ay, H - ay);
+  w = Math.min(Math.max(w, min), roomX, roomY * a);
+  const h = w / a;
+  return {
+    x:hx > 0 ? ax : hx < 0 ? ax - w : ax - w / 2,
+    y:hy > 0 ? ay : hy < 0 ? ay - h : ay - h / 2,
+    w, h
+  };
+}
+
+function startDrag(e, handle, r0){
+  if(!layout || !selected || e.button > 0) return;
+  e.preventDefault();
+  const item = selected, frame = editableFrame(), { k, W, H } = layout;
+  const x0 = e.clientX, y0 = e.clientY;
+  const target = e.currentTarget;
+  target.setPointerCapture(e.pointerId);
+  let started = handle !== "new";
+  const move = ev => {
+    if(selected !== item) return;
+    // a click on the image shouldn't collapse the crop to a speck
+    if(!started && Math.hypot(ev.clientX - x0, ev.clientY - y0) < 6) return;
+    started = true;
+    const dx = (ev.clientX - x0) / k, dy = (ev.clientY - y0) / k;
+    // A new crop drawn out from a point takes whichever corner it is pulled towards
+    const h = handle === "new" ? (dy < 0 ? "n" : "s") + (dx < 0 ? "w" : "e") : handle;
+    setCropFromRect(frame, dragRect(h, r0, dx, dy, W, H, aspectRatio(W, H)), W, H);
+    positionCrop();
+    updateInfo();
+    scheduleCards(120);
+  };
+  const up = () => {
+    target.removeEventListener("pointermove", move);
+    target.removeEventListener("pointerup", up);
+    target.removeEventListener("pointercancel", up);
+    recipeChanged();
+  };
+  target.addEventListener("pointermove", move);
+  target.addEventListener("pointerup", up);
+  target.addEventListener("pointercancel", up);
+}
+
+cropBox.addEventListener("pointerdown", e => {
+  if(!layout || !selected) return;
+  startDrag(e, e.target.dataset.h || "move", cropRect(frameFor(selected), layout.W, layout.H));
+});
+
+viewCanvas.addEventListener("pointerdown", e => {
+  if(!layout || !selected) return;
+  const rect = stage.getBoundingClientRect(), { k, ox, oy, W, H } = layout;
+  const x = (e.clientX - rect.left - ox) / k, y = (e.clientY - rect.top - oy) / k;
+  if(x < 0 || y < 0 || x > W || y > H) return;
+  startDrag(e, "new", { x, y, w:0, h:0 });
+});
+
+$("resultWrap").addEventListener("click", () => $("resultWrap").classList.toggle("actual"));
+
+function updateInfo(){
+  const item = selected, info = $("info");
+  if(!item){ info.textContent = ""; return; }
+  if(item.status === "loading"){ info.textContent = `${item.name} · loading…`; return; }
+  if(item.status === "error"){ info.textContent = `${item.name} · ${item.error}`; return; }
+  const { out } = plan(item), current = item.blobKey === recipeKey(item);
+  const size = current ? formatBytes(item.blob.size) : item.failedKey === recipeKey(item) ? item.encodeError : "…";
+  info.textContent = `${item.name} · ${item.width} × ${item.height} ${formatName(item)} → ${out.w} × ${out.h} JPEG · ${size}`;
+}
+
+// ---------------------------------------------------------------- strip
+
+function buildCard(item){
+  const root = document.createElement("div");
+  root.className = "card";
+  root.innerHTML = `<div class="pic"></div><div class="name"></div><div class="meta"></div>` +
+    `<span class="own" hidden>own crop</span><button class="remove" title="Remove">×</button>`;
+  root.querySelector(".name").textContent = item.name;
+  root.title = item.name;
+  root.addEventListener("click", () => select(item));
+  root.querySelector(".remove").addEventListener("click", e => { e.stopPropagation(); removeItem(item); });
+  item.card = { root, pic:root.querySelector(".pic"), meta:root.querySelector(".meta"), own:root.querySelector(".own"), renderKey:null };
+  strip.appendChild(root);
+  refreshCard(item);
+}
+
+function refreshCard(item){
+  const card = item.card;
+  card.root.classList.toggle("selected", item === selected);
+  card.own.hidden = !item.frame;
+  card.meta.classList.toggle("error", item.status === "error");
+  if(item.status === "loading"){ card.meta.textContent = "Loading…"; return; }
+  if(item.status === "error"){ card.meta.textContent = item.error; return; }
+  const key = recipeKey(item), { out } = plan(item);
+  if(card.renderKey !== key){
+    const scale = CARD_PIXELS / Math.max(out.w, out.h);
+    card.pic.replaceChildren(render(item.thumb, item.width, item.height, frameFor(item), scale));
+    card.renderKey = key;
+  }
+  const size = item.blobKey === key ? formatBytes(item.blob.size) : item.failedKey === key ? "failed" : "…";
+  card.meta.textContent = `${out.w} × ${out.h} · ${size}`;
+}
+
+let cardsTimer = 0;
+function scheduleCards(delay = 0){
+  if(cardsTimer) return;
+  cardsTimer = setTimeout(() => {
+    cardsTimer = 0;
+    items.forEach(refreshCard);
+  }, delay);
+}
+
+function select(item){
+  if(selected === item) return;
+  const previous = selected;
+  selected = item;
+  if(full.item && full.item !== item) dropFull();
+  if(previous && items.includes(previous)) refreshCard(previous);
+  if(item){
+    refreshCard(item);
+    item.card.root.scrollIntoView({ block:"nearest", inline:"nearest" });
+  }
+  $("resultWrap").classList.remove("actual");
+  syncControls();
+  drawStage();
+  updateInfo();
+  updateUi();
+}
+
+function setStatus(text){
+  message = text;
+  updateUi();
+}
+
+function updateUi(){
+  const ready = readyItems(), loading = items.filter(item => item.status === "loading").length;
+  strip.hidden = items.length === 0;
+  $("clear").disabled = items.length === 0;
+  $("saveOne").disabled = !(selected && selected.status === "ready");
+  $("saveZip").hidden = items.length < 2;
+  $("saveZip").disabled = ready.length === 0;
+  $("ownRow").hidden = !(selected && items.length > 1);
+  $("own").checked = !!(selected && selected.frame);
+  let status = message;
+  if(!status && items.length){
+    const done = ready.filter(item => item.blobKey === recipeKey(item));
+    status = `${items.length} image${items.length === 1 ? "" : "s"}`;
+    if(loading) status += ` · loading ${loading}`;
+    else if(done.length < ready.length) status += ` · converting ${done.length + 1} of ${ready.length}`;
+    else if(done.length) status += ` · ${formatBytes(done.reduce((sum, item) => sum + item.blob.size, 0))} of JPEG`;
+  }
+  $("status").textContent = status;
+}
+
+// ------------------------------------------------------------- samples
+
+async function makeSamples(){
+  const scenes = [
+    ["harbour", 1800, 1200, "image/png", ctx => {
+      const sky = ctx.createLinearGradient(0, 0, 0, 800);
+      sky.addColorStop(0, "#f7b267"); sky.addColorStop(1, "#f25c54");
+      ctx.fillStyle = sky; ctx.fillRect(0, 0, 1800, 800);
+      ctx.fillStyle = "#ffe8a3"; ctx.beginPath(); ctx.arc(1250, 640, 170, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#3d405b";
+      ctx.beginPath(); ctx.moveTo(0, 820); ctx.lineTo(300, 560); ctx.lineTo(620, 790); ctx.lineTo(900, 640); ctx.lineTo(1200, 820); ctx.fill();
+      const sea = ctx.createLinearGradient(0, 800, 0, 1200);
+      sea.addColorStop(0, "#26547c"); sea.addColorStop(1, "#0b2545");
+      ctx.fillStyle = sea; ctx.fillRect(0, 800, 1800, 400);
+      ctx.strokeStyle = "rgba(255,232,163,.55)"; ctx.lineWidth = 6;
+      for(let i = 0; i < 14; i++){ const y = 840 + i * 26, w = 260 - i * 14; ctx.beginPath(); ctx.moveTo(1250 - w, y); ctx.lineTo(1250 + w, y); ctx.stroke(); }
+    }],
+    ["lighthouse", 1000, 1500, "image/webp", ctx => {
+      const sky = ctx.createLinearGradient(0, 0, 0, 1500);
+      sky.addColorStop(0, "#90e0ef"); sky.addColorStop(1, "#caf0f8");
+      ctx.fillStyle = sky; ctx.fillRect(0, 0, 1000, 1500);
+      ctx.fillStyle = "#6c757d"; ctx.beginPath(); ctx.ellipse(500, 1500, 700, 260, 0, 0, Math.PI * 2); ctx.fill();
+      for(let i = 0; i < 6; i++){
+        const y0 = 400 + i * 150, y1 = y0 + 150, t0 = 90 + i * 12, t1 = t0 + 12;
+        ctx.fillStyle = i % 2 ? "#ffffff" : "#d62828";
+        ctx.beginPath(); ctx.moveTo(500 - t0, y0); ctx.lineTo(500 + t0, y0); ctx.lineTo(500 + t1, y1); ctx.lineTo(500 - t1, y1); ctx.fill();
+      }
+      ctx.fillStyle = "#212529"; ctx.fillRect(390, 250, 220, 150);
+      ctx.fillStyle = "#ffd60a"; ctx.fillRect(420, 280, 160, 90);
+      ctx.fillStyle = "#212529"; ctx.beginPath(); ctx.moveTo(370, 250); ctx.lineTo(500, 150); ctx.lineTo(630, 250); ctx.fill();
+    }],
+    ["badge", 900, 900, "image/png", ctx => {
+      ctx.fillStyle = "#2a9d8f"; ctx.beginPath();
+      for(let i = 0; i < 24; i++){
+        const r = i % 2 ? 330 : 430, t = i / 24 * Math.PI * 2;
+        ctx.lineTo(450 + r * Math.sin(t), 450 - r * Math.cos(t));
+      }
+      ctx.fill();
+      ctx.fillStyle = "#fff"; ctx.font = "bold 150px Helvetica, Arial, sans-serif";
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText("JPEG", 450, 460);
+    }]
+  ];
+  const files = [];
+  for(const [name, w, h, type, draw] of scenes){
+    const canvas = document.createElement("canvas");
+    canvas.width = w; canvas.height = h;
+    draw(canvas.getContext("2d"));
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, type, .92));
+    const ext = blob.type === "image/webp" ? "webp" : "png";
+    files.push(new File([blob], `${name}.${ext}`, { type:blob.type }));
+  }
+  addFiles(files);
+}
+
+// --------------------------------------------------------------- wiring
+
+for(const el of Object.values(controls)){
+  el.addEventListener(el.type === "range" || el.type === "number" || el.type === "color" ? "input" : "change", readControls);
+}
+$("rotL").addEventListener("click", () => turnBy(-90));
+$("rotR").addEventListener("click", () => turnBy(90));
+$("flip").addEventListener("click", flip);
+$("resetCrop").addEventListener("click", resetCrop);
+$("own").addEventListener("change", e => {
+  if(!selected) return;
+  selected.frame = e.target.checked ? structuredClone(sharedFrame) : null;
+  recipeChanged();
+});
+$("viewCrop").addEventListener("click", () => { viewMode = "crop"; drawStage(); });
+$("viewResult").addEventListener("click", () => { viewMode = "result"; drawStage(); if(selected) scheduleEncode(0); });
+
+const fileInput = $("file");
+const openFiles = () => fileInput.click();
+$("open").addEventListener("click", openFiles);
+$("open2").addEventListener("click", openFiles);
+$("samples").addEventListener("click", makeSamples);
+$("samples2").addEventListener("click", makeSamples);
+fileInput.addEventListener("change", () => { addFiles(fileInput.files); fileInput.value = ""; });
+$("clear").addEventListener("click", () => { [...items].forEach(removeItem); setStatus(""); });
+$("saveOne").addEventListener("click", saveOne);
+$("saveZip").addEventListener("click", saveZip);
+
+let dragDepth = 0;
+document.addEventListener("dragenter", e => { if(e.dataTransfer.types.includes("Files")){ dragDepth++; stage.classList.add("dropping"); } });
+document.addEventListener("dragleave", () => { if(--dragDepth <= 0){ dragDepth = 0; stage.classList.remove("dropping"); } });
+document.addEventListener("dragover", e => e.preventDefault());
+document.addEventListener("drop", e => {
+  e.preventDefault();
+  dragDepth = 0;
+  stage.classList.remove("dropping");
+  // Entries must be taken during the event; folders are then read afterwards
+  const entries = [...e.dataTransfer.items].map(item => item.webkitGetAsEntry && item.webkitGetAsEntry()).filter(Boolean);
+  if(entries.some(entry => entry.isDirectory)) filesFromEntries(entries).then(addFiles);
+  else addFiles(e.dataTransfer.files);
+});
+
+async function filesFromEntries(entries){
+  const files = [];
+  for(const entry of entries){
+    if(entry.isFile){
+      files.push(await new Promise(resolve => entry.file(resolve, () => resolve(null))));
+    } else if(entry.isDirectory){
+      const reader = entry.createReader(), children = [];
+      // readEntries hands back directory contents in batches until it returns none
+      for(let batch; (batch = await new Promise(resolve => reader.readEntries(resolve, () => resolve([])))).length; ) children.push(...batch);
+      children.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric:true }));
+      files.push(...await filesFromEntries(children));
+    }
+  }
+  return files.filter(file => file && !file.name.startsWith("."));
+}
+document.addEventListener("paste", e => {
+  const files = [...(e.clipboardData ? e.clipboardData.files : [])];
+  if(files.length) addFiles(files);
+});
+document.addEventListener("keydown", e => {
+  if(e.target.closest("input, select, textarea") || e.metaKey || e.ctrlKey || e.altKey || !selected) return;
+  const i = items.indexOf(selected);
+  if(e.key === "ArrowRight" && i < items.length - 1) select(items[i + 1]);
+  else if(e.key === "ArrowLeft" && i > 0) select(items[i - 1]);
+  else if(e.key === "Delete" || e.key === "Backspace") removeItem(selected);
+  else return;
+  e.preventDefault();
+});
+
+new ResizeObserver(() => drawStage()).observe(stage);
+syncControls();
+updateUi();
+drawStage();
+
+})();
+</script>
+</body>
+</html>
