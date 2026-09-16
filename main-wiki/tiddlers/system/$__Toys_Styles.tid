@@ -4,6 +4,9 @@ title: $:/Toys/Styles
 \rules only filteredtranscludeinline transcludeinline macrodef macrocallinline
 
 .jermolene-toy-listing .jermolene-toy {
+	display: flex;
+	gap: 1.25em;
+	align-items: flex-start;
 	margin: 1.5em 0;
 	padding: 0 0 1.5em 0;
 	border-bottom: 1px solid <<colour jermolene-bright>>;
@@ -13,6 +16,19 @@ title: $:/Toys/Styles
 	border-bottom: none;
 }
 
+.jermolene-toy-listing .jermolene-toy .jermolene-screenshot-link {
+	flex: 0 0 240px;
+}
+
+.jermolene-toy-listing .jermolene-toy .jermolene-screenshot-link img {
+	width: 240px;
+}
+
+.jermolene-toy-listing .jermolene-toy .jermolene-toy-text {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
 .jermolene-toy-listing .jermolene-toy h3 {
 	margin: 0 0 0.25em 0;
 }
@@ -20,4 +36,17 @@ title: $:/Toys/Styles
 .jermolene-toy-listing .jermolene-toy .jermolene-toy-description {
 	margin: 0;
 	color: <<colour jermolene-grey>>;
+}
+
+@media (max-width: 600px) {
+	.jermolene-toy-listing .jermolene-toy {
+		flex-direction: column;
+		gap: 0.75em;
+	}
+
+	.jermolene-toy-listing .jermolene-toy .jermolene-screenshot-link,
+	.jermolene-toy-listing .jermolene-toy .jermolene-screenshot-link img {
+		flex-basis: auto;
+		width: 100%;
+	}
 }

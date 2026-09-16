@@ -10,6 +10,9 @@ description from `<meta name="toy-description">`, falling back to the standard
 the single source of truth for its own listing: adding, renaming or
 re-describing a toy automatically updates the index at build time.
 
+If `build-screenshots.js` has captured a screenshot of the toy, its URL is
+recorded in the `screenshot` field.
+
 Usage: node build-toys.js
 */
 
@@ -20,6 +23,7 @@ const fs = require("fs"),
 
 const rootDir = __dirname,
 	toysDir = path.join(rootDir,"static-assets","toys"),
+	screenshotsDir = path.join(rootDir,"static-assets","screenshots","toys"),
 	outputFile = path.join(rootDir,"main-wiki","tiddlers","generated","toys.json");
 
 function decodeEntities(text) {
@@ -73,7 +77,7 @@ function readToy(name) {
 	if(!description) {
 		console.log("build-toys: warning: toys/" + name + " has no description meta tag");
 	}
-	return {
+	const toy = {
 		title: "Toys/" + name,
 		caption: caption,
 		description: description,
@@ -81,6 +85,12 @@ function readToy(name) {
 		tags: "toy",
 		text: ""
 	};
+	if(fs.existsSync(path.join(screenshotsDir,name + ".webp"))) {
+		toy.screenshot = "/screenshots/toys/" + name + ".webp";
+	} else {
+		console.log("build-toys: warning: toys/" + name + " has no screenshot; run build-screenshots.js");
+	}
+	return toy;
 }
 
 const toys = fs.readdirSync(toysDir,{withFileTypes: true})

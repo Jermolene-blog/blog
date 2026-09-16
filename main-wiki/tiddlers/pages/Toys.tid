@@ -10,6 +10,18 @@ title: Toys
 
 <div class="jermolene-toy">
 
+<$list filter="[all[current]has[screenshot]]" variable="ignore">
+
+<a href={{!!url}} class="jermolene-screenshot-link" tabindex="-1" aria-hidden="true">
+
+<img src={{!!screenshot}} alt="" width="1200" height="800" loading="lazy"/>
+
+</a>
+
+</$list>
+
+<div class="jermolene-toy-text">
+
 !!! <a href={{!!url}}><$view field="caption"/></a>
 
 <$list filter="[all[current]has[description]]" variable="ignore">
@@ -21,6 +33,8 @@ title: Toys
 </div>
 
 </$list>
+
+</div>
 
 </div>
 

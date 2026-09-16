@@ -5,7 +5,8 @@
 		"description": "Hide a photo in a field of parallel lines, then squint to see it reappear",
 		"url": "/toys/engravery/",
 		"tags": "toy",
-		"text": ""
+		"text": "",
+		"screenshot": "/screenshots/toys/engravery.webp"
 	},
 	{
 		"title": "Toys/jpegulator",
@@ -13,7 +14,8 @@
 		"description": "Turn PNG, WebP, TIFF and other images into JPEGs, cropped and resized alike, one at a time or a whole folder into a ZIP",
 		"url": "/toys/jpegulator/",
 		"tags": "toy",
-		"text": ""
+		"text": "",
+		"screenshot": "/screenshots/toys/jpegulator.webp"
 	},
 	{
 		"title": "Toys/knottery",
@@ -21,7 +23,8 @@
 		"description": "Draw Celtic knots freehand: strokes become woven ribbons, and a tap on a crossing flips which strand passes over",
 		"url": "/toys/knottery/",
 		"tags": "toy",
-		"text": ""
+		"text": "",
+		"screenshot": "/screenshots/toys/knottery.webp"
 	},
 	{
 		"title": "Toys/mimic",
@@ -29,7 +32,8 @@
 		"description": "Feed in any text and dial up the gibberish index to generate new phrases in the same style",
 		"url": "/toys/mimic/",
 		"tags": "toy",
-		"text": ""
+		"text": "",
+		"screenshot": "/screenshots/toys/mimic.webp"
 	},
 	{
 		"title": "Toys/over-underiser",
@@ -37,7 +41,8 @@
 		"description": "Open an SVG and weave it: wherever closed shapes overlap, a click cycles which one passes over the top",
 		"url": "/toys/over-underiser/",
 		"tags": "toy",
-		"text": ""
+		"text": "",
+		"screenshot": "/screenshots/toys/over-underiser.webp"
 	},
 	{
 		"title": "Toys/lenticulator",
@@ -45,7 +50,8 @@
 		"description": "Print and fold lenticular pictures that change as the observer moves",
 		"url": "/toys/lenticulator/",
 		"tags": "toy",
-		"text": ""
+		"text": "",
+		"screenshot": "/screenshots/toys/lenticulator.webp"
 	},
 	{
 		"title": "Toys/vectorious",
@@ -53,6 +59,7 @@
 		"description": "Quantise a photo to black and white and trace it into a vector drawing, downloadable as SVG or PDF",
 		"url": "/toys/vectorious/",
 		"tags": "toy",
-		"text": ""
+		"text": "",
+		"screenshot": "/screenshots/toys/vectorious.webp"
 	}
 ]

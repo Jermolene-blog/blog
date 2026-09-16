@@ -1,0 +1,10 @@
+tags: $:/tags/Macro
+title: $:/Screenshots/Procedures
+
+\whitespace trim
+
+\procedure screenshot-link(path,alt)
+<a href=<<path>> class="jermolene-screenshot-link">
+<img src={{{ [<path>trim[/]addprefix[/screenshots/]addsuffix[.webp]] }}} alt=<<alt>> width="1200" height="800" loading="lazy"/>
+</a>
+\end

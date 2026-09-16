@@ -40,17 +40,10 @@ jobs:
         working-directory: blog
         run: ./bld.sh
 
-      # stage.sh expects the output repo as a sibling folder of the blog repo
-      - name: Stage
-        run: |
-          mkdir -p jermolene-blog.github.io
-          cd blog
-          ./stage.sh
-
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
         with:
           deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
           external_repository: Jermolene-blog/jermolene-blog.github.io
           publish_branch: master
-          publish_dir: ./jermolene-blog.github.io
+          publish_dir: ./blog/site
