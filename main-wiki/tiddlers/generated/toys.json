@@ -27,6 +27,15 @@
 		"screenshot": "/screenshots/toys/knottery.webp"
 	},
 	{
+		"title": "Toys/marblelous",
+		"caption": "Marblelous",
+		"description": "Drop inks onto a virtual marbling bath and comb them into swirling Florentine patterns",
+		"url": "/toys/marblelous/",
+		"tags": "toy",
+		"text": "",
+		"screenshot": "/screenshots/toys/marblelous.webp"
+	},
+	{
 		"title": "Toys/mimic",
 		"caption": "Mimic",
 		"description": "Feed in any text and dial up the gibberish index to generate new phrases in the same style",

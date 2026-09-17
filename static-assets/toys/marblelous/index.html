@@ -1,0 +1,1850 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Marblelous</title>
+<meta name="description" content="Drop inks onto a virtual marbling bath and comb them into swirling Florentine patterns">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #161310; color: #e8e2d4;
+    font: 14px/1.3 -apple-system, system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+  canvas#bath { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; touch-action: none;
+    transform-origin: 50% 50%; transition: transform .7s cubic-bezier(.3, 1.06, .45, 1); }
+  body.explore canvas#bath { transform: scale(var(--k, .5)); cursor: zoom-in; }
+  #ring { position: fixed; inset: 0; pointer-events: none; z-index: 5; }
+  .thumb { position: absolute; pointer-events: auto; cursor: pointer; border-radius: 6px;
+    box-shadow: 0 8px 28px rgba(0,0,0,.55); will-change: transform, opacity;
+    transition: opacity .45s, border-radius .5s; }
+  .thumb:hover { outline: 2px solid rgba(255,255,255,.7); }
+  .thumb.chosen { z-index: 6; border-radius: 0; outline: none; }
+  #panel { transition: bottom .28s ease, transform .5s cubic-bezier(.4, 0, .2, 1); }
+  body.explore #panel { transform: translate(var(--dx, 0px), calc(var(--dy, 0px) + 140%)); pointer-events: none; }
+  .bar { position: fixed; display: flex; gap: 8px; align-items: center;
+    transition: top .28s ease, bottom .28s ease;
+    transform: translate(var(--dx, 0px), var(--dy, 0px));
+    background: rgba(22,19,16,.78); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,.09); border-radius: 16px; padding: 8px 10px; z-index: 10; }
+  #top { top: max(10px, env(safe-area-inset-top)); left: max(10px, env(safe-area-inset-left));
+    max-width: calc(100vw - 20px); box-sizing: border-box; flex-wrap: wrap; }
+  #top .title { font-weight: 600; letter-spacing: .04em; margin-right: 4px;
+    cursor: grab; touch-action: none; white-space: nowrap; }
+  .handle { flex: none; align-self: stretch; min-height: 30px; width: 18px;
+    border-radius: 9px; cursor: grab; touch-action: none;
+    background-color: rgba(255,255,255,.05);
+    background-image: radial-gradient(rgba(255,255,255,.5) 1.3px, transparent 1.6px);
+    background-size: 6px 6px; background-position: center; }
+  .handle:active, .title:active { cursor: grabbing; }
+  #status { opacity: .55; font-size: 12px; }
+  .bar.dragging { transition: none; }
+  #panel { bottom: calc(var(--vvb, 0px) + max(12px, env(safe-area-inset-bottom)));
+    left: 0; right: 0; margin: 0 auto; width: fit-content; max-width: 96vw; box-sizing: border-box;
+    flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 6px 14px; padding: 8px 12px; }
+  #panel section { display: flex; flex-direction: column; gap: 3px; }
+  #panel h4 { margin: 0; font-size: 10px; font-weight: 600; letter-spacing: .09em;
+    text-transform: uppercase; opacity: .5; cursor: pointer; touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent; display: flex; align-items: center; gap: 4px; }
+  #panel h4::before { content: "\25BE"; font-size: 11px; width: 9px; }
+  #panel section.collapsed h4::before { content: "\25B8"; }
+  #panel section.collapsed > .row, #panel section.collapsed > #fatal { display: none; }
+  #panel .row { display: flex; align-items: center; gap: 6px; min-height: 34px; }
+  #s-hist { flex: 1 1 auto; min-width: 260px; }
+  #s-hist input { flex: 1; min-width: 0; }
+  #s-errors { flex-basis: 100%; order: 10; }
+  #panel .lbl { font-size: 11px; opacity: .6; }
+  button { background: rgba(255,255,255,.07); color: inherit; border: 1px solid rgba(255,255,255,.1);
+    border-radius: 10px; padding: 7px 11px; font: inherit; cursor: pointer; }
+  button:active { background: rgba(255,255,255,.18); }
+  button:focus:not(:focus-visible) { outline: none; }
+  button.sel { background: #e8e2d4; color: #161310; border-color: transparent; }
+  .swatch { width: 27px; height: 27px; border-radius: 50%; padding: 0;
+    border: 2px solid rgba(255,255,255,.25); }
+  .swatch.sel { border-color: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,.35); }
+  .vsep { width: 1px; height: 24px; background: rgba(255,255,255,.14); }
+  input[type=range] { accent-color: #d9c9a0; }
+  #size, #freq { width: 90px; }
+  #palsat { width: 80px; }
+  #top label { display: flex; align-items: center; gap: 4px; font-size: 12px; opacity: .75; }
+  #help { top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 30; }
+  #help pre { margin: 0; font: 13px/1.7 ui-monospace, monospace; }
+  dialog { background: #211d18; color: inherit; border: 1px solid rgba(255,255,255,.12);
+    border-radius: 16px; padding: 18px; max-width: 92vw; }
+  dialog::backdrop { background: rgba(0,0,0,.5); }
+  dialog h3 { margin: 0 0 10px; }
+  dialog .sizes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  dialog .sizes button { text-align: left; }
+  dialog .sizes small { display: block; opacity: .55; }
+  #progress { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 40;
+    display: grid; place-items: center; }
+  #progress .card { background: #211d18; border-radius: 16px; padding: 20px 26px; text-align: center; }
+  #pbar { width: 240px; height: 6px; background: rgba(255,255,255,.12); border-radius: 3px;
+    margin-top: 10px; overflow: hidden; }
+  #pbar div { height: 100%; width: 0%; background: #d9c9a0; border-radius: 3px; }
+  #fatal { margin: 0; background: #5c1f1f; color: #fff; cursor: pointer;
+    padding: 8px 10px; border-radius: 8px; white-space: pre-wrap;
+    font: 12px ui-monospace, monospace; max-height: 30dvh; overflow: auto; }
+  #hud { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    background: rgba(22,19,16,.82); border: 1px solid rgba(255,255,255,.12);
+    border-radius: 12px; padding: 8px 14px; font-size: 13px; pointer-events: none;
+    z-index: 20; opacity: 0; transition: opacity .25s; }
+  #hud.on { opacity: 1; transition: none; }
+  [hidden] { display: none !important; }
+  /* compact: phones, and anything short enough that the bars would eat the bath */
+  @media (max-width: 640px), (max-height: 520px) {
+    #top .t, #status, #panel .lbl.end { display: none; }
+    button { padding: 6px 9px; }
+    .swatch { width: 25px; height: 25px; }
+    #panel { gap: 3px 10px; padding: 6px 8px; }
+    #panel h4 { font-size: 9px; }
+    #panel .row { min-height: 30px; gap: 5px; }
+    #size, #freq { width: 64px; }
+    #palsat { width: 64px; }
+    #s-hist { min-width: 150px; }
+  }
+  @media (max-width: 640px) {   /* phone: one section per row, grip along the top */
+    #panel { flex-direction: column; align-items: stretch; flex-wrap: nowrap;
+      width: calc(100vw - 16px); max-width: none; gap: 5px; }
+    #panel .handle { width: 64px; height: 12px; min-height: 12px; align-self: center;
+      border-radius: 6px; }
+    #panel h4 { padding: 3px 0; }
+    #panel .row { flex-wrap: wrap; }
+    #s-hist { min-width: 0; }
+  }
+</style>
+<body>
+<canvas id="bath"></canvas>
+<div id="ring"></div>
+
+<div id="top" class="bar">
+  <div class="handle"></div>
+  <span class="title">&#10084;&#65039; <span class="t">Marblelous</span></span>
+  <button id="undo" title="Undo (Z)">&#8630;</button>
+  <button id="redo" title="Redo (Y)">&#8631;</button>
+  <button id="shuffle" title="New random marbling (N)">&#127922;</button>
+  <button id="explore" title="Explore neighbours (E)">&#129517;</button>
+  <button id="save" title="Save PNG (S)">Save</button>
+  <button id="helpbtn" title="Keyboard shortcuts (?)">?</button>
+  <label title="Show error banner"><input type="checkbox" id="debugchk"> <span class="t">Debug</span></label>
+  <span id="status"></span>
+</div>
+
+<div id="help" class="bar" hidden><pre>
+Tools      R rod &middot; D drop &middot; C comb &middot; W swirl
+Inks       1 &ndash; 8
+Size       [ smaller &middot; ] larger
+Undo/redo  Z / Y  (also &#8984;Z / &#8679;&#8984;Z)
+History    &larr; / &rarr;  tick &middot; &#8679;&larr; / &#8679;&rarr;  &times;10 &middot; Home / End
+New bath   N
+Explore    E  ring of nearby variations &middot; tap one to move there,
+              tap the centre (or Esc) to return
+Save PNG   S  (also &#8984;S)
+Debug      B &middot; Help  ?
+
+Comb spacing  pinch with two fingers (or trackpad pinch)
+Bars move by their stippled handles (or the title).
+Palette    P  random harmonious hues (saturation slider is kept)
+Tap a selected swatch again to edit its colour.
+</pre></div>
+
+<div id="panel" class="bar">
+  <div class="handle"></div>
+  <section id="s-paint">
+    <h4>Paint</h4>
+    <div class="row">
+      <span class="lbl end">sparse</span>
+      <input id="freq" type="range" min="0.4" max="2.4" step="0.05" value="1"
+        title="Paint deployment frequency">
+      <span class="lbl end">dense</span>
+    </div>
+  </section>
+  <section id="s-mode">
+    <h4>Drawing mode</h4>
+    <div class="row">
+      <button id="t-rod" class="sel">Rod</button>
+      <button id="t-drop">Drop</button>
+      <button id="t-comb">Comb</button>
+      <button id="t-swirl">Swirl</button>
+      <span class="lbl">size</span>
+      <input id="size" type="range" min="0.02" max="0.28" step="0.005" value="0.09" title="Tool size">
+    </div>
+  </section>
+  <section id="s-palette">
+    <h4>Palette</h4>
+    <div class="row">
+      <span id="swatches" style="display:flex;gap:6px"></span>
+      <button id="paldice" title="Random harmonious palette (P)">&#127922;</button>
+      <span class="lbl">sat</span>
+      <input id="palsat" type="range" min="0.3" max="1.7" step="0.01" value="1" title="Palette saturation">
+    </div>
+  </section>
+  <section id="s-hist">
+    <h4>History</h4>
+    <div class="row">
+      <input id="history" type="range" min="0" max="0" value="0" step="1" title="History">
+    </div>
+  </section>
+  <section id="s-errors" hidden>
+    <h4>Errors</h4>
+    <pre id="fatal"></pre>
+  </section>
+</div>
+
+<div id="hud"></div>
+
+<dialog id="pickdlg">
+  <h3 id="picktitle">Ink colour</h3>
+  <canvas id="wheel" width="240" height="240"
+    style="width:240px;height:240px;touch-action:none;display:block;margin:0 auto"></canvas>
+  <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
+    <span style="font-size:11px;opacity:.6">dark</span>
+    <input id="pickval" type="range" min="0" max="1" step="0.004" value="0.8" style="flex:1">
+    <span style="font-size:11px;opacity:.6">bright</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;margin-top:14px">
+    <div id="pickold" title="Before" style="width:30px;height:30px;border-radius:8px;border:1px solid rgba(255,255,255,.2)"></div>
+    <div id="picknew" title="After" style="width:30px;height:30px;border-radius:8px;border:1px solid rgba(255,255,255,.2)"></div>
+    <span style="flex:1"></span>
+    <button id="pickcancel">Cancel</button>
+    <button id="pickok">Done</button>
+  </div>
+</dialog>
+
+<dialog id="savedlg">
+  <h3>Save PNG &middot; 300 dpi</h3>
+  <div class="sizes" id="sizebtns"></div>
+  <div style="margin-top:12px;text-align:right"><button id="savecancel">Cancel</button></div>
+</dialog>
+
+<div id="progress" hidden>
+  <div class="card">
+    <div id="ptext">Rendering&hellip;</div>
+    <div id="pbar"><div></div></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+// ============================================================================
+// Marbling — closed-form mathematical marbling (after Jaffe).
+// A marbling is a genome: ordered ops (drops, tine/comb lines, vortices,
+// freehand drags) evaluated per pixel by inverse-mapping through the
+// deformation stack on the GPU. Resolution-independent and deterministic.
+// Backend: WebGL2 now; WGSL/WebGPU path planned with the same op encoding.
+// ============================================================================
+
+function setPref(k, v) {
+  try { document.cookie = k + "=" + encodeURIComponent(v) +
+    "; max-age=31536000; path=/; SameSite=Lax"; } catch (e) {}
+  try { localStorage.setItem(k, v); } catch (e) {}
+}
+function getPref(k) {
+  try { const m = document.cookie.match(new RegExp("(?:^|; )" + k + "=([^;]*)"));
+    if (m) return decodeURIComponent(m[1]); } catch (e) {}
+  try { return localStorage.getItem(k); } catch (e) { return null; }
+}
+let debugOn = getPref("debug") === "1";
+const fatalEl = document.getElementById("fatal");
+const errorsSec = document.getElementById("s-errors");   // panel section, shown on error
+const fatal = (msg) => {
+  console.error(msg);
+  if (!debugOn) return;
+  fatalEl.textContent = msg + "\n(tap to dismiss)";
+  errorsSec.hidden = false;
+  errorsSec.classList.remove("collapsed");
+};
+function dismissFatal() { errorsSec.hidden = true; }
+fatalEl.onclick = dismissFatal;
+addEventListener("error", (e) => fatal(
+  e.error && e.error.stack ? e.error.stack : e.message + " @" + e.lineno));
+addEventListener("unhandledrejection", (e) => fatal(
+  "promise: " + (e.reason && e.reason.stack ? e.reason.stack : e.reason)));
+
+
+// ---------------------------------------------------------------- constants
+const ASPECT = Math.SQRT2;          // bath is landscape root-2, like A-series
+const OP_STRIDE = 12;               // floats per op = 3 RGBA32F texels
+const TEXW = 1024, TEXH = 256;      // ops texture; capacity = 1024*256/3 ops
+const MAX_OPS = Math.floor(TEXW * TEXH / 3) - 1;
+const T_DROP = 0, T_TINE = 1, T_VORTEX = 2, T_DRAG = 3;
+
+// ------------------------------------------------------------------- rng
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// ----------------------------------------------------------- master op log
+// Append-only. Current state = list of [start,end) ranges into the log, so
+// history snapshots are tiny and undo/scrub never loses data.
+const master = { data: new Float32Array(4096 * OP_STRIDE), count: 0 };
+function masterAppend(vals) {
+  if ((master.count + 1) * OP_STRIDE > master.data.length) {
+    const d = new Float32Array(master.data.length * 2); d.set(master.data); master.data = d;
+  }
+  master.data.set(vals, master.count * OP_STRIDE);
+  return master.count++;
+}
+
+let ranges = [];                     // current genome: op ranges into master
+let ground = [0.936, 0.898, 0.804];
+let inks = [];
+const packed = new Float32Array(TEXW * TEXH * 4);
+let packedCount = 0;
+
+const countOps = (rs) => rs.reduce((n, r) => n + r[1] - r[0], 0);
+function currentOpTotal() { return countOps(ranges); }
+
+function appendOp(vals) {           // append to master + extend current ranges
+  const idx = masterAppend(vals);
+  const last = ranges[ranges.length - 1];
+  if (last && last[1] === idx) last[1] = idx + 1; else ranges.push([idx, idx + 1]);
+  return idx;
+}
+
+function repack() {                 // gather ranges -> contiguous GPU layout
+  let o = 0;
+  for (const [s, e] of ranges) {
+    packed.set(master.data.subarray(s * OP_STRIDE, e * OP_STRIDE), o * OP_STRIDE);
+    o += e - s;
+  }
+  packedCount = Math.min(o, MAX_OPS);
+  opsDirty = true;
+}
+
+// op constructors ------------------------------------------------------------
+const opDrop = (x, y, r, ink) => appendOp([T_DROP, x, y, r, ink, 0, 0, 0, 0, 0, 0, 0]);
+const opTine = (px, py, dx, dy, alpha, lambda, spacing, expo) =>
+  appendOp([T_TINE, px, py, 0, dx, dy, alpha, lambda, spacing, expo, 0, 0]);
+const opVortex = (cx, cy, strength, radius) =>
+  appendOp([T_VORTEX, cx, cy, strength, radius, 0, 0, 0, 0, 0, 0, 0]);
+const opDrag = (ax, ay, bx, by, vx, vy, lambda, expo) =>
+  appendOp([T_DRAG, ax, ay, 0, bx, by, vx, vy, lambda, expo, 0, 0]);
+
+// --------------------------------------------------------------- history
+// Snapshots are (ranges copy, palette refs). 'action' = gesture boundary,
+// 'tick' = mid-gesture capture so nothing cool ever slips away.
+const snapshots = [];
+let cursor = -1;
+const histEl = document.getElementById("history");
+
+function pushSnapshot(kind) {
+  snapshots.push({ kind, ranges: ranges.map(r => r.slice()), ground, inks, pal,
+    presetCount, seedP, seedR, freq: parseFloat(freqEl.value) });
+  cursor = snapshots.length - 1;
+  histEl.max = cursor; histEl.value = cursor;
+}
+function applySnapshot(i) {
+  const s = snapshots[i]; if (!s) return;
+  cursor = i;
+  histEl.value = i;
+  ranges = s.ranges.map(r => r.slice());
+  ground = s.ground; inks = s.inks; pal = s.pal; palToUI();
+  presetCount = s.presetCount; seedP = s.seedP; seedR = s.seedR; freqEl.value = s.freq;
+  bakeValid = false;
+  repack(); paletteToUI(); requestRender();
+  if (exploring) scheduleRegrow();
+}
+function beginAction() {           // editing while scrubbed back forks history
+  if (cursor < snapshots.length - 1) {
+    snapshots.length = cursor + 1;
+    histEl.max = cursor;
+  }
+}
+
+// ------------------------------------------------------------------ WebGL2
+const canvas = document.getElementById("bath");
+const gl = canvas.getContext("webgl2", { antialias: false, alpha: false,
+  preserveDrawingBuffer: false });
+if (!gl) fatal("WebGL2 unavailable");
+let isP3 = false;                   // wide-gamut Display P3 output when available
+try {
+  if ("drawingBufferColorSpace" in gl) {
+    gl.drawingBufferColorSpace = "display-p3";
+    isP3 = gl.drawingBufferColorSpace === "display-p3";
+  }
+} catch (e) {}
+const cssColor = (c) => isP3
+  ? `color(display-p3 ${c[0].toFixed(4)} ${c[1].toFixed(4)} ${c[2].toFixed(4)})`
+  : `rgb(${c.map(v => Math.round(v * 255)).join(",")})`;
+
+const VS = `#version 300 es
+void main() {
+  vec2 v = vec2(float((gl_VertexID << 1) & 2), float(gl_VertexID & 2));
+  gl_Position = vec4(v * 2.0 - 1.0, 0.0, 1.0);
+}`;
+
+const FS = `#version 300 es
+precision highp float;
+precision highp int;
+uniform sampler2D uOps;
+uniform sampler2D uBake;
+uniform int uOpCount;
+uniform int uBaseOp;
+uniform int uUseBake;
+uniform vec2 uBakeOrigin;  // bake texel (i,j) centre = uBakeOrigin + (i+.5, j+.5) * uBakeScale
+uniform vec2 uBakeScale;
+uniform vec2 uOrigin;      // bath = uOrigin + gl_FragCoord.xy * uScale
+uniform vec2 uScale;
+uniform float uAspect;
+uniform vec3 uGround;
+uniform vec3 uBg;
+uniform vec3 uInks[8];
+uniform float uGrain;
+out vec4 outColor;
+
+vec4 opTexel(int t) { return texelFetch(uOps, ivec2(t & ${TEXW - 1}, t >> ${Math.log2(TEXW)}), 0); }
+
+// falloff (a/(a+d))^e; exponents in use are 2 and 4, so avoid pow
+float fall(float f, float e) {
+  float f2 = f * f;
+  return e == 2.0 ? f2 : e == 4.0 ? f2 * f2 : pow(f, e);
+}
+float h21(vec2 p) { p = fract(p * vec2(123.34, 456.21));
+  p += dot(p, p + 45.32); return fract(p.x * p.y); }
+float vnoise(vec2 p) { vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);
+  return mix(mix(h21(i), h21(i+vec2(1,0)), f.x),
+             mix(h21(i+vec2(0,1)), h21(i+vec2(1,1)), f.x), f.y); }
+
+void main() {
+  vec2 bp0 = uOrigin + gl_FragCoord.xy * uScale;
+  float m = 0.004;   // letterbox border
+  if (bp0.x < -m || bp0.x > uAspect + m || bp0.y < -m || bp0.y > 1.0 + m) {
+    outColor = vec4(uBg, 1.0); return;
+  }
+  vec2 p = bp0;
+  vec3 col = uGround;
+  bool resolved = false;
+  for (int i = uOpCount - 1; i >= uBaseOp; i--) {
+    vec4 a = opTexel(i * 3);
+    vec4 b = opTexel(i * 3 + 1);
+    vec4 c = opTexel(i * 3 + 2);
+    int ty = int(a.x + 0.5);
+    if (ty == ${T_DROP}) {
+      vec2 d = p - a.yz; float dd = dot(d, d); float r = a.w;
+      if (dd < r * r) { col = uInks[int(b.x + 0.5)]; resolved = true; break; }
+      p = a.yz + d * sqrt((dd - r * r) / dd);
+    } else if (ty == ${T_TINE}) {
+      // b.xy dir, b.z alpha, b.w lambda, c.x spacing, c.y expo — exact inverse
+      vec2 n = vec2(-b.y, b.x);
+      float s = dot(p - a.yz, n);
+      if (c.x > 0.0) s -= c.x * floor(s / c.x + 0.5);
+      float d = abs(s);
+      p -= b.z * fall(b.w / (b.w + d), c.y) * b.xy;
+    } else if (ty == ${T_VORTEX}) {
+      // a.yz centre, a.w strength, b.x radius — exact inverse (rotate back)
+      vec2 d = p - a.yz; float t = length(d) / b.x;
+      if (t < 1.0) {
+        float w = 1.0 - t * t; w *= w;
+        float th = -a.w * w;
+        float cs = cos(th), sn = sin(th);
+        p = a.yz + vec2(cs * d.x - sn * d.y, sn * d.x + cs * d.y);
+      }
+    } else {
+      // drag: a.yz A, b.xy B, b.zw v, c.x lambda, c.y expo — fixed-point inverse
+      vec2 q = p;
+      vec2 ba = b.xy - a.yz;
+      float bb = max(dot(ba, ba), 1e-12);
+      for (int k = 0; k < 3; k++) {
+        vec2 pa = p - a.yz;
+        float h = clamp(dot(pa, ba) / bb, 0.0, 1.0);
+        float d = length(pa - ba * h);
+        p = q - b.zw * fall(c.x / (c.x + d), c.y);
+      }
+    }
+  }
+  if (!resolved) {
+    if (uUseBake == 1) {
+      vec2 pc = clamp(p, uBakeScale - m, vec2(uAspect, 1.0) + m - uBakeScale);
+      vec2 uv = (pc - uBakeOrigin) / (uBakeScale * vec2(textureSize(uBake, 0)));
+      col = texture(uBake, uv).rgb;
+    }
+  }
+  if (uGrain > 0.0) {
+    float g = vnoise(bp0 * 240.0) * 0.6 + vnoise(bp0 * 820.0) * 0.4;
+    col *= 1.0 + (g - 0.5) * 0.07 * uGrain;
+  }
+  outColor = vec4(col, 1.0);
+}`;
+
+function compile(type, src) {
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS))
+    fatal("shader: " + gl.getShaderInfoLog(s));
+  return s;
+}
+const prog = gl.createProgram();
+gl.attachShader(prog, compile(gl.VERTEX_SHADER, VS));
+gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FS));
+gl.linkProgram(prog);
+if (!gl.getProgramParameter(prog, gl.LINK_STATUS))
+  fatal("link: " + gl.getProgramInfoLog(prog));
+gl.useProgram(prog);
+const U = {};
+for (const n of ["uOps","uBake","uOpCount","uBaseOp","uUseBake","uBakeOrigin","uBakeScale","uOrigin","uScale",
+                 "uAspect","uGround","uBg","uInks","uGrain"])
+  U[n] = gl.getUniformLocation(prog, n);
+gl.uniform1i(U.uOps, 0); gl.uniform1i(U.uBake, 1);
+gl.uniform1f(U.uAspect, ASPECT);
+gl.uniform3f(U.uBg, 0.086, 0.075, 0.063);
+
+// ops textures: three in rotation, so uploading this frame's ops never
+// stalls on the GPU still reading last frame's
+const opsTexs = [0, 1, 2].map(() => {
+  const t = gl.createTexture();
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, t);
+  gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, TEXW, TEXH);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  return t;
+});
+let opsIdx = 0, opsDirty = true;
+
+function uploadOps() {
+  gl.activeTexture(gl.TEXTURE0);
+  if (!opsDirty) { gl.bindTexture(gl.TEXTURE_2D, opsTexs[opsIdx]); return; }
+  opsIdx = (opsIdx + 1) % opsTexs.length;
+  const rows = Math.min(TEXH, Math.ceil(packedCount * 3 / TEXW) || 1);
+  gl.bindTexture(gl.TEXTURE_2D, opsTexs[opsIdx]);
+  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, TEXW, rows, gl.RGBA, gl.FLOAT,
+    packed.subarray(0, rows * TEXW * 4));
+  opsDirty = false;
+}
+
+// bake: previous marbling state rendered to texture so the interactive pass
+// only evaluates recent ops exactly. Export never uses the bake. The bake is
+// the same size and placement as the canvas, so undeformed pixels copy across
+// texel-for-texel: no upscaling, and no blur accumulating bake after bake.
+const maxTex = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+function makeTarget(w, h) {
+  const tex = gl.createTexture();
+  gl.activeTexture(gl.TEXTURE1);
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, w, h);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  const fbo = gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  return { tex, fbo, w, h };
+}
+let bakeA = null, bakeB = null;
+let bakeValid = false, bakedThrough = 0;
+function ensureBake() {             // (re)allocate to match the canvas
+  const w = Math.min(canvas.width, maxTex), h = Math.min(canvas.height, maxTex);
+  if (bakeA && bakeA.w === w && bakeA.h === h) return;
+  for (const t of [bakeA, bakeB]) if (t) { gl.deleteFramebuffer(t.fbo); gl.deleteTexture(t.tex); }
+  bakeA = makeTarget(w, h); bakeB = makeTarget(w, h);
+  bakeA.origin = [0, 0]; bakeA.scale = [1, 1];
+  bakeValid = false;
+}
+
+function drawPass(target, origin, scale, baseOp, count, useBake, grain) {
+  uploadOps();
+  gl.bindFramebuffer(gl.FRAMEBUFFER, target ? target.fbo : null);
+  gl.viewport(0, 0, target ? target.w : canvas.width, target ? target.h : canvas.height);
+  gl.uniform2f(U.uOrigin, origin[0], origin[1]);
+  gl.uniform2f(U.uScale, scale[0], scale[1]);
+  gl.uniform1i(U.uBaseOp, baseOp);
+  gl.uniform1i(U.uOpCount, count);
+  gl.uniform1i(U.uUseBake, useBake ? 1 : 0);
+  gl.uniform2f(U.uBakeOrigin, bakeA.origin[0], bakeA.origin[1]);
+  gl.uniform2f(U.uBakeScale, bakeA.scale[0], bakeA.scale[1]);
+  gl.uniform1f(U.uGrain, grain);
+  gl.uniform3fv(U.uGround, ground);
+  const flat = new Float32Array(24);
+  inks.forEach((c, i) => flat.set(c, i * 3));
+  gl.uniform3fv(U.uInks, flat);
+  gl.activeTexture(gl.TEXTURE1);
+  gl.bindTexture(gl.TEXTURE_2D, bakeA.tex);   // never the current render target
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+
+function bakeTo(n) {                // fold packed ops [bakedThrough, n) into the bake
+  if (bakeValid && bakedThrough >= n) return;
+  ensureBake();
+  const scale = [view.scale[0] * canvas.width / bakeB.w,
+                 view.scale[1] * canvas.height / bakeB.h];
+  drawPass(bakeB, view.origin, scale, bakeValid ? bakedThrough : 0, n, bakeValid, 0);
+  bakeB.origin = view.origin.slice(); bakeB.scale = scale;
+  [bakeA, bakeB] = [bakeB, bakeA];
+  bakedThrough = n; bakeValid = true;
+}
+function bakeNow() { bakeTo(packedCount); }
+
+// Mid-gesture: a rod stroke appends a drag op every few pixels, and until the
+// stroke ends every one of them was evaluated per pixel per frame, so long
+// strokes got slower as they went (badly so on a 5K display). Ops that can no
+// longer change are folded into the bake in chunks; only ops still being
+// edited in place by a held pointer (drop, comb, swirl) stay live.
+const BAKE_CHUNK = 12;
+function bakeSettled() {
+  let limit = packedCount;
+  const last = ranges[ranges.length - 1];
+  for (const st of pointers.values()) {
+    if (st.op < 0) continue;
+    if (!last || st.op < last[0] || st.op >= last[1]) return;   // unexpected layout: stay exact
+    limit = Math.min(limit, packedCount - (last[1] - st.op));
+  }
+  if (limit - (bakeValid ? bakedThrough : 0) >= BAKE_CHUNK) bakeTo(limit);
+}
+
+// ------------------------------------------------------------- view + loop
+let view = { origin: [0, 0], scale: [1, 1], rect: null };
+function layout() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  // layout size, not the bounding rect: the explorer scales the canvas with
+  // a CSS transform and that must not change its resolution
+  canvas.width = Math.max(1, Math.round(canvas.offsetWidth * dpr));
+  canvas.height = Math.max(1, Math.round(canvas.offsetHeight * dpr));
+  const pad = 0.012;
+  const s = Math.max((ASPECT + pad * 2) / canvas.width, (1 + pad * 2) / canvas.height);
+  view.scale = [s, s];
+  view.origin = [ASPECT / 2 - canvas.width * s / 2, 0.5 - canvas.height * s / 2];
+  ensureBake();
+  view.rect = null;
+  if (exploring) placeThumbs();
+  requestRender();
+}
+function vvUpdate() {
+  const vv = window.visualViewport;
+  if (vv) document.documentElement.style.setProperty("--vvb",
+    Math.max(0, innerHeight - vv.height - vv.offsetTop) + "px");
+  layout();
+}
+addEventListener("resize", vvUpdate);
+window.visualViewport && visualViewport.addEventListener("resize", vvUpdate);
+
+let renderNeeded = true;
+function requestRender() { renderNeeded = true; }
+function pxToBath(x, y) {
+  const r = view.rect || canvas.getBoundingClientRect();
+  const px = (x - r.left) * (canvas.width / r.width);
+  const py = (y - r.top) * (canvas.height / r.height);
+  return [view.origin[0] + px * view.scale[0],
+          view.origin[1] + (canvas.height - py) * view.scale[1]];
+}
+
+// while a pointer is down the screen pass runs at half resolution into a
+// small target and is blitted up; the full-resolution frame follows on release
+let lowTarget = null;
+function ensureLow() {
+  const w = Math.ceil(canvas.width / 2), h = Math.ceil(canvas.height / 2);
+  if (lowTarget && lowTarget.w === w && lowTarget.h === h) return;
+  if (lowTarget) { gl.deleteFramebuffer(lowTarget.fbo); gl.deleteTexture(lowTarget.tex); }
+  lowTarget = makeTarget(w, h);
+}
+let statusText = "";
+function frame(t) {
+  requestAnimationFrame(frame);
+  if (!renderNeeded) return;
+  renderNeeded = false;
+  if (!bakeValid) bakeNow();       // same cost as a direct draw; later frames are cheap
+  else if (pointers.size) bakeSettled();
+  const base = bakeValid ? Math.min(bakedThrough, packedCount) : 0;
+  if (pointers.size) {
+    ensureLow();
+    const sc = [view.scale[0] * canvas.width / lowTarget.w,
+                view.scale[1] * canvas.height / lowTarget.h];
+    drawPass(lowTarget, view.origin, sc, base, packedCount, bakeValid, 1);
+    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, lowTarget.fbo);
+    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
+    gl.blitFramebuffer(0, 0, lowTarget.w, lowTarget.h, 0, 0, canvas.width, canvas.height,
+      gl.COLOR_BUFFER_BIT, gl.LINEAR);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  } else {
+    drawPass(null, view.origin, view.scale, base, packedCount, bakeValid, 1);
+  }
+  const txt = currentOpTotal() + " ops · WebGL2" + (isP3 ? " · P3" : "");
+  if (txt !== statusText) { statusText = txt; statusEl.textContent = txt; }
+}
+
+// ---------------------------------------------------------------- palette
+const SWATCH_EL = document.getElementById("swatches");
+let selInk = 0;
+function paletteToUI() {
+  SWATCH_EL.innerHTML = "";
+  inks.forEach((c, i) => {
+    const b = document.createElement("button");
+    b.className = "swatch" + (i === selInk ? " sel" : "");
+    b.style.background = cssColor(c);
+    b.title = i === selInk ? "Edit colour" : "Select ink";
+    b.onclick = () => {
+      if (selInk === i) openPicker(i);
+      else { selInk = i; paletteToUI(); }
+    };
+    SWATCH_EL.appendChild(b);
+  });
+  const g = document.createElement("button");
+  g.className = "swatch";
+  g.style.borderRadius = "6px";
+  g.style.background = cssColor(ground);
+  g.title = "Edit ground colour";
+  g.onclick = () => openPicker(-1);
+  SWATCH_EL.appendChild(g);
+}
+
+// ------------------------------------------------ palette model + dice
+// Inks derive from `pal`: per-ink base [hue°, L, C] in OKLCH (perceptually
+// even, so equal L/C reads as equal weight across hues) times the global
+// saturation slider on chroma. Base C is left unclamped so a colour picked by
+// hand reproduces exactly whatever the slider is set to.
+const srgbGamma = (x) => x <= 0.0031308 ? 12.92 * x : 1.055 * Math.pow(x, 1 / 2.4) - 0.055;
+const srgbLinear = (x) => x <= 0.04045 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
+function oklchToLinear(L, C, h) {
+  const a = C * Math.cos(h * Math.PI / 180), b = C * Math.sin(h * Math.PI / 180);
+  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3;
+  const m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3;
+  const s = (L - 0.0894841775 * a - 1.2914855480 * b) ** 3;
+  return [ 4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+          -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+          -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s];
+}
+function oklchToRgb(L, C, h) {   // gamut-fit by reducing chroma, keeping L and hue
+  let lo = 0, hi = C, rgb = oklchToLinear(L, C, h);
+  const inside = (c) => c.every(v => v >= -1e-4 && v <= 1 + 1e-4);
+  if (!inside(rgb)) {
+    for (let k = 0; k < 14; k++) {
+      const mid = (lo + hi) / 2, t = oklchToLinear(L, mid, h);
+      if (inside(t)) { lo = mid; rgb = t; } else hi = mid;
+    }
+  }
+  return rgb.map(v => srgbGamma(Math.max(0, Math.min(1, v))));
+}
+function rgbToOklch([r, g, b]) {
+  r = srgbLinear(r); g = srgbLinear(g); b = srgbLinear(b);
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  const L = 0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s;
+  const a = 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s;
+  const bb = 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s;
+  return [(Math.atan2(bb, a) * 180 / Math.PI + 360) % 360, L, Math.hypot(a, bb)];
+}
+
+let pal = { base: [], sat: 1 };
+const satEl = document.getElementById("palsat");
+function palFromInks() { pal = { base: inks.map(rgbToOklch), sat: 1 }; palToUI(); }
+function inksFromPal() { inks = pal.base.map(([h, L, C]) => oklchToRgb(L, C * pal.sat, h)); }
+function palToUI() { satEl.value = pal.sat; }
+function setInk(i, rgb) {
+  const [h, L, C] = rgbToOklch(rgb);
+  const base = pal.base.slice();
+  base[i] = [h, L, C / pal.sat];
+  pal = { base, sat: pal.sat };
+  inks = inks.slice(); inks[i] = rgb;
+}
+
+// Tonal roles measured from the default Florentine palette, in OKLCH
+// [L, C, family, hue offset°]. Families: D dominant (strong and soft mids),
+// K a near-neutral dark pair, A a single high-chroma accent, G the pale
+// veining, which stays a tint of the ground so it reads as paper.
+const ROLES = [
+  [0.46, 0.040, "K", 0],     // dark anchor
+  [0.50, 0.140, "A", 0],     // accent
+  [0.68, 0.130, "D", 0],     // strong mid
+  [0.77, 0.090, "D", 10],    // soft mid
+  [0.91, 0.035, "G", 0],     // pale veining
+  [0.35, 0.020, "K", 7],     // deep shadow
+];
+const rnd = (a, b) => a + Math.random() * (b - a);
+// hue structures: where the dark and accent families sit relative to the
+// dominant hue (sign flips so the accent falls on either side)
+const STRUCTURES = [
+  (D, s) => ({ K: D + s * rnd(70, 100), A: D - s * rnd(50, 75) }),   // as the default
+  (D, s) => ({ K: D + s * rnd(20, 40),  A: D + 180 + rnd(-15, 15) }), // complementary accent
+  (D, s) => ({ K: D + s * rnd(30, 50),  A: D - s * rnd(30, 50) }),    // analogous
+  (D, s) => ({ K: D + s * rnd(110, 130), A: D - s * rnd(110, 130) }), // triad
+];
+function rollPal(sat, groundRgb) {   // a fresh harmonious palette model
+  const D = Math.random() * 360, sign = Math.random() < 0.5 ? -1 : 1;
+  const fam = STRUCTURES[(Math.random() * STRUCTURES.length) | 0](D, sign);
+  fam.D = D; fam.G = rgbToOklch(groundRgb)[0];
+  const base = ROLES.map(([L, C, f, off]) => [(fam[f] + off + rnd(-4, 4) + 720) % 360, L, C]);
+  return { base, sat };
+}
+const palInks = (p) => p.base.map(([h, L, C]) => oklchToRgb(L, C * p.sat, h));
+function dicePalette() {
+  pal = rollPal(pal.sat, ground);
+  inksFromPal(); paletteToUI(); bakeValid = false; requestRender();
+}
+let palLive = false;
+satEl.addEventListener("input", () => {
+  if (!palLive) { beginAction(); palLive = true; }
+  pal = { base: pal.base, sat: parseFloat(satEl.value) };
+  inksFromPal(); paletteToUI(); bakeValid = false; requestRender();
+});
+satEl.addEventListener("change", () => { palLive = false; pushSnapshot("action"); satEl.blur(); });
+function rollPalette() { beginAction(); dicePalette(); pushSnapshot("action"); }
+document.getElementById("paldice").onclick = rollPalette;
+
+// ------------------------------------------------- colour wheel picker
+function rgb2hsv([r, gc, b]) {
+  const mx = Math.max(r, gc, b), mn = Math.min(r, gc, b), d = mx - mn;
+  let h = 0;
+  if (d > 0) {
+    if (mx === r) h = ((gc - b) / d) % 6;
+    else if (mx === gc) h = (b - r) / d + 2;
+    else h = (r - gc) / d + 4;
+    h /= 6; if (h < 0) h += 1;
+  }
+  return { h, s: mx ? d / mx : 0, v: mx };
+}
+function hsv2rgb(h, sv, v) {
+  const f = (n) => {
+    const k = (n + h * 6) % 6;
+    return v - v * sv * Math.max(0, Math.min(k, 4 - k, 1));
+  };
+  return [f(5), f(3), f(1)];
+}
+const pickdlg = document.getElementById("pickdlg");
+const wheelCv = document.getElementById("wheel");
+const valEl = document.getElementById("pickval");
+const WHEEL_W = 240;
+const wheelCtx = (() => {
+  try { return wheelCv.getContext("2d", { colorSpace: isP3 ? "display-p3" : "srgb" }); }
+  catch (e) { return wheelCv.getContext("2d"); }
+})();
+let pick = null;                   // { index (-1 = ground), orig, h, s }
+function drawWheel() {
+  const v = parseFloat(valEl.value);
+  let img;
+  try { img = new ImageData(WHEEL_W, WHEEL_W,
+    { colorSpace: isP3 ? "display-p3" : "srgb" }); }
+  catch (e) { img = wheelCtx.createImageData(WHEEL_W, WHEEL_W); }
+  const R = WHEEL_W / 2, d8 = img.data;
+  for (let y = 0; y < WHEEL_W; y++) for (let x = 0; x < WHEEL_W; x++) {
+    const dx = (x - R + 0.5) / R, dy = (y - R + 0.5) / R;
+    const dist = Math.hypot(dx, dy);
+    const o = (y * WHEEL_W + x) * 4;
+    if (dist > 1) { d8[o + 3] = 0; continue; }
+    const h = (Math.atan2(dy, dx) / (2 * Math.PI) + 1) % 1;
+    const rgb = hsv2rgb(h, Math.min(dist, 1), v);
+    d8[o] = rgb[0] * 255; d8[o + 1] = rgb[1] * 255; d8[o + 2] = rgb[2] * 255;
+    d8[o + 3] = dist > 0.985 ? (1 - dist) / 0.015 * 255 : 255;
+  }
+  wheelCtx.putImageData(img, 0, 0);
+  if (pick) {                      // marker
+    const mx = R + pick.s * (R - 3) * Math.cos(pick.h * 2 * Math.PI);
+    const my = R + pick.s * (R - 3) * Math.sin(pick.h * 2 * Math.PI);
+    wheelCtx.beginPath();
+    wheelCtx.arc(mx, my, 7, 0, 7);
+    wheelCtx.strokeStyle = "#fff"; wheelCtx.lineWidth = 2.5; wheelCtx.stroke();
+    wheelCtx.beginPath();
+    wheelCtx.arc(mx, my, 8.5, 0, 7);
+    wheelCtx.strokeStyle = "rgba(0,0,0,.55)"; wheelCtx.lineWidth = 1; wheelCtx.stroke();
+  }
+}
+function applyPick() {
+  const rgb = hsv2rgb(pick.h, pick.s, parseFloat(valEl.value));
+  if (pick.index < 0) ground = rgb;
+  else setInk(pick.index, rgb);
+  document.getElementById("picknew").style.background = cssColor(rgb);
+  paletteToUI();
+  bakeValid = false; requestRender();
+}
+function openPicker(i) {
+  const c = (i < 0 ? ground : inks[i]).slice();
+  const hsv = rgb2hsv(c);
+  pick = { index: i, orig: c, h: hsv.h, s: hsv.s };
+  valEl.value = hsv.v;
+  document.getElementById("pickold").style.background = cssColor(c);
+  document.getElementById("picknew").style.background = cssColor(c);
+  document.getElementById("picktitle").textContent =
+    i < 0 ? "Ground colour" : "Ink " + (i + 1);
+  drawWheel();
+  pickdlg.showModal();
+}
+function wheelPointer(e) {
+  const r = wheelCv.getBoundingClientRect();
+  const R = r.width / 2;
+  const dx = (e.clientX - r.left - R) / R, dy = (e.clientY - r.top - R) / R;
+  pick.h = (Math.atan2(dy, dx) / (2 * Math.PI) + 1) % 1;
+  pick.s = Math.min(1, Math.hypot(dx, dy));
+  drawWheel(); applyPick();
+}
+let wheelDown = false;
+wheelCv.addEventListener("pointerdown", (e) => {
+  wheelDown = true; wheelCv.setPointerCapture(e.pointerId);
+  wheelPointer(e); e.preventDefault();
+});
+wheelCv.addEventListener("pointermove", (e) => { if (wheelDown) wheelPointer(e); });
+wheelCv.addEventListener("pointerup", () => { wheelDown = false; });
+valEl.addEventListener("input", () => { drawWheel(); applyPick(); });
+document.getElementById("pickok").onclick = () => {
+  pickdlg.close();
+  pushSnapshot("action"); bakeNow(); requestRender();
+};
+document.getElementById("pickcancel").onclick = () => {
+  if (pick.index < 0) ground = pick.orig;
+  else setInk(pick.index, pick.orig);
+  paletteToUI(); bakeValid = false; bakeNow(); requestRender();
+  pickdlg.close();
+};
+
+// ------------------------------------------------------------------ preset
+// Default recipe tuned to a Florentine sample: cream ground, stones of green
+// / crimson / ochre / gold / cream, broad serpentine rakes, a few swirls.
+const rand32 = () => (Math.random() * 2 ** 31) | 0;
+let seedP = rand32(), seedR = rand32();   // paint deployment / rake streams
+let presetCount = 0;               // the first presetCount ops of `ranges` are the preset
+const DEFAULT_GROUND = [0.936, 0.898, 0.804];
+const DEFAULT_INKS = [
+  [0.271, 0.373, 0.329],   // dark slate green
+  [0.663, 0.208, 0.278],   // crimson
+  [0.788, 0.541, 0.130],   // ochre
+  [0.808, 0.690, 0.439],   // gold
+  [0.925, 0.886, 0.792],   // cream (veining)
+  [0.196, 0.243, 0.227],   // deep pine
+];
+
+function emitDragChain(pts, lambda, expo) {
+  const step = Math.max(lambda * 0.5, 0.01);
+  let last = pts[0];
+  for (let i = 1; i < pts.length; i++) {
+    let [x, y] = pts[i];
+    for (;;) {
+      const dx = x - last[0], dy = y - last[1];
+      const dist = Math.hypot(dx, dy);
+      if (dist < step) break;
+      const nx = last[0] + dx / dist * step, ny = last[1] + dy / dist * step;
+      opDrag(last[0], last[1], nx, ny, nx - last[0], ny - last[1], lambda, expo);
+      last = [nx, ny];
+    }
+  }
+}
+
+// Appends the preset's ops to the master log and returns their ranges; the
+// live state is untouched, so the explorer can build neighbours with it.
+// Two streams: paint (drops) and deformations (rakes, vortices), so either
+// can be re-rolled on its own.
+function buildPreset(sp, sr, freq) {
+  freq = freq || 1;
+  const paint = mulberry32(sp);
+  const rng = mulberry32(sr);
+  const save = ranges; ranges = [];
+  const pick = () => { const w = [0.26, 0.20, 0.13, 0.11, 0.24, 0.06];
+    let r = paint(), i = 0; while (i < w.length - 1 && (r -= w[i]) > 0) i++; return i; };
+  // stones: shuffled jittered grid of big drops, each displacing the last
+  const nx = Math.max(3, Math.round(9 * freq));
+  const ny = Math.max(2, Math.round(6 * freq));
+  const rScale = 1 / Math.pow(freq, 0.75);
+  const cells = [];
+  for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) cells.push([i, j]);
+  for (let i = cells.length - 1; i > 0; i--) {
+    const j = (paint() * (i + 1)) | 0; [cells[i], cells[j]] = [cells[j], cells[i]];
+  }
+  for (const [i, j] of cells) {
+    const x = (i + 0.5 + (paint() - 0.5) * 0.9) / nx * ASPECT;
+    const y = (j + 0.5 + (paint() - 0.5) * 0.9) / ny;
+    opDrop(x, y, (0.06 + paint() * 0.09) * rScale, pick());
+  }
+  const nSprinkle = Math.round(40 * freq * freq);
+  for (let k = 0; k < nSprinkle; k++)
+    opDrop(paint() * ASPECT, paint(), (0.02 + paint() * 0.05) * rScale, pick());
+  // serpentine rakes: vertical sweeps with sinuous sway
+  const nSerp = 3;
+  for (let k = 0; k < nSerp; k++) {
+    const xc = (k + 0.5) / nSerp * ASPECT + (rng() - 0.5) * 0.2;
+    const A = 0.10 + rng() * 0.16, freq = (1.5 + rng() * 2.0) * Math.PI;
+    const ph = rng() * Math.PI * 2, lam = 0.11 + rng() * 0.07;
+    const pts = [];
+    for (let y = 1.08; y >= -0.08; y -= 0.02)
+      pts.push([xc + A * Math.sin(y * freq + ph), y]);
+    emitDragChain(pts, lam, 2);
+  }
+  { // one horizontal serpentine
+    const yc = 0.3 + rng() * 0.4, A = 0.08 + rng() * 0.12;
+    const freq = (1.5 + rng() * 1.5) * Math.PI, ph = rng() * Math.PI * 2;
+    const pts = [];
+    for (let x = -0.08; x <= ASPECT + 0.08; x += 0.02)
+      pts.push([x, yc + A * Math.sin(x * freq + ph)]);
+    emitDragChain(pts, 0.08 + rng() * 0.05, 2);
+  }
+  const nVort = 2 + (rng() * 2 | 0);
+  for (let k = 0; k < nVort; k++)
+    opVortex(0.1 + rng() * (ASPECT - 0.2), 0.1 + rng() * 0.8,
+      (rng() < 0.5 ? -1 : 1) * (1.5 + rng() * 3.0), 0.12 + rng() * 0.16);
+  const out = ranges; ranges = save;
+  return out;
+}
+function generatePreset(freq) {    // fresh bath: default palette + preset
+  ground = DEFAULT_GROUND.slice(); inks = DEFAULT_INKS.map(c => c.slice());
+  palFromInks();
+  ranges = buildPreset(seedP, seedR, freq);
+  presetCount = currentOpTotal();
+  bakeValid = false;
+  repack(); paletteToUI();
+}
+
+// re-throw the initial paint at a new frequency, keeping every op the user
+// has drawn on top of it
+function dropLeadingOps(rs, n) {   // ranges minus their first n ops
+  const out = [];
+  for (const [s, e] of rs) {
+    if (n >= e - s) { n -= e - s; continue; }
+    out.push([s + n, e]); n = 0;
+  }
+  return out;
+}
+function takeLeadingOps(rs, n) {   // the first n ops of ranges
+  const out = [];
+  for (const [s, e] of rs) {
+    if (n <= 0) break;
+    const k = Math.min(n, e - s); out.push([s, s + k]); n -= k;
+  }
+  return out;
+}
+function redeploy() {
+  const user = dropLeadingOps(ranges, presetCount);
+  const pre = buildPreset(seedP, seedR, parseFloat(freqEl.value));
+  presetCount = countOps(pre);
+  ranges = pre.concat(user);
+  bakeValid = false; repack(); requestRender();
+}
+
+// ---------------------------------------------------------------- gestures
+const statusEl = document.getElementById("status");
+let tool = "rod";
+function setTool(t) {
+  tool = t;
+  for (const u of ["rod", "drop", "comb", "swirl"])
+    document.getElementById("t-" + u).classList.toggle("sel", u === t);
+}
+for (const t of ["rod", "drop", "comb", "swirl"])
+  document.getElementById("t-" + t).onclick = () => setTool(t);
+const sizeEl = document.getElementById("size");
+const pointers = new Map();
+let lastTick = 0;
+
+// comb pitch: tine spacing as a multiple of tool size. Changed live by a
+// two-finger pinch on the bath (or a trackpad pinch) while in comb mode.
+const PITCH_MIN = 0.3, PITCH_MAX = 6;
+let combPitch = Math.min(PITCH_MAX, Math.max(PITCH_MIN, parseFloat(getPref("pitch")) || 1.3));
+let pinch = null;                  // { anchorId, id, d0, pitch0 }
+const hudEl = document.getElementById("hud");
+let hudTimer = 0;
+function showHud(text) {
+  hudEl.textContent = text;
+  hudEl.classList.add("on");
+  clearTimeout(hudTimer);
+  hudTimer = setTimeout(() => hudEl.classList.remove("on"), 700);
+}
+function setCombPitch(v) {
+  combPitch = Math.min(PITCH_MAX, Math.max(PITCH_MIN, v));
+  setPref("pitch", combPitch.toFixed(3));
+  const size = parseFloat(sizeEl.value);
+  for (const st of pointers.values()) {      // live comb(s) follow the pitch
+    if (st.tool !== "comb" || st.op < 0) continue;
+    master.data[st.op * OP_STRIDE + 8] = size * combPitch;
+  }
+  repack(); requestRender();
+  showHud("Comb spacing " + (size * combPitch).toFixed(3) +
+    " · " + Math.round(1 / (size * combPitch)) + " tines per bath height");
+}
+const pointerDist = (a, b) => Math.hypot(a.cx - b.cx, a.cy - b.cy);
+
+canvas.addEventListener("pointerdown", (e) => {
+  e.preventDefault();
+  if (exploring) { exitExplorer(); return; }
+  if (performance.now() - exitAt < 750) return;   // bath still growing back
+  canvas.setPointerCapture(e.pointerId);
+  if (pointers.size === 0) view.rect = canvas.getBoundingClientRect();
+  const p = pxToBath(e.clientX, e.clientY);
+  const size = parseFloat(sizeEl.value);
+  const st = { tool, start: p, last: p, opStart: currentOpTotal(), op: -1,
+    cx: e.clientX, cy: e.clientY };
+  if (tool === "comb" && !pinch) {
+    // second finger while a comb is held: pinch to set tine spacing. The
+    // anchor comb is frozen for the duration; it resumes when the pinch lifts
+    for (const [id, a] of pointers) {
+      if (a.tool !== "comb") continue;
+      st.tool = "pinch";
+      pointers.set(e.pointerId, st);
+      pinch = { anchorId: id, id: e.pointerId, d0: Math.max(pointerDist(a, st), 8),
+        pitch0: combPitch };
+      showHud("Comb spacing " + (size * combPitch).toFixed(3));
+      return;
+    }
+  }
+  beginAction();
+  if (tool === "rod") {
+    st.lambda = size;
+  } else if (tool === "drop") {
+    st.op = opDrop(p[0], p[1], size, selInk);
+    repack();
+  } else if (tool === "comb") {
+    st.op = opTine(p[0], p[1], 0, 1, 0, size * 0.5, size * combPitch, 4);
+    repack();
+  } else if (tool === "swirl") {
+    st.op = opVortex(p[0], p[1], 0, Math.max(size * 2.2, 0.1));
+    st.ang = null;
+    repack();
+  }
+  pointers.set(e.pointerId, st);
+  requestRender();
+});
+
+canvas.addEventListener("pointermove", (e) => {
+  const st = pointers.get(e.pointerId);
+  if (!st) return;
+  e.preventDefault();
+  st.cx = e.clientX; st.cy = e.clientY;
+  const p = pxToBath(e.clientX, e.clientY);
+  if (pinch && (e.pointerId === pinch.id || e.pointerId === pinch.anchorId)) {
+    const a = pointers.get(pinch.anchorId), b = pointers.get(pinch.id);
+    if (a && b) setCombPitch(pinch.pitch0 * pointerDist(a, b) / pinch.d0);
+    return;                        // anchor comb is frozen while pinching
+  }
+  if (st.tool === "rod") {
+    // committed segments every `step`; the remainder from the last committed
+    // point to the finger is a live op edited in place, so the pull follows
+    // the finger continuously instead of in jumps
+    const step = Math.max(st.lambda * 0.5, 0.01);
+    const setDrag = (op, a, b) => {
+      const o = op * OP_STRIDE;
+      master.data[o + 1] = a[0]; master.data[o + 2] = a[1];
+      master.data[o + 4] = b[0]; master.data[o + 5] = b[1];
+      master.data[o + 6] = b[0] - a[0]; master.data[o + 7] = b[1] - a[1];
+    };
+    let guard = 0;
+    for (;;) {
+      const dx = p[0] - st.last[0], dy = p[1] - st.last[1];
+      const dist = Math.hypot(dx, dy);
+      if (dist < step || ++guard > 60) break;
+      const nx = st.last[0] + dx / dist * step, ny = st.last[1] + dy / dist * step;
+      if (st.op >= 0) { setDrag(st.op, st.last, [nx, ny]); st.op = -1; }   // live op becomes this segment
+      else opDrag(st.last[0], st.last[1], nx, ny, nx - st.last[0], ny - st.last[1], st.lambda, 2);
+      st.last = [nx, ny];
+    }
+    if (Math.hypot(p[0] - st.last[0], p[1] - st.last[1]) > 1e-4) {
+      if (st.op < 0) st.op = opDrag(st.last[0], st.last[1], p[0], p[1],
+        p[0] - st.last[0], p[1] - st.last[1], st.lambda, 2);
+      else setDrag(st.op, st.last, p);
+    }
+    repack();
+  } else if (st.tool === "comb") {
+    const dx = p[0] - st.start[0], dy = p[1] - st.start[1];
+    const len = Math.hypot(dx, dy);
+    if (len > 1e-4) {
+      const base = st.op * OP_STRIDE;
+      master.data[base + 4] = dx / len;  // dir
+      master.data[base + 5] = dy / len;
+      master.data[base + 6] = len;       // alpha
+      repack();
+    }
+  } else if (st.tool === "swirl") {
+    const dx = p[0] - st.start[0], dy = p[1] - st.start[1];
+    if (Math.hypot(dx, dy) > 0.01) {
+      const a = Math.atan2(dy, dx);
+      if (st.ang !== null) {
+        let d = a - st.ang;
+        while (d > Math.PI) d -= 2 * Math.PI;
+        while (d < -Math.PI) d += 2 * Math.PI;
+        const base = st.op * OP_STRIDE;
+        master.data[base + 3] += d;
+        master.data[base + 4] = Math.max(master.data[base + 4], Math.hypot(dx, dy) * 1.15);
+        repack();
+      }
+      st.ang = a;
+    }
+  } else if (st.tool === "drop" && st.op >= 0) {
+    const base = st.op * OP_STRIDE;
+    master.data[base + 1] = p[0];
+    master.data[base + 2] = p[1];
+    repack();
+  }
+  const now = performance.now();
+  if (now - lastTick > 130) { lastTick = now; pushSnapshot("tick"); }
+  requestRender();
+});
+
+function endPinch() {
+  if (!pinch) return;
+  // re-base the anchor so its comb continues from where it was frozen
+  const a = pointers.get(pinch.anchorId);
+  if (a && a.op >= 0) {
+    const base = a.op * OP_STRIDE;
+    const p = pxToBath(a.cx, a.cy);
+    a.start = [p[0] - master.data[base + 4] * master.data[base + 6],
+               p[1] - master.data[base + 5] * master.data[base + 6]];
+  }
+  pinch = null;
+}
+function endPointer(e) {
+  const st = pointers.get(e.pointerId);
+  if (!st) return;
+  pointers.delete(e.pointerId);
+  if (pinch && (e.pointerId === pinch.id || e.pointerId === pinch.anchorId)) endPinch();
+  if (currentOpTotal() > st.opStart || st.op >= 0) {
+    pushSnapshot("action");
+    if (pointers.size === 0) bakeNow();
+  }
+  requestRender();
+}
+canvas.addEventListener("pointerup", endPointer);
+canvas.addEventListener("pointercancel", endPointer);
+document.addEventListener("gesturestart", e => e.preventDefault());
+// trackpad pinch arrives as a ctrl-modified wheel event
+canvas.addEventListener("wheel", (e) => {
+  if (!e.ctrlKey || tool !== "comb") return;
+  e.preventDefault();
+  setCombPitch(combPitch * Math.exp(-e.deltaY * 0.01));
+}, { passive: false });
+
+// ------------------------------------------------------------ history UI
+histEl.addEventListener("input", () => {
+  applySnapshot(parseInt(histEl.value, 10));
+});
+histEl.addEventListener("change", () => { bakeNow(); requestRender(); histEl.blur(); });
+
+let bakeTimer = 0;
+function scheduleBake() {
+  clearTimeout(bakeTimer);
+  bakeTimer = setTimeout(() => { bakeNow(); requestRender(); }, 250);
+}
+function undo() {
+  let i = cursor - 1;
+  while (i > 0 && snapshots[i].kind !== "action") i--;
+  if (i >= 0) { applySnapshot(i); scheduleBake(); }
+}
+function redo() {
+  if (cursor >= snapshots.length - 1) return;
+  let i = cursor + 1;
+  while (i < snapshots.length - 1 && snapshots[i].kind !== "action") i++;
+  applySnapshot(i); scheduleBake();
+}
+function stepHistory(n) {
+  const i = Math.max(0, Math.min(snapshots.length - 1, cursor + n));
+  if (i !== cursor) { applySnapshot(i); scheduleBake(); }
+}
+function shuffle() {
+  beginAction();
+  seedP = rand32(); seedR = rand32();
+  generatePreset(parseFloat(freqEl.value));
+  pushSnapshot("action");
+  bakeNow(); requestRender();
+}
+const freqEl = document.getElementById("freq");
+let freqLive = false;
+freqEl.addEventListener("input", () => {
+  if (!freqLive) { beginAction(); freqLive = true; }
+  redeploy();
+});
+freqEl.addEventListener("change", () => {
+  freqLive = false;
+  pushSnapshot("action"); bakeNow(); requestRender();
+  freqEl.blur();
+});
+document.getElementById("undo").onclick = undo;
+document.getElementById("redo").onclick = redo;
+document.getElementById("shuffle").onclick = shuffle;
+
+// ---------------------------------------------------- debug + help + keys
+const debugChk = document.getElementById("debugchk");
+debugChk.checked = debugOn;
+debugChk.onchange = () => {
+  debugOn = debugChk.checked;
+  setPref("debug", debugOn ? "1" : "0");
+  if (!debugOn) dismissFatal();
+};
+const helpEl = document.getElementById("help");
+function toggleHelp() { helpEl.hidden = !helpEl.hidden; }
+document.getElementById("helpbtn").onclick = toggleHelp;
+helpEl.onclick = toggleHelp;
+
+addEventListener("keydown", (e) => {
+  const dlgEl = document.getElementById("savedlg");
+  if (document.querySelector("dialog[open]")) return;
+  const t = e.target;
+  if (t && t.tagName === "INPUT" && t !== histEl && t.type !== "checkbox") return;
+  const meta = e.metaKey || e.ctrlKey;
+  const kl = e.key.toLowerCase();
+  if (meta && kl === "z") { e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
+  if (meta && kl === "y") { e.preventDefault(); redo(); return; }
+  if (meta && kl === "s") { e.preventDefault(); dlgEl.showModal(); return; }
+  if (meta || e.altKey) return;
+  switch (e.key) {
+    case "r": case "R": setTool("rod"); break;
+    case "d": case "D": setTool("drop"); break;
+    case "c": case "C": setTool("comb"); break;
+    case "w": case "W": setTool("swirl"); break;
+    case "z": undo(); break;
+    case "Z": case "y": case "Y": redo(); break;
+    case "n": case "N": shuffle(); break;
+    case "e": case "E": exploring ? exitExplorer() : enterExplorer(); break;
+    case "p": case "P": rollPalette(); break;
+    case "s": case "S": dlgEl.showModal(); break;
+    case "b": case "B": debugChk.checked = !debugChk.checked; debugChk.onchange(); break;
+    case "[": sizeEl.stepDown(4); break;
+    case "]": sizeEl.stepUp(4); break;
+    case "1": case "2": case "3": case "4":
+    case "5": case "6": case "7": case "8": {
+      const i = +e.key - 1;
+      if (i < inks.length) { selInk = i; paletteToUI(); }
+      break;
+    }
+    case "ArrowLeft": stepHistory(e.shiftKey ? -10 : -1); e.preventDefault(); break;
+    case "ArrowRight": stepHistory(e.shiftKey ? 10 : 1); e.preventDefault(); break;
+    case "Home": stepHistory(-1e9); e.preventDefault(); break;
+    case "End": stepHistory(1e9); e.preventDefault(); break;
+    case "?": toggleHelp(); break;
+    case "Escape":
+      if (exploring) exitExplorer(); else if (!helpEl.hidden) toggleHelp(); else dismissFatal();
+      break;
+    default: return;
+  }
+});
+
+// ------------------------------------------------------------------ export
+// Manual streamed PNG writer: giant canvases exceed iPad limits, so bands are
+// rendered to an FBO, filtered, deflated via CompressionStream, and stitched
+// into IDAT chunks. pHYs marks 300 dpi.
+const PAPERS = [
+  ["A5", 2480, 1748], ["A4", 3508, 2480], ["A3", 4961, 3508],
+  ["A2", 7016, 4961], ["A1", 9933, 7016],
+];
+const dlg = document.getElementById("savedlg");
+const sizebtns = document.getElementById("sizebtns");
+for (const [name, w, h] of PAPERS) {
+  const b = document.createElement("button");
+  b.innerHTML = `${name} landscape<small>${w} × ${h} px · 300 dpi</small>`;
+  b.onclick = () => { dlg.close(); exportPNG(w, h, name).catch(err => fatal(String(err))); };
+  sizebtns.appendChild(b);
+}
+document.getElementById("save").onclick = () => dlg.showModal();
+document.getElementById("savecancel").onclick = () => dlg.close();
+
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? 0xEDB88320 ^ (c >>> 1) : c >>> 1;
+    t[n] = c >>> 0;
+  }
+  return t;
+})();
+function crc32(...bufs) {
+  let c = 0xFFFFFFFF;
+  for (const b of bufs) for (let i = 0; i < b.length; i++)
+    c = CRC_TABLE[(c ^ b[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+function chunk(type, data) {
+  const out = new Uint8Array(12 + data.length);
+  const dv = new DataView(out.buffer);
+  dv.setUint32(0, data.length);
+  for (let i = 0; i < 4; i++) out[4 + i] = type.charCodeAt(i);
+  out.set(data, 8);
+  dv.setUint32(8 + data.length, crc32(out.subarray(4, 8), data));
+  return out;
+}
+
+async function exportPNG(wpx, hpx, label, download = true) {
+  if (wpx > maxTex) { fatal(`GPU max texture ${maxTex} < ${wpx}`); return; }
+  const prog = document.getElementById("progress");
+  const ptext = document.getElementById("ptext");
+  const pfill = document.querySelector("#pbar div");
+  prog.hidden = false;
+  ptext.textContent = `Rendering ${label}…`;
+  const bandH = Math.max(64, Math.min(hpx, Math.floor(14e6 / wpx)));
+  const target = makeTarget(wpx, bandH);
+  const cs = new CompressionStream("deflate");
+  const wtr = cs.writable.getWriter();
+  const collected = (async () => {
+    const rd = cs.readable.getReader(); const arr = [];
+    for (;;) { const { done, value } = await rd.read(); if (done) break; arr.push(value); }
+    return arr;
+  })();
+  const rowBytes = wpx * 3;
+  let prev = new Uint8Array(rowBytes);
+  const pix = new Uint8Array(wpx * bandH * 4);
+  const scale = [ASPECT / wpx, 1 / hpx];
+  for (let iy0 = 0; iy0 < hpx; iy0 += bandH) {
+    const bh = Math.min(bandH, hpx - iy0);
+    const origin = [0, (hpx - iy0 - bh) / hpx];
+    drawPass(target, origin, scale, 0, packedCount, false, 1);
+    gl.readPixels(0, 0, wpx, bh, gl.RGBA, gl.UNSIGNED_BYTE, pix);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    const out = new Uint8Array(bh * (1 + rowBytes));
+    let o = 0;
+    for (let iy = iy0; iy < iy0 + bh; iy++) {
+      const src = (iy0 + bh - 1 - iy) * wpx * 4;
+      out[o++] = 2;                      // Up filter
+      for (let x = 0; x < wpx; x++) {
+        const s = src + x * 4, d = x * 3;
+        out[o]     = (pix[s]     - prev[d])     & 255;
+        out[o + 1] = (pix[s + 1] - prev[d + 1]) & 255;
+        out[o + 2] = (pix[s + 2] - prev[d + 2]) & 255;
+        prev[d] = pix[s]; prev[d + 1] = pix[s + 1]; prev[d + 2] = pix[s + 2];
+        o += 3;
+      }
+    }
+    await wtr.write(out);
+    const f = Math.min(1, (iy0 + bh) / hpx);
+    pfill.style.width = (f * 100).toFixed(1) + "%";
+    ptext.textContent = `Rendering ${label}… ${(f * 100) | 0}%`;
+    await new Promise(requestAnimationFrame);
+  }
+  gl.deleteFramebuffer(target.fbo); gl.deleteTexture(target.tex);
+  await wtr.close();
+  const idat = await collected;
+  ptext.textContent = "Encoding…";
+  const ihdr = new Uint8Array(13);
+  { const dv = new DataView(ihdr.buffer);
+    dv.setUint32(0, wpx); dv.setUint32(4, hpx);
+    ihdr[8] = 8; ihdr[9] = 2; }
+  const phys = new Uint8Array(9);
+  { const dv = new DataView(phys.buffer);
+    dv.setUint32(0, 11811); dv.setUint32(4, 11811); phys[8] = 1; }
+  const parts = [new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]),
+    chunk("IHDR", ihdr)];
+  if (isP3) {
+    // cICP: P3 primaries (12), sRGB transfer (13), RGB matrix, full range
+    parts.push(chunk("cICP", new Uint8Array([12, 13, 0, 1])));
+    const chrm = new Uint8Array(32);
+    const cdv = new DataView(chrm.buffer);
+    [31270, 32900, 68000, 32000, 26500, 69000, 15000, 6000]
+      .forEach((v, i) => cdv.setUint32(i * 4, v));
+    parts.push(chunk("cHRM", chrm));
+    const gama = new Uint8Array(4);
+    new DataView(gama.buffer).setUint32(0, 45455);
+    parts.push(chunk("gAMA", gama));
+  }
+  parts.push(chunk("pHYs", phys));
+  for (const c of idat) parts.push(chunk("IDAT", c));
+  parts.push(chunk("IEND", new Uint8Array(0)));
+  const blob = new Blob(parts, { type: "image/png" });
+  if (!download) { prog.hidden = true; return blob; }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `marbling-${label}-${Date.now().toString(36)}.png`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 30000);
+  prog.hidden = true;
+}
+
+// draggable bars: each bar moves freely via its stippled handle (and the
+// app title); position is a translate offset on top of the anchored layout,
+// so viewport / banner avoidance keeps composing with a user-chosen spot
+function makeDraggable(el, grips) {
+  let sx = null, sy = 0, ox = 0, oy = 0;
+  for (const g of grips) {
+    g.addEventListener("pointerdown", (e) => {
+      sx = e.clientX; sy = e.clientY;
+      ox = parseFloat(el.style.getPropertyValue("--dx")) || 0;
+      oy = parseFloat(el.style.getPropertyValue("--dy")) || 0;
+      el.classList.add("dragging");
+      g.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    });
+    g.addEventListener("pointermove", (e) => {
+      if (sx === null) return;
+      const lim = (v, m) => Math.max(-m, Math.min(m, v));
+      el.style.setProperty("--dx", lim(ox + e.clientX - sx, innerWidth * 0.92) + "px");
+      el.style.setProperty("--dy", lim(oy + e.clientY - sy, innerHeight * 0.92) + "px");
+    });
+    const end = () => { sx = null; el.classList.remove("dragging"); };
+    g.addEventListener("pointerup", end);
+    g.addEventListener("pointercancel", end);
+  }
+}
+for (const id of ["panel", "top"]) {
+  const el = document.getElementById(id);
+  makeDraggable(el, [...el.querySelectorAll(".handle, .title")]);
+}
+
+// collapsible panel sections: tap a heading; remembered. On phones the panel
+// stacks one section per row, so paint and history start folded to leave room
+const compact = matchMedia("(max-width: 640px), (max-height: 520px)").matches;
+const collapsed = new Set((getPref("collapsed") ||
+  (compact ? "s-paint,s-hist" : "")).split(",").filter(Boolean));
+for (const sec of document.querySelectorAll("#panel section")) {
+  sec.classList.toggle("collapsed", collapsed.has(sec.id));
+  sec.querySelector("h4").onclick = () => {
+    const on = sec.classList.toggle("collapsed");
+    if (on) collapsed.add(sec.id); else collapsed.delete(sec.id);
+    setPref("collapsed", [...collapsed].join(","));
+  };
+}
+
+// ---------------------------------------------------------- hyperspace
+// The current marbling is a point in genome space. Exploring shrinks the
+// bath to the centre of the screen (a CSS transform, so nothing re-renders)
+// and rings it with eight neighbours, each the genome nudged along a few
+// dimension groups: palette, paint deployment, rakes, stroke character,
+// paint density. Tap a neighbour and it grows into the centre as the new
+// seed; the ring regrows around it. Tap the centre to return to painting.
+const ringEl = document.getElementById("ring");
+let exploring = false, ringBusy = false, regrowTimer = 0, pendingPick = null, exitAt = -1e9;
+let thumbs = [];                   // { el, g, c } — element, genome, cell
+let thumbTarget = null;
+
+function currentGenome() {
+  return { ranges: ranges.map(r => r.slice()), inks, ground, pal, presetCount,
+    seedP, seedR, freq: parseFloat(freqEl.value) };
+}
+function applyGenome(g) {
+  beginAction();
+  ranges = g.ranges.map(r => r.slice()); inks = g.inks; ground = g.ground; pal = g.pal;
+  presetCount = g.presetCount; seedP = g.seedP; seedR = g.seedR; freqEl.value = g.freq;
+  palToUI(); bakeValid = false; repack(); paletteToUI();
+  pushSnapshot("action"); requestRender();
+}
+const gauss = () => {
+  let u = 0, v = 0;
+  while (!u) u = Math.random(); while (!v) v = Math.random();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+};
+const jitter = (sd) => Math.exp(gauss() * sd);
+
+// a copy of the user's ops with their character nudged: one size factor and
+// one strength factor for the whole set, so the piece stays coherent
+function perturbOps(rs) {
+  const fSize = jitter(0.22), fStr = jitter(0.28);
+  const save = ranges; ranges = [];
+  for (const [s, e] of rs) for (let i = s; i < e; i++) {
+    const v = Array.from(master.data.subarray(i * OP_STRIDE, (i + 1) * OP_STRIDE));
+    switch (v[0]) {
+      case T_DROP: v[3] *= fSize; break;                              // radius
+      case T_TINE: v[6] *= fStr; v[7] *= fSize; v[8] *= fSize; break; // alpha, lambda, spacing
+      case T_VORTEX: v[3] *= fStr; v[4] *= fSize; break;              // strength, radius
+      default: v[6] *= fStr; v[7] *= fStr; v[8] *= fSize;             // drag: v, lambda
+    }
+    appendOp(v);
+  }
+  const out = ranges; ranges = save;
+  return out;
+}
+// a neighbour: the genome moved a little way along some dimension groups
+function mutate(g, kind) {
+  const m = Object.assign({}, g);
+  const user = dropLeadingOps(g.ranges, g.presetCount);
+  let pre = takeLeadingOps(g.ranges, g.presetCount);
+  if (kind.paint) m.seedP = rand32();
+  if (kind.rods) m.seedR = rand32();
+  if (kind.freq) m.freq = Math.min(2.4, Math.max(0.4, g.freq * jitter(0.25)));
+  if (kind.paint || kind.rods || kind.freq) {
+    pre = buildPreset(m.seedP, m.seedR, m.freq);
+    m.presetCount = countOps(pre);
+  }
+  m.ranges = pre.concat(kind.strokes && user.length ? perturbOps(user) : user);
+  if (kind.palette) {
+    const r = Math.random();
+    if (r < 0.4) m.pal = rollPal(g.pal.sat, g.ground);
+    else if (r < 0.8) {                                     // hue rotation
+      const d = gauss() * 25;
+      m.pal = { base: g.pal.base.map(([h, L, C]) => [(h + d + 720) % 360, L, C]), sat: g.pal.sat };
+    } else m.pal = { base: g.pal.base, sat: Math.min(1.7, Math.max(0.3, g.pal.sat * jitter(0.25))) };
+    m.inks = palInks(m.pal);
+  }
+  return m;
+}
+const KINDS = [
+  { palette: 1 }, { paint: 1 }, { rods: 1 }, { strokes: 1, freq: 1 },
+  { palette: 1, paint: 1 }, { rods: 1, strokes: 1 }, { paint: 1, freq: 1 },
+  { palette: 1, rods: 1, strokes: 1 },
+];
+
+// render a genome through the same shader into a thumbnail-sized ImageData
+function renderGenome(g, w, h) {
+  if (!thumbTarget || thumbTarget.w !== w || thumbTarget.h !== h) {
+    if (thumbTarget) { gl.deleteFramebuffer(thumbTarget.fbo); gl.deleteTexture(thumbTarget.tex); }
+    thumbTarget = makeTarget(w, h);
+  }
+  const save = [ranges, inks, ground];
+  ranges = g.ranges; inks = g.inks; ground = g.ground; repack();
+  const pad = 0.012;
+  const sc = Math.max((ASPECT + pad * 2) / w, (1 + pad * 2) / h);
+  const origin = [ASPECT / 2 - w * sc / 2, 0.5 + h * sc / 2];   // y flipped: row 0 = top
+  drawPass(thumbTarget, origin, [sc, -sc], 0, packedCount, false, 1);
+  const px = new Uint8Array(w * h * 4);
+  gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, px);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  [ranges, inks, ground] = save; repack();
+  const data = new Uint8ClampedArray(px.buffer);
+  try { return new ImageData(data, w, h, { colorSpace: isP3 ? "display-p3" : "srgb" }); }
+  catch (e) { return new ImageData(data, w, h); }
+}
+
+// bath size on screen in CSS px at scale 1
+function bathCss() {
+  return { w: ASPECT / view.scale[0] * canvas.offsetWidth / canvas.width,
+           h: 1 / view.scale[1] * canvas.offsetHeight / canvas.height };
+}
+// Eight equal cells around the shrunken bath, kept clear of the top bar.
+// Landscape: three above, one each side, three below; the shrink factor k is
+// chosen so the thumbnails come out around 38% of the centre's height.
+// Portrait: a 2x2 block above and another below.
+function ringLayout() {
+  const W = canvas.offsetWidth, H = canvas.offsetHeight;
+  const b = bathCss();
+  const tr = document.getElementById("top").getBoundingClientRect();
+  const topLim = tr.top < H / 4 ? tr.bottom + 6 : 6;
+  const botLim = H - 14, m = 10;
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const box = (k) => { const B = { w: b.w * k, h: b.h * k };
+    B.x = (W - B.w) / 2; B.y = (H - B.h) / 2; return B; };
+  let k, B, cells;
+  if (W > H * 1.8) {                             // wide and short: 2x2 blocks each side
+    let th = 0;
+    for (k of [0.62, 0.52, 0.42]) {
+      B = box(k);
+      th = Math.min((B.x - 3 * m) / 2 / ASPECT, (botLim - topLim - 3 * m) / 2);
+      if (th >= 64) break;
+    }
+    th = Math.max(th, 36);
+    const tw = th * ASPECT;
+    const midY = (topLim + botLim) / 2;
+    const rowY = [midY - th / 2 - m / 2, midY + th / 2 + m / 2];
+    const lc = B.x / 2, rc = W - B.x / 2;
+    const colX = [lc - tw / 2 - m / 2, lc + tw / 2 + m / 2, rc - tw / 2 - m / 2, rc + tw / 2 + m / 2];
+    cells = [[0, 0], [1, 0], [0, 1], [1, 1], [2, 0], [3, 0], [2, 1], [3, 1]]
+      .map(([c, r]) => ({ cx: colX[c], cy: rowY[r], w: tw, h: th }));
+  } else if (H <= W * 1.1) {
+    k = clamp((H / 2 - topLim - 2 * m) / (0.88 * b.h), 0.3, 0.55);
+    B = box(k);
+    let th = Math.min(B.y - topLim - 2 * m, botLim - (B.y + B.h) - 2 * m,
+      (B.x - 2 * m) / ASPECT, (W - 4 * m) / 3 / ASPECT);
+    th = Math.max(th, 36);
+    const tw = th * ASPECT;
+    const rowY = [(topLim + B.y) / 2, H / 2, (B.y + B.h + botLim) / 2];
+    const colX = [B.x / 2, W / 2, W - B.x / 2];
+    cells = [[0, 0], [1, 0], [2, 0], [0, 1], [2, 1], [0, 2], [1, 2], [2, 2]]
+      .map(([c, r]) => ({ cx: colX[c], cy: rowY[r], w: tw, h: th }));
+  } else {
+    let th = 0;
+    for (k of [0.6, 0.5, 0.42, 0.35]) {           // largest k with decent thumbs
+      B = box(k);
+      const band = Math.min(B.y - topLim, botLim - (B.y + B.h));
+      th = Math.min((W - 3 * m) / 2 / ASPECT, (band - 3 * m) / 2);
+      if (th >= 64) break;
+    }
+    th = Math.max(th, 36);
+    const tw = th * ASPECT;
+    const colX = [W / 2 - tw / 2 - m / 2, W / 2 + tw / 2 + m / 2];
+    const topC = (topLim + B.y) / 2, botC = (B.y + B.h + botLim) / 2;
+    const rowY = [topC - th / 2 - m / 2, topC + th / 2 + m / 2,
+                  botC - th / 2 - m / 2, botC + th / 2 + m / 2];
+    cells = [[0, 0], [1, 0], [0, 1], [1, 1], [0, 2], [1, 2], [0, 3], [1, 3]]
+      .map(([c, r]) => ({ cx: colX[c], cy: rowY[r], w: tw, h: th }));
+  }
+  document.documentElement.style.setProperty("--k", k.toFixed(3));
+  for (const c of cells) { c.x = c.cx - c.w / 2; c.y = c.cy - c.h / 2; }
+  return { B, k, cells };
+}
+// where a cell's thumbnail waits off-screen: out along the line from the
+// screen centre, just past the edge
+const flyOffset = (c) => {
+  const W = canvas.offsetWidth, H = canvas.offsetHeight;
+  let ux = c.cx - W / 2, uy = c.cy - H / 2;
+  const len = Math.hypot(ux, uy) || 1; ux /= len; uy /= len;
+  const tx = ux > 0 ? (W - c.cx) / ux : ux < 0 ? -c.cx / ux : Infinity;
+  const ty = uy > 0 ? (H - c.cy) / uy : uy < 0 ? -c.cy / uy : Infinity;
+  const d = Math.min(tx, ty) + Math.hypot(c.w, c.h) / 2 + 24;
+  return { x: ux * d, y: uy * d };
+};
+
+// ------------------------------------------ springs for the thumbnails
+// Each thumbnail's position and scale follow a damped spring (about 5%
+// overshoot, then settle); a touch of squash-and-stretch comes from the
+// velocity, stretching along the direction of travel and thinning across it.
+const springs = new Set();
+let springRaf = 0, springLast = 0;
+function springTo(t, target, opts = {}) {
+  const a = t.anim || (t.anim = { x: 0, y: 0, s: 1, vx: 0, vy: 0, vs: 0 });
+  if (opts.from) Object.assign(a, opts.from, { vx: 0, vy: 0, vs: 0 });
+  Object.assign(a, { tx: target.x, ty: target.y, ts: target.s,
+    k: opts.k || 90, c: opts.c || 13.5, delay: opts.delay || 0,
+    onRest: opts.onRest || null, t0: performance.now() });
+  springs.add(t);
+  applySpring(t);
+  if (!springRaf) { springLast = performance.now(); springRaf = requestAnimationFrame(springTick); }
+}
+function applySpring(t) {
+  const a = t.anim, sp = Math.hypot(a.vx, a.vy);
+  const st = 1 + Math.min(0.12, sp * 0.00007);              // a little stretch with speed
+  const th = sp > 1 ? Math.atan2(a.vy, a.vx) : 0;
+  t.el.style.transform = `translate(${a.x.toFixed(1)}px, ${a.y.toFixed(1)}px) ` +
+    `rotate(${th.toFixed(3)}rad) scale(${(a.s * st).toFixed(4)}, ${(a.s / st).toFixed(4)}) ` +
+    `rotate(${(-th).toFixed(3)}rad)`;
+}
+function springTick(now) {
+  springRaf = 0;
+  const dt = Math.min(0.05, (now - springLast) / 1000); springLast = now;
+  for (const t of springs) {
+    const a = t.anim;
+    if (now - a.t0 < a.delay) continue;
+    const n = 4, h = dt / n;                                 // substeps keep it stable
+    for (let i = 0; i < n; i++) {
+      a.vx += (-a.k * (a.x - a.tx) - a.c * a.vx) * h; a.x += a.vx * h;
+      a.vy += (-a.k * (a.y - a.ty) - a.c * a.vy) * h; a.y += a.vy * h;
+      a.vs += (-a.k * (a.s - a.ts) - a.c * a.vs) * h; a.s += a.vs * h;
+    }
+    applySpring(t);
+    const atRest = Math.abs(a.x - a.tx) < 0.5 && Math.abs(a.y - a.ty) < 0.5 &&
+      Math.abs(a.s - a.ts) < 0.004 && Math.hypot(a.vx, a.vy) < 6 && Math.abs(a.vs) < 0.04;
+    if (atRest || now - a.t0 > a.delay + 2500) {
+      Object.assign(a, { x: a.tx, y: a.ty, s: a.ts, vx: 0, vy: 0, vs: 0 }); applySpring(t);
+      springs.delete(t);
+      if (a.onRest) { const f = a.onRest; a.onRest = null; f(); }
+    }
+  }
+  if (springs.size) springRaf = requestAnimationFrame(springTick);
+}
+function placeThumbs() {
+  const lay = ringLayout();
+  thumbs.forEach((t, i) => {
+    t.c = lay.cells[i];
+    t.el.style.left = t.c.x + "px"; t.el.style.top = t.c.y + "px";
+    t.el.style.width = t.c.w + "px"; t.el.style.height = t.c.h + "px";
+  });
+}
+function growRing() {
+  ringBusy = true;
+  const cur = currentGenome();
+  const kinds = KINDS.slice();
+  for (let i = kinds.length - 1; i > 0; i--) {
+    const j = (Math.random() * (i + 1)) | 0; [kinds[i], kinds[j]] = [kinds[j], kinds[i]];
+  }
+  const lay = ringLayout();
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  thumbs = lay.cells.map((c, i) => {
+    const g = mutate(cur, kinds[i]);
+    const el = document.createElement("canvas");
+    el.className = "thumb";
+    const w = Math.max(2, Math.round(c.w * dpr)), h = Math.max(2, Math.round(c.h * dpr));
+    el.width = w; el.height = h;
+    el.style.cssText = `left:${c.x}px;top:${c.y}px;width:${c.w}px;height:${c.h}px;opacity:0`;
+    let ctx;
+    try { ctx = el.getContext("2d", { colorSpace: isP3 ? "display-p3" : "srgb" }); }
+    catch (e) { ctx = el.getContext("2d"); }
+    ctx.putImageData(renderGenome(g, w, h), 0, 0);
+    const t = { el, g, c };
+    el.onclick = () => pickThumb(t);
+    ringEl.appendChild(el);
+    return t;
+  });
+  requestRender();
+  thumbs.forEach((t, i) => {
+    const off = flyOffset(t.c);
+    springTo(t, { x: 0, y: 0, s: 1 }, { from: { x: off.x, y: off.y, s: 0.8 }, delay: i * 50 });
+    t.el.style.opacity = "1";
+  });
+  setTimeout(() => { ringBusy = false; }, 700);
+}
+function clearRing(fly) {
+  const old = thumbs; thumbs = [];
+  for (const t of old) {
+    t.el.onclick = null; t.el.style.pointerEvents = "none";
+    if (fly) {
+      const off = flyOffset(t.c);
+      springTo(t, { x: off.x, y: off.y, s: 0.8 }, { c: 19 });
+      t.el.style.opacity = "0";
+    }
+  }
+  setTimeout(() => { old.forEach(t => { springs.delete(t); t.el.remove(); }); }, fly ? 900 : 0);
+}
+function enterExplorer() {
+  if (exploring || pointers.size) return;
+  exploring = true;
+  document.body.classList.add("explore");
+  growRing();
+}
+function exitExplorer() {
+  if (!exploring) return;
+  exploring = false;
+  clearTimeout(regrowTimer);
+  if (pendingPick) { const g = pendingPick; pendingPick = null; applyGenome(g); }
+  ringBusy = false; exitAt = performance.now(); view.rect = null;
+  document.body.classList.remove("explore");
+  clearRing(true);
+}
+function scheduleRegrow() {        // history moved under the ring: refresh it
+  clearTimeout(regrowTimer);
+  regrowTimer = setTimeout(() => {
+    if (!exploring || ringBusy) return;
+    clearRing(true); growRing();
+  }, 350);
+}
+function pickThumb(t) {
+  if (ringBusy || !thumbs.includes(t)) return;
+  ringBusy = true;
+  // the chosen neighbour grows to cover the centre bath; the rest fly off
+  const { B } = ringLayout();
+  const pad = 0.012;
+  const bw = t.c.w * ASPECT / (ASPECT + 2 * pad);        // bath inside the thumb
+  const k = B.w / bw;
+  const dx = (B.x + B.w / 2) - t.c.cx, dy = (B.y + B.h / 2) - t.c.cy;
+  t.el.classList.add("chosen");
+  t.el.onclick = null;
+  { // re-render the chosen thumbnail at the centre's resolution so it stays
+    // sharp as it grows (same CSS size, denser bitmap)
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    const w = Math.round(t.c.w * k * dpr), h = Math.round(t.c.h * k * dpr);
+    if (w <= maxTex && h <= maxTex) {
+      t.el.width = w; t.el.height = h;
+      let ctx;
+      try { ctx = t.el.getContext("2d", { colorSpace: isP3 ? "display-p3" : "srgb" }); }
+      catch (e) { ctx = t.el.getContext("2d"); }
+      ctx.putImageData(renderGenome(t.g, w, h), 0, 0);
+      requestRender();
+    }
+  }
+  const rest = thumbs.filter(o => o !== t);
+  thumbs = [t];
+  pendingPick = t.g;
+  for (const o of rest) {
+    o.el.onclick = null; o.el.style.pointerEvents = "none";
+    const off = flyOffset(o.c);
+    springTo(o, { x: off.x, y: off.y, s: 0.8 }, { c: 19 });
+    o.el.style.opacity = "0";
+  }
+  setTimeout(() => rest.forEach(o => { springs.delete(o); o.el.remove(); }), 900);
+  springTo(t, { x: dx, y: dy, s: k }, { onRest: () => {
+    if (pendingPick !== t.g) return;                       // exited meanwhile
+    pendingPick = null;
+    applyGenome(t.g);                                     // swap under the thumb
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      t.el.remove(); thumbs = [];
+      if (exploring) growRing(); else ringBusy = false;
+    }));
+  } });
+}
+document.getElementById("explore").onclick = () => exploring ? exitExplorer() : enterExplorer();
+
+// -------------------------------------------------------------------- boot
+generatePreset(1);
+pushSnapshot("action");
+vvUpdate();
+bakeNow();
+requestAnimationFrame(frame);
+
+if (location.search.includes("test-pick")) {
+  openPicker(1);
+}
+if (location.search.includes("test-fatal")) {
+  const st = document.createElement("style");
+  st.textContent = "* { transition: none !important; }";
+  document.head.appendChild(st);
+  fatal("test banner line 1\nline 2\nline 3");
+}
+if (location.search.includes("test-export")) {
+  (async () => {
+    try {
+      const blob = await exportPNG(709, 501, "test", false);
+      const bmp = await createImageBitmap(blob);
+      fatalEl.style.background = "#1f5c2d";
+      fatal(`EXPORT OK ${bmp.width}x${bmp.height} ${blob.size} bytes`);
+    } catch (err) { fatal("EXPORT FAIL " + err); }
+  })();
+}
+</script>
