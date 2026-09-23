@@ -25,6 +25,19 @@
     text-align:center; display:none;
   }
   #word::selection { background:rgba(0,120,255,0.18); color:transparent; }
+  #hud { position:fixed; top:calc(12px + env(safe-area-inset-top, 0px)); right:calc(12px + env(safe-area-inset-right, 0px));
+    font:500 12px/1.4 Inter, "Helvetica Neue", Arial, sans-serif; color:var(--ink); }
+  #hud-toggle { display:block; margin-left:auto; width:36px; height:36px; padding:0; border:0; border-radius:50%;
+    background:rgba(255,255,255,0.7); color:var(--ink); font-size:18px; line-height:36px; cursor:pointer;
+    box-shadow:0 1px 4px rgba(0,0,0,0.15); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); }
+  #hud-panel { display:none; margin-top:8px; padding:12px 14px; width:220px; border-radius:12px;
+    background:rgba(255,255,255,0.8); box-shadow:0 2px 12px rgba(0,0,0,0.15); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); }
+  #hud.open #hud-panel { display:block; }
+  #hud label { display:block; margin-bottom:10px; }
+  #hud label span { display:flex; justify-content:space-between; }
+  #hud output { color:var(--hint); font-variant-numeric:tabular-nums; }
+  #hud input[type=range] { width:100%; margin:4px 0 0; accent-color:var(--ink); }
+  #hud-reset { font:inherit; padding:4px 10px; border:1px solid rgba(0,0,0,0.2); border-radius:6px; background:transparent; color:var(--ink); cursor:pointer; }
   #err { position:fixed; inset:0; display:none; place-items:center; font:500 15px Inter, Arial, sans-serif; color:var(--ink); padding:24px; text-align:center; }
 </style>
 </head>
@@ -32,6 +45,10 @@
 <canvas id="c"></canvas>
 <input id="word" type="text" maxlength="60" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" aria-label="Word to set in the background">
 <div id="hint">Drag the glass, with as many fingers as you like. Double-click or double-tap to change the word.</div>
+<div id="hud">
+  <button id="hud-toggle" type="button" aria-expanded="false" aria-controls="hud-panel" title="Settings">⚙︎</button>
+  <div id="hud-panel"></div>
+</div>
 <div id="err">This effect needs WebGL, which isn't available in this browser.</div>
 <script>
 (() => {
@@ -114,20 +131,28 @@ uniform sampler2D uTex;
 uniform vec2 uRes;
 uniform float uS, uT;
 uniform vec4 uB[5];
+uniform float uSp;
+uniform vec2 uQ[5]; // how far each blob is pressed into a side (x) or top/bottom (y) edge
 
 float smin(float a, float b, float k){ float h = clamp(.5 + .5*(b-a)/k, 0., 1.); return mix(b, a, h) - k*h*(1.-h); }
+
+// a blob pressed against an edge spreads out along it
+vec2 spread(vec2 q){ return vec2(1. + uSp*q.y, 1. + uSp*q.x); }
 
 float sdf(vec2 p){
   float d = 1e5;
   for (int i = 0; i < 5; i++){
     vec4 b = uB[i];
     if (b.z <= 0.) continue;
-    vec2 q = p - b.xy;
+    vec2 st = spread(uQ[i]);
+    vec2 q = (p - b.xy)/st;
     float a = atan(q.y, q.x), fi = float(i);
     float w = b.z*(0.016*sin(a*3. + uT*1.6 + fi*2.1) + 0.010*sin(a*5. - uT*2.2 + fi*1.3));
-    d = smin(d, length(q) - b.z - w, uS*0.10);
+    d = smin(d, (length(q) - b.z - w)*min(st.x, st.y), uS*0.10);
   }
-  return d;
+  // and is flattened where it meets the edge
+  float edge = -min(min(p.x, uRes.x - p.x), min(p.y, uRes.y - p.y));
+  return -smin(-d, -edge, uS*0.02);
 }
 
 float dome(vec2 p){
@@ -135,7 +160,7 @@ float dome(vec2 p){
   for (int i = 0; i < 5; i++){
     vec4 b = uB[i];
     if (b.z <= 0.) continue;
-    vec2 q = p - b.xy;
+    vec2 q = (p - b.xy)/spread(uQ[i]);
     f += exp(-dot(q,q)/(b.z*b.z*0.7));
   }
   return 1. - exp(-1.6*f);
@@ -210,12 +235,21 @@ void main(){
     // trapped air bubbles
     for (int i = 0; i < 5; i++){
       vec4 b = uB[i];
-      if (b.z <= 0. || length(p - b.xy) > b.z) continue;
+      if (b.z <= 0. || length(p - b.xy) > b.z*1.6) continue;
       for (int j = 0; j < 6; j++){
         float s = float(i)*13. + float(j)*3.7 + b.w;
-        float a = hash(s)*6.2831 + uT*0.12*(hash(s+1.) - .5);
-        vec2 bp = b.xy + b.z*0.72*sqrt(hash(s+2.))*vec2(cos(a), sin(a));
+        // each bubble wanders on its own: a slow orbit plus a drift at its own pace
+        float a = hash(s)*6.2831 + uT*(0.08 + 0.18*hash(s+1.))*sign(hash(s+4.) - .5);
+        vec2 q = 0.5*sqrt(hash(s+2.))*vec2(cos(a), sin(a));
+        vec2 f = 0.25 + 0.35*vec2(hash(s+5.), hash(s+6.));
+        vec2 ph = 6.2831*vec2(hash(s+7.), hash(s+8.));
+        q += 0.22*vec2(sin(uT*f.x + ph.x), cos(uT*f.y + ph.y))
+           + 0.08*vec2(sin(uT*f.y*2.3 + ph.y), sin(uT*f.x*1.9 + ph.x));
+        float ql = length(q);
+        if (ql > 0.72) q *= 0.72/ql;
         float br = b.z*(0.010 + 0.022*hash(s+3.));
+        // bubbles spread with a squished blob, and are kept clear of the edge
+        vec2 bp = clamp(b.xy + b.z*q*spread(uQ[i]), vec2(br*3.), uRes - br*3.);
         float bd = length(p - bp);
         float ring = smoothstep(br, br*0.75, bd)*(1. - smoothstep(br*0.75, br*0.35, bd));
         gc = mix(gc, gc*0.35, ring*0.85);
@@ -242,7 +276,7 @@ gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_
 const aLoc = gl.getAttribLocation(prog, 'a');
 gl.enableVertexAttribArray(aLoc); gl.vertexAttribPointer(aLoc, 2, gl.FLOAT, false, 0, 0);
 const U = n => gl.getUniformLocation(prog, n);
-const uRes = U('uRes'), uS = U('uS'), uT = U('uT'), uB = U('uB[0]');
+const uRes = U('uRes'), uS = U('uS'), uT = U('uT'), uB = U('uB[0]'), uQ = U('uQ[0]'), uSp = U('uSp');
 
 const tex = gl.createTexture();
 gl.bindTexture(gl.TEXTURE_2D, tex);
@@ -256,6 +290,39 @@ function upload() {
   gl.bindTexture(gl.TEXTURE_2D, tex);
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, tex2d);
 }
+
+/* ---------------- settings ---------------- */
+const SETTINGS = [
+  { key: 'stiffness', label: 'Wall firmness', min: 40, max: 1500, step: 10, def: 250 },
+  { key: 'damping', label: 'Wall damping', min: 0, max: 40, step: 0.5, def: 6 },
+  { key: 'press', label: 'Deepest squish', min: 0, max: 0.9, step: 0.05, def: 0.55, fmt: v => `${Math.round(v * 100)}%` },
+  { key: 'spread', label: 'Spread when squished', min: 0, max: 2, step: 0.05, def: 0.6 },
+];
+const STORE = 'blobbles-settings';
+const cfg = Object.fromEntries(SETTINGS.map(s => [s.key, s.def]));
+try { Object.assign(cfg, JSON.parse(localStorage.getItem(STORE)) || {}); } catch (_) {}
+const saveCfg = () => { try { localStorage.setItem(STORE, JSON.stringify(cfg)); } catch (_) {} };
+
+const hud = document.getElementById('hud'), hudPanel = document.getElementById('hud-panel');
+const hudToggle = document.getElementById('hud-toggle');
+const inputs = SETTINGS.map(s => {
+  const label = document.createElement('label');
+  label.innerHTML = `<span>${s.label}<output></output></span><input type="range" min="${s.min}" max="${s.max}" step="${s.step}">`;
+  const input = label.querySelector('input'), out = label.querySelector('output');
+  const show = () => { input.value = cfg[s.key]; out.textContent = s.fmt ? s.fmt(cfg[s.key]) : cfg[s.key]; };
+  input.addEventListener('input', () => { cfg[s.key] = +input.value; show(); saveCfg(); });
+  show();
+  hudPanel.appendChild(label);
+  return show;
+});
+const reset = document.createElement('button');
+reset.id = 'hud-reset'; reset.type = 'button'; reset.textContent = 'Reset';
+reset.addEventListener('click', () => { SETTINGS.forEach(s => cfg[s.key] = s.def); inputs.forEach(f => f()); saveCfg(); });
+hudPanel.appendChild(reset);
+hudToggle.addEventListener('click', () => {
+  const open = hud.classList.toggle('open');
+  hudToggle.setAttribute('aria-expanded', open);
+});
 
 /* ---------------- liquid bodies ---------------- */
 // path(t) returns offsets in units of text half-width (x) and S (y)
@@ -301,7 +368,7 @@ canvas.addEventListener('pointerup', e => { endDrag(e); noteTapEnd(e); });
 canvas.addEventListener('pointercancel', endDrag);
 canvas.addEventListener('lostpointercapture', endDrag);
 // stop iOS/Android from treating multi-finger gestures as page zoom/scroll
-['gesturestart', 'gesturechange', 'touchmove'].forEach(t => document.addEventListener(t, e => e.preventDefault(), { passive: false }));
+['gesturestart', 'gesturechange', 'touchmove'].forEach(t => document.addEventListener(t, e => { if (!hud.contains(e.target)) e.preventDefault(); }, { passive: false }));
 
 /* ---------------- editing the word ---------------- */
 // Double-clicks and double-taps are detected from pointer events: the native
@@ -365,7 +432,22 @@ function resize() {
 addEventListener('resize', resize);
 
 let last = performance.now(), clock = 0;
-const data = new Float32Array(20);
+const data = new Float32Array(20), squash = new Float32Array(10);
+// how far a blob of radius r at position x is pressed into either edge of [0, size]
+const depth = (x, r, size) => Math.max(r - x, x - (size - r), 0);
+const press = (x, r, size) => Math.min(depth(x, r, size) / r, cfg.press);
+function wall(x, v, r, size) {
+  if (x < r) return (r - x) * cfg.stiffness - v * cfg.damping;
+  if (x > size - r) return (size - r - x) * cfg.stiffness - v * cfg.damping;
+  return 0;
+}
+// never let a blob press in further than cfg.press of its radius
+function limit(x, v, r, size) {
+  const lo = r * (1 - cfg.press), hi = size - lo;
+  if (x < lo) return [lo, Math.max(v, 0)];
+  if (x > hi) return [hi, Math.min(v, 0)];
+  return [x, v];
+}
 function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   clock += dt * (reduceMotion ? 0.25 : 1);
@@ -375,16 +457,25 @@ function frame(now) {
     let k = 5, c = 3.2;
     for (const d of drags.values()) if (d.b === b) { tx = d.x + d.dx; ty = d.y + d.dy; k = 60; c = 11; }
     if (!b.init) { b.x = tx; b.y = ty; b.init = true; }
-    b.vx += ((tx - b.x) * k - b.vx * c) * dt;
-    b.vy += ((ty - b.y) * k - b.vy * c) * dt;
-    b.x += b.vx * dt; b.y += b.vy * dt;
     const breathe = 1 + 0.04 * Math.sin(t * 0.9 + b.seed * 3);
+    const r = b.r * S * breathe * 1.03;
+    // the edges of the window are soft springs: a blob presses into them and squishes
+    // (the shader flattens it against the edge), then springs back out
+    const [wx, wy] = [wall(b.x, b.vx, r, W), wall(b.y, b.vy, r, H)];
+    b.vx += ((tx - b.x) * k - b.vx * c + wx) * dt;
+    b.vy += ((ty - b.y) * k - b.vy * c + wy) * dt;
+    b.x += b.vx * dt; b.y += b.vy * dt;
+    [b.x, b.vx] = limit(b.x, b.vx, r, W);
+    [b.y, b.vy] = limit(b.y, b.vy, r, H);
     data.set([b.x, b.y, b.r * S * breathe, b.seed], i * 4);
+    squash.set([press(b.x, r, W), press(b.y, r, H)], i * 2);
   });
   gl.uniform2f(uRes, W, H);
   gl.uniform1f(uS, S);
   gl.uniform1f(uT, clock);
   gl.uniform4fv(uB, data);
+  gl.uniform2fv(uQ, squash);
+  gl.uniform1f(uSp, cfg.spread);
   gl.drawArrays(gl.TRIANGLES, 0, 3);
   requestAnimationFrame(frame);
 }
