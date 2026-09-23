@@ -30,10 +30,12 @@
   #hud-toggle { display:block; margin-left:auto; width:36px; height:36px; padding:0; border:0; border-radius:50%;
     background:rgba(255,255,255,0.7); color:var(--ink); font-size:18px; line-height:36px; cursor:pointer;
     box-shadow:0 1px 4px rgba(0,0,0,0.15); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); }
-  #hud-panel { display:none; margin-top:8px; padding:12px 14px; width:220px; border-radius:12px;
+  #hud-panel { display:none; margin-top:8px; padding:12px 14px; width:220px; max-height:calc(100vh - 90px); overflow-y:auto; overscroll-behavior:contain; border-radius:12px;
     background:rgba(255,255,255,0.8); box-shadow:0 2px 12px rgba(0,0,0,0.15); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); }
   #hud.open #hud-panel { display:block; }
   #hud label { display:block; margin-bottom:10px; }
+  #hud h2 { margin:14px 0 8px; font-size:11px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; color:var(--hint); }
+  #hud h2:first-child { margin-top:0; }
   #hud label span { display:flex; justify-content:space-between; }
   #hud output { color:var(--hint); font-variant-numeric:tabular-nums; }
   #hud input[type=range] { width:100%; margin:4px 0 0; accent-color:var(--ink); }
@@ -130,9 +132,9 @@ precision highp float;
 uniform sampler2D uTex;
 uniform vec2 uRes;
 uniform float uS, uT;
-uniform vec4 uB[5];
-uniform float uSp;
-uniform vec2 uQ[5]; // how far each blob is pressed into a side (x) or top/bottom (y) edge
+uniform vec4 uB[8];
+uniform float uSp, uK, uWob, uBN, uBS, uTB, uRef, uDis;
+uniform vec2 uQ[8]; // how far each blob is pressed into a side (x) or top/bottom (y) edge
 
 float smin(float a, float b, float k){ float h = clamp(.5 + .5*(b-a)/k, 0., 1.); return mix(b, a, h) - k*h*(1.-h); }
 
@@ -141,14 +143,14 @@ vec2 spread(vec2 q){ return vec2(1. + uSp*q.y, 1. + uSp*q.x); }
 
 float sdf(vec2 p){
   float d = 1e5;
-  for (int i = 0; i < 5; i++){
+  for (int i = 0; i < 8; i++){
     vec4 b = uB[i];
     if (b.z <= 0.) continue;
     vec2 st = spread(uQ[i]);
     vec2 q = (p - b.xy)/st;
     float a = atan(q.y, q.x), fi = float(i);
-    float w = b.z*(0.016*sin(a*3. + uT*1.6 + fi*2.1) + 0.010*sin(a*5. - uT*2.2 + fi*1.3));
-    d = smin(d, (length(q) - b.z - w)*min(st.x, st.y), uS*0.10);
+    float w = uWob*b.z*(0.016*sin(a*3. + uT*1.6 + fi*2.1) + 0.010*sin(a*5. - uT*2.2 + fi*1.3));
+    d = smin(d, (length(q) - b.z - w)*min(st.x, st.y), uS*uK);
   }
   // and is flattened where it meets the edge
   float edge = -min(min(p.x, uRes.x - p.x), min(p.y, uRes.y - p.y));
@@ -157,7 +159,7 @@ float sdf(vec2 p){
 
 float dome(vec2 p){
   float f = 0.;
-  for (int i = 0; i < 5; i++){
+  for (int i = 0; i < 8; i++){
     vec4 b = uB[i];
     if (b.z <= 0.) continue;
     vec2 q = (p - b.xy)/spread(uQ[i]);
@@ -205,8 +207,8 @@ void main(){
     float rim = 1. - n.z;
 
     // refraction with dispersion
-    vec2 off = g*uS*0.008;
-    float cab = 0.015 + rim*0.07;
+    vec2 off = g*uS*0.008*uRef;
+    float cab = (0.015 + rim*0.07)*uDis;
     vec3 gc;
     gc.r = tx(p + off*(1. - cab)).r;
     gc.g = tx(p + off).g;
@@ -233,21 +235,22 @@ void main(){
     gc += (spectrum(rim*2.5 + 0.1) - 0.5)*smoothstep(0.3, 0.8, rim)*0.25;
 
     // trapped air bubbles
-    for (int i = 0; i < 5; i++){
+    for (int i = 0; i < 8; i++){
       vec4 b = uB[i];
       if (b.z <= 0. || length(p - b.xy) > b.z*1.6) continue;
-      for (int j = 0; j < 6; j++){
+      for (int j = 0; j < 16; j++){
+        if (float(j) >= uBN) break;
         float s = float(i)*13. + float(j)*3.7 + b.w;
         // each bubble wanders on its own: a slow orbit plus a drift at its own pace
-        float a = hash(s)*6.2831 + uT*(0.08 + 0.18*hash(s+1.))*sign(hash(s+4.) - .5);
+        float a = hash(s)*6.2831 + uTB*(0.08 + 0.18*hash(s+1.))*sign(hash(s+4.) - .5);
         vec2 q = 0.5*sqrt(hash(s+2.))*vec2(cos(a), sin(a));
         vec2 f = 0.25 + 0.35*vec2(hash(s+5.), hash(s+6.));
         vec2 ph = 6.2831*vec2(hash(s+7.), hash(s+8.));
-        q += 0.22*vec2(sin(uT*f.x + ph.x), cos(uT*f.y + ph.y))
-           + 0.08*vec2(sin(uT*f.y*2.3 + ph.y), sin(uT*f.x*1.9 + ph.x));
+        q += 0.22*vec2(sin(uTB*f.x + ph.x), cos(uTB*f.y + ph.y))
+           + 0.08*vec2(sin(uTB*f.y*2.3 + ph.y), sin(uTB*f.x*1.9 + ph.x));
         float ql = length(q);
         if (ql > 0.72) q *= 0.72/ql;
-        float br = b.z*(0.010 + 0.022*hash(s+3.));
+        float br = uBS*b.z*(0.010 + 0.022*hash(s+3.));
         // bubbles spread with a squished blob, and are kept clear of the edge
         vec2 bp = clamp(b.xy + b.z*q*spread(uQ[i]), vec2(br*3.), uRes - br*3.);
         float bd = length(p - bp);
@@ -277,6 +280,7 @@ const aLoc = gl.getAttribLocation(prog, 'a');
 gl.enableVertexAttribArray(aLoc); gl.vertexAttribPointer(aLoc, 2, gl.FLOAT, false, 0, 0);
 const U = n => gl.getUniformLocation(prog, n);
 const uRes = U('uRes'), uS = U('uS'), uT = U('uT'), uB = U('uB[0]'), uQ = U('uQ[0]'), uSp = U('uSp');
+const uK = U('uK'), uWob = U('uWob'), uBN = U('uBN'), uBS = U('uBS'), uTB = U('uTB'), uRef = U('uRef'), uDis = U('uDis');
 
 const tex = gl.createTexture();
 gl.bindTexture(gl.TEXTURE_2D, tex);
@@ -292,10 +296,21 @@ function upload() {
 }
 
 /* ---------------- settings ---------------- */
+const pct = v => `${Math.round(v * 100)}%`;
 const SETTINGS = [
-  { key: 'stiffness', label: 'Wall firmness', min: 40, max: 1500, step: 10, def: 250 },
+  { group: 'Blobs', key: 'count', label: 'Number of blobs', min: 1, max: 8, step: 1, def: 4 },
+  { key: 'size', label: 'Size', min: 0.3, max: 2.5, step: 0.05, def: 1, fmt: pct },
+  { key: 'roam', label: 'Roaming speed', min: 0, max: 4, step: 0.1, def: 1, fmt: pct },
+  { key: 'wobble', label: 'Wobble', min: 0, max: 5, step: 0.1, def: 1, fmt: pct },
+  { key: 'merge', label: 'Merging reach', min: 0.01, max: 0.3, step: 0.01, def: 0.1 },
+  { group: 'Bubbles', key: 'bubbles', label: 'Bubbles per blob', min: 0, max: 16, step: 1, def: 6 },
+  { key: 'bubbleSize', label: 'Bubble size', min: 0.3, max: 4, step: 0.1, def: 1, fmt: pct },
+  { key: 'drift', label: 'Drift speed', min: 0, max: 5, step: 0.1, def: 1, fmt: pct },
+  { group: 'Glass', key: 'refraction', label: 'Refraction', min: 0, max: 3, step: 0.05, def: 1, fmt: pct },
+  { key: 'dispersion', label: 'Rainbow fringes', min: 0, max: 4, step: 0.1, def: 1, fmt: pct },
+  { group: 'Walls', key: 'stiffness', label: 'Wall firmness', min: 40, max: 1500, step: 10, def: 250 },
   { key: 'damping', label: 'Wall damping', min: 0, max: 40, step: 0.5, def: 6 },
-  { key: 'press', label: 'Deepest squish', min: 0, max: 0.9, step: 0.05, def: 0.55, fmt: v => `${Math.round(v * 100)}%` },
+  { key: 'press', label: 'Deepest squish', min: 0, max: 0.9, step: 0.05, def: 0.55, fmt: pct },
   { key: 'spread', label: 'Spread when squished', min: 0, max: 2, step: 0.05, def: 0.6 },
 ];
 const STORE = 'blobbles-settings';
@@ -306,6 +321,11 @@ const saveCfg = () => { try { localStorage.setItem(STORE, JSON.stringify(cfg)); 
 const hud = document.getElementById('hud'), hudPanel = document.getElementById('hud-panel');
 const hudToggle = document.getElementById('hud-toggle');
 const inputs = SETTINGS.map(s => {
+  if (s.group) {
+    const h = document.createElement('h2');
+    h.textContent = s.group;
+    hudPanel.appendChild(h);
+  }
   const label = document.createElement('label');
   label.innerHTML = `<span>${s.label}<output></output></span><input type="range" min="${s.min}" max="${s.max}" step="${s.step}">`;
   const input = label.querySelector('input'), out = label.querySelector('output');
@@ -331,7 +351,14 @@ const blobs = [
   { r: 0.12, seed: 4.1, path: t => [Math.sin(t*0.29 + 2.2)*0.7, Math.sin(t*0.41 + 0.3)*0.07] },
   { r: 0.085, seed: 7.7, path: t => [Math.sin(t*0.17 + 4.0)*0.75, Math.cos(t*0.33)*0.08] },
   { r: 0.10, seed: 2.9, path: t => [Math.sin(t*0.25 + 5.1)*0.55, Math.sin(t*0.47 + 2.4)*0.06] },
+  { r: 0.07, seed: 5.6, path: t => [Math.sin(t*0.23 + 1.1)*0.8, Math.sin(t*0.31 + 3.3)*0.12] },
+  { r: 0.15, seed: 3.4, path: t => [Math.sin(t*0.19 + 3.0)*0.5, Math.cos(t*0.27 + 1.7)*0.09] },
+  { r: 0.06, seed: 8.8, path: t => [Math.sin(t*0.33 + 0.6)*0.85, Math.sin(t*0.39 + 4.4)*0.14] },
+  { r: 0.11, seed: 6.2, path: t => [Math.sin(t*0.27 + 2.7)*0.65, Math.cos(t*0.43 + 0.9)*0.10] },
 ].map(b => ({ ...b, x: 0, y: 0, vx: 0, vy: 0, init: false }));
+
+const active = () => blobs.slice(0, cfg.count);
+const radius = b => b.r * cfg.size * S;
 
 function target(b, t) {
   const [ox, oy] = b.path(t);
@@ -346,9 +373,9 @@ canvas.addEventListener('pointerdown', e => {
   noteTapStart(e);
   const [px, py] = ptr(e);
   let best = null, bd = Infinity;
-  blobs.forEach(b => {
+  active().forEach(b => {
     if (held(b)) return;
-    const d = Math.hypot(b.x - px, b.y - py) - b.r * S;
+    const d = Math.hypot(b.x - px, b.y - py) - radius(b);
     if (d < bd) { bd = d; best = b; }
   });
   const reach = S * (e.pointerType === 'touch' ? 0.14 : 0.08);
@@ -431,8 +458,8 @@ function resize() {
 }
 addEventListener('resize', resize);
 
-let last = performance.now(), clock = 0;
-const data = new Float32Array(20), squash = new Float32Array(10);
+let last = performance.now(), clock = 0, roam = 0, drift = 0;
+const data = new Float32Array(32), squash = new Float32Array(16);
 // how far a blob of radius r at position x is pressed into either edge of [0, size]
 const depth = (x, r, size) => Math.max(r - x, x - (size - r), 0);
 const press = (x, r, size) => Math.min(depth(x, r, size) / r, cfg.press);
@@ -450,15 +477,21 @@ function limit(x, v, r, size) {
 }
 function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
-  clock += dt * (reduceMotion ? 0.25 : 1);
-  const t = clock + (+params.get("t") || 8);
-  blobs.forEach((b, i) => {
+  const pace = dt * (reduceMotion ? 0.25 : 1);
+  clock += pace; roam += pace * cfg.roam; drift += pace * cfg.drift;
+  const t = roam + (+params.get("t") || 8);
+  data.fill(0); squash.fill(0);
+  // blobs beyond the chosen number are let go, and start afresh if they come back
+  blobs.slice(cfg.count).forEach(b => { b.init = false; b.vx = b.vy = 0; });
+  for (const [id, d] of drags) if (!active().includes(d.b)) drags.delete(id);
+  if (!drags.size) canvas.classList.remove('dragging');
+  active().forEach((b, i) => {
     let [tx, ty] = target(b, t);
     let k = 5, c = 3.2;
     for (const d of drags.values()) if (d.b === b) { tx = d.x + d.dx; ty = d.y + d.dy; k = 60; c = 11; }
     if (!b.init) { b.x = tx; b.y = ty; b.init = true; }
     const breathe = 1 + 0.04 * Math.sin(t * 0.9 + b.seed * 3);
-    const r = b.r * S * breathe * 1.03;
+    const r = radius(b) * breathe * 1.03;
     // the edges of the window are soft springs: a blob presses into them and squishes
     // (the shader flattens it against the edge), then springs back out
     const [wx, wy] = [wall(b.x, b.vx, r, W), wall(b.y, b.vy, r, H)];
@@ -467,7 +500,7 @@ function frame(now) {
     b.x += b.vx * dt; b.y += b.vy * dt;
     [b.x, b.vx] = limit(b.x, b.vx, r, W);
     [b.y, b.vy] = limit(b.y, b.vy, r, H);
-    data.set([b.x, b.y, b.r * S * breathe, b.seed], i * 4);
+    data.set([b.x, b.y, radius(b) * breathe, b.seed], i * 4);
     squash.set([press(b.x, r, W), press(b.y, r, H)], i * 2);
   });
   gl.uniform2f(uRes, W, H);
@@ -476,6 +509,13 @@ function frame(now) {
   gl.uniform4fv(uB, data);
   gl.uniform2fv(uQ, squash);
   gl.uniform1f(uSp, cfg.spread);
+  gl.uniform1f(uK, cfg.merge);
+  gl.uniform1f(uWob, cfg.wobble);
+  gl.uniform1f(uBN, cfg.bubbles);
+  gl.uniform1f(uBS, cfg.bubbleSize);
+  gl.uniform1f(uTB, drift);
+  gl.uniform1f(uRef, cfg.refraction);
+  gl.uniform1f(uDis, cfg.dispersion);
   gl.drawArrays(gl.TRIANGLES, 0, 3);
   requestAnimationFrame(frame);
 }
