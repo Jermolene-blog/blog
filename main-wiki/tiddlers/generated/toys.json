@@ -1,5 +1,14 @@
 [
 	{
+		"title": "Toys/blobbles",
+		"caption": "Blobbles",
+		"description": "Blobs of glass at your command",
+		"url": "/toys/blobbles/",
+		"tags": "toy",
+		"text": "",
+		"screenshot": "/screenshots/toys/blobbles.webp"
+	},
+	{
 		"title": "Toys/engravery",
 		"caption": "Engravery",
 		"description": "Hide a photo in a field of parallel lines, then squint to see it reappear",

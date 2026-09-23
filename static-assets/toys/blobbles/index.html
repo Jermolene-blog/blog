@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Blobbles</title>
+<meta name="description" content="Blobs of glass at your command">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;800&display=swap" rel="stylesheet">
+<style>
+  :root { --paper:#ececec; --ink:#0a0a0a; --hint:#6f6f6f; color-scheme: light; }
+  html, body { margin:0; height:100%; background:var(--paper); overflow:hidden; }
+  canvas { position:fixed; inset:0; width:100%; height:100%; display:block; touch-action:none; cursor:grab; }
+  canvas.dragging { cursor:grabbing; }
+  #hint {
+    position:fixed; left:0; right:0; bottom:calc(18px + env(safe-area-inset-bottom, 0px));
+    text-align:center; font:500 12px/1.4 Inter, "Helvetica Neue", Arial, sans-serif;
+    color:var(--hint); pointer-events:none; transition:opacity .8s;
+  }
+  #word {
+    position:fixed; left:0; top:50%; width:100%; box-sizing:border-box; padding:0 10vw; margin:0; transform:translateY(-50%);
+    border:0; outline:0; background:transparent; color:transparent; caret-color:var(--ink);
+    font-family:Inter, "Helvetica Neue", Arial, sans-serif; font-weight:800; letter-spacing:-0.05em; line-height:1.2;
+    text-align:center; display:none;
+  }
+  #word::selection { background:rgba(0,120,255,0.18); color:transparent; }
+  #err { position:fixed; inset:0; display:none; place-items:center; font:500 15px Inter, Arial, sans-serif; color:var(--ink); padding:24px; text-align:center; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<input id="word" type="text" maxlength="60" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" aria-label="Word to set in the background">
+<div id="hint">Drag the glass, with as many fingers as you like. Double-click or double-tap to change the word.</div>
+<div id="err">This effect needs WebGL, which isn't available in this browser.</div>
+<script>
+(() => {
+const canvas = document.getElementById('c');
+const gl = canvas.getContext('webgl', { antialias: false, premultipliedAlpha: false });
+if (!gl) { document.getElementById('err').style.display = 'grid'; return; }
+
+const params = new URLSearchParams(location.search);
+let WORD = params.get('text') || 'glass.';
+const FONT = 'Inter, "Helvetica Neue", Arial, sans-serif';
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------------- background texture (type + light) ---------------- */
+const tex2d = document.createElement('canvas');
+const ctx = tex2d.getContext('2d');
+let W = 0, H = 0, DPR = 1, S = 1, textBox = { cx: 0, cy: 0, w: 0, h: 0 };
+
+const paper = document.createElement('canvas');
+let wordFs = 0;
+
+// paper and light only change on resize, so are cached apart from the word
+function drawPaper() {
+  paper.width = W; paper.height = H;
+  const ctx = paper.getContext('2d');
+  // paper: soft studio falloff, brighter upper centre
+  let g = ctx.createRadialGradient(W * 0.5, H * 0.32, 0, W * 0.5, H * 0.45, Math.max(W, H) * 0.75);
+  g.addColorStop(0, '#f6f6f6'); g.addColorStop(0.55, '#e9e9e9'); g.addColorStop(1, '#cfcfcf');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  g = ctx.createLinearGradient(0, H * 0.6, 0, H);
+  g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.07)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+  // prismatic light streaks
+  const streak = (x, y, len, wid, ang, a) => {
+    ctx.save(); ctx.translate(x, y); ctx.rotate(ang);
+    ctx.filter = `blur(${Math.round(wid * 0.35)}px)`;
+    const lg = ctx.createLinearGradient(0, -wid / 2, 0, wid / 2);
+    ['#ff3b30', '#ffcc00', '#34c759', '#00c7ff', '#5856d6'].forEach((c, i, arr) => lg.addColorStop(i / (arr.length - 1), c));
+    ctx.globalAlpha = a; ctx.fillStyle = lg; ctx.fillRect(0, -wid / 2, len, wid);
+    ctx.restore();
+  };
+  streak(W * 0.02, H * 0.05, S * 0.9, S * 0.05, 0.62, 0.10);
+  streak(W * 0.10, H * 0.02, S * 0.6, S * 0.025, 0.75, 0.08);
+  streak(W * 0.05, H * 1.02, S * 0.8, S * 0.05, -0.55, 0.12);
+  streak(W * 0.78, H * 0.02, S * 0.5, S * 0.03, 2.3, 0.07);
+  ctx.filter = 'none'; ctx.globalAlpha = 1;
+}
+
+function drawBackground() {
+  tex2d.width = W; tex2d.height = H;
+  ctx.drawImage(paper, 0, 0);
+
+  // the word
+  let fs = S * 0.5;
+  ctx.font = `800 ${fs}px ${FONT}`;
+  if ('letterSpacing' in ctx) ctx.letterSpacing = `${-0.05 * fs}px`;
+  let m = ctx.measureText(WORD);
+  const maxW = W * 0.8;
+  if (m.width > maxW) {
+    fs *= maxW / m.width;
+    ctx.font = `800 ${fs}px ${FONT}`;
+    if ('letterSpacing' in ctx) ctx.letterSpacing = `${-0.05 * fs}px`;
+    m = ctx.measureText(WORD);
+  }
+  const asc = m.actualBoundingBoxAscent, desc = m.actualBoundingBoxDescent;
+  const x = (W - m.width) / 2, y = H * 0.5 + (asc - desc) / 2;
+  ctx.fillStyle = '#0a0a0a'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText(WORD, x, y);
+  // blobs roam along the word, so keep them spread out even when it is short or empty
+  textBox = { cx: W / 2, cy: H * 0.5, w: Math.max(m.width, S * 0.5), h: asc + desc };
+  wordFs = fs;
+
+}
+
+/* ---------------- WebGL ---------------- */
+const vs = `attribute vec2 a; void main(){ gl_Position = vec4(a,0.,1.); }`;
+const fs = `
+precision highp float;
+uniform sampler2D uTex;
+uniform vec2 uRes;
+uniform float uS, uT;
+uniform vec4 uB[5];
+
+float smin(float a, float b, float k){ float h = clamp(.5 + .5*(b-a)/k, 0., 1.); return mix(b, a, h) - k*h*(1.-h); }
+
+float sdf(vec2 p){
+  float d = 1e5;
+  for (int i = 0; i < 5; i++){
+    vec4 b = uB[i];
+    if (b.z <= 0.) continue;
+    vec2 q = p - b.xy;
+    float a = atan(q.y, q.x), fi = float(i);
+    float w = b.z*(0.016*sin(a*3. + uT*1.6 + fi*2.1) + 0.010*sin(a*5. - uT*2.2 + fi*1.3));
+    d = smin(d, length(q) - b.z - w, uS*0.10);
+  }
+  return d;
+}
+
+float dome(vec2 p){
+  float f = 0.;
+  for (int i = 0; i < 5; i++){
+    vec4 b = uB[i];
+    if (b.z <= 0.) continue;
+    vec2 q = p - b.xy;
+    f += exp(-dot(q,q)/(b.z*b.z*0.7));
+  }
+  return 1. - exp(-1.6*f);
+}
+
+float hgt(vec2 p){
+  float d = sdf(p);
+  float t = clamp(-d/(uS*0.10), 0., 1.);
+  float bevel = sqrt(1. - (1.-t)*(1.-t));
+  return bevel*0.55 + dome(p)*0.45*bevel;
+}
+
+vec3 tx(vec2 p){ return texture2D(uTex, clamp(p/uRes, 0.001, 0.999)).rgb; }
+vec3 spectrum(float t){ return 0.5 + 0.5*cos(6.2831*(t + vec3(0., .33, .67))); }
+float hash(float n){ return fract(sin(n*127.1)*43758.5453); }
+
+void main(){
+  vec2 p = gl_FragCoord.xy;
+  float d = sdf(p);
+  float aa = 1.2;
+  float m = smoothstep(aa, -aa, d);
+
+  // --- ground: shadow + focused caustic behind the drop
+  vec2 so = vec2(0.03, -0.075)*uS;
+  float ds = sdf(p - so);
+  float sh = smoothstep(uS*0.10, -uS*0.04, ds);
+  float caus = smoothstep(-uS*0.02, -uS*0.16, ds);
+  vec3 bg = tx(p);
+  bg *= 1. - sh*0.20;
+  bg += caus*vec3(1., .98, .94)*0.16;
+  float band = exp(-pow((ds + uS*0.012)/(uS*0.012), 2.));
+  bg += (spectrum(ds/uS*6. + 0.2) - 0.5)*band*0.06;
+
+  vec3 col = bg;
+
+  if (d < aa + 1.){
+    float e = 1.5;
+    float hx = hgt(p + vec2(e,0.)) - hgt(p - vec2(e,0.));
+    float hy = hgt(p + vec2(0.,e)) - hgt(p - vec2(0.,e));
+    vec2 g = vec2(hx, hy)/(2.*e)*uS;          // slope, scale-free
+    vec3 n = normalize(vec3(-g*0.16, 1.));
+    float rim = 1. - n.z;
+
+    // refraction with dispersion
+    vec2 off = g*uS*0.008;
+    float cab = 0.015 + rim*0.07;
+    vec3 gc;
+    gc.r = tx(p + off*(1. - cab)).r;
+    gc.g = tx(p + off).g;
+    gc.b = tx(p + off*(1. + cab)).b;
+
+    // body: slight lift, darker thick edges, reflected room
+    gc = gc*0.96 + 0.035;
+    float fr = pow(clamp(rim*1.4, 0., 1.), 1.6);
+    gc = mix(gc, vec3(0.12), fr*0.38);
+    vec3 env = tx(vec2(p.x, uRes.y - p.y) - n.xy*uS*0.5);
+    gc = mix(gc, env, fr*0.22);
+
+    // contour: dark outer line, bright inner line
+    float ed = -d;
+    gc *= 1. - 0.45*exp(-pow((ed - uS*0.003)/(uS*0.0035), 2.));
+    gc += 0.28*exp(-pow((ed - uS*0.011)/(uS*0.004), 2.));
+
+    // speculars
+    vec3 V = vec3(0.,0.,1.);
+    vec3 H1 = normalize(normalize(vec3(-.45, .55, .70)) + V);
+    vec3 H2 = normalize(normalize(vec3(.55, -.35, .75)) + V);
+    float s1 = max(dot(n, H1), 0.), s2 = max(dot(n, H2), 0.);
+    gc += pow(s1, 220.)*1.8 + pow(s1, 26.)*0.10 + pow(s2, 120.)*0.55;
+    gc += (spectrum(rim*2.5 + 0.1) - 0.5)*smoothstep(0.3, 0.8, rim)*0.25;
+
+    // trapped air bubbles
+    for (int i = 0; i < 5; i++){
+      vec4 b = uB[i];
+      if (b.z <= 0. || length(p - b.xy) > b.z) continue;
+      for (int j = 0; j < 6; j++){
+        float s = float(i)*13. + float(j)*3.7 + b.w;
+        float a = hash(s)*6.2831 + uT*0.12*(hash(s+1.) - .5);
+        vec2 bp = b.xy + b.z*0.72*sqrt(hash(s+2.))*vec2(cos(a), sin(a));
+        float br = b.z*(0.010 + 0.022*hash(s+3.));
+        float bd = length(p - bp);
+        float ring = smoothstep(br, br*0.75, bd)*(1. - smoothstep(br*0.75, br*0.35, bd));
+        gc = mix(gc, gc*0.35, ring*0.85);
+        gc += smoothstep(br*0.45, 0., length(p - bp - vec2(-.3,.3)*br))*0.7;
+      }
+    }
+    col = mix(bg, gc, m);
+  }
+  gl_FragColor = vec4(col, 1.);
+}`;
+
+function sh(type, src) {
+  const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+  return s;
+}
+const prog = gl.createProgram();
+gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs));
+gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs));
+gl.linkProgram(prog); gl.useProgram(prog);
+const buf = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+const aLoc = gl.getAttribLocation(prog, 'a');
+gl.enableVertexAttribArray(aLoc); gl.vertexAttribPointer(aLoc, 2, gl.FLOAT, false, 0, 0);
+const U = n => gl.getUniformLocation(prog, n);
+const uRes = U('uRes'), uS = U('uS'), uT = U('uT'), uB = U('uB[0]');
+
+const tex = gl.createTexture();
+gl.bindTexture(gl.TEXTURE_2D, tex);
+gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+[[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR],
+ [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]
+  .forEach(([k, v]) => gl.texParameteri(gl.TEXTURE_2D, k, v));
+
+function upload() {
+  drawBackground();
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, tex2d);
+}
+
+/* ---------------- liquid bodies ---------------- */
+// path(t) returns offsets in units of text half-width (x) and S (y)
+const blobs = [
+  { r: 0.20, seed: 1.3, path: t => [Math.sin(t*0.21)*0.62 + Math.sin(t*0.53)*0.12, Math.sin(t*0.37 + 1)*0.05] },
+  { r: 0.12, seed: 4.1, path: t => [Math.sin(t*0.29 + 2.2)*0.7, Math.sin(t*0.41 + 0.3)*0.07] },
+  { r: 0.085, seed: 7.7, path: t => [Math.sin(t*0.17 + 4.0)*0.75, Math.cos(t*0.33)*0.08] },
+  { r: 0.10, seed: 2.9, path: t => [Math.sin(t*0.25 + 5.1)*0.55, Math.sin(t*0.47 + 2.4)*0.06] },
+].map(b => ({ ...b, x: 0, y: 0, vx: 0, vy: 0, init: false }));
+
+function target(b, t) {
+  const [ox, oy] = b.path(t);
+  return [textBox.cx + ox * textBox.w * 0.5, H - (textBox.cy + oy * S)]; // GL coords (y up)
+}
+
+const drags = new Map(); // pointerId -> { b, x, y, dx, dy }
+const ptr = e => [e.clientX * DPR, H - e.clientY * DPR];
+const held = b => { for (const d of drags.values()) if (d.b === b) return true; return false; };
+canvas.addEventListener('pointerdown', e => {
+  if (editing) editor.blur();
+  noteTapStart(e);
+  const [px, py] = ptr(e);
+  let best = null, bd = Infinity;
+  blobs.forEach(b => {
+    if (held(b)) return;
+    const d = Math.hypot(b.x - px, b.y - py) - b.r * S;
+    if (d < bd) { bd = d; best = b; }
+  });
+  const reach = S * (e.pointerType === 'touch' ? 0.14 : 0.08);
+  if (best && bd < reach) {
+    drags.set(e.pointerId, { b: best, x: px, y: py, dx: best.x - px, dy: best.y - py });
+    try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+    canvas.classList.add('dragging');
+    document.getElementById('hint').style.opacity = 0;
+  }
+});
+canvas.addEventListener('pointermove', e => {
+  const d = drags.get(e.pointerId);
+  if (d) { const [px, py] = ptr(e); d.x = px; d.y = py; }
+});
+const endDrag = e => { drags.delete(e.pointerId); if (!drags.size) canvas.classList.remove('dragging'); };
+canvas.addEventListener('pointerup', e => { endDrag(e); noteTapEnd(e); });
+canvas.addEventListener('pointercancel', endDrag);
+canvas.addEventListener('lostpointercapture', endDrag);
+// stop iOS/Android from treating multi-finger gestures as page zoom/scroll
+['gesturestart', 'gesturechange', 'touchmove'].forEach(t => document.addEventListener(t, e => e.preventDefault(), { passive: false }));
+
+/* ---------------- editing the word ---------------- */
+// Double-clicks and double-taps are detected from pointer events: the native
+// dblclick event is unreliable for touch. Editing starts on pointerup so that the
+// focus survives the mousedown, and still counts as a gesture for mobile keyboards.
+const editor = document.getElementById('word');
+let editing = false, savedWord = WORD, lastTap = null;
+const taps = new Map(); // pointerId -> { x, y, t }
+function noteTapStart(e) {
+  if (e.isPrimary) taps.set(e.pointerId, { x: e.clientX, y: e.clientY, t: e.timeStamp });
+}
+function noteTapEnd(e) {
+  const down = taps.get(e.pointerId);
+  taps.delete(e.pointerId);
+  if (!down || e.timeStamp - down.t > 400 || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 12) { lastTap = null; return; }
+  const tap = { x: e.clientX, y: e.clientY, t: e.timeStamp };
+  if (lastTap && tap.t - lastTap.t < 450 && Math.hypot(tap.x - lastTap.x, tap.y - lastTap.y) < 30) {
+    lastTap = null;
+    startEdit();
+  } else lastTap = tap;
+}
+function syncEditor() { editor.style.fontSize = `${wordFs / DPR}px`; }
+function startEdit() {
+  if (editing) return;
+  editing = true; savedWord = WORD;
+  editor.value = WORD; syncEditor();
+  editor.style.display = 'block';
+  editor.focus(); editor.select();
+  document.getElementById('hint').style.opacity = 0;
+}
+function endEdit(keep) {
+  if (!editing) return;
+  editing = false;
+  const w = editor.value.trim();
+  WORD = keep && w ? w : savedWord;
+  editor.style.display = 'none';
+  upload();
+  if (WORD !== savedWord) {
+    params.set('text', WORD);
+    try { history.replaceState(null, '', `${location.pathname}?${params}${location.hash}`); } catch (_) {}
+  }
+}
+editor.addEventListener('input', () => { WORD = editor.value; upload(); syncEditor(); });
+editor.addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); endEdit(true); }
+  else if (e.key === 'Escape') { e.preventDefault(); endEdit(false); }
+});
+editor.addEventListener('blur', () => endEdit(true));
+setTimeout(() => { document.getElementById('hint').style.opacity = 0; }, 6000);
+
+function resize() {
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = Math.round(innerWidth * DPR); H = Math.round(innerHeight * DPR);
+  S = Math.min(W, H * 1.25);
+  canvas.width = W; canvas.height = H;
+  gl.viewport(0, 0, W, H);
+  drawPaper();
+  upload();
+  if (editing) syncEditor();
+}
+addEventListener('resize', resize);
+
+let last = performance.now(), clock = 0;
+const data = new Float32Array(20);
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  clock += dt * (reduceMotion ? 0.25 : 1);
+  const t = clock + (+params.get("t") || 8);
+  blobs.forEach((b, i) => {
+    let [tx, ty] = target(b, t);
+    let k = 5, c = 3.2;
+    for (const d of drags.values()) if (d.b === b) { tx = d.x + d.dx; ty = d.y + d.dy; k = 60; c = 11; }
+    if (!b.init) { b.x = tx; b.y = ty; b.init = true; }
+    b.vx += ((tx - b.x) * k - b.vx * c) * dt;
+    b.vy += ((ty - b.y) * k - b.vy * c) * dt;
+    b.x += b.vx * dt; b.y += b.vy * dt;
+    const breathe = 1 + 0.04 * Math.sin(t * 0.9 + b.seed * 3);
+    data.set([b.x, b.y, b.r * S * breathe, b.seed], i * 4);
+  });
+  gl.uniform2f(uRes, W, H);
+  gl.uniform1f(uS, S);
+  gl.uniform1f(uT, clock);
+  gl.uniform4fv(uB, data);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+  requestAnimationFrame(frame);
+}
+
+const start = () => { resize(); requestAnimationFrame(frame); };
+if (document.fonts && document.fonts.load) {
+  Promise.race([document.fonts.load(`800 100px Inter`), new Promise(r => setTimeout(r, 2500))]).then(start, start);
+} else start();
+})();
+</script>
+</body>
+</html>
