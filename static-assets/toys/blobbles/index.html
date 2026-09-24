@@ -67,7 +67,7 @@
 <script>
 (() => {
 const canvas = document.getElementById('c');
-const gl = canvas.getContext('webgl', { antialias: false, premultipliedAlpha: false });
+const gl = canvas.getContext('webgl', { antialias: false, alpha: false, depth: false, stencil: false, premultipliedAlpha: false, powerPreference: 'high-performance' });
 if (!gl) { document.getElementById('err').style.display = 'grid'; return; }
 
 const params = new URLSearchParams(location.search);
@@ -138,79 +138,89 @@ function drawBackground() {
 }
 
 /* ---------------- WebGL ---------------- */
+// The shader is compiled for the exact number of blobs (N), bubbles per blob (NB)
+// and whether the glass is tinted (TINT), so every loop unrolls and unused work
+// vanishes. Everything that is the same for every pixel of a blob (its squash,
+// spread, wobble phases and bubble positions) is worked out on the CPU each frame.
 const vs = `attribute vec2 a; void main(){ gl_Position = vec4(a,0.,1.); }`;
 const fs = `
 precision highp float;
 uniform sampler2D uTex;
 uniform vec2 uRes;
-uniform float uS, uT;
-uniform vec4 uB[8];
-uniform float uSp, uK, uWob, uBN, uBS, uTB, uRef, uDis;
-uniform vec2 uQ[8]; // how far each blob is pressed into a side (x) or top/bottom (y) edge
-uniform vec2 uD[8]; // squash and stretch: (m cos 2a, m sin 2a) stretches a blob by 1+m along angle a
-uniform vec3 uC[8]; // blob colours, in OKLab
-uniform float uCs, uSw; // colour strength (0 for clear glass) and marbling
+uniform float uS, uT, uMerge, uFar, uRef, uDis;
+uniform vec4 uB[N];  // centre, radius, and 1/(0.7 r^2) for the dome
+uniform vec4 uDf[N]; // squash and stretch: the stretch axis, then 1/(1+m) and 1+m for a stretch of 1+m
+uniform vec4 uSt[N]; // 1/spread along each axis, the distance scale, and a radius the blob never leaves
+uniform vec4 uWb[N]; // wobble: (A cos phi, A sin phi) for the 3-lobed then the 5-lobed ripple
+uniform vec2 uE[N];  // how fast the distance grows outside the bounding radius, and how far its bubbles reach
+#if TINT
+uniform vec3 uC[N];  // blob colours, in OKLab
+uniform float uCs, uSw; // colour strength and marbling
+#endif
+#if NB > 0
+uniform vec3 uBub[N*NB]; // bubble centres and radii
+#endif
 
 float smin(float a, float b, float k){ float h = clamp(.5 + .5*(b-a)/k, 0., 1.); return mix(b, a, h) - k*h*(1.-h); }
 
-// a blob pressed against an edge spreads out along it
-vec2 spread(vec2 q){ return vec2(1. + uSp*q.y, 1. + uSp*q.x); }
-
-// maps an offset from a blob's centre into its undeformed shape (k = -1), or back out again (k = 1);
-// the stretch keeps the area the same, so a blob stretched one way is squashed the other
-vec2 deform(vec2 q, vec2 D, float k){
-  float m = length(D);
-  if (m < 1e-4) return q;
-  vec2 h = D/m + vec2(1., 0.);
-  vec2 u = dot(h, h) < 1e-6 ? vec2(0., 1.) : normalize(h);
-  float s = pow(1. + m, k), a = dot(q, u);
-  return u*a*s + (q - u*a)/s;
+// an offset from a blob's centre mapped into its undeformed, unspread shape
+vec2 local(vec2 p, vec4 b, vec4 f, vec4 s){
+  vec2 q = p - b.xy;
+  float a = dot(q, f.xy);
+  return (f.xy*a*f.z + (q - f.xy*a)*f.w)*s.xy;
 }
 
-// signed distance to blob b, pressed by Q and deformed by D, ignoring wobble
-float blobDist(vec2 p, vec4 b, vec2 Q, vec2 D){
-  vec2 st = spread(Q);
-  return (length(deform(p - b.xy, D, -1.)/st) - b.z)*min(st.x, st.y)/(1. + length(D));
-}
+// signed distance to a blob, ignoring its wobble
+float blobDist(vec2 p, vec4 b, vec4 f, vec4 s){ return (length(local(p, b, f, s)) - b.z)*s.z; }
 
 float sdf(vec2 p){
   float d = 1e5;
-  for (int i = 0; i < 8; i++){
-    vec4 b = uB[i];
-    if (b.z <= 0.) continue;
-    vec2 st = spread(uQ[i]);
-    vec2 q = deform(p - b.xy, uD[i], -1.)/st;
-    float a = atan(q.y, q.x), fi = float(i);
-    float w = uWob*b.z*(0.016*sin(a*3. + uT*1.6 + fi*2.1) + 0.010*sin(a*5. - uT*2.2 + fi*1.3));
-    d = smin(d, (length(q) - b.z - w)*min(st.x, st.y)/(1. + length(uD[i])), uS*uK);
+  for (int i = 0; i < N; i++){
+    vec4 b = uB[i], s = uSt[i], w = uWb[i];
+    vec2 q = local(p, b, uDf[i], s);
+    float l = length(q);
+    // ripples round the rim: sin(3a + phi) and sin(5a + phi) built from cos a and sin a, with no atan
+    vec2 cs = q/max(l, 1e-6);
+    float c = cs.x, sn = cs.y, c2 = c*c, s2 = sn*sn;
+    float sin3 = sn*(3. - 4.*s2), cos3 = c*(4.*c2 - 3.);
+    float sin5 = sn*(5. + s2*(16.*s2 - 20.)), cos5 = c*(5. + c2*(16.*c2 - 20.));
+    float wob = sin3*w.x + cos3*w.y + sin5*w.z + cos5*w.w;
+    d = smin(d, (l - b.z - wob)*s.z, uMerge);
   }
   // and is flattened where it meets the edge
   float edge = -min(min(p.x, uRes.x - p.x), min(p.y, uRes.y - p.y));
   return -smin(-d, -edge, uS*0.02);
 }
 
+// a cheap distance that is never more than the true one, to spot pixels far from any blob
+float bound(vec2 p){
+  float d = 1e5;
+  for (int i = 0; i < N; i++) d = min(d, (length(p - uB[i].xy) - uSt[i].w)*uE[i].x);
+  return d;
+}
+
 float dome(vec2 p){
   float f = 0.;
-  for (int i = 0; i < 8; i++){
-    vec4 b = uB[i];
-    if (b.z <= 0.) continue;
-    vec2 q = deform(p - b.xy, uD[i], -1.)/spread(uQ[i]);
-    f += exp(-dot(q,q)/(b.z*b.z*0.7));
+  for (int i = 0; i < N; i++){
+    vec2 q = local(p, uB[i], uDf[i], uSt[i]);
+    f += exp(-dot(q,q)*uB[i].w);
   }
   return 1. - exp(-1.6*f);
 }
 
-float hgt(vec2 p){
-  float d = sdf(p);
+// the height of the glass at p, given the distance d there
+float hgtd(vec2 p, float d){
   float t = clamp(-d/(uS*0.10), 0., 1.);
+  if (t <= 0.) return 0.;
   float bevel = sqrt(1. - (1.-t)*(1.-t));
-  return bevel*0.55 + dome(p)*0.45*bevel;
+  return bevel*(0.55 + dome(p)*0.45);
 }
+float hgt(vec2 p){ return hgtd(p, sdf(p)); }
 
 vec3 tx(vec2 p){ return texture2D(uTex, clamp(p/uRes, 0.001, 0.999)).rgb; }
 vec3 spectrum(float t){ return 0.5 + 0.5*cos(6.2831*(t + vec3(0., .33, .67))); }
-float hash(float n){ return fract(sin(n*127.1)*43758.5453); }
 
+#if TINT
 vec3 fromLab(vec3 c){
   float l = c.x + 0.3963377774*c.y + 0.2158037573*c.z;
   float m = c.x - 0.1055613458*c.y - 0.0638541728*c.z;
@@ -233,127 +243,152 @@ vec3 tint(vec2 p){
   vec2 pw = w*uS;
   vec3 lab = vec3(0.);
   float ws = 1e-20, cs = 0.;
-  for (int i = 0; i < 8; i++){
-    if (uB[i].z <= 0.) continue;
-    float wi = exp(-blobDist(pw, uB[i], uQ[i], uD[i])/(uS*0.012));
+  for (int i = 0; i < N; i++){
+    float wi = exp(-blobDist(pw, uB[i], uDf[i], uSt[i])/(uS*0.012));
     lab += wi*uC[i]; cs += wi*length(uC[i].yz); ws += wi;
   }
   lab /= ws; cs /= ws;
   lab.yz *= min(cs/max(length(lab.yz), 1e-5), 3.);
   return fromLab(lab);
 }
+#endif
 
 void main(){
   vec2 p = gl_FragCoord.xy;
-  float d = sdf(p);
-  float aa = 1.2;
-  float m = smoothstep(aa, -aa, d);
+  vec3 col = tx(p);
+  // most of the screen is nowhere near the glass or its shadow, and is just the paper
+  if (bound(p) < uFar){
+    float d = sdf(p);
+    float aa = 1.2;
+    float m = smoothstep(aa, -aa, d);
+    vec3 bg = col;
 
-  // --- ground: shadow + focused caustic behind the drop
-  vec2 so = vec2(0.03, -0.075)*uS;
-  float ds = sdf(p - so);
-  float sh = smoothstep(uS*0.10, -uS*0.04, ds);
-  float caus = smoothstep(-uS*0.02, -uS*0.16, ds);
-  vec3 bg = tx(p);
-  // light through coloured glass colours its shadow and caustic
-  vec3 lt = vec3(1.);
-  if (uCs > 0. && sh > 0.002) lt = pow(max(tint(p - so), 0.02), vec3(uCs*0.6));
-  bg *= (1. - sh*0.20)*mix(vec3(1.), lt, sh*0.5);
-  bg += caus*vec3(1., .98, .94)*lt*0.16;
-  float band = exp(-pow((ds + uS*0.012)/(uS*0.012), 2.));
-  bg += (spectrum(ds/uS*6. + 0.2) - 0.5)*band*0.06;
+    // --- ground: shadow + focused caustic behind the drop, hidden under solid glass
+    if (d > -aa){
+      vec2 so = vec2(0.03, -0.075)*uS;
+      float ds = sdf(p - so);
+      float sh = smoothstep(uS*0.10, -uS*0.04, ds);
+      float caus = smoothstep(-uS*0.02, -uS*0.16, ds);
+      // light through coloured glass colours its shadow and caustic
+      vec3 lt = vec3(1.);
+#if TINT
+      if (sh > 0.002) lt = pow(max(tint(p - so), 0.02), vec3(uCs*0.6));
+#endif
+      bg *= (1. - sh*0.20)*mix(vec3(1.), lt, sh*0.5);
+      bg += caus*vec3(1., .98, .94)*lt*0.16;
+      float band = exp(-pow((ds + uS*0.012)/(uS*0.012), 2.));
+      bg += (spectrum(ds/uS*6. + 0.2) - 0.5)*band*0.06;
+      col = bg;
+    }
 
-  vec3 col = bg;
+    if (d < aa){
+      // the slope of the glass, from the height here and a little to the right and above
+      float e = 1.5;
+      float h0 = hgtd(p, d);
+      vec2 g = vec2(hgt(p + vec2(e, 0.)) - h0, hgt(p + vec2(0., e)) - h0)/e*uS; // scale-free
+      vec3 n = normalize(vec3(-g*0.16, 1.));
+      float rim = 1. - n.z;
 
-  if (d < aa + 1.){
-    float e = 1.5;
-    float hx = hgt(p + vec2(e,0.)) - hgt(p - vec2(e,0.));
-    float hy = hgt(p + vec2(0.,e)) - hgt(p - vec2(0.,e));
-    vec2 g = vec2(hx, hy)/(2.*e)*uS;          // slope, scale-free
-    vec3 n = normalize(vec3(-g*0.16, 1.));
-    float rim = 1. - n.z;
+      // refraction with dispersion
+      vec2 off = g*uS*0.008*uRef;
+      float cab = (0.015 + rim*0.07)*uDis;
+      vec3 gc;
+      gc.r = tx(p + off*(1. - cab)).r;
+      gc.g = tx(p + off).g;
+      gc.b = tx(p + off*(1. + cab)).b;
 
-    // refraction with dispersion
-    vec2 off = g*uS*0.008*uRef;
-    float cab = (0.015 + rim*0.07)*uDis;
-    vec3 gc;
-    gc.r = tx(p + off*(1. - cab)).r;
-    gc.g = tx(p + off).g;
-    gc.b = tx(p + off*(1. + cab)).b;
-
-    // body: slight lift, darker thick edges, reflected room
-    gc = gc*0.96 + 0.035;
-    // coloured glass absorbs more where it is thicker
-    if (uCs > 0.){
+      // body: slight lift, darker thick edges, reflected room
+      gc = gc*0.96 + 0.035;
+#if TINT
+      // coloured glass absorbs more where it is thicker
       float th = clamp(-d/(uS*0.10), 0., 1.);
       gc *= pow(max(tint(p), 0.02), vec3(uCs*(0.45 + 0.65*th)));
-    }
-    float fr = pow(clamp(rim*1.4, 0., 1.), 1.6);
-    gc = mix(gc, vec3(0.12), fr*0.38);
-    vec3 env = tx(vec2(p.x, uRes.y - p.y) - n.xy*uS*0.5);
-    gc = mix(gc, env, fr*0.22);
+#endif
+      float fr = pow(clamp(rim*1.4, 0., 1.), 1.6);
+      gc = mix(gc, vec3(0.12), fr*0.38);
+      vec3 env = tx(vec2(p.x, uRes.y - p.y) - n.xy*uS*0.5);
+      gc = mix(gc, env, fr*0.22);
 
-    // contour: dark outer line, bright inner line
-    float ed = -d;
-    gc *= 1. - 0.45*exp(-pow((ed - uS*0.003)/(uS*0.0035), 2.));
-    gc += 0.28*exp(-pow((ed - uS*0.011)/(uS*0.004), 2.));
+      // contour: dark outer line, bright inner line
+      float ed = -d;
+      gc *= 1. - 0.45*exp(-pow((ed - uS*0.003)/(uS*0.0035), 2.));
+      gc += 0.28*exp(-pow((ed - uS*0.011)/(uS*0.004), 2.));
 
-    // speculars
-    vec3 V = vec3(0.,0.,1.);
-    vec3 H1 = normalize(normalize(vec3(-.45, .55, .70)) + V);
-    vec3 H2 = normalize(normalize(vec3(.55, -.35, .75)) + V);
-    float s1 = max(dot(n, H1), 0.), s2 = max(dot(n, H2), 0.);
-    gc += pow(s1, 220.)*1.8 + pow(s1, 26.)*0.10 + pow(s2, 120.)*0.55;
-    gc += (spectrum(rim*2.5 + 0.1) - 0.5)*smoothstep(0.3, 0.8, rim)*0.25;
+      // speculars
+      vec3 V = vec3(0.,0.,1.);
+      vec3 H1 = normalize(normalize(vec3(-.45, .55, .70)) + V);
+      vec3 H2 = normalize(normalize(vec3(.55, -.35, .75)) + V);
+      float s1 = max(dot(n, H1), 0.), s2 = max(dot(n, H2), 0.);
+      gc += pow(s1, 220.)*1.8 + pow(s1, 26.)*0.10 + pow(s2, 120.)*0.55;
+      gc += (spectrum(rim*2.5 + 0.1) - 0.5)*smoothstep(0.3, 0.8, rim)*0.25;
 
-    // trapped air bubbles
-    for (int i = 0; i < 8; i++){
-      vec4 b = uB[i];
-      if (b.z <= 0. || length(p - b.xy) > b.z*1.6*(1. + length(uD[i]))*(1. + uSp)) continue;
-      for (int j = 0; j < 16; j++){
-        if (float(j) >= uBN) break;
-        float s = float(i)*13. + float(j)*3.7 + b.w;
-        // each bubble wanders on its own: a slow orbit plus a drift at its own pace
-        float a = hash(s)*6.2831 + uTB*(0.08 + 0.18*hash(s+1.))*sign(hash(s+4.) - .5);
-        vec2 q = 0.5*sqrt(hash(s+2.))*vec2(cos(a), sin(a));
-        vec2 f = 0.25 + 0.35*vec2(hash(s+5.), hash(s+6.));
-        vec2 ph = 6.2831*vec2(hash(s+7.), hash(s+8.));
-        q += 0.22*vec2(sin(uTB*f.x + ph.x), cos(uTB*f.y + ph.y))
-           + 0.08*vec2(sin(uTB*f.y*2.3 + ph.y), sin(uTB*f.x*1.9 + ph.x));
-        float ql = length(q);
-        if (ql > 0.72) q *= 0.72/ql;
-        float br = uBS*b.z*(0.010 + 0.022*hash(s+3.));
-        // bubbles spread with a squished blob, and are kept clear of the edge
-        vec2 bp = clamp(b.xy + deform(b.z*q*spread(uQ[i]), uD[i], 1.), vec2(br*3.), uRes - br*3.);
-        float bd = length(p - bp);
-        float ring = smoothstep(br, br*0.75, bd)*(1. - smoothstep(br*0.75, br*0.35, bd));
-        gc = mix(gc, gc*0.35, ring*0.85);
-        gc += smoothstep(br*0.45, 0., length(p - bp - vec2(-.3,.3)*br))*0.7;
+#if NB > 0
+      // trapped air bubbles
+      for (int i = 0; i < N; i++){
+        if (length(p - uB[i].xy) > uE[i].y) continue;
+        for (int j = 0; j < NB; j++){
+          vec3 bb = uBub[i*NB + j];
+          float br = bb.z, bd = length(p - bb.xy);
+          if (bd > br) continue;
+          float ring = smoothstep(br, br*0.75, bd)*(1. - smoothstep(br*0.75, br*0.35, bd));
+          gc = mix(gc, gc*0.35, ring*0.85);
+          gc += smoothstep(br*0.45, 0., length(p - bb.xy - vec2(-.3,.3)*br))*0.7;
+        }
       }
+#endif
+      col = mix(bg, gc, m);
     }
-    col = mix(bg, gc, m);
   }
   gl_FragColor = vec4(col, 1.);
 }`;
 
 function sh(type, src) {
   const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
-  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { const msg = gl.getShaderInfoLog(s); gl.deleteShader(s); throw new Error(msg); }
   return s;
 }
-const prog = gl.createProgram();
-gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs));
-gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs));
-gl.linkProgram(prog); gl.useProgram(prog);
+const vshader = sh(gl.VERTEX_SHADER, vs);
 const buf = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, buf);
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
-const aLoc = gl.getAttribLocation(prog, 'a');
-gl.enableVertexAttribArray(aLoc); gl.vertexAttribPointer(aLoc, 2, gl.FLOAT, false, 0, 0);
-const U = n => gl.getUniformLocation(prog, n);
-const uRes = U('uRes'), uS = U('uS'), uT = U('uT'), uB = U('uB[0]'), uQ = U('uQ[0]'), uSp = U('uSp');
-const uK = U('uK'), uWob = U('uWob'), uBN = U('uBN'), uBS = U('uBS'), uTB = U('uTB'), uRef = U('uRef'), uDis = U('uDis');
-const uD = U('uD[0]'), uC = U('uC[0]'), uCs = U('uCs'), uSw = U('uSw');
+gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+// bubbles are uniforms now, so how many there can be depends on the GPU's uniform space
+const MAXB = Math.max(0, Math.min(16, Math.floor(((gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS) || 0) - 64) / 8)));
+
+// per-blob uniform data, packed on the CPU; a program's views cover just the blobs in play
+const bufB = new Float32Array(32), bufDf = new Float32Array(32), bufSt = new Float32Array(32), bufWb = new Float32Array(32);
+const bufE = new Float32Array(16), bufC = new Float32Array(24), bufBub = new Float32Array(8 * 16 * 3);
+
+// programs are compiled once for each combination of blob count, bubble count and tint, and kept
+const progs = new Map();
+function program(N, NB, T) {
+  const key = `${N} ${NB} ${T}`;
+  let v = progs.get(key);
+  if (v) return v;
+  const prog = gl.createProgram();
+  try {
+    gl.attachShader(prog, vshader);
+    gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, `#define N ${N}\n#define NB ${NB}\n#define TINT ${T}\n${fs}`));
+    gl.bindAttribLocation(prog, 0, 'a');
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+  } catch (e) {
+    gl.deleteProgram(prog);
+    // a GPU that cannot fit the bubbles does without them
+    if (NB > 0) { v = program(N, 0, T); progs.set(key, v); return v; }
+    throw e;
+  }
+  const U = n => gl.getUniformLocation(prog, n);
+  v = { prog, NB,
+    uRes: U('uRes'), uS: U('uS'), uT: U('uT'), uMerge: U('uMerge'), uFar: U('uFar'), uRef: U('uRef'), uDis: U('uDis'), uCs: U('uCs'), uSw: U('uSw'),
+    uB: U('uB[0]'), uDf: U('uDf[0]'), uSt: U('uSt[0]'), uWb: U('uWb[0]'), uE: U('uE[0]'), uC: U('uC[0]'), uBub: U('uBub[0]'),
+    B: bufB.subarray(0, 4 * N), Df: bufDf.subarray(0, 4 * N), St: bufSt.subarray(0, 4 * N), Wb: bufWb.subarray(0, 4 * N),
+    E: bufE.subarray(0, 2 * N), C: bufC.subarray(0, 3 * N), Bub: bufBub.subarray(0, 3 * N * NB) };
+  progs.set(key, v);
+  return v;
+}
+let current = null;
 
 const tex = gl.createTexture();
 gl.bindTexture(gl.TEXTURE_2D, tex);
@@ -388,16 +423,17 @@ const SETTINGS = [
   { group: 'Motion', key: 'jelly', label: 'Squash and stretch', min: 0, max: 3, step: 0.1, def: 1, fmt: pct },
   { key: 'fling', label: 'Flick power', min: 0, max: 3, step: 0.1, def: 1, fmt: pct },
   { key: 'burstSpeed', label: 'Burst speed', min: 0.2, max: 3, step: 0.1, def: 1, fmt: pct },
-  { group: 'Bubbles', key: 'bubbles', label: 'Bubbles per blob', min: 0, max: 16, step: 1, def: 6 },
-  { key: 'bubbleSize', label: 'Bubble size', min: 0.3, max: 4, step: 0.1, def: 1, fmt: pct },
-  { key: 'drift', label: 'Drift speed', min: 0, max: 5, step: 0.1, def: 1, fmt: pct },
+  { group: 'Bubbles', key: 'bubbles', label: 'Bubbles per blob', min: 0, max: MAXB, step: 1, def: Math.min(6, MAXB), when: () => MAXB > 0 },
+  { key: 'bubbleSize', label: 'Bubble size', min: 0.3, max: 4, step: 0.1, def: 1, fmt: pct, when: () => MAXB > 0 },
+  { key: 'drift', label: 'Drift speed', min: 0, max: 5, step: 0.1, def: 1, fmt: pct, when: () => MAXB > 0 },
   { group: 'Glass', key: 'refraction', label: 'Refraction', min: 0, max: 3, step: 0.05, def: 1, fmt: pct },
   { key: 'dispersion', label: 'Rainbow fringes', min: 0, max: 4, step: 0.1, def: 1, fmt: pct },
   { group: 'Walls', key: 'stiffness', label: 'Wall firmness', min: 40, max: 1500, step: 10, def: 250 },
   { key: 'damping', label: 'Wall damping', min: 0, max: 40, step: 0.5, def: 6 },
   { key: 'press', label: 'Deepest squish', min: 0, max: 0.9, step: 0.05, def: 0.55, fmt: pct },
   { key: 'spread', label: 'Spread when squished', min: 0, max: 2, step: 0.05, def: 0.6 },
-  { group: 'Debug', key: 'fps', label: 'Show frame rate', type: 'check', def: false },
+  { group: 'Performance', key: 'scale', label: 'Render scale', min: 0.5, max: 1, step: 0.05, def: 1, fmt: pct },
+  { key: 'fps', label: 'Show frame rate', type: 'check', def: false },
 ];
 const STORE = 'blobbles-settings';
 const copy = v => Array.isArray(v) ? [...v] : v;
@@ -461,7 +497,7 @@ const rows = SETTINGS.map(s => {
   return () => { show(); row.hidden = s.when ? !s.when() : false; };
 });
 const refresh = () => { rows.forEach(f => f()); fpsBox.hidden = !cfg.fps; };
-function changed() { saveCfg(); refresh(); }
+function changed() { saveCfg(); refresh(); if (cfg.scale !== drawnScale) resize(); }
 refresh();
 const reset = document.createElement('button');
 reset.id = 'hud-reset'; reset.type = 'button'; reset.textContent = 'Reset';
@@ -504,7 +540,7 @@ const blobs = [
   { r: 0.06, seed: 8.8, path: t => [Math.sin(t*0.33 + 0.6)*0.85, Math.sin(t*0.39 + 4.4)*0.14] },
   { r: 0.11, seed: 6.2, path: t => [Math.sin(t*0.27 + 2.7)*0.65, Math.cos(t*0.43 + 0.9)*0.10] },
 ].map(b => ({ ...b, x: 0, y: 0, vx: 0, vy: 0, init: false,
-  da: 0, db: 0, dva: 0, dvb: 0, // squash and stretch (see uD in the shader) and its rate of change
+  da: 0, db: 0, dva: 0, dvb: 0, // squash and stretch (see uDf in the shader) and its rate of change
   fly: 0, whizz: 0, home: null, // seconds left flying free, then whizzing back to home (or its path)
 }));
 
@@ -671,8 +707,10 @@ editor.addEventListener('keydown', e => {
 editor.addEventListener('blur', () => endEdit(true));
 setTimeout(() => { document.getElementById('hint').style.opacity = 0; }, 6000);
 
+let drawnScale = 0;
 function resize() {
-  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  drawnScale = cfg.scale;
+  DPR = Math.min(window.devicePixelRatio || 1, 2) * cfg.scale;
   W = Math.round(innerWidth * DPR); H = Math.round(innerHeight * DPR);
   S = Math.min(W, H * 1.25);
   canvas.width = W; canvas.height = H;
@@ -685,7 +723,7 @@ addEventListener('resize', resize);
 
 let last = performance.now(), clock = 0, roam = 0, drift = 0, turn = 0;
 let fpsFrames = 0, fpsTime = 0, fpsWorst = 0;
-const data = new Float32Array(32), squash = new Float32Array(16), shape = new Float32Array(16), colours = new Float32Array(24);
+const T0 = +params.get('t') || 8;
 // how far a blob of radius r at position x is pressed into either edge of [0, size]
 const depth = (x, r, size) => Math.max(r - x, x - (size - r), 0);
 const press = (x, r, size) => Math.min(depth(x, r, size) / r, cfg.press);
@@ -702,13 +740,21 @@ function limit(x, v, r, size, bounce) {
   if (x > hi) return [hi, v > 0 ? -v * bounce : v, Math.max(v, 0)];
   return [x, v, 0];
 }
+// each bubble wanders on its own: a slow orbit plus a drift at its own pace, all seeded once
+const hash = n => { const v = Math.sin(n * 127.1) * 43758.5453; return v - Math.floor(v); };
+const bubbleSeeds = blobs.map((b, i) => Array.from({ length: 16 }, (_, j) => {
+  const s = i * 13 + j * 3.7 + b.seed;
+  return { a0: hash(s) * 6.2831, av: (0.08 + 0.18 * hash(s + 1)) * Math.sign(hash(s + 4) - 0.5), orbit: 0.5 * Math.sqrt(hash(s + 2)),
+    fx: 0.25 + 0.35 * hash(s + 5), fy: 0.25 + 0.35 * hash(s + 6), px: 6.2831 * hash(s + 7), py: 6.2831 * hash(s + 8), size: 0.010 + 0.022 * hash(s + 3) };
+}));
 function frame(now) {
   const elapsed = now - last;
   const dt = Math.min(0.05, elapsed / 1000); last = now;
   const pace = dt * (reduceMotion ? 0.25 : 1);
   clock += pace; roam += pace * cfg.roam; drift += pace * cfg.drift; turn += pace * cfg.cycle * 0.5;
-  const t = roam + (+params.get("t") || 8);
-  data.fill(0); squash.fill(0); shape.fill(0); colours.fill(0);
+  const t = roam + T0;
+  const T = tinted() ? 1 : 0;
+  const v = program(cfg.count, Math.min(cfg.bubbles, MAXB), T), NB = v.NB;
   // blobs beyond the chosen number are let go, and start afresh if they come back
   blobs.slice(cfg.count).forEach(b => { b.init = false; b.vx = b.vy = b.da = b.db = b.dva = b.dvb = b.fly = b.whizz = 0; b.home = null; });
   for (const [id, d] of drags) if (!active().includes(d.b)) drags.delete(id);
@@ -752,30 +798,69 @@ function frame(now) {
     b.dva += ((want * Math.cos(a) - b.da) * 380 - b.dva * 9) * dt;
     b.dvb += ((want * Math.sin(a) - b.db) * 380 - b.dvb * 9) * dt;
     b.da += b.dva * dt; b.db += b.dvb * dt;
-    const m = Math.hypot(b.da, b.db);
-    if (m > 0.6) { b.da *= 0.6 / m; b.db *= 0.6 / m; }
-    data.set([b.x, b.y, radius(b) * breathe, b.seed], i * 4);
-    squash.set([press(b.x, r, W), press(b.y, r, H)], i * 2);
-    shape.set([b.da, b.db], i * 2);
-    if (tinted()) colours.set(blobColour(i, cfg.count, turn), i * 3);
+    let m = Math.hypot(b.da, b.db);
+    if (m > 0.6) { b.da *= 0.6 / m; b.db *= 0.6 / m; m = 0.6; }
+    if (m < 1e-4) m = 0;
+
+    // --- pack what the shader needs to know about this blob
+    const rz = radius(b) * breathe;
+    // the stretch is by 1+m along the axis u, and the area is kept, so 1/(1+m) across it
+    let ux = 0, uy = 1;
+    if (m) {
+      const hx = b.da / m + 1, hy = b.db / m, hl = Math.hypot(hx, hy);
+      if (hl > 1e-3) { ux = hx / hl; uy = hy / hl; }
+    }
+    // a blob pressed against an edge spreads out along it
+    const stx = 1 + cfg.spread * press(b.y, r, H), sty = 1 + cfg.spread * press(b.x, r, W);
+    const stMin = Math.min(stx, sty), stMax = Math.max(stx, sty);
+    const scale = stMin / (1 + m);
+    bufB.set([b.x, b.y, rz, 1 / (rz * rz * 0.7)], i * 4);
+    bufDf.set([ux, uy, 1 / (1 + m), 1 + m], i * 4);
+    // nothing of the blob, wobble included, lies outside this radius of its centre
+    bufSt.set([1 / stx, 1 / sty, scale, rz * (1 + 0.026 * cfg.wobble) * (1 + m) * stMax], i * 4);
+    const A3 = 0.016 * cfg.wobble * rz, A5 = 0.010 * cfg.wobble * rz, p3 = clock * 1.6 + i * 2.1, p5 = -clock * 2.2 + i * 1.3;
+    bufWb.set([A3 * Math.cos(p3), A3 * Math.sin(p3), A5 * Math.cos(p5), A5 * Math.sin(p5)], i * 4);
+    if (T) bufC.set(blobColour(i, cfg.count, turn), i * 3);
+    // the bubbles, spread with a squished blob, stretched with it, and kept clear of the edge
+    let reach = 0;
+    const seeds = bubbleSeeds[i];
+    for (let j = 0; j < NB; j++) {
+      const s = seeds[j], an = s.a0 + drift * s.av;
+      let x = s.orbit * Math.cos(an) + 0.22 * Math.sin(drift * s.fx + s.px) + 0.08 * Math.sin(drift * s.fy * 2.3 + s.py);
+      let y = s.orbit * Math.sin(an) + 0.22 * Math.cos(drift * s.fy + s.py) + 0.08 * Math.sin(drift * s.fx * 1.9 + s.px);
+      const ql = Math.hypot(x, y);
+      if (ql > 0.72) { x *= 0.72 / ql; y *= 0.72 / ql; }
+      x *= rz * stx; y *= rz * sty;
+      const along = x * ux + y * uy, k1 = 1 + m;
+      const dx = ux * along * k1 + (x - ux * along) / k1, dy = uy * along * k1 + (y - uy * along) / k1;
+      const br = cfg.bubbleSize * rz * s.size;
+      const bx = Math.min(Math.max(b.x + dx, br * 3), W - br * 3), by = Math.min(Math.max(b.y + dy, br * 3), H - br * 3);
+      const o = (i * NB + j) * 3;
+      bufBub[o] = bx; bufBub[o + 1] = by; bufBub[o + 2] = br;
+      reach = Math.max(reach, Math.hypot(bx - b.x, by - b.y) + br);
+    }
+    bufE.set([scale / ((1 + m) * stMax), reach], i * 2);
   });
-  gl.uniform2f(uRes, W, H);
-  gl.uniform1f(uS, S);
-  gl.uniform1f(uT, clock);
-  gl.uniform4fv(uB, data);
-  gl.uniform2fv(uQ, squash);
-  gl.uniform2fv(uD, shape);
-  gl.uniform3fv(uC, colours);
-  gl.uniform1f(uCs, tinted() ? cfg.strength : 0);
-  gl.uniform1f(uSw, cfg.tint === 'one' ? 0 : cfg.marble);
-  gl.uniform1f(uSp, cfg.spread);
-  gl.uniform1f(uK, cfg.merge);
-  gl.uniform1f(uWob, cfg.wobble);
-  gl.uniform1f(uBN, cfg.bubbles);
-  gl.uniform1f(uBS, cfg.bubbleSize);
-  gl.uniform1f(uTB, drift);
-  gl.uniform1f(uRef, cfg.refraction);
-  gl.uniform1f(uDis, cfg.dispersion);
+  if (v !== current) { gl.useProgram(v.prog); current = v; }
+  gl.uniform2f(v.uRes, W, H);
+  gl.uniform1f(v.uS, S);
+  gl.uniform1f(v.uT, clock);
+  gl.uniform4fv(v.uB, v.B);
+  gl.uniform4fv(v.uDf, v.Df);
+  gl.uniform4fv(v.uSt, v.St);
+  gl.uniform4fv(v.uWb, v.Wb);
+  gl.uniform2fv(v.uE, v.E);
+  if (T) {
+    gl.uniform3fv(v.uC, v.C);
+    gl.uniform1f(v.uCs, cfg.strength);
+    gl.uniform1f(v.uSw, cfg.tint === 'one' ? 0 : cfg.marble);
+  }
+  if (NB) gl.uniform3fv(v.uBub, v.Bub);
+  gl.uniform1f(v.uMerge, S * cfg.merge);
+  // beyond this cheap lower bound on the distance, a pixel shows only paper (see bound() in the shader)
+  gl.uniform1f(v.uFar, S * (cfg.merge + 0.19));
+  gl.uniform1f(v.uRef, cfg.refraction);
+  gl.uniform1f(v.uDis, cfg.dispersion);
   gl.drawArrays(gl.TRIANGLES, 0, 3);
   if (cfg.fps) {
     fpsFrames++; fpsTime += elapsed; fpsWorst = Math.max(fpsWorst, elapsed);
@@ -787,7 +872,11 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 
-const start = () => { resize(); requestAnimationFrame(frame); };
+const start = () => {
+  try { program(cfg.count, Math.min(cfg.bubbles, MAXB), tinted() ? 1 : 0); }
+  catch (e) { console.error(e); document.getElementById('err').style.display = 'grid'; return; }
+  resize(); requestAnimationFrame(frame);
+};
 if (document.fonts && document.fonts.load) {
   Promise.race([document.fonts.load(`800 100px Inter`), new Promise(r => setTimeout(r, 2500))]).then(start, start);
 } else start();
