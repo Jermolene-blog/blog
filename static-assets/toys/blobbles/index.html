@@ -387,7 +387,7 @@ const SETTINGS = [
   { key: 'cycle', label: 'Colour cycling', min: 0, max: 3, step: 0.1, def: 0, fmt: pct, when: tinted },
   { group: 'Motion', key: 'jelly', label: 'Squash and stretch', min: 0, max: 3, step: 0.1, def: 1, fmt: pct },
   { key: 'fling', label: 'Flick power', min: 0, max: 3, step: 0.1, def: 1, fmt: pct },
-  { key: 'burst', label: 'Burst strength', min: 0.2, max: 3, step: 0.1, def: 1, fmt: pct },
+  { key: 'burstSpeed', label: 'Burst speed', min: 0.2, max: 3, step: 0.1, def: 1, fmt: pct },
   { group: 'Bubbles', key: 'bubbles', label: 'Bubbles per blob', min: 0, max: 16, step: 1, def: 6 },
   { key: 'bubbleSize', label: 'Bubble size', min: 0.3, max: 4, step: 0.1, def: 1, fmt: pct },
   { key: 'drift', label: 'Drift speed', min: 0, max: 5, step: 0.1, def: 1, fmt: pct },
@@ -610,9 +610,10 @@ function burst(b0) {
     let a = Math.hypot(b.x - cx, b.y - cy) > radius(b) * 0.2 ? Math.atan2(b.y - cy, b.x - cx) : spin + i / group.length * 6.2832;
     a += (Math.random() - 0.5) * 0.7;
     // small blobs are thrown further
-    const speed = S * cfg.burst * (1.7 + Math.random() * 1.2) * Math.min(Math.sqrt(0.12 / b.r), 1.6);
+    const speed = S * cfg.burstSpeed * (0.7 + Math.random() * 0.5) * Math.min(Math.sqrt(0.12 / b.r), 1.6);
     b.vx = Math.cos(a) * speed; b.vy = Math.sin(a) * speed;
-    b.home = [b.x, b.y]; b.fly = 0.8 + Math.random() * 0.5; b.whizz = 0;
+    // slower bursts fly for longer, so the blobs still get to bounce off the walls
+    b.home = [b.x, b.y]; b.fly = (1.6 + Math.random() * 0.6) / Math.sqrt(cfg.burstSpeed); b.whizz = 0;
     // a pop: squashed flat across the direction of travel, springing into a stretch along it
     kick(b, -6, a);
   });
