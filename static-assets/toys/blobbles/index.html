@@ -138,9 +138,9 @@ function drawBackground() {
 }
 
 /* ---------------- WebGL ---------------- */
-// The shader is compiled for the exact number of blobs (N), bubbles per blob (NB)
-// and whether the glass is tinted (TINT), so every loop unrolls and unused work
-// vanishes. Everything that is the same for every pixel of a blob (its squash,
+// The shader is compiled for the exact number of blobs (N), bubbles per blob (NB),
+// whether the blobs are tinted (TINT) and whether they are glass or liquid metal
+// (METAL), so every loop unrolls and unused work vanishes. Everything that is the same for every pixel of a blob (its squash,
 // spread, wobble phases and bubble positions) is worked out on the CPU each frame.
 const vs = `attribute vec2 a; void main(){ gl_Position = vec4(a,0.,1.); }`;
 const fs = `
@@ -269,6 +269,10 @@ void main(){
       float ds = sdf(p - so);
       float sh = smoothstep(uS*0.10, -uS*0.04, ds);
       float caus = smoothstep(-uS*0.02, -uS*0.16, ds);
+#if METAL
+      // metal lets no light through, so its shadow is plain and deeper
+      bg *= 1. - sh*0.32;
+#else
       // light through coloured glass colours its shadow and caustic
       vec3 lt = vec3(1.);
 #if TINT
@@ -278,6 +282,7 @@ void main(){
       bg += caus*vec3(1., .98, .94)*lt*0.16;
       float band = exp(-pow((ds + uS*0.012)/(uS*0.012), 2.));
       bg += (spectrum(ds/uS*6. + 0.2) - 0.5)*band*0.06;
+#endif
       col = bg;
     }
 
@@ -289,6 +294,22 @@ void main(){
       vec3 n = normalize(vec3(-g*0.16, 1.));
       float rim = 1. - n.z;
 
+#if METAL
+      // liquid metal: an opaque mirror. The view ray bounces off the surface into a
+      // studio with a soft light overhead and a dark floor, and where the surface turns
+      // away at the rim it shows the page around it
+      vec3 rd = vec3(2.*n.z*n.xy, 2.*n.z*n.z - 1.);
+      float up = rd.y + 0.3*rd.z;
+      vec3 gc = mix(vec3(0.05, 0.05, 0.06), vec3(0.90, 0.91, 0.94), smoothstep(-0.55, 0.65, up));
+      // the dark line of the horizon, and the soft light overhead
+      gc *= 1. - 0.5*exp(-pow((up + 0.1)/0.12, 2.));
+      gc += 0.35*smoothstep(0.35, 0.05, abs(rd.y - 0.55))*smoothstep(0.8, 0.2, abs(rd.x));
+      gc = mix(gc, tx(p + rd.xy*uS*0.35)*0.9, smoothstep(0.1, 0.9, -rd.z));
+#if TINT
+      // coloured metal, such as gold or copper, tints everything it reflects
+      gc *= pow(max(tint(p), 0.02), vec3(uCs*0.9));
+#endif
+#else
       // refraction with dispersion
       vec2 off = g*uS*0.008*uRef;
       float cab = (0.015 + rim*0.07)*uDis;
@@ -308,6 +329,7 @@ void main(){
       gc = mix(gc, vec3(0.12), fr*0.38);
       vec3 env = tx(vec2(p.x, uRes.y - p.y) - n.xy*uS*0.5);
       gc = mix(gc, env, fr*0.22);
+#endif
 
       // contour: dark outer line, bright inner line
       float ed = -d;
@@ -319,8 +341,12 @@ void main(){
       vec3 H1 = normalize(normalize(vec3(-.45, .55, .70)) + V);
       vec3 H2 = normalize(normalize(vec3(.55, -.35, .75)) + V);
       float s1 = max(dot(n, H1), 0.), s2 = max(dot(n, H2), 0.);
+#if METAL
+      gc += pow(s1, 220.)*2.4 + pow(s1, 26.)*0.16 + pow(s2, 120.)*0.8;
+#else
       gc += pow(s1, 220.)*1.8 + pow(s1, 26.)*0.10 + pow(s2, 120.)*0.55;
       gc += (spectrum(rim*2.5 + 0.1) - 0.5)*smoothstep(0.3, 0.8, rim)*0.25;
+#endif
 
 #if NB > 0
       // trapped air bubbles
@@ -360,23 +386,23 @@ const MAXB = Math.max(0, Math.min(16, Math.floor(((gl.getParameter(gl.MAX_FRAGME
 const bufB = new Float32Array(32), bufDf = new Float32Array(32), bufSt = new Float32Array(32), bufWb = new Float32Array(32);
 const bufE = new Float32Array(16), bufC = new Float32Array(24), bufBub = new Float32Array(8 * 16 * 3);
 
-// programs are compiled once for each combination of blob count, bubble count and tint, and kept
+// programs are compiled once for each combination of blob count, bubble count, tint and material, and kept
 const progs = new Map();
-function program(N, NB, T) {
-  const key = `${N} ${NB} ${T}`;
+function program(N, NB, T, M) {
+  const key = `${N} ${NB} ${T} ${M}`;
   let v = progs.get(key);
   if (v) return v;
   const prog = gl.createProgram();
   try {
     gl.attachShader(prog, vshader);
-    gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, `#define N ${N}\n#define NB ${NB}\n#define TINT ${T}\n${fs}`));
+    gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, `#define N ${N}\n#define NB ${NB}\n#define TINT ${T}\n#define METAL ${M}\n${fs}`));
     gl.bindAttribLocation(prog, 0, 'a');
     gl.linkProgram(prog);
     if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
   } catch (e) {
     gl.deleteProgram(prog);
     // a GPU that cannot fit the bubbles does without them
-    if (NB > 0) { v = program(N, 0, T); progs.set(key, v); return v; }
+    if (NB > 0) { v = program(N, 0, T, M); progs.set(key, v); return v; }
     throw e;
   }
   const U = n => gl.getUniformLocation(prog, n);
@@ -405,8 +431,12 @@ function upload() {
 
 /* ---------------- settings ---------------- */
 const pct = v => `${Math.round(v * 100)}%`;
-const COLOUR_MODES = { clear: 'Clear glass', one: 'One colour', rainbow: 'Rainbow', each: 'A colour for each blob' };
+const COLOUR_MODES = () => ({ clear: glass() ? 'Clear glass' : 'Silver', one: 'One colour', rainbow: 'Rainbow', each: 'A colour for each blob' });
+const MATERIALS = { glass: 'Glass', metal: 'Liquid metal' };
 const tinted = () => cfg.tint !== 'clear';
+const glass = () => cfg.material === 'glass';
+// a select's options may be a function, when their names depend on other settings
+const optionsOf = s => typeof s.options === 'function' ? s.options() : s.options;
 // settings are sliders unless they give a type; `when` hides a setting that does not apply
 const SETTINGS = [
   { group: 'Blobs', key: 'count', label: 'Number of blobs', min: 1, max: 8, step: 1, def: 4 },
@@ -423,11 +453,12 @@ const SETTINGS = [
   { group: 'Motion', key: 'jelly', label: 'Squash and stretch', min: 0, max: 3, step: 0.1, def: 1, fmt: pct },
   { key: 'fling', label: 'Flick power', min: 0, max: 3, step: 0.1, def: 1, fmt: pct },
   { key: 'burstSpeed', label: 'Burst speed', min: 0.2, max: 3, step: 0.1, def: 1, fmt: pct },
-  { group: 'Bubbles', key: 'bubbles', label: 'Bubbles per blob', min: 0, max: MAXB, step: 1, def: Math.min(6, MAXB), when: () => MAXB > 0 },
-  { key: 'bubbleSize', label: 'Bubble size', min: 0.3, max: 4, step: 0.1, def: 1, fmt: pct, when: () => MAXB > 0 },
-  { key: 'drift', label: 'Drift speed', min: 0, max: 5, step: 0.1, def: 1, fmt: pct, when: () => MAXB > 0 },
-  { group: 'Glass', key: 'refraction', label: 'Refraction', min: 0, max: 3, step: 0.05, def: 1, fmt: pct },
-  { key: 'dispersion', label: 'Rainbow fringes', min: 0, max: 4, step: 0.1, def: 1, fmt: pct },
+  { group: 'Surface', key: 'material', label: 'Material', type: 'select', options: MATERIALS, def: 'glass' },
+  { key: 'refraction', label: 'Refraction', min: 0, max: 3, step: 0.05, def: 1, fmt: pct, when: glass },
+  { key: 'dispersion', label: 'Rainbow fringes', min: 0, max: 4, step: 0.1, def: 1, fmt: pct, when: glass },
+  { group: 'Bubbles', key: 'bubbles', label: 'Bubbles per blob', min: 0, max: MAXB, step: 1, def: Math.min(6, MAXB), when: () => MAXB > 0 && glass() },
+  { key: 'bubbleSize', label: 'Bubble size', min: 0.3, max: 4, step: 0.1, def: 1, fmt: pct, when: () => MAXB > 0 && glass() },
+  { key: 'drift', label: 'Drift speed', min: 0, max: 5, step: 0.1, def: 1, fmt: pct, when: () => MAXB > 0 && glass() },
   { group: 'Walls', key: 'stiffness', label: 'Wall firmness', min: 40, max: 1500, step: 10, def: 250 },
   { key: 'damping', label: 'Wall damping', min: 0, max: 40, step: 0.5, def: 6 },
   { key: 'press', label: 'Deepest squish', min: 0, max: 0.9, step: 0.05, def: 0.55, fmt: pct },
@@ -444,7 +475,7 @@ try {
   SETTINGS.forEach(s => {
     const v = saved[s.key];
     const ok = Array.isArray(s.def) ? Array.isArray(v) && v.length === s.def.length : typeof v === typeof s.def;
-    if (ok && (!s.options || v in s.options)) cfg[s.key] = copy(v);
+    if (ok && (!s.options || v in optionsOf(s))) cfg[s.key] = copy(v);
   });
 } catch (_) {}
 const saveCfg = () => { try { localStorage.setItem(STORE, JSON.stringify(cfg)); } catch (_) {} };
@@ -460,10 +491,10 @@ const rows = SETTINGS.map(s => {
   }
   let row = document.createElement('label'), show;
   if (s.type === 'select') {
-    row.innerHTML = `<span>${s.label}</span><select>${Object.entries(s.options).map(([v, t]) => `<option value="${v}">${t}</option>`).join('')}</select>`;
+    row.innerHTML = `<span>${s.label}</span><select>${Object.entries(optionsOf(s)).map(([v, t]) => `<option value="${v}">${t}</option>`).join('')}</select>`;
     const el = row.querySelector('select');
     el.addEventListener('change', () => { cfg[s.key] = el.value; changed(); });
-    show = () => { el.value = cfg[s.key]; };
+    show = () => { Object.values(optionsOf(s)).forEach((t, i) => { el.options[i].textContent = t; }); el.value = cfg[s.key]; };
   } else if (s.type === 'colour') {
     row.innerHTML = `<span>${s.label}</span><input type="color">`;
     const el = row.querySelector('input');
@@ -753,8 +784,8 @@ function frame(now) {
   const pace = dt * (reduceMotion ? 0.25 : 1);
   clock += pace; roam += pace * cfg.roam; drift += pace * cfg.drift; turn += pace * cfg.cycle * 0.5;
   const t = roam + T0;
-  const T = tinted() ? 1 : 0;
-  const v = program(cfg.count, Math.min(cfg.bubbles, MAXB), T), NB = v.NB;
+  const T = tinted() ? 1 : 0, M = glass() ? 0 : 1;
+  const v = program(cfg.count, M ? 0 : Math.min(cfg.bubbles, MAXB), T, M), NB = v.NB;
   // blobs beyond the chosen number are let go, and start afresh if they come back
   blobs.slice(cfg.count).forEach(b => { b.init = false; b.vx = b.vy = b.da = b.db = b.dva = b.dvb = b.fly = b.whizz = 0; b.home = null; });
   for (const [id, d] of drags) if (!active().includes(d.b)) drags.delete(id);
@@ -873,7 +904,7 @@ function frame(now) {
 }
 
 const start = () => {
-  try { program(cfg.count, Math.min(cfg.bubbles, MAXB), tinted() ? 1 : 0); }
+  try { program(cfg.count, glass() ? Math.min(cfg.bubbles, MAXB) : 0, tinted() ? 1 : 0, glass() ? 0 : 1); }
   catch (e) { console.error(e); document.getElementById('err').style.display = 'grid'; return; }
   resize(); requestAnimationFrame(frame);
 };
