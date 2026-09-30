@@ -1244,7 +1244,7 @@ function newGame() {
   shots = [0, 1, 2, 3].map(i => seatModes[i] === 'off' ? 0 : perPlayer);
   W.spotCoolTurns = active.length;
   showSpotTypes(W.spotTypes, false);
-  turn = 0;
+  turn = Math.floor(Math.random() * active.length);   // a random seat opens, then play goes round in order
   document.getElementById('setup').hidden = true;
   document.getElementById('over').hidden = true;
   document.getElementById('menuBtn').hidden = false;
