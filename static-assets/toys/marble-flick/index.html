@@ -154,7 +154,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
         </div>
       </div>
       <div class="optrow">Marble finish
-        <div class="seg finishSeg"><button data-f="swirl" aria-pressed="true">Swirl</button><button data-f="glass">Glass</button></div>
+        <div class="seg finishSeg"><button data-f="swirl">Swirl</button><button data-f="glass" aria-pressed="true">Glass</button></div>
       </div>
       <div class="optrow">Sound
         <div class="seg soundSeg"><button data-s="on" aria-pressed="true">On</button><button data-s="off">Off</button></div>
@@ -179,7 +179,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
       <h1>Paused</h1>
       <p class="lede">The marbles will wait.</p>
       <div class="optrow">Marble finish
-        <div class="seg finishSeg"><button data-f="swirl" aria-pressed="true">Swirl</button><button data-f="glass">Glass</button></div>
+        <div class="seg finishSeg"><button data-f="swirl">Swirl</button><button data-f="glass" aria-pressed="true">Glass</button></div>
       </div>
       <div class="optrow">Sound
         <div class="seg soundSeg"><button data-s="on" aria-pressed="true">On</button><button data-s="off">Off</button></div>
@@ -583,7 +583,7 @@ function marbleTexture(color, seed) {
   return t;
 }
 const meshes = new Map();
-let marbleFinish = 'swirl';
+let marbleFinish = 'glass';
 // cat's-eye vane: a lens shape, three of them crossed inside each glass marble
 const vaneGeo = (() => {
   const L = R * 0.78, W2 = R * 0.26, sh = new THREE.Shape();
