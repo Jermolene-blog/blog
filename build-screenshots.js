@@ -91,6 +91,11 @@ const recipes = {
 	"toys/mimic": async page => {
 		await page.click("button[onclick]");
 	},
+	"toys/marble-flick": async page => {
+		// Start a game so that the board is shown instead of the setup card
+		await page.click("#startBtn");
+		await page.wait(2000);
+	},
 	"archive/cecily": async page => {
 		// Let the zooming animations finish
 		await page.wait(3000);

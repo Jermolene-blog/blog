@@ -36,6 +36,15 @@
 		"screenshot": "/screenshots/toys/knottery.webp"
 	},
 	{
+		"title": "Toys/marble-flick",
+		"caption": "Marble Flick",
+		"description": "Flick marbles into the rings and knock your rivals into the hole, for up to four players and computer opponents around one screen",
+		"url": "/toys/marble-flick/",
+		"tags": "toy",
+		"text": "",
+		"screenshot": "/screenshots/toys/marble-flick.webp"
+	},
+	{
 		"title": "Toys/marblelous",
 		"caption": "Marblelous",
 		"description": "Drop inks onto a virtual marbling bath and comb them into swirling Florentine patterns",
