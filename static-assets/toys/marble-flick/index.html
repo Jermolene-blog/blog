@@ -99,6 +99,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .debug button,.debug select{font:inherit;color:var(--ink);background:none;border:1.5px solid var(--line);border-radius:999px;padding:3px 9px;cursor:pointer}
 .debug select{border-radius:8px;padding:3px 4px;max-width:100%}
 .debug select option{color:#000}
+.debug input[type=range]{flex:0 0 100%;width:100%;margin:2px 0;accent-color:var(--accent)}
 .debug button:hover{border-color:var(--ink-dim)}
 .debug .head{display:block;width:100%;border:0;padding:2px 0;text-align:left;font-weight:600;font-size:13px}
 .debug h2{margin:9px 0 5px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
@@ -140,7 +141,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
         <div class="seg soundSeg"><button data-s="on" aria-pressed="true">On</button><button data-s="off">Off</button></div>
       </div>
       <label class="optrow" for="debugChk">Debug panel<input type="checkbox" id="debugChk"></label>
-      <p class="how"><strong>Drag back</strong> from your marble and let go to flick it. When everything stops, marbles in the rings score <strong>1, 3 and 5</strong>. Sinking a rival's marble in the centre hole earns <strong>+3</strong>. Anything that rolls off the edge is gone, and a marble left sitting on a launch pad blows up and costs the shooter <strong>2</strong>. The four <strong>hotspots</strong> on the edges swallow any marble that rolls slowly across them and set something off: an earthquake, a spin surge, a hungry snake or a mischievous cat. Handy when you're losing. Each one needs a full round to recharge, and after every event the hotspots shuffle places. Every third marble is a <strong>giant</strong>: heavy enough to bulldoze, too big for the hole, and it shrinks back once everything stops. Tap a seat to switch it between player, computer and empty.</p>
+      <p class="how"><strong>Drag back</strong> from your marble and let go to flick it. When everything stops, marbles in the rings score <strong>1, 3 and 5</strong>. Sinking a rival's marble in the centre hole earns <strong>+3</strong>. Anything that rolls off the edge is gone, and a marble left sitting on a launch pad is swatted off the board by an irritated paw, costing the shooter <strong>2</strong>. The four <strong>hotspots</strong> on the edges swallow any marble that rolls slowly across them and set something off: a catquake, a fit of the zoomies, a paw that reaches out of the hole and helps itself, or a cat who strolls on and bats a marble away. Handy when you're losing. Each one needs a full round to recharge, and after every event the hotspots shuffle places. Every third marble is a <strong>giant</strong>: heavy enough to bulldoze, too big for the hole, and it shrinks back once everything stops. Tap a seat to switch it between player, computer and empty.</p>
       <button class="go" id="startBtn">Start game</button>
     </div>
   </div>
@@ -175,6 +176,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
 <script src="cat-actor.js"></script>
+<script src="cat-puppet.js"></script>
 <script>
 /* ===== PHYSICS (pure, deterministic; shared by game and computer players) ===== */
 const R = 0.525, HALF = 10, CORNER_R = 0.7, HOLE_R = 0.75, FUNNEL_R = 1.9, PAD = 8.3;
@@ -277,10 +279,10 @@ function clearPad(W, m) { m.alive = false; m.fate = 'pad'; W.bonus[W.shooter] -=
 // hotspots at the middle of each edge: rest a marble on one to sacrifice it and trigger an event
 const SPOTS = [{ x: 0, z: 8.9 }, { x: 8.9, z: 0 }, { x: 0, z: -8.9 }, { x: -8.9, z: 0 }];
 const SPOT_TYPES = {
-  quake: { color: '#c9782c', name: 'Earthquake!' },
-  spin: { color: '#7b4bd6', name: 'Spin surge!' },
+  quake: { color: '#c9782c', name: 'Catquake!' },
+  spin: { color: '#7b4bd6', name: 'Zoomies!' },
   cat: { color: '#6f7f90', name: 'Here, kitty…' },
-  snake: { color: '#3f8f3a', name: 'Snake!' },
+  paw: { color: '#3f8f3a', name: 'Grabby paw!' },
 };
 const SPOT_R = 0.95, SPOT_CATCH = 5, SPIN_SURGE = 4;
 function cloneWorld(W) {
@@ -316,9 +318,10 @@ let perPlayer = 5;
 /* seeded random for textures */
 function rng(seed) { let s = seed >>> 0 || 1; return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296; }
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const smooth = (a, b, v) => { const t = Math.max(0, Math.min(1, (v - a) / (b - a))); return t * t * (3 - 2 * t); };
 
 /* a cat pops up from the shooter's corner at the end of each go: delighted if the shot gained points, and
-   pointedly unimpressed if it did not */
+   pointedly unimpressed if it did not. Some are cut-out cats striking a pose, and some the upright puppet */
 const REACT_MS = 2000;
 const REACTIONS = {
   cheer: ['beg', c => { sChirp(); setTimeout(sChirp, 380); return c.play('cheer'); }],
@@ -328,8 +331,13 @@ const REACTIONS = {
   yawn: ['loaf', c => { setTimeout(sYawn, 260); return c.play('yawn'); }],
   groom: ['groom', c => { sTut(); return c.play('tilt', { deg: -5, duration: 1100 }); }],
   snub: ['look-away', c => { sTut(); return c.play('shake', { times: 2 }); }],
+  applaud: { play: 'clap', opts: () => ({ claps: 4, onBeat: sPat }) },
+  hurrah: { play: 'cheer', sound: () => { sChirp(); setTimeout(sChirp, 350); } },
+  salute: { play: 'wave', sound: () => sChirp(0.9) },
+  despair: { play: 'facepaw', sound: () => sTut() },
+  slump: { play: 'slump', sound: () => sYawn() },
 };
-let reactCat = null, reactRun = 0;
+let reactCat = null, reactPuppet = null, reactRun = 0;
 // stand a cat in a seat's corner, head towards the middle of the board, with its feet tucked out of sight
 function cornerCat(cat, seat, size) {
   const [ax, ay] = cornerPoint(seat, stage.clientWidth, stage.clientHeight), k = CORNER[seat], d = size * 0.3;
@@ -337,17 +345,21 @@ function cornerCat(cat, seat, size) {
 }
 const reactSize = () => Math.min(Math.min(stage.clientWidth, stage.clientHeight) * 0.3, 210);
 // name picks the reaction; left out, it follows from the points gained
-async function catReact(seat, gained, name = gained >= 5 ? 'flip' : pick(gained > 0 ? ['cheer', 'hop', 'wave'] : ['yawn', 'groom', 'snub'])) {
-  const cat = reactCat || (reactCat = new CatActor(stage, { hidden: true, z: 3 })), run = ++reactRun;
-  const [pose, act] = REACTIONS[name];
-  cornerCat(cat.stop(), seat, reactSize()).pose(pose);
+async function catReact(seat, gained, name = gained >= 5 ? pick(['flip', 'hurrah']) : pick(gained > 0 ? ['cheer', 'hop', 'wave', 'applaud', 'hurrah', 'salute'] : ['yawn', 'groom', 'snub', 'despair', 'slump'])) {
+  const r = REACTIONS[name], puppet = !Array.isArray(r), run = ++reactRun;
+  for (const c of [reactCat, reactPuppet]) if (c) c.stop().hide();
+  const cat = puppet ? reactPuppet || (reactPuppet = new CatPuppet(stage, { rig: 'upright', hidden: true, z: 3 })) : reactCat || (reactCat = new CatActor(stage, { hidden: true, z: 3 }));
+  cornerCat(cat, seat, reactSize());
+  if (puppet) cat.place({ flip: Math.random() < 0.5 }); else cat.pose(r[0]);
   sSwoosh(true);
   setTimeout(() => { if (run === reactRun) { sSwoosh(false, 0.18); cat.exit(); } }, REACT_MS - 350);
-  if (await cat.enter()) act(cat);
+  if (!await cat.enter() || run !== reactRun) return;
+  if (!puppet) r[1](cat);
+  else { if (r.sound) r.sound(); cat.play(r.play, { rate: 1.45, ...(r.opts ? r.opts() : {}) }); }
 }
 function dismissCats() {
   reactRun++;
-  for (const cat of [reactCat, boardCat, debugCat]) if (cat) cat.stop().hide();
+  for (const cat of [reactCat, reactPuppet, walkerCat, pawArm, debugCat, ...Object.values(debugPuppets), ...quakeCats]) if (cat) cat.stop().hide();
   endParty();
 }
 
@@ -645,54 +657,42 @@ function showAim(m, dirx, dirz, power, pullPoint) {
 }
 function hideAim() { aim.visible = false; band.visible = false; aimSilence(); }
 
-/* ===== FLAMES ===== */
-const FLAME_N = 900;
-const fPos = new Float32Array(FLAME_N * 3), fVel = new Float32Array(FLAME_N * 3);
-const fLife = new Float32Array(FLAME_N).fill(-1), fSize = new Float32Array(FLAME_N), fTTL = new Float32Array(FLAME_N);
-const flameGeo = new THREE.BufferGeometry();
-flameGeo.setAttribute('position', new THREE.BufferAttribute(fPos, 3));
-flameGeo.setAttribute('aLife', new THREE.BufferAttribute(fLife, 1));
-flameGeo.setAttribute('aSize', new THREE.BufferAttribute(fSize, 1));
-const flameMat = new THREE.ShaderMaterial({
-  uniforms: { uScale: { value: 800 } },
-  vertexShader: `attribute float aLife; attribute float aSize; varying float vLife; uniform float uScale;
-    void main(){ vLife=aLife; vec4 mv=modelViewMatrix*vec4(position,1.0); gl_Position=projectionMatrix*mv;
-      gl_PointSize = aLife < 0.0 ? 0.0 : aSize*uScale*(0.55+aLife*1.1)/(-mv.z); }`,
-  fragmentShader: `varying float vLife;
-    void main(){ if(vLife<0.0) discard; vec2 c=gl_PointCoord-0.5; float r=length(c)*2.0; float a=smoothstep(1.0,0.0,r); a*=a;
-      vec3 hot=vec3(1.0,0.96,0.75), mid=vec3(1.0,0.55,0.1), cool=vec3(0.75,0.12,0.02);
-      vec3 col = vLife<0.3 ? mix(hot,mid,vLife/0.3) : mix(mid,cool,(vLife-0.3)/0.7);
-      gl_FragColor=vec4(col*a*(1.0-vLife)*1.3,1.0); }`,
-  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-});
-const flames = new THREE.Points(flameGeo, flameMat); flames.frustumCulled = false; scene.add(flames);
-const flameLight = new THREE.PointLight(0xff7a2a, 0, 16, 2); flameLight.position.set(0, 1.4, 0); scene.add(flameLight);
-let flameEmit = 0, flameFlash = 0, fNext = 0;
-const flameAt = { x: 0, z: 0, pad: false };
-function igniteHole() { flameAt.x = 0; flameAt.z = 0; flameAt.pad = false; flameLight.position.set(0, 1.4, 0); flameEmit = 0.8; flameFlash = 1; sFlame(); }
-function igniteAt(x, z) { flameAt.x = x; flameAt.z = z; flameAt.pad = true; flameLight.position.set(x, 1.4, z); flameEmit = 0.55; flameFlash = 1.2; }
-function updateFlames(dt) {
-  if (flameEmit > 0) {
-    flameEmit -= dt;
-    const n = Math.round(650 * dt * (0.4 + flameEmit));
-    for (let k = 0; k < n; k++) {
-      const i = fNext++ % FLAME_N, a = Math.random() * Math.PI * 2, rr = Math.random() * (flameAt.pad ? R : HOLE_R * 0.75), out = (flameAt.pad ? 1.5 : 0.4) + Math.random() * (flameAt.pad ? 4 : 2.4);
-      fPos[i * 3] = flameAt.x + Math.cos(a) * rr; fPos[i * 3 + 1] = flameAt.pad ? 0.2 + Math.random() * 0.3 : -0.5 + Math.random() * 0.3; fPos[i * 3 + 2] = flameAt.z + Math.sin(a) * rr;
-      fVel[i * 3] = Math.cos(a) * out; fVel[i * 3 + 1] = 4 + Math.random() * 7; fVel[i * 3 + 2] = Math.sin(a) * out;
-      fTTL[i] = 0.45 + Math.random() * 0.6; fLife[i] = 0; fSize[i] = 0.6 + Math.random() * 1.1;
-    }
-  }
-  let any = false;
-  for (let i = 0; i < FLAME_N; i++) {
-    if (fLife[i] < 0) continue; any = true;
-    fLife[i] += dt / fTTL[i]; if (fLife[i] >= 1) { fLife[i] = -1; continue; }
-    fVel[i * 3 + 1] *= 1 - 1.6 * dt;
-    fVel[i * 3] += (Math.random() - 0.5) * 8 * dt; fVel[i * 3 + 2] += (Math.random() - 0.5) * 8 * dt;
-    fPos[i * 3] += fVel[i * 3] * dt; fPos[i * 3 + 1] += fVel[i * 3 + 1] * dt; fPos[i * 3 + 2] += fVel[i * 3 + 2] * dt;
-  }
-  if (any || flameEmit > 0) { flameGeo.attributes.position.needsUpdate = true; flameGeo.attributes.aLife.needsUpdate = true; flameGeo.attributes.aSize.needsUpdate = true; }
-  flameFlash = Math.max(0, flameFlash - dt * 0.9);
-  flameLight.intensity = flameFlash > 0 ? 5 * flameFlash * (0.75 + Math.random() * 0.25) : 0;
+/* ===== THE CAT IN THE HOLE =====
+   A face lurks in the dark at the bottom of the hole, eyes glinting, turned towards whoever's go it is. When a marble
+   drops in, the whole face surges up out of the hole and sinks back. */
+const holeCat = { lurk: null, pop: null, t: -1, blink: 3, turn: 0, big: 1 };
+CatPuppet.photo('face').then(img => {
+  // the photograph, darkened, and with or without its eyes left bright
+  const face = (dim, eyes) => {
+    const c = document.createElement('canvas'); c.width = c.height = 512; const g = c.getContext('2d');
+    g.drawImage(img, 0, 0);
+    if (dim) { g.globalCompositeOperation = 'source-atop'; g.fillStyle = `rgba(4,8,6,${dim})`; g.fillRect(0, 0, 512, 512); g.globalCompositeOperation = 'source-over'; }
+    if (eyes) { g.save(); g.beginPath(); g.ellipse(230, 267, 31, 21, 0, 0, 7); g.moveTo(396, 265); g.ellipse(370, 265, 26, 19, 0, 0, 7); g.clip(); g.drawImage(img, 0, 0); g.restore(); }
+    const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t;
+  };
+  const flat = new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2);
+  const mesh = map => new THREE.Mesh(flat, new THREE.MeshBasicMaterial({ map, transparent: true, toneMapped: false, depthWrite: false }));
+  holeCat.open = face(0.78, true); holeCat.shut = face(0.78, false);
+  holeCat.lurk = mesh(holeCat.open); holeCat.lurk.scale.setScalar(HOLE_R * 2.1); holeCat.lurk.position.y = -0.5; scene.add(holeCat.lurk);
+  holeCat.pop = mesh(face(0, false)); holeCat.pop.material.depthTest = false; holeCat.pop.renderOrder = 10; holeCat.pop.visible = false; scene.add(holeCat.pop);
+}).catch(e => console.error(e));
+function popFace(big = 1) { if (holeCat.pop && !CatActor.reducedMotion) { holeCat.t = 0; holeCat.big = big; } }
+// what happens to a marble that drops down the hole
+function holeGulp(x) { sHoleSequence(x); setTimeout(popFace, 300); }
+function updateHoleCat(dt) {
+  const h = holeCat; if (!h.lurk) return;
+  const want = W && phase !== 'over' ? -CORNER[W.shooter].rot * Math.PI / 180 : 0;
+  h.turn += Math.atan2(Math.sin(want - h.turn), Math.cos(want - h.turn)) * Math.min(1, dt * 4);
+  h.lurk.rotation.y = h.pop.rotation.y = h.turn;
+  if ((h.blink -= dt) < -0.13) h.blink = 2.5 + Math.random() * 4;
+  h.lurk.material.map = h.blink < 0 ? h.shut : h.open;
+  if (h.t < 0) return;
+  h.t += dt;
+  const up = smooth(0, 0.2, h.t) * (1 - smooth(0.62, 0.9, h.t)), spring = 1 + Math.sin(Math.min(1, h.t / 0.3) * Math.PI) * 0.14;
+  h.pop.visible = up > 0.01; h.lurk.visible = !h.pop.visible;
+  h.pop.scale.setScalar(HOLE_R * 2.1 * (1 + 3.8 * h.big * up * spring));
+  h.pop.position.set(Math.sin(h.t * 55) * 0.06 * up, -0.5 + 3.5 * up, 0);
+  if (h.t > 0.9) { h.t = -1; h.pop.visible = false; h.lurk.visible = true; }
 }
 
 /* ===== AUDIO (all synthesised) ===== */
@@ -759,35 +759,34 @@ function sFlick(big) {
 function sGiant() { sFlick(true); }
 function sShrink() { if (!actx) return; const n = now_(); tone(260, n, 0.35, 0.12, 'sine', 1000); noise(n, 0.35, 0.08, 'bandpass', 600, 3500, 2); }
 
-/* hole: rattle down the chute, crash, then an explosion */
+/* hole: rattle down the chute, then the cat down there gets it */
 function sHoleSequence(x) {
   if (!actx) return; const n = now_();
   for (let k = 0; k < 4; k++) { const t = n + k * 0.06 + k * k * 0.01; tone(700 - k * 110, t, 0.05, 0.25 - k * 0.04, 'triangle', 0, x); noise(t, 0.03, 0.12, 'bandpass', 1800 - k * 250, 0, 3, x); }
-  const c = n + 0.3;   // crash
-  noise(c, 0.5, 0.8, 'highpass', 1200, 400, 0.6, undefined, 0.002);
-  for (const f of [523, 1187, 1789, 2633, 3301]) tone(f * (0.97 + Math.random() * 0.06), c, 0.45 + Math.random() * 0.3, 0.12, 'sine', f * 0.92);
-  for (let k = 0; k < 7; k++) tone(3000 + Math.random() * 3500, c + 0.05 + Math.random() * 0.4, 0.08, 0.06);   // glass tinkle
-  sExplosion(n + 0.55);
+  const c = n + 0.3;
+  voice(x, [330, 560, 230], 0.5, 0.42, c);                                  // a satisfied mrowm
+  tone(150, c, 0.22, 0.55, 'sine', 55); noise(c, 0.1, 0.3, 'lowpass', 700, 200, 0.8, undefined, 0.004);   // the lunge
+  tone(240, c + 0.32, 0.12, 0.3, 'sine', 90); noise(c + 0.32, 0.09, 0.2, 'lowpass', 500, 160, 1, undefined, 0.01);   // gulp
 }
-function sExplosion(t) {
-  tone(120, t, 1.3, 0.95, 'sine', 26);                                  // boom
-  tone(60, t, 1.6, 0.6, 'triangle', 22);
-  noise(t, 1.8, 0.9, 'lowpass', 2400, 140, 0.8, undefined, 0.008);      // blast body
-  noise(t + 0.05, 2.4, 0.35, 'bandpass', 500, 120, 0.6, undefined, 0.2); // rumble tail
-  for (let k = 0; k < 40; k++) {                                        // crackle
-    const tt = t + 0.08 + Math.pow(Math.random(), 1.6) * 1.6;
-    noise(tt, 0.02 + Math.random() * 0.03, 0.05 + Math.random() * 0.15, 'highpass', 1500 + Math.random() * 3000, 0, 1, (Math.random() - 0.5) * 14, 0.001);
-  }
-}
-function sFuse(x) { if (!actx) return; const n = now_(); noise(n, 0.55, 0.22, 'bandpass', 2500, 5000, 3, x, 0.05); for (let k = 0; k < 12; k++) noise(n + Math.random() * 0.5, 0.015, 0.1, 'highpass', 4000, 0, 1, x, 0.001); }
-function sPadBlast(x) { if (!actx) return; const n = now_(); noise(n, 0.12, 0.7, 'highpass', 900, 300, 0.6, x, 0.002); sExplosion(n); }
 function sSpot() { if (!actx) return; const n = now_(); [523, 659, 784, 1047].forEach((f, k) => tone(f, n + k * 0.07, 0.25, 0.14, 'triangle')); noise(n, 0.4, 0.1, 'bandpass', 800, 4000, 2, undefined, 0.02); }
 function sQuake(dur) {
   if (!actx) return; const n = now_();
-  noise(n, dur + 0.4, 0.9, 'lowpass', 140, 60, 0.8, undefined, 0.15);
-  tone(38, n, dur, 0.6, 'sine', 30);
-  for (let k = 0; k < 14; k++) { const t = n + Math.random() * dur; tone(70 + Math.random() * 60, t, 0.25, 0.35, 'sine', 40); noise(t, 0.12, 0.25, 'lowpass', 600, 200, 0.7, (Math.random() - 0.5) * 16, 0.004); }
+  noise(n, dur + 0.4, 0.5, 'lowpass', 140, 60, 0.8, undefined, 0.15);
+  tone(38, n, dur, 0.35, 'sine', 30);
+  for (let k = 0; k < 7; k++) { const p = 0.7 + Math.random() * 0.9; voice((Math.random() - 0.5) * 16, [420 * p, 760 * p, 500 * p], 0.3 + Math.random() * 0.3, 0.12, n + Math.random() * dur); }
 }
+// one cat landing; many of them land, so they are kept from piling up
+let lastThump = 0;
+function sThump(x) {
+  if (!actx) return; const n = now_(); if (n - lastThump < 0.045) return; lastThump = n;
+  tone(75 + Math.random() * 50, n, 0.16, 0.4, 'sine', 42, x); noise(n, 0.07, 0.22, 'lowpass', 520, 180, 0.7, x, 0.003);
+}
+// paws scrabbling for grip
+function sScrabble(dur) { if (!actx) return; const n = now_(); for (let t = 0; t < dur; t += 0.055 + Math.random() * 0.03) noise(n + t, 0.035, 0.1 + Math.random() * 0.08, 'bandpass', 1400 + Math.random() * 1400, 0, 2.5, (Math.random() - 0.5) * 14, 0.002); }
+// a paw coming down on a marble, two paws patted together, and a paw swatting something away with feeling
+function sGrab(x) { if (!actx) return; const n = now_(); noise(n, 0.07, 0.4, 'lowpass', 700, 240, 0.8, x, 0.003); voice(x, [620, 900, 760], 0.16, 0.2, n + 0.02); }
+function sPat() { if (!actx) return; const n = now_(); noise(n, 0.07, 0.4, 'bandpass', 900, 500, 0.8, undefined, 0.002); noise(n, 0.03, 0.15, 'lowpass', 400, 0, 0.7, undefined, 0.002); }
+function sSwat(x) { if (!actx) return; const n = now_(); noise(n, 0.18, 0.35, 'bandpass', 500, 2600, 1.4, x, 0.05); voice(x, [260, 300, 170], 0.42, 0.3, n); sKick(x); }
 function sSurge() { if (!actx) return; const n = now_(); tone(60, n, 1.3, 0.3, 'sawtooth', 520); noise(n, 1.3, 0.25, 'bandpass', 300, 3500, 3, undefined, 0.3); }
 function sSurgeDown() { if (!actx) return; const n = now_(); tone(420, n, 1.0, 0.18, 'sawtooth', 70); }
 function sPaw(x) { if (!actx) return; noise(now_(), 0.06, 0.12, 'lowpass', 500, 200, 0.7, x, 0.004); }
@@ -829,11 +828,8 @@ function sFling() {
   noise(now_(), 0.3, 0.07, 'bandpass', 500, 2400, 1.4, x, 0.1);
 }
 function sKick(x) { if (!actx) return; const n = now_(); noise(n, 0.08, 0.6, 'bandpass', 900, 400, 1, x, 0.001); tone(220, n, 0.15, 0.4, 'sine', 80, x); }
-function sHiss(dur) { if (!actx) return; const n = now_(); noise(n, dur, 0.28, 'highpass', 3500, 5000, 0.7, undefined, 0.08); }
-function sSnap(x) { if (!actx) return; const n = now_(); noise(n, 0.03, 0.5, 'highpass', 2000, 0, 1, x, 0.001); tone(500, n, 0.08, 0.3, 'square', 200, x); }
-function sSlurp() { if (!actx) return; const n = now_(); tone(900, n, 0.5, 0.15, 'sine', 180); noise(n, 0.5, 0.15, 'bandpass', 1500, 300, 4, undefined, 0.05); }
 function sShuffle() { if (!actx) return; const n = now_(); for (let k = 0; k < 8; k++) noise(n + k * 0.045, 0.04, 0.12, 'bandpass', 2500 + k * 150, 0, 2, (k % 2 ? 6 : -6), 0.002); }
-function sFlame() { if (!actx) return; const n = now_(); noise(n, 1.1, 0.35, 'lowpass', 300, 400, 0.7, undefined, 0.06); noise(n, 0.9, 0.15, 'bandpass', 900, 2600, 0.8, undefined, 0.1); }
+
 
 /* off the edge: a whoosh as it drops, then bouncing thuds on the table */
 function sEdge(x, big) {
@@ -946,9 +942,10 @@ function medallionTexture(type) {
   g.save(); g.translate(x, y); g.scale(u / 100, u / 100);
   g.strokeStyle = g.fillStyle = '#fff8ec'; g.lineWidth = 9; g.lineCap = g.lineJoin = 'round';
   if (type === 'quake') {
-    g.beginPath(); g.moveTo(-40, -8); g.lineTo(-18, -8); g.lineTo(-8, -32); g.lineTo(6, 22); g.lineTo(16, -8); g.lineTo(40, -8); g.stroke();
-    g.lineWidth = 6; g.beginPath(); g.moveTo(-34, 22); g.quadraticCurveTo(-26, 14, -18, 22); g.quadraticCurveTo(-10, 30, -2, 22); g.stroke();
-    g.beginPath(); g.moveTo(14, 32); g.quadraticCurveTo(22, 24, 30, 32); g.stroke();
+    // a cat in mid-air above the lines it leaves behind
+    g.beginPath(); g.ellipse(0, -8, 24, 19, 0, 0, Math.PI * 2); g.fill();
+    for (const k of [-1, 1]) { g.beginPath(); g.moveTo(k * 22, -18); g.lineTo(k * 19, -40); g.lineTo(k * 5, -25); g.fill(); }
+    g.lineWidth = 6; for (const k of [-1, 0, 1]) { g.beginPath(); g.moveTo(k * 22 - 8, 30 - Math.abs(k) * 6); g.lineTo(k * 22 + 8, 30 - Math.abs(k) * 6); g.stroke(); }
   } else if (type === 'spin') {
     for (const k of [0, 1]) {
       g.save(); g.rotate(k * Math.PI);
@@ -961,15 +958,17 @@ function medallionTexture(type) {
     g.beginPath(); g.ellipse(0, 12, 20, 16, 0, 0, Math.PI * 2); g.fill();
     [[-26, -10], [-10, -26], [10, -26], [26, -10]].forEach(([tx, ty]) => { g.beginPath(); g.ellipse(tx, ty, 8, 10, 0, 0, Math.PI * 2); g.fill(); });
   } else {
-    g.beginPath(); g.moveTo(-34, 24); g.bezierCurveTo(-10, 40, -30, -6, -4, -6); g.bezierCurveTo(22, -6, 0, -36, 26, -30); g.stroke();
-    g.beginPath(); g.ellipse(30, -30, 9, 7, -0.3, 0, Math.PI * 2); g.fill();
-    g.strokeStyle = '#ff5a5a'; g.lineWidth = 3; g.beginPath(); g.moveTo(38, -33); g.lineTo(46, -36); g.lineTo(50, -40); g.moveTo(46, -36); g.lineTo(51, -33); g.stroke();
+    // a paw reaching up out of the hole
+    g.fillStyle = '#1a0d06'; g.beginPath(); g.ellipse(0, 30, 30, 11, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#fff8ec'; g.beginPath(); g.moveTo(-11, 30); g.lineTo(-11, -8); g.lineTo(11, -8); g.lineTo(11, 30); g.fill();
+    g.beginPath(); g.ellipse(0, -14, 17, 14, 0, 0, Math.PI * 2); g.fill();
+    [[-19, -30], [-7, -38], [7, -38], [19, -30]].forEach(([tx, ty]) => { g.beginPath(); g.ellipse(tx, ty, 6, 8, 0, 0, Math.PI * 2); g.fill(); });
   }
   g.restore();
   const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t;
 }
 const medTex = Object.fromEntries(Object.keys(SPOT_TYPES).map(k => [k, medallionTexture(k)]));
-let spotTypesShown = ['quake', 'spin', 'cat', 'snake'];
+let spotTypesShown = ['quake', 'spin', 'cat', 'paw'];
 const medallions = SPOTS.map((sp, i) => {
   const m = new THREE.Mesh(new THREE.CircleGeometry(0.8, 48).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ map: medTex[spotTypesShown[i]], roughness: 0.7, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -4 }));
   m.position.set(sp.x, 0.006, sp.z); m.rotation.y = Math.atan2(sp.x, sp.z);   // glyph top points at the centre
@@ -999,29 +998,68 @@ function banner(text, color, seat, cls = '') {
 }
 function runSpot(type) {
   eventBusy = true;
-  const start = { quake: startQuake, spin: startSurge, cat: startCat, snake: startSnake }[type];
+  const start = { quake: startQuake, spin: startZoomies, cat: startCat, paw: startPaw }[type];
   activeEffect = { wait: 0.3, start, update: null };
 }
 function endEffect() { activeEffect = null; eventBusy = false; restHold = 0; launchAt = performance.now(); if (W) shuffleSpots(); }
 
-function startQuake() {
-  quake.t = quake.dur; quake.next = 0; sQuake(quake.dur);
-  let t = 0;
-  return dt => (t += dt) > quake.dur + 0.2;
-}
-function startSurge() {
-  W.spinTarget = SPIN_SURGE; W.surgeTurns = active.length; sSurge();
-  let t = 0;
-  return dt => (t += dt) > 1.4;
-}
-
-/* --- cat: strolls onto the board, sizes up a marble and bats it down the hole --- */
-let boardCat = null;
-// where a point on the board falls on the stage, in CSS pixels
+// where a point on the board falls on the stage, in CSS pixels; the reverse; and the size there of one unit of the board
 function boardToStage(x, z) {
   const v = new THREE.Vector3(x, 0, z).project(camera);
   return [(v.x + 1) / 2 * stage.clientWidth, (1 - v.y) / 2 * stage.clientHeight];
 }
+function boardUnit() { return boardToStage(1, 0)[0] - boardToStage(0, 0)[0]; }
+function stageToBoard(x, y) { const [x0, y0] = boardToStage(0, 0), u = boardUnit(); return [(x - x0) / u, (y - y0) / u]; }
+// the puppets that come onto the board: a cat that walks, and one very long front leg
+let walkerCat = null, pawArm = null;
+function walker() { return walkerCat || (walkerCat = new CatPuppet(stage, { hidden: true, z: 2 })); }
+// the leg, drawn in and ready to reach out from a point of the stage
+function arm([x, y], size) {
+  const a = pawArm || (pawArm = new CatPuppet(stage, { rig: 'arm', hidden: true, z: 2 }));
+  a.stop(); a.armLen = 0; a.armTo = null;
+  return a.place({ x, y, size }).show();
+}
+
+/* --- catquake: a crowd of cats along the edges of the board, all jumping up and down, and none of them in step --- */
+const quakeCats = [];
+function startQuake() {
+  quake.t = quake.dur; quake.next = 0; sQuake(quake.dur);
+  const unit = boardUnit(), poses = ['sit', 'beg', 'look-up', 'upright', 'paw-up', 'look-away', 'loaf', 'look-down'];
+  let live = true, n = 0;
+  // side 0 is the bottom edge, and they go round from there; every cat has its feet to the edge and its head to the middle
+  for (let side = 0; side < 4; side++) for (let k = -3; k <= 3; k++, n++) {
+    const cat = quakeCats[n] || (quakeCats[n] = new CatActor(stage, { hidden: true, z: 2, shadow: false }));
+    const along = k * 2.5 + (Math.random() - 0.5) * 0.8, out = 9 + (Math.random() - 0.5) * 0.9, a = side * Math.PI / 2;
+    const bx = along * Math.cos(a) + out * Math.sin(a), bz = out * Math.cos(a) - along * Math.sin(a), [x, y] = boardToStage(bx, bz);
+    cat.stop().hide().place({ x, y, rot: -side * 90, size: (2.3 + Math.random() * 0.9) * unit, flip: Math.random() < 0.5 }).pose(pick(poses));
+    (async () => {
+      if (!await cat.wait(Math.random() * 300) || !await cat.enter({ from: 'pop', duration: 180 })) return;
+      while (live) { if (!await cat.play('hop', { height: 0.25 + Math.random() * 0.45, duration: 280 + Math.random() * 260 })) return; sThump(bx); }
+      cat.exit({ to: 'pop', duration: 200 });
+    })();
+  }
+  let t = 0;
+  return dt => { if ((t += dt) > quake.dur) live = false; return t > quake.dur + 0.75; };
+}
+
+/* --- zoomies: the cat tears round the rings, which pick up speed beneath it --- */
+function startZoomies() {
+  W.spinTarget = SPIN_SURGE; W.surgeTurns = active.length; sSurge();
+  const cat = walker(), unit = boardUnit(), TRACK = 6.3, DUR = 2.9, LAPS = 1.4, a0 = Math.random() * Math.PI * 2;
+  // it spirals in from off the board, runs round against the turn of the rings, and spirals out again
+  const at = k => { const a = a0 - LAPS * 2 * Math.PI * k, r = TRACK + 9 * (1 - smooth(0, 0.22, k)) + 9 * smooth(0.8, 1, k); return [Math.cos(a) * r, Math.sin(a) * r]; };
+  let t = 0, [px, pz] = at(-0.01);
+  cat.stop().place({ size: 4.2 * unit, flip: false }).show(); cat.play('trot', { rate: 3 }); sScrabble(DUR);
+  return dt => {
+    t += dt;
+    const k = Math.min(1, t / DUR), [x, z] = at(k), [sx, sy] = boardToStage(x, z);
+    cat.place({ x: sx, y: sy, rot: Math.atan2(pz - z, px - x) * 180 / Math.PI });   // the cat faces left, so this turns its nose the way it is going
+    px = x; pz = z;
+    if (k < 1) return false;
+    cat.stop().hide(); return true;
+  };
+}
+
 // kick velocity that sinks marble m, found by simulating from the current board
 function kickToHole(m) {
   const base = Math.atan2(-m.z, -m.x), D = Math.hypot(m.x, m.z);
@@ -1036,135 +1074,115 @@ function kickToHole(m) {
   return [Math.cos(base) * v, Math.sin(base) * v];
 }
 function startCat() {
-  const cat = boardCat || (boardCat = new CatActor(stage, { hidden: true, z: 2 }));
-  const sc = scoresOf(W), shooter = W.shooter;
+  const cat = walker(), sc = scoresOf(W), shooter = W.shooter;
   const rivals = active.filter(i => i !== shooter);
   const leader = rivals.length ? rivals.reduce((a, b) => sc[b] > sc[a] ? b : a) : shooter;
   const pool = W.marbles.filter(m => m.alive && !m.ghost);
   const target = pick(pool.filter(m => m.owner === leader)) || pick(pool.filter(m => m.owner !== shooter)) || pick(pool);
-  const SIZE = 4, speed = 5, startDist = 15;   // in board units: the cat sits about four marbles tall
-  // The cat bats towards its own left, so it sits side-on to the line from the hole out through the marble, with
-  // its left towards the hole. Of the two ways round, it takes the one that looks more upright from the shooter's seat.
+  const SIZE = 4.2, LEAP = 3.6, FAR = 18, unit = boardUnit();
+  const REACH = 0.36 * SIZE;   // board units from beneath the cat's middle to the tips of its front paws
+  // The cat keeps to the line from the hole out through the marble, nose to the hole, however that line swings round
+  // as the rings turn. Of the two ways up it could be, it takes the one that looks more upright from the shooter's seat.
   let ux = 0, uz = -1;
   const aim = () => { if (target) { const d = Math.hypot(target.x, target.z) || 1; ux = target.x / d; uz = target.z / d; } };
   aim();
-  const k = CORNER[shooter], flip = ux * k.sy - uz * k.sx < 0, f = flip ? -1 : 1;
-  // the spot to bat from: the paw hangs just left of the cat's feet, and the swipe carries it on into the marble
-  const stand = () => target ? [target.x + ux * (target.r + 0.13 * SIZE) - f * uz * 0.1, target.z + uz * (target.r + 0.13 * SIZE) + f * ux * 0.1] : [ux * 6, uz * 6];
-  const home = [(target ? target.x : 0) + ux * startDist, (target ? target.z : 0) + uz * startDist];
-  let [px, pz] = home, phase = 'in', pawT = 0;
+  const k = CORNER[shooter], other = ux * k.sy - uz * k.sx < 0;
+  // how far out along that line to stand to bat the marble, and to leap at it from
+  const near = () => target ? Math.hypot(target.x, target.z) + target.r + 0.2 + REACH : 7;
+  // it pounces only if there is room on the stage to be seen crouching first
+  const seen = d => { const [x, y] = boardToStage(ux * d, uz * d), m = SIZE * unit * 0.4; return x > m && y > m && x < stage.clientWidth - m && y < stage.clientHeight - m; };
+  const pounce = !!target && seen(near() + LEAP) && (kittyMove ? kittyMove === 'pounce' : Math.random() < 0.5);
+  const spot = () => near() + (pounce ? LEAP : 0);
+  let rho = FAR, phase = 'in', leaving = false;   // rho: how far out along the line the cat is
   const show = () => {
-    const [x, y] = boardToStage(px, pz), [x1] = boardToStage(px + 1, pz);
-    cat.place({ x, y, size: SIZE * (x1 - x), rot: Math.atan2(f * uz, f * ux) * 180 / Math.PI, flip });
+    const [x, y] = boardToStage(ux * rho, uz * rho), a = Math.atan2(uz, ux) * 180 / Math.PI;
+    cat.place({ x, y, size: SIZE * unit, rot: other ? a + 180 : a, flip: other !== leaving });
   };
-  // hop towards a point on the board; true on arrival
-  const walk = (gx, gz, v, dt) => {
-    const dx = gx - px, dz = gz - pz, d = Math.hypot(dx, dz);
-    if ((pawT += dt) > 0.26) { pawT = 0; sPaw(px); }
-    if (d < v * dt) { px = gx; pz = gz; return true; }
-    px += dx / d * v * dt; pz += dz / d * v * dt; return false;
+  // trot in or out along the line; true on arrival
+  const go = (to, dt) => {
+    const step = (cat.velocity / unit || 9) * dt;   // the puppet stands still when motion is reduced, but must still get there
+    if (Math.abs(to - rho) < step) { rho = to; return true; }
+    rho += Math.sign(to - rho) * step; return false;
   };
-  const gait = () => { cat.play('bounce', { height: 0.07, duration: 260 }); };
+  const strike = () => {
+    if (target.alive && !target.ghost) { const [vx, vz] = kickToHole(target); target.vx = vx; target.vz = vz; sKick(target.x); }
+    const [bx, bz] = stageToBoard(cat.x, cat.y);
+    rho = bx * ux + bz * uz; phase = 'struck';
+  };
   const act = async () => {
-    cat.stop(); sMeow(px);
-    if (!target) { if (await cat.pose('look-up').play('tilt')) phase = 'leave'; return; }
-    const strike = () => { if (target.alive && !target.ghost) { const [vx, vz] = kickToHole(target); target.vx = vx; target.vz = vz; sKick(target.x); } phase = 'struck'; };
-    // then the look of a cat that had nothing to do with it
-    if (await cat.play('swipe', { onStrike: strike }) && await cat.wait(250) && await cat.pose('look-away').wait(550)) phase = 'leave';
+    sMeow(ux * rho);
+    const done = !target ? await cat.play('look', { rate: 1.5 })
+      : pounce ? await cat.play('pounce', { distance: LEAP / SIZE, height: 0.4, onLand: strike })
+      : await cat.play('swat', { at: boardToStage(target.x + ux * target.r * 0.4, target.z + uz * target.r * 0.4), onStrike: strike });
+    if (done) setTimeout(() => { phase = 'leave'; }, 350);
   };
-  cat.stop().pose('look-down'); show(); cat.show(); gait();
+  cat.stop(); cat.airborne = false; show(); cat.show(); cat.play('trot', { rate: 1.6 });
   return dt => {
-    if (phase === 'in' || phase === 'act') aim();   // the marble may be riding a turning ring
-    if (phase === 'in' && walk(...stand(), speed, dt)) { phase = 'act'; act(); }
-    else if (phase === 'act') [px, pz] = stand();
-    else if (phase === 'leave') { phase = 'out'; gait(); }
-    else if (phase === 'out' && walk(...home, speed * 1.3, dt)) { cat.stop().hide(); return true; }
-    show();
+    const tracking = phase === 'in' || (phase === 'act' && !cat.airborne);
+    if (tracking) aim();
+    if (phase === 'in') { if (go(spot(), dt)) { phase = 'act'; act(); } show(); }
+    else if (tracking) { rho = spot(); show(); }
+    else if (phase === 'leave') { phase = 'out'; leaving = true; cat.play('trot', { rate: 1.7 }); show(); }
+    else if (phase === 'out') { if (go(FAR, dt)) { cat.stop().hide(); return true; } show(); }
     return false;
+  };
+}
+let kittyMove = null;   // 'bat' or 'pounce' to take the choice away from chance, for the debug panel
+
+/* --- paw: a front leg comes up out of the hole, stretches as far as it has to for the nearest marble, and drags it down --- */
+function startPaw() {
+  const pool = W.marbles.filter(m => m.alive && !m.ghost);
+  const target = pool.reduce((b, m) => !b || Math.hypot(m.x, m.z) < Math.hypot(b.x, b.z) ? m : b, null);
+  const a = arm(boardToStage(0, 0), 8 * boardUnit());
+  let done = false, held = false;
+  (async () => {
+    if (!target) {   // nothing to be had: a grope about, and back down
+      const q = Math.random() * Math.PI * 2;
+      if (await a.play('reach', { to: boardToStage(Math.cos(q) * 4, Math.sin(q) * 4), duration: 0.6 }) && await a.play('pat') && await a.play('retract')) { a.hide(); done = true; }
+      return;
+    }
+    if (!await a.play('reach', { to: () => boardToStage(target.x, target.z), duration: 0.5 + Math.hypot(target.x, target.z) * 0.05 })) return;
+    target.ghost = true; target.vx = target.vz = 0; held = true; sGrab(target.x);
+    if (!await a.play('pat', { duration: 0.35 }) || !await a.play('retract', { duration: 0.75 })) return;
+    held = false; target.alive = false; target.fate = 'hole'; target.ghost = false;
+    if (target.owner !== W.shooter) { W.bonus[W.shooter] += 3; pop(0, 0, '+3', SEATS[W.shooter].color); }
+    const me = meshes.get(target.id); if (me) me.anim = { kind: 'hole', t: 0 };
+    holeGulp(0); a.hide(); done = true;
+  })();
+  return () => {
+    if (held) {   // the marble goes wherever the paw does
+      const me = meshes.get(target.id), [bx, bz] = stageToBoard(...a.locate('paw', CatPuppet.RIGS.arm.pawAt));
+      if (me) me.mesh.position.set(bx, target.r, bz);
+    }
+    return done;
   };
 }
 
-/* --- snake: rises from the hole, grabs the marble nearest the hole and drags it down --- */
-let snakeObj = null;
-function ensureSnake() {
-  if (snakeObj) return snakeObj;
-  const c = document.createElement('canvas'); c.width = 256; c.height = 64; const g = c.getContext('2d');
-  g.fillStyle = '#4c9a3e'; g.fillRect(0, 0, 256, 64);
-  g.fillStyle = '#2f6b28'; for (let x = 0; x < 256; x += 32) { g.beginPath(); g.moveTo(x, 32); g.lineTo(x + 16, 12); g.lineTo(x + 32, 32); g.lineTo(x + 16, 52); g.fill(); }
-  g.fillStyle = '#d8d25a'; for (let x = 16; x < 256; x += 32) { g.beginPath(); g.arc(x, 32, 5, 0, Math.PI * 2); g.fill(); }
-  const tex = new THREE.CanvasTexture(c); tex.encoding = THREE.sRGBEncoding; tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-  const bodyMat = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.45, metalness: 0.05 });
-  const body = new THREE.Mesh(new THREE.BufferGeometry(), bodyMat); body.castShadow = true;
-  const head = new THREE.Group();
-  const skull = new THREE.Mesh(new THREE.SphereGeometry(0.32, 24, 16), new THREE.MeshStandardMaterial({ color: 0x4c9a3e, roughness: 0.4 }));
-  skull.scale.set(1.35, 0.7, 1); skull.castShadow = true; head.add(skull);
-  for (const s of [-1, 1]) {
-    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.09, 12, 8), new THREE.MeshStandardMaterial({ color: 0xfff6c8, roughness: 0.2 }));
-    eye.position.set(0.14, 0.16, s * 0.15); head.add(eye);
-    const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 6), new THREE.MeshBasicMaterial({ color: 0x111111 }));
-    pupil.position.set(0.2, 0.2, s * 0.15); pupil.scale.set(0.5, 1, 1); head.add(pupil);
-  }
-  const tongue = new THREE.Mesh(new THREE.PlaneGeometry(0.4, 0.08).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xe0304a, side: THREE.DoubleSide }));
-  tongue.position.set(0.55, 0, 0); head.add(tongue);
-  const grp = new THREE.Group(); grp.add(body); grp.add(head); grp.visible = false; scene.add(grp);
-  snakeObj = { grp, body, head, tongue, tex }; return snakeObj;
+/* a marble left on a launch pad is swatted off the board by a paw from that corner, one marble at a time */
+let swatting = Promise.resolve();
+function padSwat(m) {
+  const e = meshes.get(m.id), world = W;
+  if (e) e.anim = { kind: 'held', t: 0 };
+  swatting = swatting.then(async () => {
+    if (W !== world || !m.alive) return;   // the game was abandoned while this one waited its turn
+    const seat = SEATS.findIndex(s => Math.hypot(m.x - s.pad[0], m.z - s.pad[1]) < PAD_CLEAR);
+    const [cx, cy] = cornerPoint(seat, stage.clientWidth, stage.clientHeight), [mx, my] = boardToStage(m.x, m.z);
+    const a = arm([cx, cy], 5 * boardUnit());
+    const strike = () => {
+      // knocked sideways, the way the paw is going, and a little outwards
+      const d = Math.hypot(mx - cx, my - cy), dx = (mx - cx) / d, dy = (my - cy) / d;
+      clearPad(W, m); sSwat(m.x); pop(m.x, m.z, '−' + PAD_PENALTY, SEATS[W.shooter].color);
+      if (e) e.anim = { kind: 'edge', t: 0, vx: (dy - dx * 0.3) * 15, vz: (-dx - dy * 0.3) * 15, vy: 7 };
+    };
+    if (await a.play('reach', { to: [mx, my], duration: 0.35 }) && await a.play('swat', { onStrike: strike }) && await a.play('retract', { duration: 0.3 })) a.hide();
+  }).catch(e => console.error(e));
 }
-function startSnake() {
-  const sn = ensureSnake();
-  const pool = W.marbles.filter(m => m.alive && !m.ghost);
-  const target = pool.reduce((b, m) => !b || Math.hypot(m.x, m.z) < Math.hypot(b.x, b.z) ? m : b, null);
-  let tx = target ? target.x : 2, tz = target ? target.z : 0;
-  const reach = () => Math.max(0.5, Math.hypot(tx, tz) - (R + 0.2));
-  const DEPTH = 1.6;
-  let phase = 'rise', t = 0, e = 0, clock = 0;
-  sn.grp.visible = true; sHiss(1.2);
-  // point along the snake's path at arc length s: up out of the hole, then along the board to the target
-  const point = (s, len) => {
-    const [dx, dz] = [tx / (Math.hypot(tx, tz) || 1), tz / (Math.hypot(tx, tz) || 1)];
-    if (s < DEPTH) return new THREE.Vector3(0, -DEPTH + s + 0.35, 0);
-    const h = s - DEPTH, taper = Math.min(1, h / 1.2) * Math.min(1, (len - s) / 0.8 + 0.2);
-    const wig = Math.sin(h * 3.2 - clock * 9) * 0.32 * taper;
-    return new THREE.Vector3(dx * h - dz * wig, 0.35, dz * h + dx * wig);
-  };
-  const build = sHead => {
-    const n = Math.max(3, Math.ceil(sHead / 0.15));
-    const pts = []; for (let i = 0; i <= n; i++) pts.push(point(sHead * i / n, sHead));
-    const curve = new THREE.CatmullRomCurve3(pts);
-    sn.body.geometry.dispose(); sn.body.geometry = new THREE.TubeGeometry(curve, n * 2, 0.2, 10, false);
-    sn.tex.repeat.set(sHead / 1.2, 1);
-    const hp = pts[pts.length - 1], prev = pts[pts.length - 2];
-    sn.head.position.copy(hp); sn.head.rotation.set(0, Math.atan2(-(hp.z - prev.z), hp.x - prev.x), 0);
-    sn.tongue.visible = Math.sin(clock * 25) > 0.2;
-    return hp;
-  };
-  return dt => {
-    t += dt; clock += dt;
-    const full = DEPTH + reach();
-    if (target && target.alive && phase === 'rise') { tx = target.x; tz = target.z; }
-    if (phase === 'rise') {
-      e = Math.min(1, t / (0.35 + full / 7));
-      build(Math.max(0.3, e * full));
-      if (e >= 1) { phase = target ? 'grab' : 'back'; t = 0; if (target) { target.ghost = true; target.vx = target.vz = 0; sSnap(target.x); } }
-    } else if (phase === 'grab') {
-      build(full);
-      if (t > 0.25) { phase = 'pull'; t = 0; sSlurp(); }
-    } else if (phase === 'pull' || phase === 'back') {
-      e = Math.max(0, 1 - t / 1.0);
-      const hp = build(Math.max(0.05, e * full));
-      if (phase === 'pull' && target) {
-        const me = meshes.get(target.id);
-        if (me) me.mesh.position.set(hp.x * 0.98, Math.max(hp.y, -2), hp.z * 0.98);
-        if (hp.y < -0.2 && target.alive) {
-          target.alive = false; target.fate = 'hole'; target.ghost = false;
-          if (target.owner !== W.shooter) { W.bonus[W.shooter] += 3; pop(0, 0, '+3', SEATS[W.shooter].color); }
-          if (me) me.anim = { kind: 'hole', t: 0 };
-          sHoleSequence(0); setTimeout(igniteHole, 550);
-        }
-      }
-      if (e <= 0) { sn.grp.visible = false; return true; }
-    }
-    return false;
-  };
+// a computer player's marble is flicked by a paw reaching in from its corner, which waits behind the marble until the shot
+function cpuPaw(seat) {
+  const [px, pz] = SEATS[seat].pad, d = Math.hypot(px, pz), back = current.r + 0.35;
+  const a = arm(cornerPoint(seat, stage.clientWidth, stage.clientHeight), 5 * boardUnit());
+  a.play('reach', { to: boardToStage(current.x + px / d * back, current.z + pz / d * back), duration: 0.5 });
+  return a;
 }
 
 /* ===== GAME STATE ===== */
@@ -1182,8 +1200,8 @@ function newGame() {
   clearTimeout(cpuTimer);
   if (W) for (const m of W.marbles) removeMarbleMesh(m.id);
   for (const id of [...meshes.keys()]) removeMarbleMesh(id);
-  eventBusy = false; activeEffect = null; quake.t = 0; dismissCats(); if (snakeObj) snakeObj.grp.visible = false;
-  W = { marbles: [], bonus: [0, 0, 0, 0], shooter: 0, nextId: 1, spotCool: [0, 0, 0, 0], spotQueue: [], spotTypes: ['quake', 'spin', 'cat', 'snake'].sort(() => Math.random() - 0.5), spinMul: 1, spinTarget: 1, surgeTurns: 0, pads: [0, 1, 2, 3].filter(i => seatModes[i] !== 'off').map(i => SEATS[i].pad) };
+  eventBusy = false; activeEffect = null; quake.t = 0; dismissCats();
+  W = { marbles: [], bonus: [0, 0, 0, 0], shooter: 0, nextId: 1, spotCool: [0, 0, 0, 0], spotQueue: [], spotTypes: ['quake', 'spin', 'cat', 'paw'].sort(() => Math.random() - 0.5), spinMul: 1, spinTarget: 1, surgeTurns: 0, pads: [0, 1, 2, 3].filter(i => seatModes[i] !== 'off').map(i => SEATS[i].pad) };
   active = [0, 1, 2, 3].filter(i => seatModes[i] !== 'off');
   shots = [0, 1, 2, 3].map(i => seatModes[i] === 'off' ? 0 : perPlayer);
   W.spotCoolTurns = active.length;
@@ -1256,7 +1274,7 @@ function celebrate(winners) {
     colors: [...cols, ...cols, '#f2c14e', '#fff8ec'], origin: { x, y }, z: 4,
     onEvent: e => e === 'burst' ? sFirework() : e === 'fling' ? sFling() : sPaw(),
   });
-  sFanfare(); if (!CatActor.reducedMotion) igniteHole();
+  sFanfare(); popFace(1.5);
   banner(winners.length > 1 ? 'A tie!' : SEATS[winners[0]].name + ' wins!', winners.length > 1 ? '#f2c14e' : cols[0], winners[0], 'win');
   champs = winners.map((seat, n) => {
     const cat = cornerCat(new CatActor(stage, { pose: 'beg', hidden: true, z: 4 }), seat, champSize()).wear('crown');
@@ -1309,7 +1327,7 @@ function updateHud() {
 
 /* ===== COMPUTER PLAYER ===== */
 async function cpuTurn(seat) {
-  const pause = () => new Promise(r => setTimeout(r, 0));
+  const pause = () => new Promise(r => setTimeout(r, 0)), paw = cpuPaw(seat);
   const LEAD = 2.0, t0 = performance.now(), snap = cloneWorld(W);
   const [px, pz] = [current.x, current.z];
   const base = Math.atan2(-pz, -px);
@@ -1348,7 +1366,8 @@ async function cpuTurn(seat) {
     const now = performance.now(), k = Math.min(1, (now - a0) / dur), e = 1 - Math.pow(1 - k, 3);
     showAim(current, Math.cos(ang), Math.sin(ang), pow * e, null);
     if (now < Math.max(fire, a0 + dur)) requestAnimationFrame(anim);
-    else launch(Math.cos(ang) * pow * PHYS.vmax, Math.sin(ang) * pow * PHYS.vmax);
+    else paw.play('flick', { onStrike: () => { if (phase === 'cpu') launch(Math.cos(ang) * pow * PHYS.vmax, Math.sin(ang) * pow * PHYS.vmax); } })
+      .then(ok => ok && paw.play('retract', { duration: 0.3 })).then(ok => { if (ok) paw.hide(); });
   };
   anim();
 }
@@ -1440,7 +1459,7 @@ function frame(now) {
     for (const e of events) {
       if (e.t === 'hit') sClick(e.imp, e.x, e.big);
       else if (e.t === 'hole') {
-        sHoleSequence(e.m.x); setTimeout(igniteHole, 550);
+        holeGulp(e.m.x);
         const me = meshes.get(e.m.id); if (me) me.anim = { kind: 'hole', t: 0 };
         if (e.bonus) pop(0, 0, '+3', SEATS[W.shooter].color);
       } else if (e.t === 'spot') {
@@ -1475,7 +1494,7 @@ function frame(now) {
             // a shrunk giant may now roll into the hole or nudge others: keep playing until that settles too
             sShrink(); restHold = 0; launchAt = now;
           } else if (doomed.length) {
-            for (const m of doomed) { m.doomed = true; const e = meshes.get(m.id); if (e) e.anim = { kind: 'fuse', t: 0, m }; sFuse(m.x); }
+            for (const m of doomed) { m.doomed = true; padSwat(m); }
             restHold = 0; launchAt = now;
           } else if (W.spotQueue.length) {
             runSpot(W.spotQueue.shift()); restHold = 0; launchAt = now;
@@ -1492,25 +1511,13 @@ function frame(now) {
     for (const [id, e] of meshes) {
       const a = e.anim; if (!a) continue;
       a.t += dt; const p = e.mesh.position;
-      if (a.kind === 'fuse') {
-        // glow and tremble, then explode
-        const k = Math.min(1, a.t / 0.6), mat = e.mesh.material;
-        if (mat.emissive) { mat.emissive.setRGB(1, 0.25, 0.05); mat.emissiveIntensity = k * (0.6 + 0.4 * Math.sin(a.t * 60)); }
-        p.x = a.m.x + (Math.random() - 0.5) * 0.06 * k; p.z = a.m.z + (Math.random() - 0.5) * 0.06 * k;
-        if (a.t >= 0.6) {
-          clearPad(W, a.m); sPadBlast(a.m.x); igniteAt(a.m.x, a.m.z);
-          pop(a.m.x, a.m.z, '\u2212' + PAD_PENALTY, SEATS[W.shooter].color);
-          e.anim = { kind: 'boom', t: 0 };
-        }
+      if (a.kind === 'held') {
+        // waiting on a launch pad for the paw that is coming for it
       } else if (a.kind === 'sink') {
         const k = Math.min(1, a.t / 0.6);
         p.x += (a.x - p.x) * Math.min(1, dt * 8); p.z += (a.z - p.z) * Math.min(1, dt * 8);
         e.mesh.scale.setScalar(e.scale * (1 - k)); e.mesh.rotateY(dt * 14);
         if (k >= 1) removeMarbleMesh(id);
-      } else if (a.kind === 'boom') {
-        e.mesh.scale.setScalar(e.scale * (1 + a.t * 6));
-        if (!e.mesh.material.transmission) { e.mesh.material.opacity = Math.max(0, 1 - a.t / 0.15); }
-        if (a.t > 0.15) removeMarbleMesh(id);
       } else if (a.kind === 'hole') {
         p.x += (0 - p.x) * Math.min(1, dt * 10); p.z += (0 - p.z) * Math.min(1, dt * 10);
         p.y -= dt * (1.5 + a.t * 9);
@@ -1521,7 +1528,7 @@ function frame(now) {
         if (p.y < -4) removeMarbleMesh(id);
       }
     }
-    updateFlames(dt);
+    updateHoleCat(dt);
     updateRolling(dt);
   }
   if ((phase === 'aim' || phase === 'cpu') && current) {
@@ -1555,7 +1562,6 @@ function resize() {
   const halfH = (h / 2) / s;
   camera.position.set(0, halfH / t, 0.001); camera.lookAt(0, 0, 0); camBase.copy(camera.position);
   camera.updateProjectionMatrix();
-  flameMat.uniforms.uScale.value = renderer.getDrawingBufferSize(new THREE.Vector2()).y / (2 * t);
 }
 addEventListener('resize', resize);
 
@@ -1582,7 +1588,7 @@ document.getElementById('perSeg').addEventListener('click', e => {
 document.getElementById('startBtn').onclick = () => { audio(); newGame(); };
 document.getElementById('againBtn').onclick = () => newGame();
 function toSetup() {
-  eventBusy = false; activeEffect = null; quake.t = 0; dismissCats(); if (snakeObj) snakeObj.grp.visible = false;
+  eventBusy = false; activeEffect = null; quake.t = 0; dismissCats();
   clearTimeout(cpuTimer); phase = 'setup'; hideAim();
   for (const id of [...meshes.keys()]) removeMarbleMesh(id);
   W = null; updateHud(); badges.forEach(b => b.hidden = true);
@@ -1664,8 +1670,51 @@ const debugCatSet = debugSet('Cat gestures', [
 const debugHat = debugSelect(debugCatSet, [['', 'no hat'], ...Object.keys(CatActor.HATS).map(k => [k, k])]);
 const debugPose = debugSelect(debugCatSet, Object.keys(CatActor.POSES).map(k => [k, k]));
 debugPose.onchange = debugHat.onchange = () => debugGesture();
-debugSet('Hotspots', [...Object.keys(SPOT_TYPES).map(type => [type, () => debugSpot(type)]), ['scatter marbles', debugScatter]]);
+// the jointed puppets: any of them can be put through its animations, and any bone turned by hand
+const debugPuppets = {};
+let debugRig = 'walker';
+function puppet() {
+  const w = stage.clientWidth, h = stage.clientHeight, m = Math.min(w, h);
+  let cat = debugPuppets[debugRig];
+  if (!cat) cat = debugPuppets[debugRig] = new CatPuppet(stage, { rig: debugRig, hidden: true, z: 3, x: w * 0.75, y: h * 0.62 });
+  if (debugRig === 'arm') { if (cat.hidden) { cat.place({ x: w * 0.12, y: h * 0.9, size: m * 0.25 }); cat.armLen = 0; } }
+  else cat.place({ size: m * 0.3 });
+  if (cat.hidden) cat.show();
+  return cat;
+}
+function debugPuppetPlay(name) {
+  const cat = puppet(), w = stage.clientWidth, h = stage.clientHeight;
+  if (debugRig === 'walker' && (name === 'walk' || name === 'trot')) return cat.walkTo(cat.x > w / 2 ? w * 0.22 : w * 0.78, cat.y, { gait: name });   // from one side of the stage to the other
+  if (debugRig === 'walker' && name === 'pounce') cat.place({ flip: cat.x < w / 2 });   // leap towards the middle
+  cat.play(name, name === 'reach' ? { to: [w * (0.3 + Math.random() * 0.5), h * (0.15 + Math.random() * 0.5)] } : {});
+}
+const debugPuppetSet = debugSet('Puppet', [
+  ['turn round', () => { const cat = puppet(); cat.place({ flip: !cat.flip }); }],
+  ['bones', () => { const cat = puppet(); cat.showBones = !cat.showBones; }],
+  ['reset joints', () => { puppet().tweak = {}; debugJoint.value = 0; }],
+  ['hide', () => { const cat = debugPuppets[debugRig]; if (cat) cat.stop().hide(); }],
+]);
+const debugAnims = document.createElement('div'); debugAnims.className = 'set'; debugAnims.style.flexBasis = '100%';
+const debugJoint = document.createElement('input'); debugJoint.type = 'range'; debugJoint.min = -70; debugJoint.max = 70; debugJoint.value = 0; debugJoint.setAttribute('aria-label', 'Turn the chosen joint');
+debugPuppetSet.prepend(debugAnims);
+debugPuppetSet.prepend(debugJoint);
+const debugBone = debugSelect(debugPuppetSet, []);
+const debugRigs = debugSelect(debugPuppetSet, CatPuppet.rigs.map(k => [k, k]));
+function debugRigChanged() {
+  for (const cat of Object.values(debugPuppets)) cat.stop().hide();
+  debugRig = debugRigs.value;
+  debugAnims.replaceChildren(...CatPuppet.animations(debugRig).map(name => { const b = document.createElement('button'); b.textContent = name; b.onclick = () => debugPuppetPlay(name); return b; }));
+  debugBone.replaceChildren(...CatPuppet.bones(debugRig).map(k => new Option(k, k)));
+  debugJoint.value = 0;
+}
+debugRigs.onchange = debugRigChanged;
+debugBone.onchange = () => { debugJoint.value = puppet().tweak[debugBone.value] || 0; };
+debugJoint.oninput = () => { puppet().tweak[debugBone.value] = +debugJoint.value; };
+debugRigChanged();
+debugSet('Hotspots', [...Object.keys(SPOT_TYPES).map(type => [type, () => { kittyMove = null; debugSpot(type); }]),
+  ...['bat', 'pounce'].map(move => ['cat: ' + move, () => { kittyMove = move; debugSpot('cat'); }]), ['scatter marbles', debugScatter]]);
 debugSet('Finale', [
+  ['hole face', () => holeGulp(0)],
   ['win', () => celebrate([debugSeat])],
   ['tie', () => celebrate([debugSeat, (debugSeat + 2) % 4])],
   ['stop party', endParty],
@@ -1675,6 +1724,7 @@ debugSet('Finale', [
 /* ===== BOOT ===== */
 badges.forEach(b => b.hidden = true);
 CatActor.preload();
+for (const photo of ['walker', 'upright', 'arm']) CatPuppet.photo(photo);
 renderSeats();
 resize();
 const fontReady = document.fonts ? Promise.race([document.fonts.load('700 80px Fredoka'), new Promise(r => setTimeout(r, 1500))]) : Promise.resolve();
