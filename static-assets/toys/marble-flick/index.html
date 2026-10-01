@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Marble Flick</title>
-<meta name="description" content="Flick marbles into the rings and knock your rivals into the hole, for up to four players and computer opponents around one screen">
+<meta name="description" content="Flick marbles into the rings and knock your rivals into the hole, watched over by some very opinionated cats. For up to four players and computer opponents around one screen">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -79,28 +79,32 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .results li .dot{width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff 0 8%,var(--c) 30%,color-mix(in srgb,var(--c) 55%,#000) 100%)}
 .results li .pts{margin-left:auto;font-weight:700;font-size:24px;font-variant-numeric:tabular-nums}
 .results li.win{font-weight:600}
-/* friend reaction pop-up */
-.friend{position:absolute;left:var(--ax,50%);top:var(--ay,100%);width:min(34vh,230px);aspect-ratio:380/437;z-index:3;pointer-events:none;
-  transform-origin:50% 100%;transform:translate(-50%,-100%) rotate(var(--rot,0deg)) translateY(105%);transition:transform .38s cubic-bezier(.3,1.5,.5,1)}
-.friend.show{transform:translate(-50%,-100%) rotate(var(--rot,0deg)) translateY(4%)}
-.friend img{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 6px 14px rgba(0,0,0,.45))}
-.f-head{transform-origin:50% 39%}
-.friend.shake .f-head{animation:headshake 1.1s ease-in-out}
-@keyframes headshake{0%,100%{transform:none}12%{transform:translateX(-4%) rotate(-4deg) scaleX(.97)}28%{transform:translateX(4%) rotate(4deg) scaleX(.97)}
-  44%{transform:translateX(-4%) rotate(-4deg) scaleX(.97)}60%{transform:translateX(4%) rotate(4deg) scaleX(.97)}76%{transform:translateX(-2%) rotate(-2deg)}}
-.arms{position:absolute;inset:0;opacity:0;transition:opacity .15s}
-.friend.clap .arms{opacity:1}
-.arm{position:absolute;bottom:-2%;width:28%;aspect-ratio:100/220;transform-origin:50% 100%;filter:drop-shadow(0 4px 6px rgba(0,0,0,.35))}
-.arm svg{width:100%;height:100%;display:block}
-.arm.l{left:22%}
-.arm.r{right:22%}
-.arm.r svg{transform:scaleX(-1)}
-.burst{position:absolute;left:50%;top:49%;width:22%;margin-left:-11%;opacity:0;transform-origin:50% 50%}
-@media (prefers-reduced-motion: reduce){.friend{transition:none}.friend.shake .f-head,}
+/* a cat at the head of a card: a point for a CatActor to stand on, centred, or against the card's right-hand edge */
+.catspot{position:relative;width:0;height:var(--h,84px);margin:-6px auto 8px}
+.catspot.side{position:absolute;right:0;top:0;height:0;margin:0}
+.card{position:relative}
+#over{background:radial-gradient(ellipse at center,rgba(10,22,18,.2),rgba(10,22,18,.45))}
+@media (max-width:479px){#setup .catspot{display:none}}
+@media (max-height:639px){#over .catspot{display:none}}
 .banner{position:absolute;left:50%;top:50%;z-index:4;pointer-events:none;font-weight:700;font-size:clamp(32px,7vmin,64px);
-  color:#fff8ec;text-shadow:0 3px 0 var(--c),0 6px 18px rgba(0,0,0,.55);white-space:nowrap;transform:translate(-50%,-50%) scale(.4);opacity:0}
+  color:#fff8ec;text-shadow:0 3px 0 var(--c),0 6px 18px rgba(0,0,0,.55);white-space:nowrap;text-align:center;transform:translate(-50%,-50%) scale(.4);opacity:0}
 .banner.go{animation:bannerIn 1.6s cubic-bezier(.3,1.4,.5,1) forwards}
+.banner.win{font-size:clamp(40px,11vmin,104px);animation-duration:3.4s}
 @keyframes bannerIn{0%{opacity:0;transform:translate(-50%,-50%) rotate(var(--rot,0deg)) scale(.4)}18%{opacity:1;transform:translate(-50%,-50%) rotate(var(--rot,0deg)) scale(1)}80%{opacity:1;transform:translate(-50%,-50%) rotate(var(--rot,0deg)) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) rotate(var(--rot,0deg)) scale(1.15)}}
+/* debug panel: a button for every animation, switched on from the opening screen */
+.optrow input[type=checkbox]{width:22px;height:22px;margin:0;accent-color:var(--accent);cursor:pointer}
+.debug{position:absolute;left:8px;top:50%;transform:translateY(-50%);z-index:7;width:204px;max-height:calc(100% - 120px);overflow:auto;touch-action:pan-y;
+  padding:6px 10px 10px;border-radius:14px;background:var(--panel);border:2px solid var(--line);font-size:12px;color:var(--ink-dim)}
+.debug[hidden],.debug [hidden]{display:none}
+.debug button,.debug select{font:inherit;color:var(--ink);background:none;border:1.5px solid var(--line);border-radius:999px;padding:3px 9px;cursor:pointer}
+.debug select{border-radius:8px;padding:3px 4px;max-width:100%}
+.debug select option{color:#000}
+.debug button:hover{border-color:var(--ink-dim)}
+.debug .head{display:block;width:100%;border:0;padding:2px 0;text-align:left;font-weight:600;font-size:13px}
+.debug h2{margin:9px 0 5px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.debug .set{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.debug .seatdot{width:22px;height:22px;padding:0;border:2px solid transparent;background:radial-gradient(circle at 35% 30%,#fff 0 8%,var(--c) 30%,color-mix(in srgb,var(--c) 55%,#000) 100%)}
+.debug .seatdot[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--felt-deep) inset}
 #menuBtn{position:absolute;left:50%;top:calc(env(safe-area-inset-top,0px) + 10px);transform:translateX(-50%);z-index:4;
   font:inherit;font-size:14px;padding:6px 14px;border-radius:999px;border:2px solid var(--line);background:var(--panel);color:var(--ink-dim);cursor:pointer}
 </style>
@@ -113,40 +117,16 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
   <div class="badge tl" id="b3"></div>
   <button id="menuBtn" hidden>Menu</button>
   <div class="banner" id="banner"></div>
-  <div class="friend" id="friend" aria-hidden="true">
-    <img class="f-body" id="fBody" alt="">
-    <img class="f-head" id="fHead" alt="">
-    <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-      <linearGradient id="fsk" x1="0" x2="1"><stop offset="0" stop-color="#d99a86"/><stop offset=".45" stop-color="#f0c3b0"/><stop offset="1" stop-color="#dca08b"/></linearGradient>
-      <pattern id="fst" width="10" height="9" patternUnits="userSpaceOnUse"><rect width="10" height="9" fill="#1f2a55"/><rect y="6" width="10" height="2.2" fill="#eef1f6"/></pattern>
-    </defs></svg>
-    <div class="arms">
-      <div class="arm l" id="armL"><svg viewBox="0 0 100 220" aria-hidden="true"><g stroke="#a8685a" stroke-width="2" fill="url(#fsk)">
-<rect x="31" y="100" width="40" height="110" rx="14"/>
-<rect x="21" y="22" width="13" height="56" rx="6.5" transform="rotate(-7 27 78)"/>
-<rect x="34" y="8" width="13.5" height="68" rx="6.7" transform="rotate(-2 41 76)"/>
-<rect x="48" y="10" width="13.5" height="66" rx="6.7" transform="rotate(2 55 76)"/>
-<rect x="61" y="22" width="12.5" height="56" rx="6.2" transform="rotate(7 67 78)"/>
-<rect x="66" y="58" width="14" height="42" rx="7" transform="rotate(26 73 98)"/>
-<path d="M22 64 Q20 104 34 118 L68 118 Q80 104 78 64 Z"/>
-</g><rect x="24" y="168" width="54" height="54" rx="6" fill="url(#fst)" stroke="#141c3a" stroke-width="2"/></svg></div>
-      <div class="arm r" id="armR"><svg viewBox="0 0 100 220" aria-hidden="true"><g stroke="#a8685a" stroke-width="2" fill="url(#fsk)">
-<rect x="31" y="100" width="40" height="110" rx="14"/>
-<rect x="21" y="22" width="13" height="56" rx="6.5" transform="rotate(-7 27 78)"/>
-<rect x="34" y="8" width="13.5" height="68" rx="6.7" transform="rotate(-2 41 76)"/>
-<rect x="48" y="10" width="13.5" height="66" rx="6.7" transform="rotate(2 55 76)"/>
-<rect x="61" y="22" width="12.5" height="56" rx="6.2" transform="rotate(7 67 78)"/>
-<rect x="66" y="58" width="14" height="42" rx="7" transform="rotate(26 73 98)"/>
-<path d="M22 64 Q20 104 34 118 L68 118 Q80 104 78 64 Z"/>
-</g><rect x="24" y="168" width="54" height="54" rx="6" fill="url(#fst)" stroke="#141c3a" stroke-width="2"/></svg></div>
-      <svg class="burst" id="clapBurst" viewBox="0 0 60 60"><g stroke="#ffd35a" stroke-width="4" stroke-linecap="round"><path d="M30 4v10M30 46v10M4 30h10M46 30h10M11 11l7 7M42 42l7 7M49 11l-7 7M18 42l-7 7"/></g></svg>
-    </div>
+  <div class="debug" id="debug" hidden>
+    <button class="head" id="debugHead" aria-expanded="true">Debug ▾</button>
+    <div id="debugBody"></div>
   </div>
 
   <div class="overlay" id="setup">
     <div class="card">
+      <div class="catspot side" id="setupCat"></div>
       <h1>Marble Flick <span class="m"></span></h1>
-      <p class="lede">Gather round the board. Take turns flicking marbles into the rings, and knock your rivals into the hole.</p>
+      <p class="lede">Gather round the board. Flick marbles into the rings, knock rivals into the hole, and impress the cats.</p>
       <div class="seats" id="seats"></div>
       <div class="optrow">Marbles each
         <div class="seg" id="perSeg">
@@ -159,6 +139,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
       <div class="optrow">Sound
         <div class="seg soundSeg"><button data-s="on" aria-pressed="true">On</button><button data-s="off">Off</button></div>
       </div>
+      <label class="optrow" for="debugChk">Debug panel<input type="checkbox" id="debugChk"></label>
       <p class="how"><strong>Drag back</strong> from your marble and let go to flick it. When everything stops, marbles in the rings score <strong>1, 3 and 5</strong>. Sinking a rival's marble in the centre hole earns <strong>+3</strong>. Anything that rolls off the edge is gone, and a marble left sitting on a launch pad blows up and costs the shooter <strong>2</strong>. The four <strong>hotspots</strong> on the edges swallow any marble that rolls slowly across them and set something off: an earthquake, a spin surge, a hungry snake or a mischievous cat. Handy when you're losing. Each one needs a full round to recharge, and after every event the hotspots shuffle places. Every third marble is a <strong>giant</strong>: heavy enough to bulldoze, too big for the hole, and it shrinks back once everything stops. Tap a seat to switch it between player, computer and empty.</p>
       <button class="go" id="startBtn">Start game</button>
     </div>
@@ -166,6 +147,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 
   <div class="overlay" id="over" hidden>
     <div class="card">
+      <div class="catspot" id="overCat" style="--h:112px"></div>
       <h1 id="winTitle">Game over</h1>
       <p class="lede" id="winSub"></p>
       <ol class="results" id="results"></ol>
@@ -176,8 +158,9 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 
   <div class="overlay" id="pause" hidden>
     <div class="card">
+      <div class="catspot side" id="pauseCat"></div>
       <h1>Paused</h1>
-      <p class="lede">The marbles will wait.</p>
+      <p class="lede">The marbles will wait.<br>The cats might not.</p>
       <div class="optrow">Marble finish
         <div class="seg finishSeg"><button data-f="swirl">Swirl</button><button data-f="glass" aria-pressed="true">Glass</button></div>
       </div>
@@ -191,6 +174,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script src="cat-actor.js"></script>
 <script>
 /* ===== PHYSICS (pure, deterministic; shared by game and computer players) ===== */
 const R = 0.525, HALF = 10, CORNER_R = 0.7, HOLE_R = 0.75, FUNNEL_R = 1.9, PAD = 8.3;
@@ -331,56 +315,40 @@ let perPlayer = 5;
 
 /* seeded random for textures */
 function rng(seed) { let s = seed >>> 0 || 1; return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296; }
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
-const FRIEND_HEAD='';
-const FRIEND_BODY='';
-
-/* friend reacts at the end of each go: claps if the shooter gained points, shakes her head otherwise */
-const friendEl = document.getElementById('friend');
-document.getElementById('fHead').src = FRIEND_HEAD;
-document.getElementById('fBody').src = FRIEND_BODY;
+/* a cat pops up from the shooter's corner at the end of each go: delighted if the shot gained points, and
+   pointedly unimpressed if it did not */
 const REACT_MS = 2000;
-const armL = document.getElementById('armL'), armR = document.getElementById('armR'), clapBurst = document.getElementById('clapBurst');
-const bodyImg = document.getElementById('fBody'), headImg = document.getElementById('fHead');
-// arms swing about the elbow; OPEN is the resting spread, SHUT is palms touching in front of her chest
-const CLAP = { n: 5, period: 250, OPEN: -22, SHUT: 3 };
-function runClaps() {
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const t0 = performance.now(), total = CLAP.n * CLAP.period;
-  let hits = 0;
-  const tick = now => {
-    const t = now - t0;
-    if (t >= total || !friendEl.classList.contains('clap')) {
-      armL.style.transform = armR.style.transform = ''; clapBurst.style.opacity = 0;
-      bodyImg.style.transform = headImg.style.transform = '';
-      return;
-    }
-    const ph = (t % CLAP.period) / CLAP.period;
-    // accelerate in, bounce out: contact at ph = 0.45
-    const close = ph < 0.45 ? Math.pow(ph / 0.45, 2.2) : 1 - Math.pow((ph - 0.45) / 0.55, 0.7);
-    const ang = reduce ? CLAP.SHUT : CLAP.OPEN + (CLAP.SHUT - CLAP.OPEN) * close;
-    const squash = ph > 0.43 && ph < 0.55 ? 0.93 : 1;
-    armL.style.transform = `rotate(${ang}deg) scaleX(${squash})`;
-    armR.style.transform = `rotate(${-ang}deg) scaleX(${squash})`;
-    if (ph >= 0.45 && hits < Math.floor(t / CLAP.period) + 1) { hits++; sClap(); setTimeout(sArmSwing, CLAP.period * 0.3); }
-    const b = ph >= 0.45 ? 1 - (ph - 0.45) / 0.45 : 0;
-    clapBurst.style.opacity = Math.max(0, b);
-    clapBurst.style.transform = `scale(${0.7 + (1 - b) * 0.6})`;
-    const bob = reduce ? 0 : -1.4 * close;
-    bodyImg.style.transform = headImg.style.transform = `translateY(${bob}%)`;
-    requestAnimationFrame(tick);
-  };
-  requestAnimationFrame(tick);
+const REACTIONS = {
+  cheer: ['beg', c => { sChirp(); setTimeout(sChirp, 380); return c.play('cheer'); }],
+  flip: ['beg', async c => { sChirp(1.25); if (await c.play('flip')) { sChirp(); await c.play('hop'); } }],
+  hop: ['upright', c => { sChirp(); return c.play('cheer', { hops: 2, height: 0.26 }); }],
+  wave: ['paw-up', c => { sChirp(0.9); return c.play('wiggle', { deg: 6 }); }],
+  yawn: ['loaf', c => { setTimeout(sYawn, 260); return c.play('yawn'); }],
+  groom: ['groom', c => { sTut(); return c.play('tilt', { deg: -5, duration: 1100 }); }],
+  snub: ['look-away', c => { sTut(); return c.play('shake', { times: 2 }); }],
+};
+let reactCat = null, reactRun = 0;
+// stand a cat in a seat's corner, head towards the middle of the board, with its feet tucked out of sight
+function cornerCat(cat, seat, size) {
+  const [ax, ay] = cornerPoint(seat, stage.clientWidth, stage.clientHeight), k = CORNER[seat], d = size * 0.3;
+  return cat.place({ x: ax - k.sx * d, y: ay - k.sy * d, rot: k.rot, size });
 }
-function friendReact(seat, happy) {
-  const [ax, ay] = cornerPoint(seat, stage.clientWidth, stage.clientHeight);
-  friendEl.style.setProperty('--ax', ax + 'px'); friendEl.style.setProperty('--ay', ay + 'px'); friendEl.style.setProperty('--rot', CORNER[seat].rot + 'deg');
-  friendEl.className = 'friend';
-  void friendEl.offsetWidth;                         // restart animations
-  friendEl.classList.add('show'); sSwoosh(true);
-  setTimeout(() => { friendEl.classList.add(happy ? 'clap' : 'shake'); if (happy) runClaps(); }, 300);
-  if (!happy) { sTut(); setTimeout(sShakeSwishes, 300); }
-  setTimeout(() => { friendEl.classList.remove('show'); sSwoosh(false, 0.18); }, REACT_MS - 350);
+const reactSize = () => Math.min(Math.min(stage.clientWidth, stage.clientHeight) * 0.3, 210);
+// name picks the reaction; left out, it follows from the points gained
+async function catReact(seat, gained, name = gained >= 5 ? 'flip' : pick(gained > 0 ? ['cheer', 'hop', 'wave'] : ['yawn', 'groom', 'snub'])) {
+  const cat = reactCat || (reactCat = new CatActor(stage, { hidden: true, z: 3 })), run = ++reactRun;
+  const [pose, act] = REACTIONS[name];
+  cornerCat(cat.stop(), seat, reactSize()).pose(pose);
+  sSwoosh(true);
+  setTimeout(() => { if (run === reactRun) { sSwoosh(false, 0.18); cat.exit(); } }, REACT_MS - 350);
+  if (await cat.enter()) act(cat);
+}
+function dismissCats() {
+  reactRun++;
+  for (const cat of [reactCat, boardCat, debugCat]) if (cat) cat.stop().hide();
+  endParty();
 }
 
 /* seat corners, in screen terms: seat 0 bottom-left, 1 bottom-right, 2 top-right, 3 top-left.
@@ -483,6 +451,15 @@ function drawBoardCanvas() {
     g.globalCompositeOperation = 'source-over';
     g.strokeStyle = s.color; g.lineWidth = 0.09 * u; g.beginPath(); g.arc(x, y, 0.85 * u, 0, Math.PI * 2); g.stroke();
     g.strokeStyle = 'rgba(60,30,12,.5)'; g.lineWidth = 0.04 * u; g.beginPath(); g.arc(x, y, 0.55 * u, 0, Math.PI * 2); g.stroke();
+  });
+  // walnut paw prints, as if a cat had strolled in towards the rings from every corner
+  g.fillStyle = 'rgba(74,44,23,.42)';
+  for (let k = 0; k < 4; k++) [[10.15, 0.3], [9.4, -0.3], [8.65, 0.3]].forEach(([rad, side]) => {
+    const a = Math.PI / 4 + k * Math.PI / 2;
+    g.save(); g.translate(C + (Math.cos(a) * rad - Math.sin(a) * side) * u, C + (Math.sin(a) * rad + Math.cos(a) * side) * u); g.rotate(a - Math.PI / 2); g.scale(u / 110, u / 110);
+    g.beginPath(); g.ellipse(0, 12, 20, 16, 0, 0, Math.PI * 2); g.fill();
+    [[-26, -10], [-10, -26], [10, -26], [26, -10]].forEach(([tx, ty]) => { g.beginPath(); g.ellipse(tx, ty, 8, 10, 0, 0, Math.PI * 2); g.fill(); });
+    g.restore();
   });
   // border inlay
   g.strokeStyle = '#4a2c17'; g.lineWidth = 0.08 * u;
@@ -814,13 +791,42 @@ function sQuake(dur) {
 function sSurge() { if (!actx) return; const n = now_(); tone(60, n, 1.3, 0.3, 'sawtooth', 520); noise(n, 1.3, 0.25, 'bandpass', 300, 3500, 3, undefined, 0.3); }
 function sSurgeDown() { if (!actx) return; const n = now_(); tone(420, n, 1.0, 0.18, 'sawtooth', 70); }
 function sPaw(x) { if (!actx) return; noise(now_(), 0.06, 0.12, 'lowpass', 500, 200, 0.7, x, 0.004); }
-function sMeow(x) {
-  if (!actx) return; const n = now_(), o = actx.createOscillator(), f1 = actx.createBiquadFilter(), f2 = actx.createBiquadFilter(), g = actx.createGain();
-  o.type = 'sawtooth'; o.frequency.setValueAtTime(420, n); o.frequency.linearRampToValueAtTime(760, n + 0.18); o.frequency.linearRampToValueAtTime(520, n + 0.6);
-  f1.type = 'bandpass'; f1.Q.value = 5; f1.frequency.setValueAtTime(700, n); f1.frequency.linearRampToValueAtTime(1300, n + 0.2); f1.frequency.linearRampToValueAtTime(800, n + 0.6);
+// a cat's voice: a sawtooth swept through [start, peak, end] Hz, shaped by a formant that opens and closes with it
+function voice(x, pitch, dur, vol = 0.35, t0 = now_()) {
+  const n = t0, o = actx.createOscillator(), f1 = actx.createBiquadFilter(), f2 = actx.createBiquadFilter(), g = actx.createGain();
+  o.type = 'sawtooth'; o.frequency.setValueAtTime(pitch[0], n); o.frequency.linearRampToValueAtTime(pitch[1], n + dur * 0.3); o.frequency.linearRampToValueAtTime(pitch[2], n + dur);
+  f1.type = 'bandpass'; f1.Q.value = 5; f1.frequency.setValueAtTime(700, n); f1.frequency.linearRampToValueAtTime(1300, n + dur * 0.33); f1.frequency.linearRampToValueAtTime(800, n + dur);
   f2.type = 'lowpass'; f2.frequency.value = 3000;
-  g.gain.setValueAtTime(0.0001, n); g.gain.exponentialRampToValueAtTime(0.35, n + 0.05); g.gain.setValueAtTime(0.35, n + 0.45); g.gain.exponentialRampToValueAtTime(0.0001, n + 0.65);
-  o.connect(f1).connect(f2).connect(g).connect(bus(x)); o.start(n); o.stop(n + 0.7);
+  g.gain.setValueAtTime(0.0001, n); g.gain.exponentialRampToValueAtTime(vol, n + Math.min(0.05, dur * 0.25)); g.gain.setValueAtTime(vol, n + dur * 0.7); g.gain.exponentialRampToValueAtTime(0.0001, n + dur);
+  o.connect(f1).connect(f2).connect(g).connect(bus(x)); o.start(n); o.stop(n + dur + 0.05);
+}
+function sMeow(x) { if (actx) voice(x, [420, 760, 520], 0.65); }
+function sChirp(k = 1) { if (actx) voice(undefined, [520 * k, 1050 * k, 940 * k], 0.2, 0.3); }
+function sYawn() { if (actx) voice(undefined, [760, 700, 300], 0.85, 0.2); }
+function sPurr(dur) {
+  if (!actx) return; const n = now_(), o = actx.createOscillator(), f = actx.createBiquadFilter(), g = actx.createGain();
+  o.type = 'sawtooth'; o.frequency.value = 27; f.type = 'bandpass'; f.frequency.value = 320; f.Q.value = 0.6;
+  g.gain.setValueAtTime(0.0001, n);
+  for (let t = 0; t < dur; t += 1.3) { g.gain.exponentialRampToValueAtTime(0.5, n + t + 0.5); g.gain.exponentialRampToValueAtTime(0.22, n + Math.min(dur, t + 1.3)); }   // breathing in and out
+  g.gain.exponentialRampToValueAtTime(0.0001, n + dur + 0.4);
+  o.connect(f).connect(g).connect(master); o.start(n); o.stop(n + dur + 0.5);
+}
+/* the winner's fanfare, sung by a choir of cats over bells; then fireworks and airborne cats */
+function sFanfare() {
+  if (!actx) return; const n = now_() + 0.05;
+  const sing = (f, t, dur, vol) => { voice((Math.random() - 0.5) * 12, [f * 0.86, f, f * 0.97], dur, vol, n + t); tone(f, n + t, dur * 1.2, vol * 0.45, 'triangle'); tone(f * 2, n + t, dur * 0.8, vol * 0.15); };
+  [[523, 0], [659, 0.17], [784, 0.34], [1047, 0.51], [784, 0.76], [1047, 0.93]].forEach(([f, t], i) => sing(f, t, i === 5 ? 1.1 : 0.2, 0.3));
+  for (const f of [523, 659, 784]) sing(f, 0.93, 1.1, 0.16);
+}
+function sFirework() {
+  if (!actx) return; const n = now_(), x = (Math.random() - 0.5) * 16;
+  noise(n, 0.16, 0.3, 'bandpass', 1500, 300, 0.8, x, 0.002); tone(150, n, 0.2, 0.25, 'sine', 60, x);
+  for (let k = 0; k < 9; k++) noise(n + 0.08 + Math.random() * 0.45, 0.02, 0.05 + Math.random() * 0.07, 'highpass', 2500 + Math.random() * 3000, 0, 1, x, 0.001);
+}
+function sFling() {
+  if (!actx) return; const k = 0.8 + Math.random() * 0.7, x = (Math.random() - 0.5) * 14;
+  voice(x, [480 * k, 900 * k, 380 * k], 0.4 + Math.random() * 0.25, 0.14);
+  noise(now_(), 0.3, 0.07, 'bandpass', 500, 2400, 1.4, x, 0.1);
 }
 function sKick(x) { if (!actx) return; const n = now_(); noise(n, 0.08, 0.6, 'bandpass', 900, 400, 1, x, 0.001); tone(220, n, 0.15, 0.4, 'sine', 80, x); }
 function sHiss(dur) { if (!actx) return; const n = now_(); noise(n, dur, 0.28, 'highpass', 3500, 5000, 0.7, undefined, 0.08); }
@@ -839,19 +845,9 @@ function sEdge(x, big) {
   });
 }
 
-/* claps, tut, and the pop-up's own movement */
-function sClap() {
-  if (!actx) return; const n = now_();
-  noise(n, 0.09, 0.55, 'bandpass', 1400, 900, 0.8, undefined, 0.001);
-  noise(n, 0.03, 0.3, 'highpass', 3000, 0, 0.7, undefined, 0.001);
-}
-function sTut() { if (!actx) return; const n = now_() + 0.35; tone(420, n, 0.14, 0.12, 'triangle', 360); tone(360, n + 0.22, 0.2, 0.12, 'triangle', 280); }
+/* the cat at the end of each go: a tut, and the swoosh of its coming and going */
+function sTut() { if (!actx) return; const n = now_() + 0.1; tone(420, n, 0.14, 0.12, 'triangle', 360); tone(360, n + 0.22, 0.2, 0.12, 'triangle', 280); }
 function sSwoosh(up, vol = 0.25) { if (!actx) return; const n = now_(); noise(n, 0.32, vol, 'bandpass', up ? 350 : 2200, up ? 2200 : 350, 1.4, undefined, 0.12); }
-function sShakeSwishes() {
-  if (!actx) return; const n = now_();
-  [0.13, 0.31, 0.48, 0.66, 0.84].forEach((t, k) => noise(n + t * 1.1 - 0.06, 0.14, 0.09, 'bandpass', 1600, 800, 2, k % 2 ? 4 : -4, 0.05));
-}
-function sArmSwing() { if (!actx) return; noise(now_(), 0.1, 0.05, 'bandpass', 900, 2200, 2, undefined, 0.04); }
 function sUi() { if (!actx) return; tone(1300, now_(), 0.04, 0.08, 'triangle', 900); }
 
 /* continuous voices: one rolling voice per moving marble, plus the aiming stretch */
@@ -996,10 +992,10 @@ function shuffleSpots() {
   W.spotCool = perm.map(p => W.spotCool[p]);      // a recharging event keeps recharging wherever it moves to
   showSpotTypes(W.spotTypes, true); sShuffle();
 }
-function banner(text, color, seat) {
+function banner(text, color, seat, cls = '') {
   const b = document.getElementById('banner');
   b.textContent = text; b.style.setProperty('--c', color); b.style.setProperty('--rot', CORNER[seat].rot + 'deg');
-  b.className = 'banner'; void b.offsetWidth; b.classList.add('go');
+  b.className = 'banner ' + cls; void b.offsetWidth; b.classList.add('go');
 }
 function runSpot(type) {
   eventBusy = true;
@@ -1019,66 +1015,12 @@ function startSurge() {
   return dt => (t += dt) > 1.4;
 }
 
-/* --- cat: an original fluffy grey cartoon cat, drawn as a flat cut-out walking across the board --- */
-let catObj = null;
-function catTexture() {
-  const FW = 256, FH = 128, c = document.createElement('canvas'); c.width = FW * 4; c.height = FH;
-  const g = c.getContext('2d');
-  for (let f = 0; f < 4; f++) {
-    g.save(); g.translate(f * FW, 0);
-    const bob = f === 1 || f === 3 ? -3 : 0, kick = f === 3;
-    const fur = '#8e959e', dark = '#5d636b', light = '#c9ced4';
-    g.lineCap = 'round'; g.lineJoin = 'round';
-    // tail
-    g.strokeStyle = dark; g.lineWidth = 20; g.beginPath(); g.moveTo(58, 56 + bob); g.bezierCurveTo(25, 46, 20, 10, 40, 6); g.stroke();
-    g.strokeStyle = fur; g.lineWidth = 14; g.stroke();
-    // legs: walking cycle, or the front paw swiping forward on the kick frame
-    const sw = [[-10, 10], [8, -8], [10, -10], [-8, 8]][f];
-    const legs = [[82, sw[0]], [100, sw[1]], [160, sw[1]], [178, kick ? 34 : sw[0]]];
-    legs.forEach(([lx, a], k) => {
-      g.strokeStyle = k % 2 ? fur : dark; g.lineWidth = 15;
-      const up = kick && k === 3 ? 24 : 0;
-      g.beginPath(); g.moveTo(lx, 64 + bob); g.lineTo(lx + a, 112 - up); g.stroke();
-      g.fillStyle = light; g.beginPath(); g.ellipse(lx + a + 3, 114 - up, 10, 6, 0, 0, Math.PI * 2); g.fill();
-    });
-    // fluffy body
-    g.fillStyle = fur;
-    for (let k = 0; k < 26; k++) { const a = k / 26 * Math.PI * 2; g.beginPath(); g.arc(128 + Math.cos(a) * 58, 56 + bob + Math.sin(a) * 22, 11, 0, Math.PI * 2); g.fill(); }
-    g.beginPath(); g.ellipse(128, 56 + bob, 62, 26, 0, 0, Math.PI * 2); g.fill();
-    g.fillStyle = light; g.beginPath(); g.ellipse(150, 68 + bob, 30, 11, 0, 0, Math.PI * 2); g.fill();
-    // head
-    const hx = 196, hy = 40 + bob;
-    g.fillStyle = fur;
-    g.beginPath(); g.moveTo(hx - 24, hy - 14); g.lineTo(hx - 18, hy - 44); g.lineTo(hx - 2, hy - 22); g.fill();
-    g.beginPath(); g.moveTo(hx + 6, hy - 22); g.lineTo(hx + 22, hy - 44); g.lineTo(hx + 26, hy - 12); g.fill();
-    g.fillStyle = '#e9a7b0'; g.beginPath(); g.moveTo(hx - 19, hy - 18); g.lineTo(hx - 16, hy - 35); g.lineTo(hx - 8, hy - 22); g.fill();
-    g.fillStyle = fur; for (let k = 0; k < 14; k++) { const a = k / 14 * Math.PI * 2; g.beginPath(); g.arc(hx + Math.cos(a) * 28, hy + Math.sin(a) * 24, 9, 0, Math.PI * 2); g.fill(); }
-    g.beginPath(); g.ellipse(hx, hy, 30, 26, 0, 0, Math.PI * 2); g.fill();
-    g.fillStyle = light; g.beginPath(); g.ellipse(hx + 12, hy + 10, 16, 11, 0, 0, Math.PI * 2); g.fill();
-    // face
-    g.fillStyle = '#e8c547'; g.beginPath(); g.ellipse(hx + 8, hy - 4, 6, 7, 0, 0, Math.PI * 2); g.fill();
-    g.fillStyle = '#1b1b1b'; g.beginPath(); g.ellipse(hx + 9, hy - 4, 2.2, 5.5, 0, 0, Math.PI * 2); g.fill();
-    g.fillStyle = '#d9787f'; g.beginPath(); g.moveTo(hx + 25, hy + 4); g.lineTo(hx + 31, hy + 4); g.lineTo(hx + 28, hy + 9); g.fill();
-    g.strokeStyle = '#f2f2f2'; g.lineWidth = 1.5;
-    for (const dy of [-2, 3, 8]) { g.beginPath(); g.moveTo(hx + 26, hy + 9); g.lineTo(hx + 50, hy + 6 + dy); g.stroke(); }
-    if (kick) { g.strokeStyle = '#ffd35a'; g.lineWidth = 4; for (const a of [-0.5, 0, 0.5]) { g.beginPath(); g.moveTo(226 + Math.cos(a) * 14, 90 + Math.sin(a) * 14); g.lineTo(226 + Math.cos(a) * 28, 90 + Math.sin(a) * 28); g.stroke(); } }
-    g.restore();
-  }
-  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.repeat.set(0.25, 1); return t;
-}
-function ensureCat() {
-  if (catObj) return catObj;
-  const tex = catTexture();
-  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 1.8).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: tex, transparent: true, alphaTest: 0.05, toneMapped: false, depthWrite: false }));
-  const shadow = new THREE.Mesh(new THREE.CircleGeometry(1, 32).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.22, depthWrite: false }));
-  shadow.scale.set(1.5, 1, 0.45); shadow.position.y = 0.02;
-  const grp = new THREE.Group(); mesh.position.y = 1.3; grp.add(shadow); grp.add(mesh); grp.visible = false; scene.add(grp);
-  catObj = { grp, mesh, tex }; return catObj;
-}
-function setCatFrame(f) { catObj.tex.offset.x = f * 0.25; }
-function faceCat(dx, dz) {
-  // the cut-out lies flat; its nose (+x) points along the walk, its back towards the walker's left
-  catObj.grp.rotation.y = Math.atan2(-dz, dx);
+/* --- cat: strolls onto the board, sizes up a marble and bats it down the hole --- */
+let boardCat = null;
+// where a point on the board falls on the stage, in CSS pixels
+function boardToStage(x, z) {
+  const v = new THREE.Vector3(x, 0, z).project(camera);
+  return [(v.x + 1) / 2 * stage.clientWidth, (1 - v.y) / 2 * stage.clientHeight];
 }
 // kick velocity that sinks marble m, found by simulating from the current board
 function kickToHole(m) {
@@ -1094,48 +1036,50 @@ function kickToHole(m) {
   return [Math.cos(base) * v, Math.sin(base) * v];
 }
 function startCat() {
-  const c = ensureCat(), sc = scoresOf(W), shooter = W.shooter;
+  const cat = boardCat || (boardCat = new CatActor(stage, { hidden: true, z: 2 }));
+  const sc = scoresOf(W), shooter = W.shooter;
   const rivals = active.filter(i => i !== shooter);
   const leader = rivals.length ? rivals.reduce((a, b) => sc[b] > sc[a] ? b : a) : shooter;
   const pool = W.marbles.filter(m => m.alive && !m.ghost);
-  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
   const target = pick(pool.filter(m => m.owner === leader)) || pick(pool.filter(m => m.owner !== shooter)) || pick(pool);
-  let phase = 'in', t = 0, frameT = 0, frame = 0;
-  const speed = 3.4;
-  // come in from outside the board along the line from the hole through the marble
-  const dirOf = () => { if (!target) return [1, 0]; const d = Math.hypot(target.x, target.z) || 1; return [target.x / d, target.z / d]; };
-  let [ux, uz] = dirOf();
-  const startDist = 15;
-  let px = (target ? target.x : 0) + ux * startDist, pz = (target ? target.z : -9) + uz * startDist;
-  if (!target) { px = -14; pz = -3; ux = -1; uz = 0; }
-  const home = [px, pz];
-  c.grp.visible = true; c.grp.position.set(px, 0, pz); c.mesh.scale.x = 1; faceCat(-ux, -uz);
+  const SIZE = 4, speed = 5, startDist = 15;   // in board units: the cat sits about four marbles tall
+  // The cat bats towards its own left, so it sits side-on to the line from the hole out through the marble, with
+  // its left towards the hole. Of the two ways round, it takes the one that looks more upright from the shooter's seat.
+  let ux = 0, uz = -1;
+  const aim = () => { if (target) { const d = Math.hypot(target.x, target.z) || 1; ux = target.x / d; uz = target.z / d; } };
+  aim();
+  const k = CORNER[shooter], flip = ux * k.sy - uz * k.sx < 0, f = flip ? -1 : 1;
+  // the spot to bat from: the paw hangs just left of the cat's feet, and the swipe carries it on into the marble
+  const stand = () => target ? [target.x + ux * (target.r + 0.13 * SIZE) - f * uz * 0.1, target.z + uz * (target.r + 0.13 * SIZE) + f * ux * 0.1] : [ux * 6, uz * 6];
+  const home = [(target ? target.x : 0) + ux * startDist, (target ? target.z : 0) + uz * startDist];
+  let [px, pz] = home, phase = 'in', pawT = 0;
+  const show = () => {
+    const [x, y] = boardToStage(px, pz), [x1] = boardToStage(px + 1, pz);
+    cat.place({ x, y, size: SIZE * (x1 - x), rot: Math.atan2(f * uz, f * ux) * 180 / Math.PI, flip });
+  };
+  // hop towards a point on the board; true on arrival
+  const walk = (gx, gz, v, dt) => {
+    const dx = gx - px, dz = gz - pz, d = Math.hypot(dx, dz);
+    if ((pawT += dt) > 0.26) { pawT = 0; sPaw(px); }
+    if (d < v * dt) { px = gx; pz = gz; return true; }
+    px += dx / d * v * dt; pz += dz / d * v * dt; return false;
+  };
+  const gait = () => { cat.play('bounce', { height: 0.07, duration: 260 }); };
+  const act = async () => {
+    cat.stop(); sMeow(px);
+    if (!target) { if (await cat.pose('look-up').play('tilt')) phase = 'leave'; return; }
+    const strike = () => { if (target.alive && !target.ghost) { const [vx, vz] = kickToHole(target); target.vx = vx; target.vz = vz; sKick(target.x); } phase = 'struck'; };
+    // then the look of a cat that had nothing to do with it
+    if (await cat.play('swipe', { onStrike: strike }) && await cat.wait(250) && await cat.pose('look-away').wait(550)) phase = 'leave';
+  };
+  cat.stop().pose('look-down'); show(); cat.show(); gait();
   return dt => {
-    t += dt; frameT += dt;
-    const walk = () => { if (frameT > 0.11) { frameT = 0; frame = (frame + 1) % 4; setCatFrame([0, 1, 2, 1][frame]); if (frame % 2 === 0) sPaw(c.grp.position.x); } };
-    if (phase === 'in') {
-      if (target) { [ux, uz] = dirOf(); }
-      const gx = target ? target.x + ux * (R + 1.35) : 14, gz = target ? target.z + uz * (R + 1.35) : -3;
-      const dx = gx - c.grp.position.x, dz = gz - c.grp.position.z, d = Math.hypot(dx, dz);
-      faceCat(dx / (d || 1), dz / (d || 1)); walk();
-      if (d < speed * dt || (!target && d < 0.2)) {
-        c.grp.position.set(gx, 0, gz);
-        if (!target) { phase = 'out'; } else { phase = 'wind'; t = 0; setCatFrame(0); sMeow(gx); }
-      } else { c.grp.position.x += dx / d * speed * dt; c.grp.position.z += dz / d * speed * dt; }
-    } else if (phase === 'wind') {
-      c.grp.position.y = Math.sin(Math.min(1, t / 0.5) * Math.PI) * 0.15;
-      if (t > 0.55) {
-        phase = 'kick'; t = 0; setCatFrame(3);
-        if (target.alive && !target.ghost) { const [vx, vz] = kickToHole(target); target.vx = vx; target.vz = vz; sKick(target.x); }
-      }
-    } else if (phase === 'kick') {
-      if (t > 0.4) { phase = 'out'; t = 0; }
-    } else if (phase === 'out') {
-      const dx = home[0] - c.grp.position.x, dz = home[1] - c.grp.position.z, d = Math.hypot(dx, dz);
-      faceCat(dx / (d || 1), dz / (d || 1)); walk();
-      if (d < speed * 1.3 * dt) { c.grp.visible = false; return true; }
-      c.grp.position.x += dx / d * speed * 1.3 * dt; c.grp.position.z += dz / d * speed * 1.3 * dt;
-    }
+    if (phase === 'in' || phase === 'act') aim();   // the marble may be riding a turning ring
+    if (phase === 'in' && walk(...stand(), speed, dt)) { phase = 'act'; act(); }
+    else if (phase === 'act') [px, pz] = stand();
+    else if (phase === 'leave') { phase = 'out'; gait(); }
+    else if (phase === 'out' && walk(...home, speed * 1.3, dt)) { cat.stop().hide(); return true; }
+    show();
     return false;
   };
 }
@@ -1238,7 +1182,7 @@ function newGame() {
   clearTimeout(cpuTimer);
   if (W) for (const m of W.marbles) removeMarbleMesh(m.id);
   for (const id of [...meshes.keys()]) removeMarbleMesh(id);
-  eventBusy = false; activeEffect = null; quake.t = 0; if (catObj) catObj.grp.visible = false; if (snakeObj) snakeObj.grp.visible = false;
+  eventBusy = false; activeEffect = null; quake.t = 0; dismissCats(); if (snakeObj) snakeObj.grp.visible = false;
   W = { marbles: [], bonus: [0, 0, 0, 0], shooter: 0, nextId: 1, spotCool: [0, 0, 0, 0], spotQueue: [], spotTypes: ['quake', 'spin', 'cat', 'snake'].sort(() => Math.random() - 0.5), spinMul: 1, spinTarget: 1, surgeTurns: 0, pads: [0, 1, 2, 3].filter(i => seatModes[i] !== 'off').map(i => SEATS[i].pad) };
   active = [0, 1, 2, 3].filter(i => seatModes[i] !== 'off');
   shots = [0, 1, 2, 3].map(i => seatModes[i] === 'off' ? 0 : perPlayer);
@@ -1248,6 +1192,7 @@ function newGame() {
   document.getElementById('setup').hidden = true;
   document.getElementById('over').hidden = true;
   document.getElementById('menuBtn').hidden = false;
+  syncDebug();
   startTurn();
 }
 function padSpot(seat, rad) {
@@ -1289,12 +1234,59 @@ function endGame() {
   phase = 'over'; hideAim(); updateHud();
   const sc = scoresOf(W);
   const order = active.slice().sort((a, b) => sc[b] - sc[a]);
-  const top = sc[order[0]], winners = order.filter(i => sc[i] === top);
-  document.getElementById('winTitle').textContent = winners.length > 1 ? 'A tie' : SEATS[winners[0]].name + ' wins';
-  document.getElementById('winSub').textContent = winners.length > 1 ? winners.map(i => SEATS[i].name).join(' and ') + ' share the board with ' + top + ' points.' : 'With ' + top + ' points on the board.';
+  const top = sc[order[0]], winners = order.filter(i => sc[i] === top), tie = winners.length > 1;
+  document.getElementById('winTitle').textContent = tie ? 'A tie' : SEATS[winners[0]].name + ' wins';
+  document.getElementById('winSub').textContent = tie ? winners.map(i => SEATS[i].name).join(' and ') + ' share the board with ' + top + ' points.' : 'With ' + top + ' points on the board.';
   document.getElementById('results').innerHTML = order.map(i => `<li class="${sc[i] === top ? 'win' : ''}" style="--c:${SEATS[i].color}"><span class="dot"></span>${SEATS[i].name}<span class="pts">${sc[i]}</span></li>`).join('');
-  setTimeout(() => { document.getElementById('over').hidden = false; document.getElementById('menuBtn').hidden = true; }, 700);
+  cardCats.over.pose(tie ? 'pair' : 'sit').place({ size: tie ? 100 : 104 }).wear(tie ? null : 'crown');
+  celebrate(winners);
+  overTimer = setTimeout(() => { document.getElementById('over').hidden = false; document.getElementById('menuBtn').hidden = true; sPurr(5); }, CatActor.reducedMotion ? 1200 : 4200);
 }
+
+/* ===== THE WINNER'S PARTY =====
+   Fireworks of confetti burst from the hole and across the table, cats are flung out of the hole, a crowd in party
+   hats bobs up round the edges, and a crowned cat turns somersaults in each winner's corner. It carries on behind the
+   results until the next game. */
+let party = null, champs = [], overTimer = null;
+const champSize = () => Math.min(Math.min(stage.clientWidth, stage.clientHeight) * 0.36, 260);
+function celebrate(winners) {
+  endParty();
+  const [x, y] = boardToStage(0, 0), cols = winners.map(i => SEATS[i].color);
+  party = CatActor.party(stage, {
+    colors: [...cols, ...cols, '#f2c14e', '#fff8ec'], origin: { x, y }, z: 4,
+    onEvent: e => e === 'burst' ? sFirework() : e === 'fling' ? sFling() : sPaw(),
+  });
+  sFanfare(); if (!CatActor.reducedMotion) igniteHole();
+  banner(winners.length > 1 ? 'A tie!' : SEATS[winners[0]].name + ' wins!', winners.length > 1 ? '#f2c14e' : cols[0], winners[0], 'win');
+  champs = winners.map((seat, n) => {
+    const cat = cornerCat(new CatActor(stage, { pose: 'beg', hidden: true, z: 4 }), seat, champSize()).wear('crown');
+    (async () => {
+      if (!await cat.wait(350 + n * 200) || !await cat.enter({ duration: 520 })) return;
+      for (let i = 0; !CatActor.reducedMotion; i++) {
+        if (i % 3 === 0) sChirp(0.9 + Math.random() * 0.4);
+        if (!await cat.play(i % 3 === 1 ? 'flip' : 'cheer') || !await cat.wait(200 + Math.random() * 500)) return;
+      }
+    })();
+    return cat;
+  });
+}
+function endParty() {
+  clearTimeout(overTimer);
+  if (party) party.stop();
+  champs.forEach(c => c.remove());
+  party = null; champs = [];
+}
+// keep the champions in their corners if the window changes shape
+addEventListener('resize', () => champs.forEach(c => cornerCat(c, CORNER.findIndex(k => k.rot === c.rot), champSize())));
+
+/* the cats that preside over the menus */
+const cardCats = {
+  setup: new CatActor(document.getElementById('setupCat'), { pose: 'loaf', size: 112, x: -62, y: 68, flip: true }),
+  over: new CatActor(document.getElementById('overCat'), { pose: 'sit', size: 104, y: 112 }),
+  pause: new CatActor(document.getElementById('pauseCat'), { pose: 'roll', size: 124, y: 96 }),
+};
+Object.values(cardCats).forEach(c => c.play('bob'));
+
 function updateHud() {
   const sc = W ? scoresOf(W) : [0, 0, 0, 0];
   const seatNow = W && phase !== 'over' && phase !== 'setup' ? W.shooter : -1;
@@ -1489,7 +1481,7 @@ function frame(now) {
             runSpot(W.spotQueue.shift()); restHold = 0; launchAt = now;
           } else {
             const shooter = W.shooter, gained = scoresOf(W)[shooter] - shotStart;
-            friendReact(shooter, gained > 0);
+            catReact(shooter, gained);
             turn++; phase = 'between'; updateHud(); setTimeout(startTurn, Math.max(250, REACT_MS));
           }
         }
@@ -1590,14 +1582,14 @@ document.getElementById('perSeg').addEventListener('click', e => {
 document.getElementById('startBtn').onclick = () => { audio(); newGame(); };
 document.getElementById('againBtn').onclick = () => newGame();
 function toSetup() {
-  eventBusy = false; activeEffect = null; quake.t = 0; if (catObj) catObj.grp.visible = false; if (snakeObj) snakeObj.grp.visible = false;
-  friendEl.className = 'friend';
+  eventBusy = false; activeEffect = null; quake.t = 0; dismissCats(); if (snakeObj) snakeObj.grp.visible = false;
   clearTimeout(cpuTimer); phase = 'setup'; hideAim();
   for (const id of [...meshes.keys()]) removeMarbleMesh(id);
   W = null; updateHud(); badges.forEach(b => b.hidden = true);
   ['over', 'pause'].forEach(id => document.getElementById(id).hidden = true);
   document.getElementById('menuBtn').hidden = true;
   document.getElementById('setup').hidden = false;
+  syncDebug();
 }
 document.getElementById('changeBtn').onclick = toSetup;
 document.getElementById('quitBtn').onclick = toSetup;
@@ -1613,10 +1605,76 @@ document.getElementById('resumeBtn').onclick = () => { document.getElementById('
 document.querySelectorAll('.finishSeg').forEach(sg => sg.addEventListener('click', e => { const b = e.target.closest('button'); if (b) setMarbleFinish(b.dataset.f); }));
 
 document.querySelectorAll('.soundSeg').forEach(sg => sg.addEventListener('click', e => { const b = e.target.closest('button'); if (b) setMuted(b.dataset.s === 'off'); }));
-document.addEventListener('click', e => { if (e.target.closest('.card button')) { audio(); sUi(); } }, true);
+document.addEventListener('click', e => { if (e.target.closest('.card button, .debug button')) { audio(); sUi(); } }, true);
+
+/* ===== DEBUG PANEL =====
+   Ticked on the opening screen, it sits beside the board during a game with a button for every animation. */
+const debugEl = document.getElementById('debug'), debugBody = document.getElementById('debugBody'), debugChk = document.getElementById('debugChk');
+let debugCat = null, debugSeat = 0;
+function syncDebug() { debugEl.hidden = !(debugChk.checked && document.getElementById('setup').hidden); }
+try { debugChk.checked = localStorage.getItem('marble-flick-debug') === '1'; } catch (e) {}
+debugChk.addEventListener('change', () => { try { localStorage.setItem('marble-flick-debug', debugChk.checked ? '1' : '0'); } catch (e) {} syncDebug(); });
+document.getElementById('debugHead').onclick = e => {
+  debugBody.hidden = !debugBody.hidden;
+  e.currentTarget.textContent = 'Debug ' + (debugBody.hidden ? '▸' : '▾'); e.currentTarget.setAttribute('aria-expanded', !debugBody.hidden);
+};
+function debugSet(title, buttons) {
+  const h = document.createElement('h2'); h.textContent = title;
+  const set = document.createElement('div'); set.className = 'set';
+  for (const [label, fn] of buttons) { const b = document.createElement('button'); b.textContent = label; b.onclick = fn; set.appendChild(b); }
+  debugBody.append(h, set); return set;
+}
+function debugSelect(set, options) {
+  const sel = document.createElement('select');
+  for (const [value, label] of options) sel.add(new Option(label, value));
+  set.prepend(sel); return sel;
+}
+// a cat in the chosen corner, to try poses, hats and gestures on. A gesture that brings its own poses hands back the chosen one afterwards
+function debugGesture(name) {
+  const cat = debugCat || (debugCat = new CatActor(stage, { hidden: true, z: 3 })), fresh = cat.hidden, pose = debugPose.value;
+  cornerCat(cat.stop(), debugSeat, reactSize()).pose(pose).wear(debugHat.value || null, { color: SEATS[debugSeat].color });
+  (async () => { if ((!fresh || await cat.enter()) && name && await cat.play(name)) cat.pose(pose); })();
+}
+function debugSpot(type) {
+  if (!W || eventBusy || phase === 'over') return;
+  sSpot(); banner(SPOT_TYPES[type].name, SPOT_TYPES[type].color, W.shooter); runSpot(type);
+}
+// marbles dropped at random in the rings, to give the hotspots something to work on
+function debugScatter() {
+  if (!W || phase === 'over') return;
+  for (let k = 0; k < 6; k++) {
+    const a = Math.random() * Math.PI * 2, d = 1.6 + Math.random() * 5.6;
+    const m = { id: W.nextId++, owner: active[k % active.length], x: Math.cos(a) * d, z: Math.sin(a) * d, vx: 0, vz: 0, alive: true, ghost: false, r: R, mass: 1 };
+    W.marbles.push(m); addMarbleMesh(m);
+  }
+}
+function debugEndGame() {
+  if (!W || (phase !== 'aim' && phase !== 'cpu')) return;
+  clearTimeout(cpuTimer); W.marbles = W.marbles.filter(m => m !== current); removeMarbleMesh(current.id); shots = [0, 0, 0, 0];
+  endGame();
+}
+const debugSeats = debugSet('Seat', SEATS.map((s, i) => ['', () => { debugSeat = i; debugSeats.querySelectorAll('button').forEach((b, k) => b.setAttribute('aria-pressed', k === i)); if (debugCat && !debugCat.hidden) debugGesture(); }]));
+debugSeats.querySelectorAll('button').forEach((b, i) => { b.className = 'seatdot'; b.style.setProperty('--c', SEATS[i].color); b.title = SEATS[i].name; b.setAttribute('aria-label', SEATS[i].name); b.setAttribute('aria-pressed', i === 0); });
+debugSet('End of a go', Object.keys(REACTIONS).map(name => [name, () => catReact(debugSeat, 0, name)]));
+const debugCatSet = debugSet('Cat gestures', [
+  ...CatActor.gestures.map(name => [name, () => debugGesture(name)]),
+  ['enter', () => { if (debugCat) debugCat.stop().hide(); debugGesture(); }],
+  ['exit', () => { if (debugCat) debugCat.exit(); }],
+]);
+const debugHat = debugSelect(debugCatSet, [['', 'no hat'], ...Object.keys(CatActor.HATS).map(k => [k, k])]);
+const debugPose = debugSelect(debugCatSet, Object.keys(CatActor.POSES).map(k => [k, k]));
+debugPose.onchange = debugHat.onchange = () => debugGesture();
+debugSet('Hotspots', [...Object.keys(SPOT_TYPES).map(type => [type, () => debugSpot(type)]), ['scatter marbles', debugScatter]]);
+debugSet('Finale', [
+  ['win', () => celebrate([debugSeat])],
+  ['tie', () => celebrate([debugSeat, (debugSeat + 2) % 4])],
+  ['stop party', endParty],
+  ['end game', debugEndGame],
+]);
 
 /* ===== BOOT ===== */
 badges.forEach(b => b.hidden = true);
+CatActor.preload();
 renderSeats();
 resize();
 const fontReady = document.fonts ? Promise.race([document.fonts.load('700 80px Fredoka'), new Promise(r => setTimeout(r, 1500))]) : Promise.resolve();
