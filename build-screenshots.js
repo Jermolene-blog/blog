@@ -96,6 +96,30 @@ const recipes = {
 		await page.click("#startBtn");
 		await page.wait(2000);
 	},
+	"toys/jumbleword": async page => {
+		// Let the balls tumble out of the drum into the rack, then spell the
+		// longest word in the puzzle so that the card shows a word found
+		await page.wait(4500);
+		const selectors = await page.evaluate(`(() => {
+			const balls = [...document.querySelectorAll("#rack .ball")],
+				letters = balls.map(ball => ball.textContent.trim().toLowerCase()),
+				puzzles = JSON.parse(document.getElementById("pz").textContent)[letters.length],
+				puzzle = puzzles.find(p => p.l === letters.slice().sort().join("")),
+				word = puzzle.t.split(",").sort((a,b) => b.length - a.length)[0],
+				spare = balls.slice();
+			return [...word].map(ch => {
+				const index = spare.findIndex(ball => ball && ball.textContent.trim().toLowerCase() === ch),
+					id = spare[index].id;
+				spare[index] = null;
+				return "#" + id;
+			});
+		})()`);
+		for(const selector of selectors) {
+			await page.click(selector);
+		}
+		await page.click("#enter");
+		await page.wait(1500);
+	},
 	"archive/cecily": async page => {
 		// Let the zooming animations finish
 		await page.wait(3000);
