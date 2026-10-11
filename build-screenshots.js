@@ -97,9 +97,9 @@ const recipes = {
 		await page.wait(2000);
 	},
 	"toys/jumbleword": async page => {
-		// Let the balls tumble out of the drum into the rack, then spell the
-		// longest word in the puzzle so that the card shows a word found
-		await page.wait(4500);
+		// Let the balls drop into the rack, then spell the longest word in
+		// the puzzle so that the card shows a word found
+		await page.wait(1500);
 		const selectors = await page.evaluate(`(() => {
 			const balls = [...document.querySelectorAll("#rack .ball")],
 				letters = balls.map(ball => ball.textContent.trim().toLowerCase()),
