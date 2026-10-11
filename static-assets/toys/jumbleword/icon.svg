@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<rect width="512" height="512" fill="#24160f"/>
+<circle cx="256" cy="256" r="152" fill="#e8a33d"/>
+<circle cx="256" cy="256" r="98" fill="#fff8ea"/>
+<text x="256" y="304" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-weight="900" font-size="136" fill="#24160f">J</text>
+<ellipse cx="196" cy="178" rx="34" ry="20" transform="rotate(-35 196 178)" fill="#ffffff" opacity=".55"/>
+</svg>

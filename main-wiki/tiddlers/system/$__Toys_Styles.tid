@@ -50,3 +50,10 @@ title: $:/Toys/Styles
 		width: 100%;
 	}
 }
+
+/* Installed as an app, the page extends under the status bar */
+@media (display-mode: standalone) {
+	.jermolene-page-banner {
+		padding-top: env(safe-area-inset-top, 0px);
+	}
+}

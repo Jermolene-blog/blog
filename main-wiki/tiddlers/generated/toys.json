@@ -6,6 +6,7 @@
 		"url": "/toys/blobbles/",
 		"tags": "toy",
 		"text": "",
+		"theme-color": "#ececec",
 		"screenshot": "/screenshots/toys/blobbles.webp"
 	},
 	{
@@ -15,6 +16,7 @@
 		"url": "/toys/engravery/",
 		"tags": "toy",
 		"text": "",
+		"theme-color": "#f6f5f1",
 		"screenshot": "/screenshots/toys/engravery.webp"
 	},
 	{
@@ -24,6 +26,7 @@
 		"url": "/toys/jpegulator/",
 		"tags": "toy",
 		"text": "",
+		"theme-color": "#efece4",
 		"screenshot": "/screenshots/toys/jpegulator.webp"
 	},
 	{
@@ -33,6 +36,7 @@
 		"url": "/toys/jumbleword/",
 		"tags": "toy",
 		"text": "",
+		"theme-color": "#24160f",
 		"screenshot": "/screenshots/toys/jumbleword.webp"
 	},
 	{
@@ -42,6 +46,7 @@
 		"url": "/toys/knottery/",
 		"tags": "toy",
 		"text": "",
+		"theme-color": "#f2ede3",
 		"screenshot": "/screenshots/toys/knottery.webp"
 	},
 	{
@@ -51,6 +56,7 @@
 		"url": "/toys/marble-flick/",
 		"tags": "toy",
 		"text": "",
+		"theme-color": "#244a3d",
 		"screenshot": "/screenshots/toys/marble-flick.webp"
 	},
 	{
@@ -60,6 +66,7 @@
 		"url": "/toys/marblelous/",
 		"tags": "toy",
 		"text": "",
+		"theme-color": "#161310",
 		"screenshot": "/screenshots/toys/marblelous.webp"
 	},
 	{
@@ -69,6 +76,7 @@
 		"url": "/toys/mimic/",
 		"tags": "toy",
 		"text": "",
+		"theme-color": "#eeeeee",
 		"screenshot": "/screenshots/toys/mimic.webp"
 	},
 	{
@@ -78,6 +86,7 @@
 		"url": "/toys/over-underiser/",
 		"tags": "toy",
 		"text": "",
+		"theme-color": "#f2ede3",
 		"screenshot": "/screenshots/toys/over-underiser.webp"
 	},
 	{
@@ -87,6 +96,8 @@
 		"url": "/toys/lenticulator/",
 		"tags": "toy",
 		"text": "",
+		"short-caption": "Lenticulator",
+		"theme-color": "#ffffff",
 		"screenshot": "/screenshots/toys/lenticulator.webp"
 	},
 	{
@@ -96,6 +107,7 @@
 		"url": "/toys/vectorious/",
 		"tags": "toy",
 		"text": "",
+		"theme-color": "#f4f2ec",
 		"screenshot": "/screenshots/toys/vectorious.webp"
 	}
 ]

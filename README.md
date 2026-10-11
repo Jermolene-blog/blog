@@ -31,6 +31,17 @@ Each toy is a self-contained folder under `static-assets/toys`, published verbat
 * The `Toys` page tiddler (tagged `page`, so rendered at `/toys`) lists the tiddlers tagged `toy`, sorted by caption, each with a thumbnail screenshot (see below)
 * A folder without an `index.html` is skipped
 
+## Progressive Web Apps
+
+The `/toys` index and each toy can be installed as apps and work offline. Installing the index gives one app containing every toy; installing a toy gives an app of that toy alone. Each toy's `index.html` carries `<link rel="manifest" href="manifest.webmanifest">`, `<meta name="theme-color">`, `<link rel="apple-touch-icon">` and `<script src="../pwa.js" defer>`, and the generated index page carries the equivalent (from `$:/_Toys/PWA` and `$:/_Toys/PWA.js` in `main-wiki/tiddlers/system`):
+
+* `build-pwa.js` runs at the end of `bld.sh`, after the site has been assembled, and writes into `site/` the web app manifest for the index (`/toys/manifest.webmanifest`, which lists the toys as shortcuts) and for each toy (`/toys/<name>/manifest.webmanifest`, with the name, description and colours from the toy's `<meta>` tags via `toys.json`), plus `/toys/precache.js`, the list of files the service worker caches along with a version hashed from their contents. These are build outputs and are not committed
+* `static-assets/toys/sw.js` is the single service worker, registered by `static-assets/toys/pwa.js` from the index and from every toy. Its scope is `/toys/`, so whichever page is visited first makes the whole collection available offline. On installation it precaches everything under `/toys` (except source maps, licences and images over 512KB, such as the Lenticulator's sample photographs, which are cached as they are first used) together with the index page's stylesheet, banner and screenshots, and fetches the toys' third party scripts and fonts on a best-effort basis. Any change to the toys changes `precache.js`, and the browser then installs the new version into a fresh cache
+* `pwa.js` also shows a small "back to the toys" button in the bottom-left corner of a toy that was opened from the installed index app, and gives the menu's link to `/toys` its trailing slash so that it stays within the worker's scope. Opened from disk, it does nothing
+* Icons are hand-drawn as `icon.svg` in `static-assets/toys` (the index) and in each toy's folder, and `build-icons.sh` renders them to the committed `icon-192.png`, `icon-512.png` and `apple-touch-icon.png` with `rsvg-convert` (`brew install librsvg`). The artwork keeps to the central 80% so the same files serve as maskable icons. A new toy needs an `icon.svg` and a `theme-color` meta tag, and optionally `<meta name="toy-short-title">` for a name short enough for a home screen; `build-toys.js` and `build-pwa.js` warn when they are missing
+
+To try it locally, run `preview.sh` and open http://127.0.0.1:8080/toys/ (service workers need `http://localhost`, `127.0.0.1` or HTTPS).
+
 ## Screenshots
 
 Thumbnail screenshots of the toys and other interactive pages are captured automatically by `build-screenshots.js`:
@@ -58,6 +69,8 @@ This repository contains the following top level folders:
 * **bld.sh**: build all the components of the site and assemble the complete static site in the `site` folder, laid out exactly as it is published
 * **build-screenshots.js**: capture screenshots of any toys and other pages that have changed (run automatically by `bld.sh`)
 * **build-toys.js**: regenerate the tiddlers behind the `/toys` index from the contents of `static-assets/toys` (run automatically by `bld.sh` and `serve.sh`)
+* **build-pwa.js**: generate the web app manifests and service worker precache list that make the toys installable (run automatically by `bld.sh`)
+* **build-icons.sh**: render the PNG app icons from each `icon.svg` (run by hand after changing an icon)
 * **preview.sh**: build the static site and serve the `site` folder at http://127.0.0.1:8080 (`--no-build` serves the existing build). The built pages use root-relative URLs, so they cannot be viewed by opening the files directly
 * **serve.sh**: serve the main wiki at http://127.0.0.1:8080 as an interactive, editable TiddlyWiki (not the static site)
 * **talkytalky-serve.sh**: serve the talkytalky wiki at http://127.0.0.1:8080

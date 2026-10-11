@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<rect width="512" height="512" fill="#eeeeee"/>
+<path d="M120 120 h272 a28 28 0 0 1 28 28 v170 a28 28 0 0 1 -28 28 h-150 l-70 58 v-58 h-52 a28 28 0 0 1 -28 -28 v-170 a28 28 0 0 1 28 -28 z" fill="#1a1a1a"/>
+<text x="256" y="358" text-anchor="middle" font-family="Georgia, Times New Roman, serif" font-weight="700" font-size="220" fill="#ffffff">“”</text>
+</svg>

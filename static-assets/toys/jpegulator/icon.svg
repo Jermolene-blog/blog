@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<rect width="512" height="512" fill="#efece4"/>
+<rect x="96" y="128" width="320" height="256" rx="18" fill="#ffffff" stroke="#d9d3c6" stroke-width="6"/>
+<defs><clipPath id="photo"><rect x="112" y="144" width="288" height="224" rx="10"/></clipPath></defs>
+<g clip-path="url(#photo)">
+<rect x="112" y="144" width="288" height="224" fill="#9ec5e8"/>
+<circle cx="300" cy="200" r="26" fill="#f2c14e"/>
+<polygon points="112,368 214,236 316,368" fill="#c2562b"/>
+<polygon points="236,368 330,268 420,368" fill="#8c3e1f"/>
+<rect x="328" y="148" width="24" height="24" fill="#b7d6ef"/>
+<rect x="328" y="172" width="24" height="24" fill="#9ec5e8"/>
+<rect x="328" y="196" width="24" height="24" fill="#b7d6ef"/>
+<rect x="328" y="220" width="24" height="24" fill="#9ec5e8"/>
+<rect x="328" y="244" width="24" height="24" fill="#b7d6ef"/>
+<rect x="328" y="268" width="24" height="24" fill="#8c3e1f"/>
+<rect x="328" y="292" width="24" height="24" fill="#a54a26"/>
+<rect x="328" y="316" width="24" height="24" fill="#8c3e1f"/>
+<rect x="328" y="340" width="24" height="24" fill="#a54a26"/>
+<rect x="352" y="148" width="24" height="24" fill="#9ec5e8"/>
+<rect x="352" y="172" width="24" height="24" fill="#b7d6ef"/>
+<rect x="352" y="196" width="24" height="24" fill="#9ec5e8"/>
+<rect x="352" y="220" width="24" height="24" fill="#b7d6ef"/>
+<rect x="352" y="244" width="24" height="24" fill="#9ec5e8"/>
+<rect x="352" y="268" width="24" height="24" fill="#a54a26"/>
+<rect x="352" y="292" width="24" height="24" fill="#8c3e1f"/>
+<rect x="352" y="316" width="24" height="24" fill="#a54a26"/>
+<rect x="352" y="340" width="24" height="24" fill="#8c3e1f"/>
+<rect x="376" y="148" width="24" height="24" fill="#b7d6ef"/>
+<rect x="376" y="172" width="24" height="24" fill="#9ec5e8"/>
+<rect x="376" y="196" width="24" height="24" fill="#b7d6ef"/>
+<rect x="376" y="220" width="24" height="24" fill="#9ec5e8"/>
+<rect x="376" y="244" width="24" height="24" fill="#b7d6ef"/>
+<rect x="376" y="268" width="24" height="24" fill="#8c3e1f"/>
+<rect x="376" y="292" width="24" height="24" fill="#a54a26"/>
+<rect x="376" y="316" width="24" height="24" fill="#8c3e1f"/>
+<rect x="376" y="340" width="24" height="24" fill="#a54a26"/>
+</g>
+</svg>

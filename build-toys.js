@@ -11,7 +11,10 @@ the single source of truth for its own listing: adding, renaming or
 re-describing a toy automatically updates the index at build time.
 
 If `build-screenshots.js` has captured a screenshot of the toy, its URL is
-recorded in the `screenshot` field.
+recorded in the `screenshot` field. For the web app manifests written by
+build-pwa.js, `<meta name="theme-color">` is recorded in the `theme-color`
+field, `<meta name="toy-short-title">` in `short-caption` and
+`<meta name="toy-background-color">` in `background-color`.
 
 Usage: node build-toys.js
 */
@@ -73,7 +76,10 @@ function readToy(name) {
 		metaTags = parseMetaTags(html),
 		titleMatch = /<title[^>]*>([\s\S]*?)<\/title>/i.exec(html),
 		caption = metaTags["toy-title"] || metaTags["og:title"] || (titleMatch ? tidy(titleMatch[1]) : name),
-		description = metaTags["toy-description"] || metaTags.description || metaTags["og:description"] || "";
+		description = metaTags["toy-description"] || metaTags.description || metaTags["og:description"] || "",
+		shortCaption = metaTags["toy-short-title"] || "",
+		themeColor = metaTags["theme-color"] || "",
+		backgroundColor = metaTags["toy-background-color"] || "";
 	if(!description) {
 		console.log("build-toys: warning: toys/" + name + " has no description meta tag");
 	}
@@ -85,6 +91,17 @@ function readToy(name) {
 		tags: "toy",
 		text: ""
 	};
+	if(shortCaption) {
+		toy["short-caption"] = shortCaption;
+	}
+	if(themeColor) {
+		toy["theme-color"] = themeColor;
+	} else {
+		console.log("build-toys: warning: toys/" + name + " has no theme-color meta tag");
+	}
+	if(backgroundColor) {
+		toy["background-color"] = backgroundColor;
+	}
 	if(fs.existsSync(path.join(screenshotsDir,name + ".webp"))) {
 		toy.screenshot = "/screenshots/toys/" + name + ".webp";
 	} else {
