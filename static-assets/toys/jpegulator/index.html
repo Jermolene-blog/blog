@@ -26,7 +26,8 @@
   }
   header{
     flex:0 0 auto; display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center;
-    padding:8px 14px; background:var(--panel); border-bottom:1px solid var(--line);
+    /* The header carries the status bar's safe area when installed as an app */
+    padding:calc(8px + env(safe-area-inset-top, 0px)) calc(14px + env(safe-area-inset-right, 0px)) 8px calc(14px + env(safe-area-inset-left, 0px)); background:var(--panel); border-bottom:1px solid var(--line);
   }
   header h1{ font-size:16px; margin:0 6px 0 0; font-weight:600; }
   header h1 a{ color:inherit; text-decoration:none; }

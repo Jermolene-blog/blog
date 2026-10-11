@@ -20,7 +20,8 @@
   header{
     flex:0 0 auto;
     display:flex; flex-wrap:wrap; gap:8px 16px; align-items:flex-end;
-    padding:8px 14px;
+    /* The header carries the status bar's safe area when installed as an app */
+    padding:calc(8px + env(safe-area-inset-top, 0px)) calc(14px + env(safe-area-inset-right, 0px)) 8px calc(14px + env(safe-area-inset-left, 0px));
     background:#fff; border-bottom:1px solid var(--line);
   }
   header h1{ font-size:16px; margin:0 6px 3px 0; font-weight:600; align-self:center; }
