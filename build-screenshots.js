@@ -97,8 +97,10 @@ const recipes = {
 		await page.wait(2000);
 	},
 	"toys/jumbleword": async page => {
-		// Let the balls drop into the rack, then spell the longest word in
-		// the puzzle so that the card shows a word found
+		// Dismiss the opening card, let the balls drop into the rack, then
+		// spell the longest word in the puzzle so that the card shows a word
+		// found, and wait for the celebration to finish
+		await page.click("#play");
 		await page.wait(1500);
 		const selectors = await page.evaluate(`(() => {
 			const balls = [...document.querySelectorAll("#rack .ball")],
@@ -118,7 +120,7 @@ const recipes = {
 			await page.click(selector);
 		}
 		await page.click("#enter");
-		await page.wait(1500);
+		await page.wait(4000);
 	},
 	"archive/cecily": async page => {
 		// Let the zooming animations finish
