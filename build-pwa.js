@@ -9,9 +9,9 @@ assembled site, so this runs at the end of bld.sh:
   own, with its name, description and colours taken from the toy's `<meta>`
   tags via the tiddlers written by build-toys.js. The theme colour comes from
   `<meta name="theme-color">` and the short name from `<meta name="toy-short-title">`
-* `site/toys/precache.js` lists the files that the service worker
-  `static-assets/toys/sw.js` caches on installation, along with a version
-  derived from their contents
+* `site/toys/sw.js`, the service worker copied from `static-assets/toys`,
+  has the list of files it caches on installation written into it, along
+  with a version derived from their contents
 
 Everything under `site/toys` is precached, except the worker itself, source
 maps and licences, and images over LARGE_IMAGE_BYTES (such as the
@@ -223,7 +223,17 @@ function main() {
 		external: Array.from(external)
 	};
 	const totalBytes = urls.reduce((total,url) => total + fs.statSync(siteFile(url)).size,0);
-	fs.writeFileSync(path.join(toysDir,"precache.js"),"self.PRECACHE = " + JSON.stringify(precache,null,"\t") + ";\n","utf8");
+	// The precache goes inside the worker itself, so that the worker's own
+	// bytes change whenever a toy does. Browsers compare the worker script
+	// when checking for updates, but Safari ignores changes to scripts that
+	// it imports, so a separate precache.js left iPads on old versions
+	const workerFile = path.join(toysDir,"sw.js"),
+		worker = fs.readFileSync(workerFile,"utf8"),
+		placeholder = 'importScripts("precache.js");';
+	if(!worker.includes(placeholder)) {
+		throw new Error("build-pwa: " + workerFile + " has no " + placeholder + " to replace");
+	}
+	fs.writeFileSync(workerFile,worker.replace(placeholder,() => "self.PRECACHE = " + JSON.stringify(precache,null,"\t") + ";"),"utf8");
 	console.log("build-pwa: wrote manifests for " + toys.length + " toys and a precache of " + urls.length + " files (" + Math.round(totalBytes / 1024) + "KB) plus " + external.size + " external resources, version " + precache.version);
 }
 

@@ -37,7 +37,16 @@ var toysUrl = new URL("./",script.src),
 	HUB_WINDOW_KEY = "jermolene-toys-hub-window";
 
 if("serviceWorker" in navigator) {
-	navigator.serviceWorker.register(new URL("sw.js",script.src).href).catch(function() {});
+	// The worker is always fetched from the network when checking for updates.
+	// An app on an iPad home screen is resumed rather than reloaded, so it also
+	// checks whenever it comes back into view
+	navigator.serviceWorker.register(new URL("sw.js",script.src).href,{updateViaCache: "none"}).then(function(registration) {
+		document.addEventListener("visibilitychange",function() {
+			if(document.visibilityState === "visible") {
+				registration.update().catch(function() {});
+			}
+		});
+	}).catch(function() {});
 }
 
 var fromHub = false;

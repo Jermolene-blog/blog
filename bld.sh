@@ -35,6 +35,6 @@ cp -R talkytalky-wiki/output/* site/talkytalky/
 cp -R static-assets/. site/
 find site -name ".DS_Store" -delete
 
-# Generate the web app manifests and the service worker's precache list that
-# make the toys installable, from the assembled site
+# Generate the web app manifests, and write the precache list into the service
+# worker, to make the toys installable, from the assembled site
 node "$(dirname "$0")/build-pwa.js"
