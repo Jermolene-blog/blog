@@ -442,17 +442,17 @@ function snooker(balls, from) {
     const r = from.get(balls[0]).width / 2;
     layer.style.setProperty('--b', 2 * r + 'px');
     document.body.appendChild(layer);
-    const W = innerWidth, H = innerHeight, power = Math.hypot(W, H) * rand(1.1, 1.4);
-    const T2 = .55, homeOrder = shuffleArr(balls.map((_, i) => i));
+    const W = innerWidth, H = innerHeight, power = Math.hypot(W, H) * rand(2.2, 2.7);
+    const T2 = .32, homeOrder = shuffleArr(balls.map((_, i) => i));
     const bodies = balls.map((el, i) => {
       const a = from.get(el), b = el.getBoundingClientRect(), ang = rand(0, 2 * Math.PI), sp = power * rand(.55, 1);
       const ghost = el.cloneNode(true); ghost.removeAttribute('id'); ghost.tabIndex = -1; layer.appendChild(ghost);
       el.classList.add('away');
       return { el, ghost, x: a.left + r, y: a.top + r, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, rot: 0,
-               hx: b.left + r, hy: b.top + r, leave: 1.1 + homeOrder[i] * .07, homing: null, done: false };
+               hx: b.left + r, hy: b.top + r, leave: .55 + homeOrder[i] * .04, homing: null, done: false };
     });
     let t = 0, last = performance.now(), lastKnock = 0;
-    const knock = (kind, v, x) => { const ts = performance.now(); if (v < 60 || ts - lastKnock < 28) return; lastKnock = ts; sfx[kind](Math.min(1, v / 1400), x); };
+    const knock = (kind, v, x) => { const ts = performance.now(); if (v < 60 || ts - lastKnock < 28) return; lastKnock = ts; sfx[kind](Math.min(1, v / 2400), x); };
     const wall = (B, axis, lo, hi) => {
       const v = 'v' + axis;
       if (B[axis] < lo) { B[axis] = lo; knock('cushion', Math.abs(B[v]), B.x); B[v] = Math.abs(B[v]) * .9; }
@@ -466,7 +466,7 @@ function snooker(balls, from) {
         for (const B of bodies) {
           if (B.homing) continue;
           if (t >= B.leave) {
-            const sp = Math.hypot(B.vx, B.vy), k = sp > 700 ? 700 / sp : 1;
+            const sp = Math.hypot(B.vx, B.vy), k = sp > 1400 ? 1400 / sp : 1;
             B.homing = { t0: t, x: B.x, y: B.y, vx: B.vx * k, vy: B.vy * k, rot: B.rot, rotEnd: Math.round(B.rot / (2 * Math.PI)) * 2 * Math.PI };
             continue;
           }
