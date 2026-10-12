@@ -144,9 +144,20 @@ button:focus-visible,.filebtn:focus-within,input:focus-visible{outline:2px solid
       <div class="ctl"><label for="geometry">Pattern</label>
         <select id="geometry">
           <option value="lines" selected>Parallel lines</option>
+          <option value="wavy">Wavy lines</option>
+          <option value="zigzag">Zigzag</option>
+          <option value="crosshatch">Crosshatch</option>
           <option value="circles">Concentric circles</option>
+          <option value="ripples">Ripples</option>
+          <option value="squares">Concentric squares</option>
           <option value="spiral">Spiral</option>
         </select></div>
+      <div id="waveCtl" hidden>
+        <div class="ctl"><label for="amp">Wave height <output id="ampV"></output></label>
+          <input type="range" id="amp" min="1" max="40" step="0.5" value="8"></div>
+        <div class="ctl" style="margin-top:14px"><label for="wavelength">Wavelength <output id="wavelengthV"></output></label>
+          <input type="range" id="wavelength" min="12" max="240" step="1" value="60"></div>
+      </div>
       <div class="ctl"><label for="angle">Angle <output id="angleV"></output></label>
         <input type="range" id="angle" min="0" max="180" step="1" value="45"></div>
       <div class="ctl"><label for="spacing">Spacing <output id="spacingV"></output></label>
@@ -336,6 +347,8 @@ function readParams() {
     invert: $("invert").checked,
     colour: $("colour").checked,
     geometry: $("geometry").value,
+    amp: +$("amp").value,
+    wavelength: +$("wavelength").value,
   };
 }
 
@@ -344,7 +357,8 @@ function readParams() {
 // emit(kind, top, bot): flat [x0,y0,x1,y1,...] arrays; kind is
 // "open" (lines, spiral) or "ring" (circles: top=outer, bot=inner loop).
 function generateRibbons(arr, shift, P, emit) {
-  const maxHW = P.spacing * P.weight / 2;
+  // Crosshatch lays two fields over each other, so its lines are thinner to keep the same tone
+  const maxHW = P.spacing * P.weight / 2 * (P.geometry === "crosshatch" ? 0.6 : 1);
   const cxm = P.W / 2, cym = P.H / 2;
   const diag = Math.hypot(P.W, P.H);
   const maxR = diag / 2 + P.spacing;
@@ -369,18 +383,58 @@ function generateRibbons(arr, shift, P, emit) {
     bot.push(x - nx * hw, y - ny * hw);
   }
 
-  if (P.geometry === "lines") {
-    const dx = Math.cos(P.angle), dy = Math.sin(P.angle);
+  // Trace a parametric centreline f(t) => [x, y] from t0 to t1, taking each
+  // normal from the local direction of the curve. Closed loops (rings) use
+  // the outward normal, so that `top` is the outer edge.
+  function trace(f, t0, t1, step, closed) {
+    const top = [], bot = [], h = step / 2;
+    for (let t = t0; closed ? t < t1 - h : t <= t1; t += step) {
+      const [x, y] = f(t), [xa, ya] = f(t - h), [xb, yb] = f(t + h);
+      const l = Math.hypot(xb - xa, yb - ya) || 1, tx = (xb - xa) / l, ty = (yb - ya) / l;
+      if (closed) point(x, y, ty, -tx, top, bot); else point(x, y, -ty, tx, top, bot);
+    }
+    return [top, bot];
+  }
+
+  // A field of parallel lines at `angle`, each displaced sideways by wave(t)
+  function lineField(angle, wave, reach) {
+    const dx = Math.cos(angle), dy = Math.sin(angle);
     const nx = -dy, ny = dx;
-    const half = Math.ceil(diag / 2 / P.spacing) + 1;
+    const half = Math.ceil((diag / 2 + reach) / P.spacing) + 1;
     for (let k = -half; k <= half; k++) {
       const off = k * P.spacing + shift;
-      const top = [], bot = [];
-      for (let t = -diag / 2; t <= diag / 2; t += 2) {
-        point(cxm + dx * t + nx * off, cym + dy * t + ny * off, nx, ny, top, bot);
+      if (!wave) {
+        const top = [], bot = [];
+        for (let t = -diag / 2; t <= diag / 2; t += 2) {
+          point(cxm + dx * t + nx * off, cym + dy * t + ny * off, nx, ny, top, bot);
+        }
+        emit("open", top, bot);
+      } else {
+        const [top, bot] = trace(t => {
+          const o = off + wave(t);
+          return [cxm + dx * t + nx * o, cym + dy * t + ny * o];
+        }, -diag / 2, diag / 2, 1.5, false);
+        emit("open", top, bot);
       }
-      emit("open", top, bot);
     }
+  }
+
+  const k = 2 * Math.PI / P.wavelength;
+  // asin(c·sin) is a triangle wave with its points slightly rounded, so the
+  // ribbons stay clean at the turns
+  const ZIG = Math.asin(0.96);
+  const waves = {
+    wavy: t => P.amp * Math.sin(k * t),
+    zigzag: t => P.amp * Math.asin(0.96 * Math.sin(k * t)) / ZIG,
+  };
+
+  if (P.geometry === "lines") {
+    lineField(P.angle, null, 0);
+  } else if (P.geometry === "wavy" || P.geometry === "zigzag") {
+    lineField(P.angle, waves[P.geometry], P.amp);
+  } else if (P.geometry === "crosshatch") {
+    lineField(P.angle, null, 0);
+    lineField(P.angle + Math.PI / 2, null, 0);
   } else if (P.geometry === "circles") {
     for (let r = P.spacing + shift; r <= maxR; r += P.spacing) {
       const top = [], bot = [];                 // outer / inner loop
@@ -389,6 +443,38 @@ function generateRibbons(arr, shift, P, emit) {
         const th = P.angle + i * 2 * Math.PI / steps;
         const nx = Math.cos(th), ny = Math.sin(th);   // radial normal
         point(cxm + nx * r, cym + ny * r, nx, ny, top, bot);
+      }
+      emit("ring", top, bot);
+    }
+  } else if (P.geometry === "ripples") {
+    // Rings with the same number of waves all the way out, like a ripple
+    // spreading from the centre; small rings ripple less so they never fold
+    const lobes = Math.max(3, Math.round(Math.PI * maxR / 2 / P.wavelength));
+    for (let r = P.spacing + shift; r <= maxR + P.amp; r += P.spacing) {
+      const a = Math.min(P.amp, r * 0.6 / lobes);
+      const len = 2 * Math.PI * r * Math.hypot(1, a * lobes / r);
+      const step = 2 * Math.PI / Math.max(24, Math.ceil(len / 1.8));
+      const [top, bot] = trace(th => {
+        const rr = r + a * Math.sin(lobes * th);
+        return [cxm + Math.cos(th + P.angle) * rr, cym + Math.sin(th + P.angle) * rr];
+      }, 0, 2 * Math.PI, step, true);
+      emit("ring", top, bot);
+    }
+  } else if (P.geometry === "squares") {
+    // Squares with rounded corners, traced by distance along the edge so
+    // that the image is sampled evenly
+    const ca = Math.cos(P.angle), sa = Math.sin(P.angle);
+    for (let r = P.spacing + shift; r <= maxR; r += P.spacing) {
+      const rc = r * 0.3, a = r - rc, side = 2 * a, arc = Math.PI / 2 * rc, quarter = side + arc;
+      const top = [], bot = [];
+      const steps = Math.max(24, Math.ceil(4 * quarter / 2));
+      for (let i = 0; i < steps; i++) {
+        const s = i * 4 * quarter / steps, q = Math.floor(s / quarter), u = s - q * quarter;
+        let x, y, nx, ny;
+        if (u < side) { x = r; y = -a + u; nx = 1; ny = 0; }
+        else { const th = (u - side) / rc; nx = Math.cos(th); ny = Math.sin(th); x = a + rc * nx; y = a + rc * ny; }
+        for (let j = 0; j < q; j++) { [x, y] = [-y, x]; [nx, ny] = [-ny, nx]; }
+        point(cxm + x * ca - y * sa, cym + x * sa + y * ca, nx * ca - ny * sa, nx * sa + ny * ca, top, bot);
       }
       emit("ring", top, bot);
     }
@@ -459,7 +545,7 @@ function render() {
 function scaledParams(s) {
   const P = readParams();
   return { ...P, W: P.W * s, H: P.H * s, spacing: P.spacing * s,
-           wobble: P.wobble * s, scale: s };
+           wobble: P.wobble * s, amp: P.amp * s, wavelength: P.wavelength * s, scale: s };
 }
 
 // ---------- SVG export ----------
@@ -492,8 +578,8 @@ function buildSVG() {
 }
 
 // ---------- wiring ----------
-const sliders = ["angle", "spacing", "weight", "depth", "wobble", "blur", "contrast", "tone"];
-const units = { angle: "°", spacing: "px", wobble: "px", blur: "px" };
+const sliders = ["angle", "spacing", "weight", "depth", "wobble", "blur", "contrast", "tone", "amp", "wavelength"];
+const units = { angle: "°", spacing: "px", wobble: "px", blur: "px", amp: "px", wavelength: "px" };
 function showValue(id) {
   const el = $(id);
   $(id + "V").textContent = (+el.value).toString() + (units[id] || "");
@@ -509,6 +595,11 @@ for (const id of sliders) {
 for (const id of ["colour", "invert", "ink", "paper", "geometry", "gradWobble"]) {
   $(id).addEventListener("input", requestRender);
 }
+// The wave controls only apply to the patterns that wave
+const WAVY = ["wavy", "zigzag", "ripples"];
+function showWaveControls() { $("waveCtl").hidden = !WAVY.includes($("geometry").value); }
+$("geometry").addEventListener("input", showWaveControls);
+showWaveControls();
 
 // iPadOS/iOS Safari silently ignores programmatically-clicked download
 // anchors, so hand the file to the share sheet there ("Save to Files");
