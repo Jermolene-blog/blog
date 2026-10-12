@@ -141,13 +141,15 @@ h1 { font-family: var(--display); font-weight: 400; font-size: 30px; line-height
 @media (prefers-reduced-motion: reduce) { .w.fresh .ch, .chip.fresh, .tray.bad, .intro[open] { animation: none; } }
 @media (hover: none) { .rules .keys { display: none; } }
 
-/* Phone portrait: the header and the play column stay put and the word board scrolls beneath them, filling the screen. */
+/* Phone portrait, for one-handed play: the word board fills the top of the screen and scrolls, and the play column
+   sits at the bottom, upside down, so that the balls are lowest, under the thumb, with the buttons just above them. */
 @media (max-width: 779px) and (orientation: portrait) {
   html, body { height: 100%; }
-  .wrap { height: 100%; padding-block: 10px 12px; gap: 12px; }
-  .play { gap: 10px; }
+  .wrap { height: 100%; padding-block: 10px 12px; gap: 10px; }
+  header { order: 1; } .board { order: 2; } .play { order: 3; }
+  .play { gap: 8px; }
+  .msg { order: 1; min-height: 20px; } .tray { order: 2; min-height: 48px; } .controls { order: 3; } .rack { order: 4; }
   .board { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
-  .msg { min-height: 20px; }
 }
 
 /* Tablet / desktop landscape: play column on the left, word board on the right, board scrolls on its own. */
