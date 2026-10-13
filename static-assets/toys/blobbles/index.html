@@ -143,8 +143,8 @@ function drawBackground() {
 
 /* ---------------- WebGL ---------------- */
 // The shader is compiled for the exact number of blobs (N), bubbles per blob (NB),
-// whether the blobs are tinted (TINT) and whether they are glass or liquid metal
-// (METAL), so every loop unrolls and unused work vanishes. Everything that is the same for every pixel of a blob (its squash,
+// whether the blobs are tinted (TINT) and whether they are glass, liquid metal or halftone
+// (MAT 0, 1 or 2), so every loop unrolls and unused work vanishes. Everything that is the same for every pixel of a blob (its squash,
 // spread, wobble phases and bubble positions) is worked out on the CPU each frame.
 const vs = `attribute vec2 a; void main(){ gl_Position = vec4(a,0.,1.); }`;
 const fs = `
@@ -163,6 +163,10 @@ uniform float uCs, uSw; // colour strength and marbling
 #endif
 #if NB > 0
 uniform vec3 uBub[N*NB]; // bubble centres and radii
+#endif
+#if MAT == 2
+uniform mat3 uRot[N];   // how far each ball has rolled, taking a point on it from the screen to the ball
+uniform float uDots[N]; // how many halftone dots cover the whole of each ball
 #endif
 
 float smin(float a, float b, float k){ float h = clamp(.5 + .5*(b-a)/k, 0., 1.); return mix(b, a, h) - k*h*(1.-h); }
@@ -257,6 +261,75 @@ vec3 tint(vec2 p){
 }
 #endif
 
+#if MAT == 2
+const float PI = 3.14159265, PHI = 1.61803399;
+// the fractional part of x*PHI for a whole number x, split so that large x keep their precision
+float fphi(float x){ float hi = floor(x/256.); return fract(hi*0.21670112 + (x - hi*256.)*0.61803399); }
+
+// the distance from p, on the unit sphere, to the nearest of n points spread evenly over it
+// by the Fibonacci spiral (after Keinert et al, "Spherical Fibonacci Mapping")
+float fibDist(vec3 p, float n){
+  float m = 1. - 1./n;
+  float phi = min(atan(p.y, p.x), PI), cosT = p.z;
+  float k = max(2., floor(log(n*PI*sqrt(5.)*(1. - cosT*cosT))/log(PHI + 1.)));
+  float Fk = pow(PHI, k)/sqrt(5.);
+  vec2 F = floor(vec2(Fk, Fk*PHI) + .5);
+  vec2 ka = 2.*F/n;
+  vec2 kb = 2.*PI*(vec2(fphi(F.x + 1.), fphi(F.y + 1.)) - (PHI - 1.));
+  mat2 iB = mat2(ka.y, -ka.x, kb.y, -kb.x)/(ka.y*kb.x - ka.x*kb.y);
+  vec2 c = floor(iB*vec2(phi, cosT - m));
+  float d = 8.;
+  for (int s = 0; s < 4; s++){
+    float i = clamp(dot(F, c + vec2(mod(float(s), 2.), floor(float(s)/2.))), 0., n - 1.);
+    float ph = 2.*PI*fphi(i), ct = m - 2.*i/n, st = sqrt(max(1. - ct*ct, 0.));
+    vec3 q = vec3(cos(ph)*st, sin(ph)*st, ct) - p;
+    d = min(d, dot(q, q));
+  }
+  return sqrt(d);
+}
+
+// the share of a pixel covered by a ball's dots, each sized to the light b falling there
+float dots(vec3 s, float n, float b, float aa){
+  float r = 0.5*sqrt(4.*PI/n*b);
+  return smoothstep(r + aa, r - aa, fibDist(s, n));
+}
+
+// each blob is a dark ball printed in halftone: dots spread evenly over a sphere that rolls as the
+// blob moves, each as big as the light falling on it. Where balls merge, the one nearest the eye
+// shows, as if they were solid spheres pushed into each other
+vec3 halftone(vec2 p){
+  vec3 s1 = vec3(0., 0., 1.), s2 = s1, r1 = s1, r2 = s1;
+  float h1 = -1e5, h2 = -1e5, n1 = 1., n2 = 1., a1 = 1., a2 = 1.;
+  for (int i = 0; i < N; i++){
+    // the ball is a little larger than the blob, so the merged glass around it still lands on it
+    float R = uB[i].z*1.12;
+    vec2 q = local(p, uB[i], uDf[i], uSt[i]);
+    float l = length(q);
+    // how far the ball's surface stands towards the eye here, or below zero how far off it the pixel lies
+    float h = l < R ? sqrt(R*R - l*l) : R - l;
+    vec2 u = q*(min(l/R, 0.985)/max(l, 1e-6));
+    vec3 s = vec3(u, sqrt(1. - dot(u, u)));
+    // how far across the ball one pixel reaches, more where it turns away at the rim
+    float aa = 0.8/(R*max(s.z, 0.2));
+    if (h > h1){ h2 = h1; s2 = s1; r2 = r1; n2 = n1; a2 = a1; h1 = h; s1 = s; r1 = uRot[i]*s; n1 = uDots[i]; a1 = aa; }
+    else if (h > h2){ h2 = h; s2 = s; r2 = uRot[i]*s; n2 = uDots[i]; a2 = aa; }
+  }
+  vec3 L = normalize(vec3(-0.55, 0.6, 0.58));
+  float c = dots(r1, n1, max(dot(s1, L), 0.), a1);
+  // a soft seam where two balls meet, a couple of pixels wide
+  float t = smoothstep(0., 2., h1 - h2);
+  if (t < 1.) c = mix(0.5*(c + dots(r2, n2, max(dot(s2, L), 0.), a2)), c, t);
+  // the neck where blobs have merged lies round the far edge of every ball, beyond any blob's own
+  // outline, and is left dark like a crevice
+  c *= smoothstep(0.15, 0.35, s1.z);
+  vec3 ink = vec3(1.);
+#if TINT
+  ink = mix(ink, tint(p), min(uCs, 1.));
+#endif
+  return mix(vec3(0.07), ink, c);
+}
+#endif
+
 void main(){
   vec2 p = gl_FragCoord.xy;
   vec3 col = tx(p);
@@ -273,8 +346,8 @@ void main(){
       float ds = sdf(p - so);
       float sh = smoothstep(uS*0.10, -uS*0.04, ds);
       float caus = smoothstep(-uS*0.02, -uS*0.16, ds);
-#if METAL
-      // metal lets no light through, so its shadow is plain and deeper
+#if MAT != 0
+      // metal lets no light through, nor does a halftone ball, so its shadow is plain and deeper
       bg *= 1. - sh*0.32;
 #else
       // light through coloured glass colours its shadow and caustic
@@ -291,6 +364,9 @@ void main(){
     }
 
     if (d < aa){
+#if MAT == 2
+      vec3 gc = halftone(p);
+#else
       // the slope of the glass, from the height here and a little to the right and above
       float e = 1.5;
       float h0 = hgtd(p, d);
@@ -298,7 +374,7 @@ void main(){
       vec3 n = normalize(vec3(-g*0.16, 1.));
       float rim = 1. - n.z;
 
-#if METAL
+#if MAT == 1
       // liquid metal: an opaque mirror. The view ray bounces off the surface into a
       // studio with a soft light overhead and a dark floor, and where the surface turns
       // away at the rim it shows the page around it
@@ -345,7 +421,7 @@ void main(){
       vec3 H1 = normalize(normalize(vec3(-.45, .55, .70)) + V);
       vec3 H2 = normalize(normalize(vec3(.55, -.35, .75)) + V);
       float s1 = max(dot(n, H1), 0.), s2 = max(dot(n, H2), 0.);
-#if METAL
+#if MAT == 1
       gc += pow(s1, 220.)*2.4 + pow(s1, 26.)*0.16 + pow(s2, 120.)*0.8;
 #else
       gc += pow(s1, 220.)*1.8 + pow(s1, 26.)*0.10 + pow(s2, 120.)*0.55;
@@ -365,6 +441,7 @@ void main(){
           gc += smoothstep(br*0.45, 0., length(p - bb.xy - vec2(-.3,.3)*br))*0.7;
         }
       }
+#endif
 #endif
       col = mix(bg, gc, m);
     }
@@ -389,6 +466,7 @@ const MAXB = Math.max(0, Math.min(16, Math.floor(((gl.getParameter(gl.MAX_FRAGME
 // per-blob uniform data, packed on the CPU; a program's views cover just the blobs in play
 const bufB = new Float32Array(32), bufDf = new Float32Array(32), bufSt = new Float32Array(32), bufWb = new Float32Array(32);
 const bufE = new Float32Array(16), bufC = new Float32Array(24), bufBub = new Float32Array(8 * 16 * 3);
+const bufRot = new Float32Array(72), bufDots = new Float32Array(8);
 
 // programs are compiled once for each combination of blob count, bubble count, tint and material, and kept
 const progs = new Map();
@@ -399,7 +477,7 @@ function program(N, NB, T, M) {
   const prog = gl.createProgram();
   try {
     gl.attachShader(prog, vshader);
-    gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, `#define N ${N}\n#define NB ${NB}\n#define TINT ${T}\n#define METAL ${M}\n${fs}`));
+    gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, `#define N ${N}\n#define NB ${NB}\n#define TINT ${T}\n#define MAT ${M}\n${fs}`));
     gl.bindAttribLocation(prog, 0, 'a');
     gl.linkProgram(prog);
     if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
@@ -412,9 +490,9 @@ function program(N, NB, T, M) {
   const U = n => gl.getUniformLocation(prog, n);
   v = { prog, NB,
     uRes: U('uRes'), uS: U('uS'), uT: U('uT'), uMerge: U('uMerge'), uFar: U('uFar'), uRef: U('uRef'), uDis: U('uDis'), uCs: U('uCs'), uSw: U('uSw'),
-    uB: U('uB[0]'), uDf: U('uDf[0]'), uSt: U('uSt[0]'), uWb: U('uWb[0]'), uE: U('uE[0]'), uC: U('uC[0]'), uBub: U('uBub[0]'),
+    uB: U('uB[0]'), uDf: U('uDf[0]'), uSt: U('uSt[0]'), uWb: U('uWb[0]'), uE: U('uE[0]'), uC: U('uC[0]'), uBub: U('uBub[0]'), uRot: U('uRot[0]'), uDots: U('uDots[0]'),
     B: bufB.subarray(0, 4 * N), Df: bufDf.subarray(0, 4 * N), St: bufSt.subarray(0, 4 * N), Wb: bufWb.subarray(0, 4 * N),
-    E: bufE.subarray(0, 2 * N), C: bufC.subarray(0, 3 * N), Bub: bufBub.subarray(0, 3 * N * NB) };
+    E: bufE.subarray(0, 2 * N), C: bufC.subarray(0, 3 * N), Bub: bufBub.subarray(0, 3 * N * NB), Rot: bufRot.subarray(0, 9 * N), Dots: bufDots.subarray(0, N) };
   progs.set(key, v);
   return v;
 }
@@ -435,10 +513,13 @@ function upload() {
 
 /* ---------------- settings ---------------- */
 const pct = v => `${Math.round(v * 100)}%`;
-const COLOUR_MODES = () => ({ clear: glass() ? 'Clear glass' : 'Silver', one: 'One colour', rainbow: 'Rainbow', each: 'A colour for each blob' });
-const MATERIALS = { glass: 'Glass', metal: 'Liquid metal' };
+const COLOUR_MODES = () => ({ clear: { glass: 'Clear glass', metal: 'Silver', halftone: 'White dots' }[cfg.material], one: 'One colour', rainbow: 'Rainbow', each: 'A colour for each blob' });
+const MATERIALS = { glass: 'Glass', metal: 'Liquid metal', halftone: 'Halftone' };
 const tinted = () => cfg.tint !== 'clear';
 const glass = () => cfg.material === 'glass';
+const halftone = () => cfg.material === 'halftone';
+// the shader's MAT: 0 for glass, 1 for liquid metal, 2 for halftone
+const material = () => Object.keys(MATERIALS).indexOf(cfg.material);
 // a select's options may be a function, when their names depend on other settings
 const optionsOf = s => typeof s.options === 'function' ? s.options() : s.options;
 // settings are sliders unless they give a type; `when` hides a setting that does not apply
@@ -460,6 +541,8 @@ const SETTINGS = [
   { group: 'Surface', key: 'material', label: 'Material', type: 'select', options: MATERIALS, def: 'glass' },
   { key: 'refraction', label: 'Refraction', min: 0, max: 3, step: 0.05, def: 1, fmt: pct, when: glass },
   { key: 'dispersion', label: 'Rainbow fringes', min: 0, max: 4, step: 0.1, def: 1, fmt: pct, when: glass },
+  { key: 'dotSize', label: 'Dot size', min: 0.4, max: 3, step: 0.05, def: 1, fmt: pct, when: halftone },
+  { key: 'roll', label: 'Rolling', min: 0, max: 3, step: 0.1, def: 1, fmt: pct, when: halftone },
   { group: 'Bubbles', key: 'bubbles', label: 'Bubbles per blob', min: 0, max: MAXB, step: 1, def: Math.min(6, MAXB), when: () => MAXB > 0 && glass() },
   { key: 'bubbleSize', label: 'Bubble size', min: 0.3, max: 4, step: 0.1, def: 1, fmt: pct, when: () => MAXB > 0 && glass() },
   { key: 'drift', label: 'Drift speed', min: 0, max: 5, step: 0.1, def: 1, fmt: pct, when: () => MAXB > 0 && glass() },
@@ -577,7 +660,26 @@ const blobs = [
 ].map(b => ({ ...b, x: 0, y: 0, vx: 0, vy: 0, init: false,
   da: 0, db: 0, dva: 0, dvb: 0, // squash and stretch (see uDf in the shader) and its rate of change
   fly: 0, whizz: 0, home: null, // seconds left flying free, then whizzing back to home (or its path)
+  rot: [1, 0, 0, 0, 1, 0, 0, 0, 1], // how far its halftone ball has rolled, row by row
 }));
+
+// roll a ball of radius r along the page by (dx, dy): it turns about the axis in the page square
+// to the movement, so the side facing us moves the same way
+function roll(b, dx, dy, r) {
+  const d = Math.hypot(dx, dy), th = d / r;
+  if (th < 1e-6) return;
+  const ax = -dy / d, ay = dx / d, c = Math.cos(th), s = Math.sin(th), t = 1 - c;
+  const R = [c + t * ax * ax, t * ax * ay, s * ay,
+             t * ax * ay, c + t * ay * ay, -s * ax,
+             -s * ay, s * ax, c];
+  const m = b.rot, out = [];
+  for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) out.push(R[i * 3] * m[j] + R[i * 3 + 1] * m[3 + j] + R[i * 3 + 2] * m[6 + j]);
+  // keep the rows at right angles, against rounding creeping in
+  const norm = v => { const l = Math.hypot(...v); return v.map(x => x / l); };
+  const r0 = norm(out.slice(0, 3)), r1p = out.slice(3, 6), k = r0[0] * r1p[0] + r0[1] * r1p[1] + r0[2] * r1p[2];
+  const r1 = norm(r1p.map((x, i) => x - k * r0[i]));
+  b.rot = [...r0, ...r1, r0[1] * r1[2] - r0[2] * r1[1], r0[2] * r1[0] - r0[0] * r1[2], r0[0] * r1[1] - r0[1] * r1[0]];
+}
 
 const active = () => blobs.slice(0, cfg.count);
 const radius = b => b.r * cfg.size * S;
@@ -788,7 +890,7 @@ function frame(now) {
   const pace = dt * (reduceMotion ? 0.25 : 1);
   clock += pace; roam += pace * cfg.roam; drift += pace * cfg.drift; turn += pace * cfg.cycle * 0.5;
   const t = roam + T0;
-  const T = tinted() ? 1 : 0, M = glass() ? 0 : 1;
+  const T = tinted() ? 1 : 0, M = material();
   const v = program(cfg.count, M ? 0 : Math.min(cfg.bubbles, MAXB), T, M), NB = v.NB;
   // blobs beyond the chosen number are let go, and start afresh if they come back
   blobs.slice(cfg.count).forEach(b => { b.init = false; b.vx = b.vy = b.da = b.db = b.dva = b.dvb = b.fly = b.whizz = 0; b.home = null; });
@@ -820,6 +922,7 @@ function frame(now) {
     b.vx += ((tx - b.x) * k - b.vx * c + wx) * dt;
     b.vy += ((ty - b.y) * k - b.vy * c + wy) * dt;
     b.x += b.vx * dt; b.y += b.vy * dt;
+    if (M === 2) roll(b, b.vx * dt * cfg.roll, b.vy * dt * cfg.roll, radius(b) * 1.12);
     const bounce = b.fly > 0 ? 0.8 : 0;
     let hitX, hitY;
     [b.x, b.vx, hitX] = limit(b.x, b.vx, r, W, bounce);
@@ -856,6 +959,13 @@ function frame(now) {
     const A3 = 0.016 * cfg.wobble * rz, A5 = 0.010 * cfg.wobble * rz, p3 = clock * 1.6 + i * 2.1, p5 = -clock * 2.2 + i * 1.3;
     bufWb.set([A3 * Math.cos(p3), A3 * Math.sin(p3), A5 * Math.cos(p5), A5 * Math.sin(p5)], i * 4);
     if (T) bufC.set(blobColour(i, cfg.count, turn), i * 3);
+    if (M === 2) {
+      // the ball's rows become the columns of the shader's matrix, which so takes the screen to the ball
+      bufRot.set(b.rot, i * 9);
+      // enough dots to cover the ball at the chosen spacing, a whole number that doesn't change as it breathes
+      const R = radius(b) * 1.12, gap = S * 0.011 * cfg.dotSize;
+      bufDots[i] = Math.min(Math.max(Math.round(4 * Math.PI * R * R / (gap * gap)), 12), 40000);
+    }
     // the bubbles, spread with a squished blob, stretched with it, and kept clear of the edge
     let reach = 0;
     const seeds = bubbleSeeds[i];
@@ -891,6 +1001,7 @@ function frame(now) {
     gl.uniform1f(v.uSw, cfg.tint === 'one' ? 0 : cfg.marble);
   }
   if (NB) gl.uniform3fv(v.uBub, v.Bub);
+  if (M === 2) { gl.uniformMatrix3fv(v.uRot, false, v.Rot); gl.uniform1fv(v.uDots, v.Dots); }
   gl.uniform1f(v.uMerge, S * cfg.merge);
   // beyond this cheap lower bound on the distance, a pixel shows only paper (see bound() in the shader)
   gl.uniform1f(v.uFar, S * (cfg.merge + 0.19));
@@ -908,7 +1019,7 @@ function frame(now) {
 }
 
 const start = () => {
-  try { program(cfg.count, glass() ? Math.min(cfg.bubbles, MAXB) : 0, tinted() ? 1 : 0, glass() ? 0 : 1); }
+  try { program(cfg.count, glass() ? Math.min(cfg.bubbles, MAXB) : 0, tinted() ? 1 : 0, material()); }
   catch (e) { console.error(e); document.getElementById('err').style.display = 'grid'; return; }
   resize(); requestAnimationFrame(frame);
 };
