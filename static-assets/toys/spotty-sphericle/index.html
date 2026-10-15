@@ -131,7 +131,7 @@ textarea{width:100%;box-sizing:border-box;min-height:70px;resize:vertical;backgr
     <details id="exploreSec">
       <summary>Explore</summary>
       <div class="rows">
-        <p class="note">Shows the current image in the centre with eight nearby variations around it. Click a variation to make it the new centre and breed again. Sliders below still edit the centre, and the neighbours follow.</p>
+        <p class="note">Shows the current image in the centre with eight nearby variations around it. Click a variation to make it the new centre and breed again, or click the centre to leave explore. Sliders below still edit the centre, and the neighbours follow.</p>
         <div class="row"><label for="exStrength">Step size</label><input type="number" id="exStrength_n" min="0.02" max="1" step="0.01" aria-label="Step size value"><input type="range" id="exStrength" min="0.02" max="1" step="0.01"></div>
         <div class="note">Parameters allowed to change:</div>
         <div class="exsecs" id="exSecs"></div>
@@ -755,14 +755,14 @@ const DRAG_GAIN=0.45;
 cv.addEventListener('pointerdown',e=>{ if (explore) return; cv.setPointerCapture(e.pointerId); mom=null;
   drag={x:e.clientX,y:e.clientY,lx:e.clientX,ly:e.clientY,lt:e.timeStamp,vx:0,vy:0};
   if(dragMode==='light') lightFrom(e); });
-cv.addEventListener('pointermove',e=>{ if (explore){ const k=cellAt(e); if(k!==hover){ hover=k; cv.style.cursor = k>=0&&k!==4 ? 'pointer' : 'default'; if(!raf) draw(); } return; } if(!drag) return;
+cv.addEventListener('pointermove',e=>{ if (explore){ const k=cellAt(e); if(k!==hover){ hover=k; cv.style.cursor = k>=0 ? 'pointer' : 'default'; if(!raf) draw(); } return; } if(!drag) return;
   if (dragMode==='light') return lightFrom(e);
   const dx=(e.clientX-drag.lx)*DRAG_GAIN, dy=(e.clientY-drag.ly)*DRAG_GAIN, dt=Math.max(1,e.timeStamp-drag.lt)/1000;
   const a=Math.min(1, dt/0.05);   // smooth velocity over ~50 ms
   drag.vy = drag.vy*(1-a) + (dx/dt)*a; drag.vx = drag.vx*(1-a) + (dy/dt)*a;
   drag.lx=e.clientX; drag.ly=e.clientY; drag.lt=e.timeStamp;
   set({yaw:+wrap180(S.yaw+dx).toFixed(2), tiltX:+wrap180(S.tiltX+dy).toFixed(2)}, {noSync:true}); });
-cv.addEventListener('click',e=>{ if(!explore || trans) return; const k=cellAt(e); if (k>=0 && k!==4) adoptChild(k); });
+cv.addEventListener('click',e=>{ if(!explore || trans) return; const k=cellAt(e); if (k===4) setExplore(false); else if (k>=0) adoptChild(k); });
 cv.addEventListener('pointerleave',()=>{ if(explore && hover!==-1){ hover=-1; if(!raf) draw(); } });
 const endDrag=e=>{ if(!drag) return;
   if (dragMode==='rotate' && e && e.type==='pointerup' && e.timeStamp-drag.lt < 90){
