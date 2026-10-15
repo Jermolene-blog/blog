@@ -1,7 +1,7 @@
 {
 	"archive/cecily": "b6bb79d081861991c5a5037d6531c13a3c4ae7c06f37c0ea316a29dd2f8ba9b8",
 	"talkytalky": "0bc73553af497cd84915de3f2a4bde0fd86410090b7280eb6e4657796abdc4f7",
-	"toys/blobbles": "c0106a04d0da3ca37befceb56f47fbafc1683bf7679f012fc19660cc866d352a",
+	"toys/blobbles": "acbe0d9cd124843c71eaee8c3f3382febfd2988454168ffef2d0e3c8688ff3f1",
 	"toys/engravery": "1830a496dcd7ca5f7402305a15b2aee9b7f4d0274c64d220320578d4bd0fa0b9",
 	"toys/jpegulator": "54d7fee2f09e64928619c59f3e0d1e6b09361d061eae236840218d9b75add15d",
 	"toys/jumbleword": "6720ce375b9400efbe45bf9712b4a33485fa1722aa732e6863bb113efa0cfbed",
@@ -11,5 +11,6 @@
 	"toys/marblelous": "211faa9a8c6f8da0341127f0a41e4f07c8e2f22c4b7bd1d877bb8e5964f5bf14",
 	"toys/mimic": "10ef994102ce226d1485d7ce424423ca5a2665de7a16123a8c6613c831c8d446",
 	"toys/over-underiser": "7cff71feef2a42fe1471dafe2d2ca524762fc8852d80933ceaee7510ecfc402d",
+	"toys/spotty-sphericle": "6d4644fe16c007a69aa8730c72f6dbdc8f06d8e790f982d3d7b3fc8f61b707ff",
 	"toys/vectorious": "2b5d65f013761cd9211b48d5f93f056866e7fdccb9e5a99728e9244f72ef17e4"
 }

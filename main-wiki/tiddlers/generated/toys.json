@@ -90,6 +90,17 @@
 		"screenshot": "/screenshots/toys/over-underiser.webp"
 	},
 	{
+		"title": "Toys/spotty-sphericle",
+		"caption": "Spotty Sphericle",
+		"description": "Thousands of dots on a spinning sphere, sized by the light falling on them: flick it, move the light, and breed new variations",
+		"url": "/toys/spotty-sphericle/",
+		"tags": "toy",
+		"text": "",
+		"short-caption": "Sphericle",
+		"theme-color": "#050505",
+		"screenshot": "/screenshots/toys/spotty-sphericle.webp"
+	},
+	{
 		"title": "Toys/lenticulator",
 		"caption": "The Lenticulator",
 		"description": "Print and fold lenticular pictures that change as the observer moves",
