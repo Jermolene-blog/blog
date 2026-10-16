@@ -10,6 +10,16 @@
 		"screenshot": "/screenshots/toys/blobbles.webp"
 	},
 	{
+		"title": "Toys/catflap",
+		"caption": "Catflap",
+		"description": "A game for small children: let the cat in through the cat flap, then tap to give it dinner, water, treats and fish until it curls up in its basket to sleep",
+		"url": "/toys/catflap/",
+		"tags": "toy",
+		"text": "",
+		"theme-color": "#f7e6c4",
+		"screenshot": "/screenshots/toys/catflap.webp"
+	},
+	{
 		"title": "Toys/engravery",
 		"caption": "Engravery",
 		"description": "Hide a photo in a field of parallel lines, then squint to see it reappear",

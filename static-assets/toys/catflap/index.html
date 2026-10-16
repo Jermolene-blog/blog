@@ -1,0 +1,928 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#f7e6c4">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script src="../pwa.js" defer></script>
+</head><body>
+<title>Catflap</title>
+<meta name="description" content="A game for small children: let the cat in through the cat flap, then tap to give it dinner, water, treats and fish until it curls up in its basket to sleep">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&display=swap">
+<style>
+/* Layout: one full-screen kitchen, drawn on a 1600×1000 stage scaled to fit. The back layer holds the room and the
+   things on the shelf, the cats walk in front of it, and the front layer holds the door, the basket's rim and the
+   effects. A grown-up's settings button hides in the top right corner, opened by holding it. */
+:root{
+  --wall:#f7e6c4; --ink:#5b3a1e; --accent:#ef8b3c; --panel:#fffaf0; --line:#e2c99b;
+  --f-round:"Fredoka", "Arial Rounded MT Bold", "Nunito", system-ui, sans-serif;
+}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+body{background:var(--wall);font-family:var(--f-round);color:var(--ink)}
+#game{position:fixed;inset:0;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;cursor:pointer;overflow:hidden;
+  -webkit-tap-highlight-color:transparent}
+#game svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+#cats{position:absolute;inset:0;pointer-events:none;z-index:1}
+#game #front{pointer-events:none;z-index:2}
+#wake,#grown{z-index:3}
+#dark{position:absolute;inset:0;background:#33407e;mix-blend-mode:multiply;opacity:0;pointer-events:none;z-index:2}
+.sleeper{position:absolute;left:0;top:0;pointer-events:none;transform-origin:50% 100%}
+.sleeper img,.sleeper svg{position:absolute;inset:0;width:100%;height:100%}
+
+/* the morning button: a big sun, well clear of the bottom edge */
+#wake{position:absolute;width:150px;height:150px;margin:-75px 0 0 -75px;border:0;border-radius:50%;padding:0;background:none;cursor:pointer;
+  animation:breathe 2.4s ease-in-out infinite}
+#wake svg{position:static;width:100%;height:100%}
+@keyframes breathe{50%{transform:scale(1.08)}}
+
+/* grown-ups only: hold for a moment to open */
+#grown{position:absolute;top:max(10px,env(safe-area-inset-top,0px));right:max(10px,env(safe-area-inset-right,0px));width:44px;height:44px;border-radius:50%;
+  border:0;background:rgba(91,58,30,.08);color:rgba(91,58,30,.45);display:grid;place-items:center;cursor:pointer;padding:0}
+#grown svg{position:absolute;inset:0;width:100%;height:100%}
+#grown .ring{fill:none;stroke:var(--accent);stroke-width:3;stroke-dasharray:126;stroke-dashoffset:126;transform:rotate(-90deg);transform-origin:50% 50%}
+#panel{border:0;border-radius:18px;padding:22px 22px 18px;max-width:min(420px,calc(100vw - 32px));background:var(--panel);color:var(--ink);
+  font:16px/1.45 var(--f-round);box-shadow:0 20px 60px rgba(60,30,10,.3)}
+#panel::backdrop{background:rgba(60,40,20,.35)}
+#panel h2{margin:0 0 6px;font-weight:600;font-size:22px}
+#panel p{margin:0 0 14px;font-size:14px;color:#8a6a4a}
+#panel label{display:block;font-size:14px;margin:12px 0 4px}
+#panel input{font:inherit;width:100%;box-sizing:border-box;padding:10px 12px;border:2px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+#panel .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+#panel button{font:600 15px var(--f-round);padding:10px 16px;border-radius:10px;border:2px solid var(--line);background:#fff;color:var(--ink);cursor:pointer}
+#panel button.main{background:var(--accent);border-color:var(--accent);color:#fff}
+#panel button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+#panel input:focus-visible,#panel button:focus-visible,#grown:focus-visible,#wake:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+</style>
+
+<div id="game" aria-label="Catflap: a game about feeding a cat">
+<svg id="back" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<defs>
+  <pattern id="paper" width="90" height="90" patternUnits="userSpaceOnUse">
+    <rect width="90" height="90" fill="#f7e6c4"/>
+    <path d="M45 33l8 12-8 12-8-12z M0 -12l8 12-8 12-8-12z M90 -12l8 12-8 12-8-12z M0 78l8 12-8 12-8-12z M90 78l8 12-8 12-8-12z" fill="#f0d9ad"/>
+  </pattern>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fcaf2"/><stop offset="1" stop-color="#d9f0ff"/></linearGradient>
+  <linearGradient id="outside" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe3f7"/><stop offset=".55" stop-color="#bfe3f7"/><stop offset=".56" stop-color="#7cc46a"/><stop offset="1" stop-color="#5aa94c"/></linearGradient>
+  <clipPath id="sockClip"><path d="M-34-182h68v118q0 64-64 64h-58q-30 0-30-30t30-36l54-14z"/></clipPath>
+
+  <!-- the things on the shelf, each drawn standing on the origin -->
+  <g id="art-kibble">
+    <path d="M-72 0l9-168h126l9 168z" fill="#ef8b3c"/>
+    <path d="M-63-168l7-30h112l7 30z" fill="#d9712a"/>
+    <path d="M-56-198h112" stroke="#b85a1c" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="0" cy="-92" r="44" fill="#fff6e6"/>
+    <path d="M-30-92q16-22 40-10 10-12 20-14-4 14 0 28-10-2-20-14-24 12-40-10z" fill="#4b8fd6"/>
+    <circle cx="-16" cy="-96" r="4" fill="#fff"/>
+    <g fill="#9b5a2c"><circle cx="-40" cy="-22" r="7"/><circle cx="-18" cy="-28" r="7"/><circle cx="6" cy="-22" r="7"/><circle cx="30" cy="-27" r="7"/><circle cx="48" cy="-20" r="6"/></g>
+  </g>
+  <g id="art-jug">
+    <path d="M44-160q60 6 48 70-6 32-38 44" fill="none" stroke="#3f84c8" stroke-width="17" stroke-linecap="round"/>
+    <path d="M-52 0q-18-80 8-148l-30-22q16-14 38-14h84v36q24 68 6 148z" fill="#5aa2e6"/>
+    <path d="M-50-58q30 10 100 0v40q-50 10-100 0z" fill="#8fd0ff" opacity=".6"/>
+    <path d="M-28-150q-12 40-6 100" stroke="#fff" stroke-width="12" stroke-linecap="round" opacity=".4" fill="none"/>
+  </g>
+  <g id="art-jar">
+    <rect x="-64" y="-168" width="128" height="168" rx="28" fill="#d8f0fa" stroke="#a4cfe0" stroke-width="5"/>
+    <g>
+      <path d="M-30-40c-10-10-26 2-14 16l14 14 14-14c12-14-4-26-14-16z" fill="#e9546b"/>
+      <circle cx="22" cy="-30" r="14" fill="#f7b733"/>
+      <path d="M8-78c-10-10-26 2-14 16l14 14 14-14c12-14-4-26-14-16z" fill="#7bc96f"/>
+      <circle cx="-30" cy="-84" r="13" fill="#f7b733"/>
+      <path d="M38-82c-8-8-20 2-11 12l11 11 11-11c9-10-3-20-11-12z" fill="#e9546b"/>
+      <circle cx="-8" cy="-118" r="12" fill="#e9546b"/>
+    </g>
+    <rect x="-46" y="-152" width="16" height="100" rx="8" fill="#fff" opacity=".55"/>
+    <rect x="-70" y="-196" width="140" height="34" rx="12" fill="#e9546b"/>
+    <rect x="-20" y="-212" width="40" height="20" rx="8" fill="#c63e55"/>
+  </g>
+  <g id="art-fish">
+    <ellipse cx="0" cy="-18" rx="112" ry="22" fill="#e8e3da"/>
+    <ellipse cx="0" cy="-24" rx="104" ry="22" fill="#fff"/>
+    <ellipse cx="0" cy="-24" rx="70" ry="13" fill="#f1ede6"/>
+    <g class="flesh">
+      <path d="M52-56l46-26-8 36 8 36-46-26z" fill="#e57f2e"/>
+      <ellipse cx="-6" cy="-50" rx="66" ry="30" fill="#f2994a"/>
+      <path d="M-20-78q20-20 44 0z" fill="#e57f2e"/>
+      <path d="M10-74q8 24 0 48 M24-72q8 22 0 44" stroke="#e57f2e" stroke-width="4" fill="none"/>
+      <circle cx="-44" cy="-56" r="7" fill="#fff"/><circle cx="-46" cy="-56" r="4" fill="#2b2b2b"/>
+      <path d="M-70-44q8 4 14 0" stroke="#c4651f" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </g>
+    <g class="bones" style="display:none" stroke="#d8d2c6" stroke-width="5" stroke-linecap="round" fill="none">
+      <path d="M-40-48h96"/><path d="M-20-62v28M0-64v32M20-62v28M40-58v20"/><path d="M56-48l34-18M56-48l34 18"/>
+      <path d="M-40-48m-26 0a22 20 0 1 0 44 0a22 20 0 1 0-44 0" fill="#f1ede6"/>
+    </g>
+  </g>
+  <g id="art-sock">
+    <g clip-path="url(#sockClip)">
+      <rect x="-130" y="-190" width="180" height="200" fill="#fff"/>
+      <g fill="#e9546b"><rect x="-130" y="-182" width="180" height="22"/><rect x="-130" y="-138" width="180" height="22"/><rect x="-130" y="-94" width="180" height="22"/><rect x="-130" y="-50" width="180" height="22"/></g>
+      <path d="M-130-14h70v30h-70z" fill="#f7b733"/>
+    </g>
+    <path d="M-34-182h68v118q0 64-64 64h-58q-30 0-30-30t30-36l54-14z" fill="none" stroke="#c8b9a8" stroke-width="4"/>
+  </g>
+  <g id="art-duck">
+    <path d="M-86-62q0 62 80 62h40q60 0 60-50 0-30-30-36-40 24-110 4-20-6-40 20z" fill="#ffd23f"/>
+    <circle cx="22" cy="-118" r="44" fill="#ffd23f"/>
+    <path d="M60-120q34-6 40 8-4 14-40 10z" fill="#f28c28"/>
+    <circle cx="34" cy="-128" r="7" fill="#2b2b2b"/><circle cx="36" cy="-130" r="2.5" fill="#fff"/>
+    <path d="M-50-50q30 20 60-6" stroke="#e8b923" stroke-width="7" fill="none" stroke-linecap="round"/>
+  </g>
+  <g id="art-yarn">
+    <circle cx="0" cy="-76" r="74" fill="#9b6bd3"/>
+    <g stroke="#7d4fb8" stroke-width="6" fill="none" stroke-linecap="round">
+      <path d="M-62-110q60-40 112 10"/><path d="M-72-70q70-50 140 6"/><path d="M-60-30q60-50 124 0"/><path d="M-40-138q-30 60 6 120"/><path d="M10-148q-34 70 20 136"/>
+    </g>
+    <path d="M60-30q40 30 70 20 30-10 40 10" stroke="#9b6bd3" stroke-width="7" fill="none" stroke-linecap="round"/>
+  </g>
+  <g id="art-slipper">
+    <path d="M-100-14q0-14 30-16h150q30 0 30 16 0 14-30 14h-150q-30 0-30-14z" fill="#e57ea9"/>
+    <path d="M-20-28q10-70 70-66 50 4 54 60v8h-124z" fill="#f7b6d2"/>
+    <circle cx="40" cy="-92" r="26" fill="#fff"/><circle cx="28" cy="-104" r="16" fill="#fff"/><circle cx="56" cy="-106" r="16" fill="#fff"/>
+  </g>
+  <path id="heart" d="M0 12C-30-10-26-34-12-36-4-37 0-30 0-26c0-4 4-11 12-10 14 2 18 26-12 48z"/>
+</defs>
+
+<rect x="-1600" y="-1000" width="4800" height="1800" fill="url(#paper)"/>
+<!-- the view out of the window -->
+<g id="window">
+  <rect x="380" y="70" width="320" height="260" rx="10" fill="#fffaf0" stroke="#d6b585" stroke-width="12"/>
+  <rect x="392" y="82" width="296" height="236" fill="url(#sky)"/>
+  <circle cx="636" cy="132" r="28" fill="#ffd75e"/>
+  <g fill="#fff"><ellipse cx="460" cy="150" rx="44" ry="18"/><ellipse cx="490" cy="138" rx="30" ry="20"/><ellipse cx="590" cy="250" rx="50" ry="16"/><ellipse cx="616" cy="240" rx="28" ry="16"/></g>
+  <path d="M392 290q80-40 150-10 70 30 146-6v44h-296z" fill="#7cc46a"/>
+  <g id="night" opacity="0">
+    <rect x="392" y="82" width="296" height="236" fill="#1f2d5c"/>
+    <circle cx="626" cy="136" r="28" fill="#fff3c4"/><circle cx="640" cy="126" r="24" fill="#1f2d5c"/>
+    <g fill="#fff3c4"><circle cx="440" cy="120" r="3"/><circle cx="500" cy="170" r="2.5"/><circle cx="560" cy="110" r="3"/><circle cx="470" cy="230" r="2"/><circle cx="660" cy="220" r="2.5"/><circle cx="560" cy="200" r="2"/></g>
+    <path d="M392 290q80-40 150-10 70 30 146-6v44h-296z" fill="#2f4a3a"/>
+  </g>
+  <path d="M540 82v236M392 200h296" stroke="#fffaf0" stroke-width="10"/>
+  <rect x="364" y="328" width="352" height="18" rx="4" fill="#e9d2a6"/>
+</g>
+<!-- the garden, seen through the open flap -->
+<rect x="110" y="600" width="160" height="200" fill="url(#outside)"/>
+<!-- the shelf -->
+<rect x="770" y="340" width="800" height="22" rx="4" fill="#b97c4d"/>
+<rect x="770" y="356" width="800" height="7" fill="#9d6438"/>
+<path d="M852 362v58l42-58zM1488 362v58l-42-58z" fill="#9d6438"/>
+<!-- the floor -->
+<rect x="-1600" y="800" width="4800" height="1200" fill="#c98d58"/>
+<g stroke="#b47844" stroke-width="3">
+  <path d="M-1600 836H3200M-1600 884H3200M-1600 944H3200"/>
+  <path d="M120 800v36M520 800v36M940 800v36M1340 800v36M1720 800v36M330 836v48M760 836v48M1180 836v48M1560 836v48M90 884v60M560 884v60M1020 884v60M1450 884v60"/>
+</g>
+<rect x="-1600" y="772" width="4800" height="28" fill="#fff3dc"/>
+<rect x="-1600" y="770" width="4800" height="4" fill="#e2c99b"/>
+<!-- the bowls and the back of the basket -->
+<g id="bowl" transform="translate(740 862)">
+  <ellipse cx="0" cy="2" rx="86" ry="14" fill="#000" opacity=".12"/>
+  <ellipse cx="0" cy="-52" rx="78" ry="14" fill="#a83a32"/>
+  <ellipse id="heap" cx="0" cy="-52" rx="70" ry="0" fill="#9b5a2c"/>
+  <g id="heapBits" fill="#7a4220" opacity="0"><circle cx="-34" cy="-60" r="6"/><circle cx="-8" cy="-66" r="6"/><circle cx="18" cy="-62" r="6"/><circle cx="40" cy="-58" r="5"/><circle cx="4" cy="-56" r="5"/></g>
+  <path d="M-78-52h156l-16 48q-62 10-124 0z" fill="#e05a4f"/>
+  <path d="M-78-52a78 14 0 0 0 156 0" fill="none" stroke="#f2857a" stroke-width="6"/>
+  <g fill="#fff" opacity=".8" transform="translate(0 -26) scale(.5)"><ellipse cx="0" cy="6" rx="16" ry="13"/><circle cx="-18" cy="-12" r="7"/><circle cx="-6" cy="-20" r="7"/><circle cx="6" cy="-20" r="7"/><circle cx="18" cy="-12" r="7"/></g>
+</g>
+<g id="dish" transform="translate(560 862)">
+  <ellipse cx="0" cy="2" rx="80" ry="13" fill="#000" opacity=".12"/>
+  <ellipse cx="0" cy="-38" rx="72" ry="13" fill="#2f6fb0"/>
+  <ellipse id="water" cx="0" cy="-38" rx="64" ry="0" fill="#8fd0ff"/>
+  <path d="M-72-38h144l-12 36q-60 9-120 0z" fill="#4b8fd6"/>
+  <path d="M-72-38a72 13 0 0 0 144 0" fill="none" stroke="#7ab3ea" stroke-width="6"/>
+</g>
+<g id="basketBack" transform="translate(1390 884)">
+  <ellipse cx="0" cy="-34" rx="200" ry="62" fill="#a8722f"/>
+  <ellipse cx="0" cy="-36" rx="176" ry="48" fill="#e98fa8"/>
+  <ellipse cx="0" cy="-40" rx="150" ry="34" fill="#f3a9bd"/>
+</g>
+<g id="items"></g>
+<g id="fxBack"></g>
+</svg>
+
+<div id="cats"></div>
+
+<svg id="front" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<!-- the room's end wall, which the cat walks behind on its way in -->
+<rect x="-1600" y="-1000" width="1630" height="1772" fill="url(#paper)"/>
+<rect x="-1600" y="772" width="1630" height="28" fill="#fff3dc"/>
+<rect x="-1600" y="800" width="1630" height="1200" fill="#c98d58"/>
+<g id="doorway">
+  <path d="M14 214h332v586h-332zM30 230v570h300v-570z" fill="#e9d2a6" fill-rule="evenodd"/>
+  <path d="M30 230h300v570h-300zM110 600v190h160v-190z" fill="#3e8e8a" fill-rule="evenodd"/>
+  <g fill="none" stroke="#2f716e" stroke-width="5"><rect x="62" y="380" width="236" height="170" rx="10"/></g>
+  <rect x="104" y="594" width="172" height="202" rx="8" fill="none" stroke="#2b6663" stroke-width="8"/>
+  <circle cx="300" cy="470" r="13" fill="#f2c14e"/><circle cx="296" cy="466" r="4" fill="#fff4c9"/>
+  <g id="flap" transform="translate(0 600) scale(1 1) translate(0 -600)">
+    <rect x="110" y="600" width="160" height="190" rx="6" fill="#f4ead2" opacity=".92" stroke="#c9b48a" stroke-width="4"/>
+    <g fill="#d9c69c" transform="translate(190 700) scale(1.3)"><ellipse cx="0" cy="6" rx="16" ry="13"/><circle cx="-18" cy="-12" r="7"/><circle cx="-6" cy="-20" r="7"/><circle cx="6" cy="-20" r="7"/><circle cx="18" cy="-12" r="7"/></g>
+    <rect x="104" y="596" width="172" height="12" rx="6" fill="#2b6663"/>
+  </g>
+  <!-- the plaque, which carries the child's name when there is one -->
+  <g transform="translate(180 300)">
+    <path d="M-46-40l46-34 46 34" fill="none" stroke="#c9a56a" stroke-width="4"/>
+    <rect id="plaque" x="-110" y="-40" width="220" height="80" rx="16" fill="#fff4dc" stroke="#c9a56a" stroke-width="5"/>
+    <text id="plaqueName" x="0" y="15" text-anchor="middle" font-family="Fredoka, Arial Rounded MT Bold, sans-serif" font-weight="600" font-size="44" fill="#8a5a2b"></text>
+    <g id="plaquePaw" fill="#c9a56a" transform="scale(1.2)"><ellipse cx="0" cy="8" rx="16" ry="13"/><circle cx="-18" cy="-10" r="7"/><circle cx="-6" cy="-18" r="7"/><circle cx="6" cy="-18" r="7"/><circle cx="18" cy="-10" r="7"/></g>
+  </g>
+</g>
+<path id="basketFront" transform="translate(1390 884)" d="M-200-34a200 62 0 0 0 400 0v30a200 62 0 0 1-400 0z" fill="#b8823d"/>
+<g transform="translate(1390 884)" stroke="#9a6a2c" stroke-width="4" fill="none">
+  <path d="M-160 4v26M-110 16v28M-55 22v30M0 24v32M55 22v30M110 16v28M160 4v26"/>
+</g>
+<g id="fxFront"></g>
+</svg>
+
+<div id="dark"></div>
+
+<button id="wake" hidden aria-label="Wake the cat up">
+  <svg viewBox="-100 -100 200 200"><g stroke="#ffb627" stroke-width="12" stroke-linecap="round">
+    <path d="M0-92v-0M0-92v18M0 74v18M-92 0h18M74 0h18M-65-65l13 13M52 52l13 13M-65 65l13-13M52-52l13-13"/></g>
+    <circle r="58" fill="#ffd23f" stroke="#ffb627" stroke-width="8"/>
+    <path d="M-22-8q6-8 12 0M10-8q6-8 12 0" stroke="#8a5a2b" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M-20 14q20 18 40 0" stroke="#8a5a2b" stroke-width="6" fill="none" stroke-linecap="round"/></svg>
+</button>
+
+<button id="grown" aria-label="Settings for grown-ups: press and hold">
+  <svg viewBox="0 0 44 44"><circle class="ring" cx="22" cy="22" r="20"/>
+    <g fill="currentColor"><circle cx="13" cy="22" r="3"/><circle cx="22" cy="22" r="3"/><circle cx="31" cy="22" r="3"/></g></svg>
+</button>
+</div>
+
+<dialog id="panel">
+  <h2 id="panelTitle">Catflap</h2>
+  <p>Tap the cat flap to let the cat in, then tap whatever it is thinking of. Everything works by tapping, nothing can go wrong, and after a few courses the cat goes to sleep: tap the sun to start a new day.</p>
+  <label for="nameInput">Child’s name, shown on the door</label>
+  <input id="nameInput" maxlength="24" autocomplete="off" placeholder="Optional">
+  <div class="row">
+    <button id="soundBtn" aria-pressed="false">Sound off</button>
+    <button id="restartBtn">Start a new day</button>
+    <button id="closeBtn" class="main">Done</button>
+  </div>
+</dialog>
+
+<script src="../cat/cat-puppet.js"></script>
+<script src="../cat/cat-voice.js"></script>
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const NS = 'http://www.w3.org/2000/svg';
+const svgEl = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const lerp = (a, b, t) => a + (b - a) * t, clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const easeInOut = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2, easeOut = t => 1 - Math.pow(1 - t, 3);
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const pick = a => a[Math.random() * a.length | 0];
+function tween(ms, fn, ease = easeInOut) {
+  return new Promise(resolve => {
+    const t0 = performance.now();
+    const step = now => { const u = clamp((now - t0) / ms, 0, 1); fn(ease(u), u); if (u < 1) requestAnimationFrame(step); else resolve(); };
+    requestAnimationFrame(step);
+  });
+}
+
+/* ---------- the stage: 1600 × 1000, fitted to the window ---------- */
+const W0 = 1600, H0 = 1000;
+let k = 1, ox = 0, oy = 0;
+const toScreen = (x, y) => [ox + x * k, oy + y * k];
+const toStage = (x, y) => [(x - ox) / k, (y - oy) / k];
+
+const SZ = 360;                        // the height of the seated cat, in stage units
+const FLOOR = 862;                     // where the cat stands
+const HOME = 1090;                     // where it waits to be fed
+const MOUTH = 0.54 * SZ;               // how far ahead of its feet its mouth reaches when its head is down
+const SHELF = 340, SLOTS = [910, 1170, 1430];
+const BOWL = 740, DISH = 560, FISH = 330, BASKET = 1390;
+const HIT = 128;                       // how near a tap must be to a thing on the shelf
+
+/* ---------- the child's name, from #name=… ---------- */
+function readName() {
+  try { return (new URLSearchParams(location.hash.slice(1)).get('name') || '').trim().slice(0, 24); } catch (e) { return ''; }
+}
+function showName() {
+  const name = readName(), possessive = name ? name + (/s$/i.test(name) ? '’' : '’s') + ' Catflap' : 'Catflap';
+  document.title = possessive;
+  $('panelTitle').textContent = possessive;
+  $('plaqueName').textContent = name;
+  $('plaquePaw').style.display = name ? 'none' : '';
+  // squeeze a long name onto the plaque
+  const t = $('plaqueName');
+  t.removeAttribute('textLength'); t.removeAttribute('lengthAdjust');
+  if (name && t.getComputedTextLength && t.getComputedTextLength() > 196) { t.setAttribute('textLength', 196); t.setAttribute('lengthAdjust', 'spacingAndGlyphs'); }
+}
+addEventListener('hashchange', showName);
+showName();
+document.fonts && document.fonts.ready.then(showName);
+
+/* ---------- sound, all synthesised ---------- */
+let ac = null, master = null, muffle = null, noiseBuf = null, muted = false;
+try { muted = localStorage.getItem('catflap.muted') === '1'; } catch (e) {}
+function audio() {
+  if (!ac) {
+    try {
+      ac = new (window.AudioContext || window.webkitAudioContext)();
+      const comp = ac.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 4;
+      master = ac.createGain(); master.gain.value = muted ? 0 : 0.8; master.connect(comp).connect(ac.destination);
+      muffle = ac.createBiquadFilter(); muffle.type = 'lowpass'; muffle.frequency.value = 700; muffle.connect(master);
+      noiseBuf = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
+      const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    } catch (e) { ac = null; }
+  }
+  if (ac && ac.state === 'suspended') ac.resume();
+  return ac;
+}
+function setMuted(m) {
+  muted = m;
+  try { localStorage.setItem('catflap.muted', m ? '1' : '0'); } catch (e) {}
+  if (master) master.gain.setTargetAtTime(m ? 0 : 0.8, ac.currentTime, 0.05);
+  $('soundBtn').setAttribute('aria-pressed', m); $('soundBtn').textContent = m ? 'Sound off' : 'Sound on';
+}
+setMuted(muted);
+const now = () => ac.currentTime;
+function tone(f0, t0, dur, vol, type = 'sine', f1) {
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.type = type; o.frequency.setValueAtTime(f0, t0); if (f1) o.frequency.exponentialRampToValueAtTime(f1, t0 + dur);
+  g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0 + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  o.connect(g).connect(master); o.start(t0); o.stop(t0 + dur + 0.02);
+}
+function noise(t0, dur, vol, type, f0, f1, q = 1, attack = 0.004) {
+  const s = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain();
+  s.buffer = noiseBuf; s.loop = true;
+  f.type = type; f.Q.value = q; f.frequency.setValueAtTime(f0, t0); if (f1) f.frequency.exponentialRampToValueAtTime(f1, t0 + dur);
+  g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0 + attack); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  s.connect(f).connect(g).connect(master); s.start(t0, Math.random() * 0.5); s.stop(t0 + dur + 0.05);
+}
+const S = {
+  tick() { if (!ac) return; tone(900, now(), 0.06, 0.08, 'triangle', 600); },
+  pop() { if (!ac) return; const n = now(); tone(300, n, 0.12, 0.25, 'sine', 900); noise(n, 0.05, 0.12, 'highpass', 2000); },
+  whoosh() { if (!ac) return; noise(now(), 0.35, 0.18, 'bandpass', 400, 2400, 1.5, 0.08); },
+  thud() { if (!ac) return; const n = now(); tone(140, n, 0.18, 0.35, 'sine', 60); noise(n, 0.08, 0.2, 'lowpass', 600); },
+  clack() { if (!ac) return; const n = now(); [0, 0.14, 0.26].forEach((t, i) => { noise(n + t, 0.05, 0.3 / (i + 1), 'bandpass', 900, 0, 3, 0.001); tone(220, n + t, 0.06, 0.18 / (i + 1), 'triangle'); }); },
+  pour() { if (!ac) return; const n = now(); for (let t = 0; t < 0.7; t += 0.025 + Math.random() * 0.03) noise(n + t, 0.03, 0.08 + Math.random() * 0.1, 'bandpass', 2500 + Math.random() * 2500, 0, 3, 0.001); },
+  splash() { if (!ac) return; const n = now(); noise(n, 0.8, 0.22, 'bandpass', 700, 1400, 2, 0.05); for (let t = 0; t < 0.7; t += 0.07) tone(500 + Math.random() * 500, n + t, 0.05, 0.05, 'sine', 900 + Math.random() * 400); },
+  crunch() { if (!ac) return; const n = now(); for (let i = 0; i < 3; i++) noise(n + i * 0.07, 0.05, 0.25, 'bandpass', 1800 + Math.random() * 1200, 0, 2, 0.001); },
+  lap() { if (!ac) return; const n = now(); tone(700, n, 0.05, 0.08, 'sine', 1100); noise(n, 0.04, 0.06, 'bandpass', 3000, 0, 4); },
+  pling(i) { if (!ac) return; const f = [523, 659, 784, 1047][Math.min(3, i - 1)], n = now(); tone(f, n, 0.6, 0.22, 'triangle'); tone(f * 2, n, 0.3, 0.06); },
+  sparkle() { if (!ac) return; const n = now(); [784, 988, 1175, 1568].forEach((f, i) => tone(f, n + i * 0.08, 0.4, 0.12, 'triangle')); },
+  squeak() { if (!ac) return; const n = now(); tone(1100, n, 0.16, 0.18, 'square', 1700); tone(1700, n + 0.12, 0.14, 0.14, 'square', 1200); },
+  boing() { if (!ac) return; tone(420, now(), 0.4, 0.2, 'sine', 160); },
+  sniff() { if (!ac) return; const n = now(); [0, 0.18, 0.34].forEach(t => noise(n + t, 0.09, 0.12, 'bandpass', 3200, 0, 2, 0.02)); },
+  sneeze() { if (!ac) return; const n = now(); CatVoice.voice(ac, master, [500, 700, 760], 0.35, 0.18, n); noise(n + 0.4, 0.22, 0.45, 'bandpass', 2600, 1200, 1.2, 0.004); },
+  whirr() { if (!ac) return; noise(now(), 0.9, 0.12, 'bandpass', 600, 300, 2, 0.05); },
+  meow(k = 1) { if (ac) CatVoice.voice(ac, master, [420 * k, 760 * k, 520 * k], 0.65); },
+  meowOutside() { if (ac) CatVoice.voice(ac, muffle, [420, 760, 520], 0.65, 0.5); },
+  chirp(k = 1) { if (ac) CatVoice.chirp(ac, master, k); },
+  yawn() { if (ac) CatVoice.yawn(ac, master); },
+  purr(d) { return ac ? CatVoice.purr(ac, master, d) : { stop() {} }; },
+};
+
+/* ---------- the cat: a walking puppet, a sitting-up puppet, and a sleeping photograph ---------- */
+const catsEl = $('cats');
+const WALKER_MOUTH = [88, 162], UPRIGHT_MOUTH = [286, 205], SETTLE = 12;
+// the loaf photograph with painted eyelids, for the basket. Sprite pixels: 484 × 370, standing on 0.34, 0.88
+const LOAF = { w: 484, h: 370, a: [0.34, 0.88], scale: 1.4 };   // drawn larger than life, to fill the basket
+function makeSleeper() {
+  const el = document.createElement('div'); el.className = 'sleeper'; el.style.visibility = 'hidden';
+  const img = document.createElement('img'); img.alt = ''; img.src = '../cat/cat-sprites/loaf.webp'; el.appendChild(img);
+  const lids = svgEl('svg', { viewBox: '0 0 484 370' }, el);
+  lids.innerHTML = `<defs><radialGradient id="lid"><stop offset=".6" stop-color="#6c605b"/><stop offset="1" stop-color="#6c605b" stop-opacity="0"/></radialGradient></defs>
+    <g id="lidsG" opacity="0">
+      <g transform="translate(167 154) rotate(10)"><ellipse rx="19" ry="15" fill="url(#lid)"/><path d="M-12 1q12 7 24 0" stroke="#2c2422" stroke-width="2.6" fill="none" stroke-linecap="round"/></g>
+      <g transform="translate(229 143) rotate(-18)"><ellipse rx="18" ry="15" fill="url(#lid)"/><path d="M-11 1q11 7 22 0" stroke="#2c2422" stroke-width="2.6" fill="none" stroke-linecap="round"/></g>
+    </g>`;
+  catsEl.appendChild(el);
+  return { el, img, lids: lids.querySelector('#lidsG') };
+}
+
+const cat = {
+  x: -110, y: 800, mode: 'walker', busy: false,
+  bed: { x: BASKET - 70, y: FLOOR - 8 },   // where the sleeping cat lies
+  walker: new CatPuppet(catsEl, { z: 2 }),
+  upright: new CatPuppet(catsEl, { rig: 'upright', hidden: true, z: 2 }),
+  sleeper: makeSleeper(),
+  get puppet() { return this[this.mode]; },
+  layout() {
+    const [x, y] = toScreen(this.x, this.y), size = SZ * k;
+    this.walker.place({ x, y, size }); this.upright.place({ x, y, size });
+    const ks = size / 560 * LOAF.scale, w = LOAF.w * ks, h = LOAF.h * ks, s = this.sleeper.el.style, [bx, by] = toScreen(this.bed.x, this.bed.y);
+    s.width = w + 'px'; s.height = h + 'px'; s.left = bx - LOAF.a[0] * w + 'px'; s.top = by - LOAF.a[1] * h + 'px';
+  },
+  sync() { if (this.mode !== 'sleeper') [this.x, this.y] = toStage(this.puppet.x, this.puppet.y); },
+  face(left = true) { this.walker.place({ flip: !left }); this.upright.place({ flip: !left }); },
+  // crossfade to another of the three cats, standing where this one stands
+  async become(mode) {
+    if (mode === this.mode) return;
+    this.layout();
+    const from = this.mode === 'sleeper' ? this.sleeper.el : this[this.mode].el, to = mode === 'sleeper' ? this.sleeper.el : this[mode].el;
+    if (mode === 'sleeper') to.style.visibility = ''; else this[mode].show();
+    to.style.opacity = 0;
+    await tween(220, t => { to.style.opacity = t; from.style.opacity = 1 - t; });
+    if (this.mode === 'sleeper') from.style.visibility = 'hidden'; else this[this.mode].hide();
+    from.style.opacity = 1; this.mode = mode;
+  },
+  async walkTo(x, y = this.y, gait = 'trot') {
+    await this.become('walker');
+    const [sx, sy] = toScreen(x, y);
+    await this.walker.walkTo(sx, sy, { gait, rate: gait === 'trot' ? 1.15 : 1 });
+    this.x = x; this.y = y;
+  },
+  // where its mouth is, on the stage
+  mouth() {
+    const p = this.puppet, [sx, sy] = p.locate('head', this.mode === 'upright' ? UPRIGHT_MOUTH : WALKER_MOUTH);
+    return toStage(sx, sy);
+  },
+  head() {
+    if (this.mode === 'sleeper') return [this.bed.x + 40, this.bed.y - 260];
+    const [x, y] = this.mouth(); return [x + (this.walker.flip ? -40 : 40), y - 70];
+  },
+  hit(x, y) {
+    if (this.mode === 'sleeper') return Math.abs(x - this.bed.x - 70) < 210 && y > this.bed.y - 320 && y < this.bed.y + 40;
+    return x > this.x - 0.75 * SZ && x < this.x + 0.75 * SZ && y > this.y - (this.mode === 'upright' ? 1.3 : 0.95) * SZ && y < this.y + 30;
+  },
+  // head down into a bowl: chewing, or lapping
+  feed(lapping) {
+    return this.walker.drive(t => ({
+      y: SETTLE + 30 + Math.sin(t * (lapping ? 14 : 8)) * (lapping ? 2 : 4), rot: -10, chest: -12,
+      head: -55 + Math.sin(t * (lapping ? 14 : 8)) * (lapping ? 3 : 6), tail: [0, 1, 2, 3].map(i => Math.sin(t * 1.6 - i * 0.6) * 5 * (1 + i * 0.35)),
+    }), { blend: 0.35 });
+  },
+  stand() { return this.walker.play('stand'); },
+};
+cat.ready = Promise.all([cat.walker.ready, cat.upright.ready]);
+
+/* ---------- layout ---------- */
+function layout() {
+  const W = innerWidth, H = innerHeight;
+  k = Math.min(W / W0, H / H0); ox = (W - W0 * k) / 2; oy = (H - H0 * k) / 2;
+  cat.layout();
+  const wake = $('wake'), [wx, wy] = toScreen(800, 210);
+  wake.style.left = wx + 'px'; wake.style.top = wy + 'px';
+  const ws = clamp(240 * k, 120, 190); wake.style.width = wake.style.height = ws + 'px'; wake.style.margin = -ws / 2 + 'px 0 0 ' + -ws / 2 + 'px';
+}
+addEventListener('resize', () => { cat.sync(); layout(); });
+layout();
+
+/* ---------- the things on the shelf ---------- */
+const KINDS = {
+  kibble: { h: 200 }, jug: { h: 190 }, jar: { h: 212 }, fish: { h: 90 },
+  sock: { h: 182, silly: 'sneeze' }, duck: { h: 165, silly: 'squeak' }, yarn: { h: 150, silly: 'roll' }, slipper: { h: 120, silly: 'hat' },
+};
+const ROUND_ITEM = { dinner: 'kibble', water: 'jug', treats: 'jar', fish: 'fish' };
+const SILLIES = ['sock', 'duck', 'yarn', 'slipper'];
+const itemsEl = $('items'), fxBack = $('fxBack'), fxFront = $('fxFront');
+class Item {
+  constructor(kind, slot) {
+    this.kind = kind; this.h = KINDS[kind].h; this.silly = KINDS[kind].silly; this.slot = slot;
+    this.el = svgEl('g', {}, itemsEl);
+    this.art = svgEl('use', { href: '#art-' + kind }, this.el);
+    if (kind === 'fish') { this.art.remove(); this.el.innerHTML = $('art-fish').innerHTML; }
+    this.x = SLOTS[slot]; this.y = SHELF; this.rot = 0; this.s = 1;
+    this.draw();
+  }
+  draw() { this.el.setAttribute('transform', `translate(${this.x} ${this.y}) rotate(${this.rot} 0 ${-this.h / 2}) scale(${this.s})`); }
+  get cy() { return this.y - this.h / 2 * this.s; }
+  // where a point of the drawing has got to on the stage
+  point(px, py) {
+    const r = this.rot * Math.PI / 180, dx = px * this.s, dy = py * this.s + this.h / 2, c = Math.cos(r), sn = Math.sin(r);
+    return [this.x + dx * c - dy * sn, this.y - this.h / 2 + dx * sn + dy * c];
+  }
+  hit(x, y) { return Math.hypot(x - this.x, y - this.cy) < Math.max(HIT, this.h * 0.7); }
+  arcTo(x, y, { ms = 650, lift = 140, rot = 0, s = this.s } = {}) {
+    const x0 = this.x, y0 = this.y, r0 = this.rot, s0 = this.s;
+    return tween(ms, t => { this.x = lerp(x0, x, t); this.y = lerp(y0, y, t) - lift * 4 * t * (1 - t); this.rot = lerp(r0, rot, t); this.s = lerp(s0, s, t); this.draw(); });
+  }
+  home(opts) { return this.arcTo(SLOTS[this.slot], SHELF, { rot: 0, s: 1, ...opts }); }
+  wiggle() { const r0 = this.rot; return tween(700, (_, u) => { this.rot = r0 + Math.sin(u * Math.PI * 6) * 12 * (1 - u); this.draw(); }, x => x); }
+  popIn(delay = 0) {
+    this.s = 0; this.draw();
+    return wait(delay).then(() => { S.pop(); return tween(380, (_, u) => { this.s = u < .7 ? easeOut(u / .7) * 1.12 : 1.12 - 0.12 * easeOut((u - .7) / .3); this.draw(); }, x => x); });
+  }
+  popOut() { const s0 = this.s; return tween(260, t => { this.s = s0 * (1 - t); this.draw(); }).then(() => this.el.remove()); }
+  fade(ms = 500) { return tween(ms, t => { this.el.style.opacity = 1 - t; }).then(() => this.el.remove()); }
+}
+let shelf = [];
+
+/* ---------- bowls ---------- */
+const bowl = {
+  fill: 0,
+  set(f) { this.fill = f; $('heap').setAttribute('ry', 26 * f); $('heapBits').setAttribute('opacity', f > 0.5 ? 1 : 0); $('heapBits').setAttribute('transform', `translate(0 ${-(f - 1) * 14})`); },
+  to(f, ms = 300) { const f0 = this.fill; return tween(ms, t => this.set(lerp(f0, f, t))); },
+};
+const dish = {
+  fill: 0,
+  set(f) { this.fill = f; $('water').setAttribute('ry', 11 * Math.min(1, f * 1.4)); $('water').setAttribute('cy', -38 - 10 * f); },
+  to(f, ms = 300) { const f0 = this.fill; return tween(ms, t => this.set(lerp(f0, f, t))); },
+};
+
+/* ---------- effects ---------- */
+function ripple(x, y) {
+  const c = svgEl('circle', { cx: x, cy: y, r: 10, fill: 'none', stroke: '#fff', 'stroke-width': 8, opacity: .8 }, fxFront);
+  tween(450, t => { c.setAttribute('r', 10 + 60 * t); c.setAttribute('opacity', .8 * (1 - t)); }, easeOut).then(() => c.remove());
+}
+function hearts(n = 3) {
+  for (let i = 0; i < n; i++) {
+    const [hx, hy] = cat.head(), h = svgEl('use', { href: '#heart', fill: pick(['#e9546b', '#f27a93', '#ff9eb1']) }, fxFront);
+    const dx = (Math.random() - 0.5) * 160, s = 1.4 + Math.random() * 0.8, d = i * 180;
+    wait(d).then(() => tween(1600, (_, u) => { h.setAttribute('transform', `translate(${hx + dx * u} ${hy - 30 - 220 * u}) scale(${s * (0.5 + 0.5 * Math.min(1, u * 4))})`); h.setAttribute('opacity', 1 - Math.max(0, u - 0.6) / 0.4); }, x => x)).then(() => h.remove());
+  }
+}
+let numeral = null;
+function count(n, x, y) {
+  if (!numeral) numeral = svgEl('text', { 'text-anchor': 'middle', 'font-family': 'Fredoka, Arial Rounded MT Bold, sans-serif', 'font-weight': 600, 'font-size': 150, fill: '#ef8b3c', stroke: '#fff', 'stroke-width': 10, 'paint-order': 'stroke' }, fxFront);
+  numeral.textContent = n; numeral.style.opacity = 1;
+  S.pling(n);
+  return tween(420, (_, u) => { const s = u < .6 ? easeOut(u / .6) * 1.25 : 1.25 - 0.25 * easeOut((u - .6) / .4); numeral.setAttribute('transform', `translate(${x} ${y}) scale(${s})`); }, x => x);
+}
+function clearCount() { if (!numeral) return; const n = numeral; numeral = null; tween(300, t => { n.style.opacity = 1 - t; }).then(() => n.remove()); }
+
+// the thought bubble over the cat's head, with a picture of what it wants
+let bubble = null;
+function think(kind) {
+  unthink();
+  const [hx, hy] = cat.head(), bx = hx - 30, by = Math.max(470, hy - 150);
+  const g = svgEl('g', { transform: `translate(${bx} ${by})` }, fxFront);
+  svgEl('circle', { cx: 46, cy: 116, r: 13, fill: '#fff', stroke: '#e2c99b', 'stroke-width': 4 }, g);
+  svgEl('circle', { cx: 64, cy: 146, r: 8, fill: '#fff', stroke: '#e2c99b', 'stroke-width': 3 }, g);
+  svgEl('circle', { r: 92, fill: '#fff', stroke: '#e2c99b', 'stroke-width': 5 }, g);
+  const s = kind === 'fish' ? 0.62 : 0.5, art = svgEl('g', { transform: `translate(0 ${KINDS[kind].h * s / 2}) scale(${s})` }, g);
+  if (kind === 'fish') art.innerHTML = $('art-fish').innerHTML; else svgEl('use', { href: '#art-' + kind }, art);
+  bubble = { g, bx, by };
+  return tween(320, (_, u) => g.setAttribute('transform', `translate(${bx} ${by}) scale(${u < .7 ? easeOut(u / .7) * 1.08 : 1.08 - .08 * (u - .7) / .3})`), x => x);
+}
+function nudgeThought() {
+  if (!bubble) return;
+  const { g, bx, by } = bubble;
+  return tween(600, (_, u) => g.setAttribute('transform', `translate(${bx} ${by}) scale(${1 + Math.sin(u * Math.PI * 3) * 0.08 * (1 - u)})`), x => x);
+}
+function unthink() {
+  if (!bubble) return;
+  const { g, bx, by } = bubble; bubble = null;
+  tween(220, t => { g.setAttribute('transform', `translate(${bx} ${by}) scale(${1 - t})`); }).then(() => g.remove());
+}
+
+/* ---------- taps ---------- */
+// Everything happens on the finger going down. Only one finger counts, and the bottom edge, where small wrists rest,
+// is ignored. A tap on one of the current targets settles whoever is waiting for it; a tap on the cat strokes it
+let started = false, targets = [], tapWaiter = null, activeTouches = 0;
+function waitTap(list, { hint, every = 7000 } = {}) {
+  targets = list;
+  return new Promise(resolve => {
+    let timer;
+    const arm = () => { clearTimeout(timer); if (hint) timer = setTimeout(() => { hint(); arm(); }, every); };
+    tapWaiter = t => { clearTimeout(timer); targets = []; tapWaiter = null; resolve(t); };
+    arm();
+  });
+}
+const game = $('game');
+game.addEventListener('pointerdown', e => {
+  if (e.target.closest('button')) return;
+  if (e.pointerType === 'touch') { activeTouches++; if (activeTouches > 1 || !e.isPrimary) return; }
+  if (e.pointerType === 'touch' && e.clientY > innerHeight * 0.94) return;
+  e.preventDefault();
+  audio();
+  const [x, y] = toStage(e.clientX, e.clientY);
+  ripple(x, y);
+  if (!started) { start(); return; }
+  const t = targets.find(t => t.hit(x, y));
+  if (t && tapWaiter) { tapWaiter(t); return; }
+  if (cat.hit(x, y)) { stroke(); return; }
+  S.tick();
+});
+const lift = e => { if (e.pointerType === 'touch') activeTouches = Math.max(0, activeTouches - 1); };
+addEventListener('pointerup', lift); addEventListener('pointercancel', lift);
+game.addEventListener('contextmenu', e => e.preventDefault());
+
+// a stroke: a chirp and a heart, and a purr when it is asleep
+let stroking = false;
+async function stroke() {
+  if (stroking) return;
+  stroking = true;
+  if (cat.mode === 'sleeper') { S.purr(1.5); hearts(1); }
+  else if (!cat.busy) {
+    S.chirp(0.9 + Math.random() * 0.3); hearts(1);
+    if (cat.mode === 'walker') cat.walker.play('swish');
+  } else S.chirp();
+  await wait(500); stroking = false;
+}
+
+/* ---------- the day: the cat comes in, has three courses, and goes to bed ---------- */
+// before the first tap, the cat is outside, rattling the flap and meowing to be let in
+const flapEl = $('flap');
+const setFlap = s => flapEl.setAttribute('transform', `translate(0 600) scale(1 ${s}) translate(0 -600)`);
+let outsideTimer = null;
+function rattle() {
+  outsideTimer = setTimeout(async () => {
+    if (started) return;
+    S.meowOutside();
+    await tween(500, (_, u) => setFlap(1 - 0.12 * Math.abs(Math.sin(u * Math.PI * 3)) * (1 - u)), x => x);
+    rattle();
+  }, 2600);
+}
+cat.layout();
+cat.walker.place({ flip: true });
+rattle();
+
+async function start() {
+  started = true; clearTimeout(outsideTimer);
+  try { const d = document.documentElement; (d.requestFullscreen || d.webkitRequestFullscreen)?.call(d, { navigationUI: 'hide' })?.catch?.(() => {}); } catch (e) {}
+  await cat.ready;
+  await comeIn();
+  for (;;) {
+    for (const round of ['dinner', ...shuffle(['water', 'treats', 'fish']).slice(0, 2)]) await playRound(round);
+    await goToBed();
+    await waitTap([{ hit: () => false }], {});   // settled by the sun
+    await wakeUp();
+  }
+}
+
+async function comeIn() {
+  cat.busy = true;
+  S.clack();
+  tween(260, t => setFlap(1 - 0.85 * t));
+  await cat.walkTo(420, 800);
+  tween(500, t => setFlap(0.15 + 0.85 * t), easeOut).then(() => S.clack());
+  await cat.walkTo(HOME, FLOOR);
+  cat.face(true); cat.stand();
+  S.meow(); hearts(2);
+  await wait(600);
+  cat.busy = false;
+}
+
+async function playRound(kind) {
+  const need = ROUND_ITEM[kind];
+  const kinds = shuffle([need, ...shuffle(SILLIES).slice(0, 2)]);
+  shelf = kinds.map((kind, slot) => new Item(kind, slot));
+  await Promise.all(shelf.map((it, i) => it.popIn(i * 160)));
+  const wanted = shelf.find(it => it.kind === need);
+  for (;;) {
+    await think(need);
+    S.meow(0.95 + Math.random() * 0.15);
+    const tapped = await waitTap(shelf, { hint: () => { wanted.wiggle(); nudgeThought(); S.meow(1.05); } });
+    unthink();
+    if (tapped === wanted) break;
+    await silly(tapped);
+  }
+  await SERVE[kind](wanted);
+  // well fed: hearts, a purr, and the shelf cleared for the next course
+  S.sparkle(); hearts(4); S.purr(2.4);
+  if (cat.mode === 'walker') cat.walker.play('swish');
+  await Promise.all(shelf.filter(it => it.el.isConnected).map(it => it.popOut()));
+  shelf = [];
+  await wait(900);
+}
+
+/* ---------- serving each course ---------- */
+// three taps' worth poured from a bag or a jug into a bowl, then the cat goes over and eats or drinks it
+// The bag or jug hovers beside the bowl at `hover`, tipped by `tip` degrees, and pours from `spout`, a point of its drawing
+async function pourInto(item, { vessel, at, hover, tip, spout, pour, lapping }) {
+  cat.busy = true;
+  S.whoosh();
+  await item.arcTo(at + hover, 720, { rot: tip, lift: 120 });
+  for (let n = 1; n <= 3; n++) {
+    if (n > 1) await waitTap([item], { hint: () => item.wiggle(), every: 5000 });
+    const r0 = item.rot, more = Math.sign(tip) * 16;
+    await tween(160, t => { item.rot = r0 + more * t; item.draw(); });
+    pour(item.point(...spout), at);
+    await vessel.to(n / 3, 500);
+    await tween(200, t => { item.rot = r0 + more * (1 - t); item.draw(); });
+    await count(n, at + hover * 0.4, 500);
+  }
+  await wait(400);
+  clearCount();
+  S.whoosh();
+  await item.home({ lift: 120 });
+  await item.popOut();
+  shelf = shelf.filter(it => it !== item);
+  await cat.walkTo(at + MOUTH, FLOOR);
+  cat.face(true);
+  cat.feed(lapping);
+  for (let n = 3; n > 0; n--) {
+    for (let i = 0; i < 3; i++) { lapping ? S.lap() : S.crunch(); await wait(lapping ? 230 : 320); }
+    await vessel.to((n - 1) / 3, 250);
+  }
+  cat.stand();
+  S.meow(1.1);
+  await cat.walkTo(HOME, FLOOR);
+  cat.face(true); cat.stand();
+  cat.busy = false;
+}
+function kibbleFall([sx, sy], at) {
+  S.pour();
+  for (let i = 0; i < 16; i++) {
+    const c = svgEl('circle', { r: 6 + Math.random() * 3, fill: pick(['#9b5a2c', '#7a4220', '#b06a34']) }, fxBack);
+    const x0 = sx + (Math.random() - 0.5) * 30, x1 = at + (Math.random() - 0.5) * 100, y1 = 806 + Math.random() * 10, d = Math.random() * 320;
+    wait(d).then(() => tween(400, (_, u) => { c.setAttribute('cx', lerp(x0, x1, u)); c.setAttribute('cy', lerp(sy, y1, u * u)); }, x => x)).then(() => c.remove());
+  }
+}
+function waterFall([sx, sy], at) {
+  S.splash();
+  const p = svgEl('path', { fill: 'none', stroke: '#8fd0ff', 'stroke-width': 16, 'stroke-linecap': 'round', opacity: .9 }, fxBack);
+  tween(700, (_, u) => {
+    const bottom = lerp(sy, 820, Math.min(1, u * 3)), top = lerp(sy, bottom, Math.max(0, u - 0.7) / 0.3), x1 = lerp(sx, at, Math.min(1, u * 3));
+    p.setAttribute('d', `M${sx} ${top} Q${(sx + x1) / 2} ${Math.min(top, bottom) - 10} ${x1} ${bottom}`);
+  }, x => x).then(() => p.remove());
+}
+
+const SERVE = {
+  dinner: item => pourInto(item, { vessel: bowl, at: BOWL, hover: -150, tip: 115, spout: [0, -196], pour: kibbleFall }),
+  water: item => pourInto(item, { vessel: dish, at: DISH, hover: 140, tip: -80, spout: [-74, -178], pour: waterFall, lapping: true }),
+
+  // the jar hovers by the cat, which sits up and begs; each tap throws it a treat to catch
+  async treats(item) {
+    cat.busy = true;
+    S.whoosh();
+    const jx = HOME - 420, jy = 640;
+    await Promise.all([item.arcTo(jx, jy, { lift: 100 }), cat.become('upright')]);
+    for (let n = 1; n <= 3; n++) {
+      if (n > 1) await waitTap([item], { hint: () => { item.wiggle(); S.chirp(); }, every: 5000 });
+      S.pop();
+      const y0 = item.y;
+      tween(260, (_, u) => { item.y = y0 - 26 * Math.sin(Math.PI * u); item.draw(); }, x => x);
+      const t = svgEl('use', { href: '#heart', fill: pick(['#e9546b', '#f7b733', '#7bc96f']) }, fxBack);
+      const sx = jx, sy = jy - 220;
+      await tween(560, (_, u) => {
+        const [mx, my] = cat.mouth();
+        t.setAttribute('transform', `translate(${lerp(sx, mx, u)} ${lerp(sy, my, u) - 160 * 4 * u * (1 - u)}) scale(1.1)`);
+      }, x => x);
+      t.remove();
+      S.chirp(1.1); S.crunch();
+      cat.upright.tweak.head = -10; setTimeout(() => { cat.upright.tweak.head = 0; }, 180);
+      await count(n, jx - 170, 520);
+    }
+    await wait(300);
+    clearCount();
+    S.whoosh();
+    item.home({ lift: 100 }).then(() => item.popOut());
+    shelf = shelf.filter(it => it !== item);
+    await cat.upright.play('cheer');
+    await cat.become('walker');
+    cat.stand();
+    cat.busy = false;
+  },
+
+  // the fish is set down on the floor, and the cat pounces on it
+  async fish(item) {
+    cat.busy = true;
+    S.whoosh();
+    await item.arcTo(FISH, FLOOR + 10, { lift: 160, s: 1.25 });
+    S.thud();
+    shelf = shelf.filter(it => it !== item);
+    cat.face(true);
+    await wait(200);
+    const from = cat.x, to = FISH + MOUTH + 10;
+    S.whirr();
+    await cat.walker.play('pounce', { distance: (from - to) / SZ, height: 0.45, onLand: () => S.thud() });
+    cat.sync();
+    cat.feed(false);
+    for (let i = 0; i < 10; i++) { S.crunch(); await wait(300); if (i === 6) { item.el.querySelector('.flesh').style.display = 'none'; item.el.querySelector('.bones').style.display = ''; } }
+    cat.stand();
+    S.meow(1.15);
+    item.fade(700);
+    await cat.walkTo(HOME, FLOOR);
+    cat.face(true); cat.stand();
+    cat.busy = false;
+  },
+};
+
+/* ---------- the wrong things: never wrong, just funny ---------- */
+async function silly(item) {
+  cat.busy = true;
+  const front = cat.x - 0.66 * SZ;
+  if (item.silly === 'hat') {
+    // the slipper lands on the cat's head; it sits up and puts a paw to its face
+    await cat.become('upright');
+    S.whoosh();
+    const onHead = () => { const [mx, my] = cat.mouth(); return [mx + 70, my - 70]; };
+    let [hx, hy] = onHead();
+    await item.arcTo(hx, hy, { lift: 120, rot: -14, s: 0.8 });
+    S.boing();
+    let riding = true;
+    (function ride() { if (!riding) return; [item.x, item.y] = onHead(); item.draw(); requestAnimationFrame(ride); })();
+    await cat.upright.play('facepaw');
+    riding = false;
+    S.meow(0.85);
+    await item.home({ lift: 160 });
+    await cat.become('walker');
+    cat.stand();
+  } else {
+    S.whoosh();
+    await item.arcTo(front, FLOOR + 6, { lift: 120, rot: item.kind === 'yarn' ? 200 : 0 });
+    S.thud();
+    if (item.silly === 'sneeze') {
+      await cat.walker.drive(t => ({ y: SETTLE + 18, rot: -6, chest: -6, head: -34 + Math.sin(t * 22) * 4 }), { duration: 1.1, blend: 0.3 });
+      S.sniff();
+      await cat.walker.drive(t => ({ y: SETTLE + 6, rot: -2, head: -10 + 6 * Math.sin(t * 4) }), { duration: 0.45, blend: 0.3 });
+      S.sneeze();
+      await wait(400);
+      await cat.walker.drive(t => ({ x: 26 * Math.sin(Math.min(1, t / 0.5) * Math.PI), y: SETTLE, rot: 6 * Math.sin(Math.min(1, t / 0.5) * Math.PI), head: 24 * Math.sin(Math.min(1, t / 0.4) * Math.PI) }), { duration: 0.6, blend: 0.1 });
+      cat.stand();
+    } else if (item.silly === 'squeak') {
+      for (let i = 0; i < 2; i++) {
+        await cat.walker.play('swat', { at: toScreen(item.x, item.y - 30), onStrike: () => { S.squeak(); const s0 = 1; tween(240, (_, u) => { item.s = s0 - 0.25 * Math.sin(Math.PI * u); item.draw(); }, x => x); } });
+      }
+      cat.stand();
+    } else if (item.silly === 'roll') {
+      // a bat at the wool sends it rolling away across the floor and back again
+      const play = cat.walker.play('bat');
+      await wait(700);
+      S.whoosh();
+      const x0 = item.x;
+      await tween(1000, t => { item.x = lerp(x0, 300, t); item.rot += 9; item.draw(); }, easeOut);
+      await wait(250);
+      await tween(900, t => { item.x = lerp(300, x0, t); item.rot -= 9; item.draw(); }, easeInOut);
+      await play;
+      cat.stand();
+    }
+    S.meow(0.9);
+    await item.home({ lift: 200 });
+  }
+  item.rot = 0; item.s = 1; item.draw();
+  cat.busy = false;
+}
+
+/* ---------- bedtime, and morning ---------- */
+let purring = null, zzzTimer = null;
+async function goToBed() {
+  cat.busy = true;
+  await wait(400);
+  await cat.walkTo(BASKET - 60, FLOOR + 4);
+  await cat.become('sleeper');
+  await wait(400);
+  cat.sleeper.img.src = '../cat/cat-sprites/yawn.webp'; S.yawn();
+  await wait(1300);
+  cat.sleeper.img.src = '../cat/cat-sprites/loaf.webp';
+  await wait(700);
+  await Promise.all([
+    tween(900, t => cat.sleeper.lids.setAttribute('opacity', t)),
+    tween(2200, t => { $('dark').style.opacity = 0.8 * t; $('night').setAttribute('opacity', t); }),
+  ]);
+  purring = S.purr(600);
+  breathe(true);
+  zzz();
+  await wait(1200);
+  $('wake').hidden = false;
+  cat.busy = false;
+}
+let breathing = false;
+function breathe(on) {
+  breathing = on;
+  const s = cat.sleeper.el.style;
+  if (!on) { s.transform = ''; return; }
+  const t0 = performance.now();
+  (function step(t) { if (!breathing) return; s.transform = `scale(1, ${1 + 0.018 * Math.sin((t - t0) / 1300 * Math.PI * 2)})`; requestAnimationFrame(step); })(t0);
+}
+function zzz() {
+  const [x, y] = [cat.bed.x + 150, cat.bed.y - 270];
+  const z = svgEl('text', { 'font-family': 'Fredoka, Arial Rounded MT Bold, sans-serif', 'font-weight': 600, 'font-size': 60, fill: '#fff' }, fxFront);
+  z.textContent = 'z';
+  tween(2600, (_, u) => { z.setAttribute('transform', `translate(${x + 60 * u + 14 * Math.sin(u * 8)} ${y - 160 * u}) scale(${0.6 + u})`); z.setAttribute('opacity', u < .2 ? u / .2 : 1 - (u - .2) / .8); }, x => x).then(() => z.remove());
+  zzzTimer = setTimeout(zzz, 1100);
+}
+$('wake').addEventListener('pointerdown', e => {
+  e.preventDefault(); audio();
+  if (tapWaiter) { $('wake').hidden = true; tapWaiter({}); }
+});
+async function wakeUp() {
+  cat.busy = true;
+  S.sparkle();
+  clearTimeout(zzzTimer); purring && purring.stop(); purring = null; breathe(false);
+  await Promise.all([
+    tween(1400, t => { $('dark').style.opacity = 0.8 * (1 - t); $('night').setAttribute('opacity', 1 - t); }),
+    tween(600, t => cat.sleeper.lids.setAttribute('opacity', 1 - t)),
+  ]);
+  cat.sleeper.img.src = '../cat/cat-sprites/yawn.webp'; S.yawn();
+  await wait(1100);
+  cat.sleeper.img.src = '../cat/cat-sprites/loaf.webp';
+  cat.face(true);
+  await cat.become('walker');
+  await cat.walkTo(HOME, FLOOR);
+  cat.face(true); cat.stand();
+  S.meow(); hearts(2);
+  await wait(500);
+  cat.busy = false;
+}
+
+/* ---------- grown-ups: hold the corner button to open the settings ---------- */
+const grown = $('grown'), ring = grown.querySelector('.ring');
+let holdAnim = null;
+grown.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  holdAnim = ring.animate([{ strokeDashoffset: 126 }, { strokeDashoffset: 0 }], { duration: 1200, fill: 'forwards' });
+  holdAnim.onfinish = () => { holdAnim = null; ring.getAnimations().forEach(a => a.cancel()); openPanel(); };
+});
+const release = () => { if (holdAnim) { holdAnim.cancel(); holdAnim = null; } };
+grown.addEventListener('pointerup', release); grown.addEventListener('pointerleave', release); grown.addEventListener('pointercancel', release);
+grown.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPanel(); } });
+function openPanel() { $('nameInput').value = readName(); $('panel').showModal(); }
+$('closeBtn').onclick = () => {
+  const name = $('nameInput').value.trim().slice(0, 24), params = new URLSearchParams(location.hash.slice(1));
+  if (name) params.set('name', name); else params.delete('name');
+  const hash = params.toString();
+  history.replaceState(null, '', hash ? '#' + hash : location.pathname + location.search);
+  showName();
+  $('panel').close();
+};
+$('soundBtn').onclick = () => { audio(); setMuted(!muted); };
+$('restartBtn').onclick = () => { location.reload(); };
+})();
+</script>
+</body></html>

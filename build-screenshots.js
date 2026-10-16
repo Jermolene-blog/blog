@@ -91,6 +91,11 @@ const recipes = {
 	"toys/mimic": async page => {
 		await page.click("button[onclick]");
 	},
+	"toys/catflap": async page => {
+		// Let the cat in, and wait for it to settle under the shelf thinking of its dinner
+		await page.click("#game");
+		await page.wait(9000);
+	},
 	"toys/marble-flick": async page => {
 		// Start a game so that the board is shown instead of the setup card
 		await page.click("#startBtn");
