@@ -179,8 +179,9 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
-<script src="cat-actor.js"></script>
-<script src="cat-puppet.js"></script>
+<script src="../cat/cat-actor.js"></script>
+<script src="../cat/cat-puppet.js"></script>
+<script src="../cat/cat-voice.js"></script>
 <script>
 /* ===== PHYSICS (pure, deterministic; shared by game and computer players) ===== */
 const R = 0.525, HALF = 10, CORNER_R = 0.7, HOLE_R = 0.75, FUNNEL_R = 1.9, PAD = 8.3;
@@ -794,26 +795,12 @@ function sSwat(x) { if (!actx) return; const n = now_(); noise(n, 0.18, 0.35, 'b
 function sSurge() { if (!actx) return; const n = now_(); tone(60, n, 1.3, 0.3, 'sawtooth', 520); noise(n, 1.3, 0.25, 'bandpass', 300, 3500, 3, undefined, 0.3); }
 function sSurgeDown() { if (!actx) return; const n = now_(); tone(420, n, 1.0, 0.18, 'sawtooth', 70); }
 function sPaw(x) { if (!actx) return; noise(now_(), 0.06, 0.12, 'lowpass', 500, 200, 0.7, x, 0.004); }
-// a cat's voice: a sawtooth swept through [start, peak, end] Hz, shaped by a formant that opens and closes with it
-function voice(x, pitch, dur, vol = 0.35, t0 = now_()) {
-  const n = t0, o = actx.createOscillator(), f1 = actx.createBiquadFilter(), f2 = actx.createBiquadFilter(), g = actx.createGain();
-  o.type = 'sawtooth'; o.frequency.setValueAtTime(pitch[0], n); o.frequency.linearRampToValueAtTime(pitch[1], n + dur * 0.3); o.frequency.linearRampToValueAtTime(pitch[2], n + dur);
-  f1.type = 'bandpass'; f1.Q.value = 5; f1.frequency.setValueAtTime(700, n); f1.frequency.linearRampToValueAtTime(1300, n + dur * 0.33); f1.frequency.linearRampToValueAtTime(800, n + dur);
-  f2.type = 'lowpass'; f2.frequency.value = 3000;
-  g.gain.setValueAtTime(0.0001, n); g.gain.exponentialRampToValueAtTime(vol, n + Math.min(0.05, dur * 0.25)); g.gain.setValueAtTime(vol, n + dur * 0.7); g.gain.exponentialRampToValueAtTime(0.0001, n + dur);
-  o.connect(f1).connect(f2).connect(g).connect(bus(x)); o.start(n); o.stop(n + dur + 0.05);
-}
+// the cats' voices live in ../cat/cat-voice.js; here they are panned by board x position
+function voice(x, pitch, dur, vol = 0.35, t0 = now_()) { CatVoice.voice(actx, bus(x), pitch, dur, vol, t0); }
 function sMeow(x) { if (actx) voice(x, [420, 760, 520], 0.65); }
 function sChirp(k = 1) { if (actx) voice(undefined, [520 * k, 1050 * k, 940 * k], 0.2, 0.3); }
 function sYawn() { if (actx) voice(undefined, [760, 700, 300], 0.85, 0.2); }
-function sPurr(dur) {
-  if (!actx) return; const n = now_(), o = actx.createOscillator(), f = actx.createBiquadFilter(), g = actx.createGain();
-  o.type = 'sawtooth'; o.frequency.value = 27; f.type = 'bandpass'; f.frequency.value = 320; f.Q.value = 0.6;
-  g.gain.setValueAtTime(0.0001, n);
-  for (let t = 0; t < dur; t += 1.3) { g.gain.exponentialRampToValueAtTime(0.5, n + t + 0.5); g.gain.exponentialRampToValueAtTime(0.22, n + Math.min(dur, t + 1.3)); }   // breathing in and out
-  g.gain.exponentialRampToValueAtTime(0.0001, n + dur + 0.4);
-  o.connect(f).connect(g).connect(master); o.start(n); o.stop(n + dur + 0.5);
-}
+function sPurr(dur) { if (actx) CatVoice.purr(actx, master, dur); }
 /* the winner's fanfare, sung by a choir of cats over bells; then fireworks and airborne cats */
 function sFanfare() {
   if (!actx) return; const n = now_() + 0.05;

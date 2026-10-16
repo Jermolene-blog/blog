@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Cut the cats out of their studio photographs to make the sprites used by
-# static-assets/toys/marble-flick/cat-actor.js, and the photograph that
+# static-assets/toys/cat/cat-actor.js, and the photograph that
 # cat-puppet.js drapes over its skeleton
 #
 # Each photograph listed below is lifted from its white background with the
@@ -26,8 +26,8 @@ set -e
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 SRC="${1:-$ROOT/local/cats}"
-OUT="$ROOT/static-assets/toys/marble-flick/cat-sprites"
-PUPPET="$ROOT/static-assets/toys/marble-flick/cat-puppet"
+OUT="$ROOT/static-assets/toys/cat/cat-sprites"
+PUPPET="$ROOT/static-assets/toys/cat/cat-puppet"
 WORK="${TMPDIR:-/tmp}/build-cat-sprites"
 
 # Sprite pixels in the height of the seated cat. Must match UNIT in cat-actor.js

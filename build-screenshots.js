@@ -145,11 +145,22 @@ function writeManifest(manifest) {
 	fs.writeFileSync(manifestFile,JSON.stringify(sorted,null,"\t") + "\n","utf8");
 }
 
+// Folders in static-assets/toys without an index.html, such as `cat`, hold code
+// shared between toys. A toy whose page refers to `../<folder>/` is recaptured
+// when that folder changes too
 function findTargets() {
 	const toysDir = path.join(staticDir,"toys"),
-		toys = fs.readdirSync(toysDir,{withFileTypes: true})
-			.filter(entry => entry.isDirectory() && fs.existsSync(path.join(toysDir,entry.name,"index.html")))
-			.map(entry => ({path: "toys/" + entry.name, dir: path.join("static-assets","toys",entry.name)}));
+		folders = fs.readdirSync(toysDir,{withFileTypes: true}).filter(entry => entry.isDirectory()).map(entry => entry.name),
+		isToy = name => fs.existsSync(path.join(toysDir,name,"index.html")),
+		shared = folders.filter(name => !isToy(name)),
+		toys = folders.filter(isToy).map(name => {
+			const html = fs.readFileSync(path.join(toysDir,name,"index.html"),"utf8");
+			return {
+				path: "toys/" + name,
+				dir: path.join("static-assets","toys",name),
+				shared: shared.filter(folder => html.includes("../" + folder + "/")).map(folder => path.join("static-assets","toys",folder))
+			};
+		});
 	return toys.concat(extraTargets).map(target => Object.assign({
 		source: target.dir,
 		outputFile: path.join(screenshotsDir,target.path + ".webp")
@@ -160,21 +171,27 @@ function findTargets() {
 // folder, along with the recipe and capture settings. Files ignored by git
 // are left out so that a fresh checkout computes the same hash
 function hashTarget(target) {
-	const hash = crypto.createHash("sha256"),
-		sourceDir = path.join(rootDir,target.source),
+	const hash = crypto.createHash("sha256");
+	hash.update(JSON.stringify({CAPTURE_VERSION, VIEWPORT, WEBP_QUALITY, recipe: String(recipes[target.path] || "")}));
+	hashFolder(hash,target.source,"");
+	// Shared folders are named by their path relative to the toy, as the page refers to them
+	(target.shared || []).forEach(folder => hashFolder(hash,folder,path.relative(target.source,folder) + "/"));
+	return hash.digest("hex");
+}
+
+function hashFolder(hash,folder,prefix) {
+	const sourceDir = path.join(rootDir,folder),
 		listing = childProcess.execFileSync("git",["ls-files","-z","--cached","--others","--exclude-standard","--","."],{cwd: sourceDir, encoding: "utf8"}),
 		files = Array.from(new Set(listing.split("\0").filter(Boolean))).sort();
-	hash.update(JSON.stringify({CAPTURE_VERSION, VIEWPORT, WEBP_QUALITY, recipe: String(recipes[target.path] || "")}));
 	files.forEach(file => {
 		const fullPath = path.join(sourceDir,file);
 		// Deleted but not yet staged files are still listed
 		if(fs.existsSync(fullPath)) {
-			hash.update(file + "\0");
+			hash.update(prefix + file + "\0");
 			hash.update(fs.readFileSync(fullPath));
 			hash.update("\0");
 		}
 	});
-	return hash.digest("hex");
 }
 
 function findChrome() {
@@ -209,11 +226,17 @@ const mimeTypes = {
 	".ico": "image/x-icon", ".woff": "font/woff", ".woff2": "font/woff2", ".wasm": "application/wasm"
 };
 
-// Serve each target's folder at its published path
+// Serve each target's folder at its published path, along with the shared
+// folders that the toys load from
 function startServer(targets) {
+	const shared = Array.from(new Set(targets.flatMap(target => target.shared || []))).map(dir => ({
+			path: path.relative(staticDir,path.join(rootDir,dir)).split(path.sep).join("/"),
+			dir: dir
+		})),
+		served = targets.concat(shared);
 	const server = http.createServer((request,response) => {
 		const urlPath = decodeURIComponent(new URL(request.url,"http://localhost").pathname),
-			target = targets.find(target => urlPath === "/" + target.path || urlPath.startsWith("/" + target.path + "/"));
+			target = served.find(target => urlPath === "/" + target.path || urlPath.startsWith("/" + target.path + "/"));
 		if(!target) {
 			response.writeHead(404);
 			return response.end();
