@@ -114,7 +114,7 @@
 	{
 		"title": "Toys/tunerful",
 		"caption": "Tunerful",
-		"description": "A guitar tuner with a strobe band and cents gauge: it listens through the microphone, spots the string you play, and plays reference tones for eight tunings",
+		"description": "A guitar tuner built like a chart recorder: it listens through the microphone, spots the string you play, and plots its pitch on paper that scrolls up from the pen, with reference tones for eight tunings",
 		"url": "/toys/tunerful/",
 		"tags": "toy",
 		"text": "",

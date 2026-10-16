@@ -5,24 +5,27 @@
 <script src="../pwa.js" defer></script>
 </head><body>
 <title>Tunerful</title>
-<meta name="description" content="A guitar tuner with a strobe band and cents gauge: it listens through the microphone, spots the string you play, and plays reference tones for eight tunings">
+<meta name="description" content="A guitar tuner built like a chart recorder: it listens through the microphone, spots the string you play, and plots its pitch on paper that scrolls up from the pen, with reference tones for eight tunings">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
-/* Layout: one instrument faceplate — strobe band and cents gauge on top, strings and settings below */
+/* Layout: one instrument faceplate — readout on top, chart paper feeding up out of the pen carriage, strings and settings below */
 :root{
   --bg:#e7ecef; --panel:#f8fafb; --ink:#18222c; --muted:#5a6876; --line:#c5cfd7;
-  --accent:#b8620c; --good:#23875a; --warn:#b9442a; --stripe:#18222c;
+  --accent:#b8620c; --good:#23875a; --warn:#b9442a;
+  --paper:#fbfcf6; --grid:#dfe7dc; --grid2:#b4c7b6; --trace:#1d3b6e;
   --f-display:"Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
   --f-body:"IBM Plex Sans", system-ui, -apple-system, sans-serif;
   --f-mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#10171d; --panel:#172129; --ink:#e4ebf0; --muted:#8798a6; --line:#2a3742;
-  --accent:#f0a447; --good:#5fd08e; --warn:#ef7a5e; --stripe:#e4ebf0; color-scheme:dark}}
+  --accent:#f0a447; --good:#5fd08e; --warn:#ef7a5e;
+  --paper:#121b21; --grid:#1f2c34; --grid2:#33464f; --trace:#9cc4ff; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#10171d; --panel:#172129; --ink:#e4ebf0; --muted:#8798a6; --line:#2a3742;
-  --accent:#f0a447; --good:#5fd08e; --warn:#ef7a5e; --stripe:#e4ebf0; color-scheme:dark}
+  --accent:#f0a447; --good:#5fd08e; --warn:#ef7a5e;
+  --paper:#121b21; --grid:#1f2c34; --grid2:#33464f; --trace:#9cc4ff; color-scheme:dark}
 
 html,body{height:100%}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;
@@ -33,11 +36,11 @@ h1{font-family:var(--f-display);font-weight:800;font-size:28px;letter-spacing:.0
 .status{font-family:var(--f-mono);font-size:12px;color:var(--muted);text-align:right}
 .status b{font-weight:500;color:var(--ink)}
 
-.face{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.face{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px}
 .readout{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:8px}
 .readout .side{font-family:var(--f-mono);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
 .readout .side.r{text-align:right}
-.note{font-family:var(--f-display);font-weight:800;font-size:112px;line-height:.85;text-align:center;min-width:2ch;transition:color .2s}
+.note{font-family:var(--f-display);font-weight:800;font-size:96px;line-height:.85;text-align:center;min-width:2ch;transition:color .2s}
 .note sub,.note sup{font-size:.32em;font-weight:500;vertical-align:baseline}
 .note sup{position:relative;top:-1.6em;margin-left:-.05em}
 .note.in{color:var(--good)}
@@ -45,15 +48,15 @@ h1{font-family:var(--f-display);font-weight:800;font-size:28px;letter-spacing:.0
 .hint{text-align:center;font-family:var(--f-mono);font-size:13px;min-height:1.3em;color:var(--muted)}
 .hint.in{color:var(--good)} .hint.off{color:var(--accent)}
 
-.strobe{position:relative;height:46px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
-.strobe canvas{display:block;width:100%;height:100%}
-.strobe .mid{position:absolute;left:50%;top:-1px;bottom:-1px;width:2px;margin-left:-1px;background:var(--accent)}
-.gauge svg{width:100%;height:auto;display:block;overflow:visible}
-.gauge text{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
-.gauge .tick{stroke:var(--line)} .gauge .tick.major{stroke:var(--muted)}
-.gauge .zone{fill:none;stroke:var(--good);stroke-width:6;opacity:.35}
-.gauge .needle{stroke:var(--accent);stroke-width:3;stroke-linecap:round}
-.gauge .hub{fill:var(--accent)}
+/* the recorder: paper above, pen carriage (the cents scale) along the bottom edge */
+.recorder{position:relative;height:clamp(260px,48vh,480px);border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.recorder canvas{display:block;width:100%;height:100%}
+.level{display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.level .bar{position:relative;flex:1;height:4px;border-radius:2px;background:var(--line)}
+.level .bar i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:2px;background:var(--muted);transition:width .08s}
+.level .bar b{position:absolute;top:-3px;bottom:-3px;width:2px;margin-left:-1px;background:var(--accent);left:0}
+.level:not(.on) .bar b{display:none}
+.level.hot .bar i{background:var(--good)}
 
 .go{font:600 16px var(--f-body);background:var(--ink);color:var(--panel);border:0;border-radius:10px;padding:14px;cursor:pointer}
 .go.on{background:transparent;color:var(--ink);border:1px solid var(--line)}
@@ -80,7 +83,7 @@ select{padding-right:4px}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
 button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .foot{font-size:12px;color:var(--muted);line-height:1.5}
-@media (max-width:420px){.note{font-size:92px}.str .n{font-size:22px}}
+@media (max-width:420px){.note{font-size:80px}.str .n{font-size:22px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -97,8 +100,8 @@ button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outlin
       <div class="side r" id="cents">± 0 ¢</div>
     </div>
     <div class="hint" id="hint">Pluck a string after you start listening</div>
-    <div class="strobe" aria-hidden="true"><canvas id="strobe"></canvas><div class="mid"></div></div>
-    <div class="gauge" aria-hidden="true"><svg id="gauge" viewBox="0 0 320 120"></svg></div>
+    <div class="recorder" aria-hidden="true"><canvas id="chart"></canvas></div>
+    <div class="level" id="level" aria-hidden="true"><span>Input</span><span class="bar"><i></i><b></b></span></div>
     <button class="go" id="go">Start listening</button>
     <div class="msg" id="msg" hidden></div>
   </section>
@@ -121,7 +124,7 @@ button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outlin
     <button class="chip" id="play">▶ Play reference</button>
   </section>
 
-  <p class="foot">Tap a string to lock the tuner to it and turn off auto-detect. The strobe band stands still when the string is in tune and drifts right when sharp, left when flat. Green zone is ±3 cents.</p>
+  <p class="foot">The pen rides along the cents scale at the foot of the chart, and the paper feeds upwards while a note sounds, so the sheet holds your tuning history for the current string. A new sheet starts whenever the string changes. Tap a string to lock the tuner to it and turn off auto-detect. The green band is ±3 cents. The orange mark on the input bar is the noise gate, which rises with background noise.</p>
 </div>
 
 <script>
@@ -180,51 +183,112 @@ function setA4(v){a4=Math.max(415,Math.min(466,v));store.set('a4',a4);$('a4v').t
 $('a4dn').onclick=()=>setA4(a4-1);$('a4up').onclick=()=>setA4(a4+1);
 setA4(a4);
 
-/* ---------- gauge ---------- */
-const G=$('gauge'),cx=160,cy=112,R=96,SPAN=55; // degrees each side for ±50¢
-const ang=c=>(Math.max(-50,Math.min(50,c))/50)*SPAN*Math.PI/180;
-let svg='';
-const arc=(c0,c1,r)=>{const a0=ang(c0),a1=ang(c1);
-  return `M${cx+r*Math.sin(a0)} ${cy-r*Math.cos(a0)} A${r} ${r} 0 0 1 ${cx+r*Math.sin(a1)} ${cy-r*Math.cos(a1)}`};
-svg+=`<path class="zone" d="${arc(-3,3,R-4)}"/>`;
-for(let c=-50;c<=50;c+=5){const a=ang(c),maj=c%25===0,r0=maj?R-14:R-8;
-  svg+=`<line class="tick${maj?' major':''}" x1="${cx+r0*Math.sin(a)}" y1="${cy-r0*Math.cos(a)}" x2="${cx+R*Math.sin(a)}" y2="${cy-R*Math.cos(a)}" stroke-width="${maj?2:1}"/>`;
-  if(maj){const rl=R+10;svg+=`<text x="${cx+rl*Math.sin(a)}" y="${cy-rl*Math.cos(a)+4}" text-anchor="middle">${c>0?'+':''}${c}</text>`}}
-svg+=`<text x="16" y="116">flat</text><text x="304" y="116" text-anchor="end">sharp</text>`;
-svg+=`<line id="needle" class="needle" x1="${cx}" y1="${cy}" x2="${cx}" y2="${cy-R+18}"/><circle class="hub" cx="${cx}" cy="${cy}" r="5"/>`;
-G.innerHTML=svg;
-const needle=$('needle');
-let needleC=0,targetC=0,live=false;
+/* ---------- chart recorder ----------
+   Paper position is measured in CSS px of paper fed so far. The paper only
+   feeds while the pen is down (a note is sounding), so the silence between
+   plucks costs a short gap rather than a screenful, and the sheet holds the
+   whole history for the current string. A change of string starts a new sheet. */
+const FEED=26;            // px of paper per second of sound
+const CARR=46;            // height of the pen carriage strip
+const GAP=10;             // paper skipped when the pen lifts and drops again
+const cv=$('chart'),cx=cv.getContext('2d');
+let W=0,H=0,dpr=1;
+let paper=0,trace=[],marks=[],demo=false;
+let needleC=0,targetC=0,live=false,wasDrawing=false;
+function size(){const r=cv.getBoundingClientRect();dpr=devicePixelRatio||1;W=r.width;H=r.height;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}
+new ResizeObserver(size).observe(cv);size();
+let cssCache={};
+const css=v=>cssCache[v]??=getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>cssCache={});
 
-/* ---------- strobe ---------- */
-const sc=$('strobe'),sx=sc.getContext('2d');
-let phase=0,lastT=performance.now();
-function sizeStrobe(){const r=sc.getBoundingClientRect(),d=devicePixelRatio||1;sc.width=r.width*d;sc.height=r.height*d}
-addEventListener('resize',sizeStrobe);sizeStrobe();
-const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+function newSheet(text){trace=[];marks=[{p:paper,text}];demo=false}
 
+// a sample sheet shown before listening: three plucks of the A string, flat, then over, then settling in
+function demoSheet(){
+  paper=0;trace=[];marks=[{p:0,text:'Example · string 5 · A2'}];demo=true;
+  [[-41,-14,3.2],[-14,7,2.6],[7,0.4,3.6]].forEach(([c0,c1,dur],k)=>{
+    if(k){trace.push(null);paper+=GAP}
+    for(let t=0;t<=dur;t+=1/30){const u=t/dur,e=1-Math.pow(1-u,2.4);
+      trace.push({p:paper,c:c0+(c1-c0)*e+Math.sin(t*9+k)*1.4*(1-u)});paper+=FEED/30}
+  });
+  trace.push(null);
+}
+
+function xOf(c){const pad=14;return pad+(Math.max(-50,Math.min(50,c))+50)/100*(W-2*pad)}
+
+function draw(){
+  const ph=H-CARR, mono=css('--f-mono')||'monospace';
+  cx.setTransform(dpr,0,0,dpr,0,0);
+  cx.fillStyle=css('--paper');cx.fillRect(0,0,W,ph);
+  // in-tune band
+  cx.fillStyle=css('--good');cx.globalAlpha=.13;cx.fillRect(xOf(-3),0,xOf(3)-xOf(-3),ph);cx.globalAlpha=1;
+  // vertical rulings every 5 cents
+  for(let c=-50;c<=50;c+=5){const x=Math.round(xOf(c))+.5,maj=c%25===0;
+    cx.strokeStyle=css(maj?'--grid2':'--grid');cx.lineWidth=c===0?2:1;
+    cx.beginPath();cx.moveTo(x,0);cx.lineTo(x,ph);cx.stroke()}
+  // horizontal rulings every second of feed, heavier every five, moving with the paper
+  for(let k=Math.floor((paper-ph)/FEED)*FEED;k<=paper;k+=FEED){
+    const y=Math.round(ph-(paper-k))+.5;if(y<0)continue;
+    cx.strokeStyle=css(Math.round(k/FEED)%5===0?'--grid2':'--grid');cx.lineWidth=1;
+    cx.beginPath();cx.moveTo(0,y);cx.lineTo(W,y);cx.stroke()}
+  // sheet headings
+  cx.font=`500 11px ${mono}`;cx.textBaseline='bottom';
+  marks.forEach(m=>{const y=ph-(paper-m.p);if(y<-20)return;
+    cx.strokeStyle=css('--muted');cx.lineWidth=1;cx.setLineDash([4,4]);cx.beginPath();cx.moveTo(0,y+.5);cx.lineTo(W,y+.5);cx.stroke();cx.setLineDash([]);
+    const tw=cx.measureText(m.text).width;cx.fillStyle=css('--paper');cx.fillRect(6,y-17,tw+10,16);
+    cx.fillStyle=css('--muted');cx.fillText(m.text,11,y-3)});
+  // the trace, coloured by whether each stretch was in tune
+  cx.globalAlpha=demo?.55:1;cx.lineWidth=2;cx.lineJoin=cx.lineCap='round';
+  let prev=null;
+  for(const pt of trace){
+    if(!pt||ph-(paper-pt.p)<-4){prev=pt;continue}
+    if(prev){const a=Math.abs(pt.c);
+      cx.strokeStyle=css(a>50?'--warn':a<3?'--good':'--trace');
+      cx.beginPath();cx.moveTo(xOf(prev.c),ph-(paper-prev.p));cx.lineTo(xOf(pt.c),ph-(paper-pt.p));cx.stroke()}
+    prev=pt}
+  cx.globalAlpha=1;
+  if(demo){cx.font=`600 10px ${mono}`;cx.fillStyle=css('--muted');cx.textBaseline='top';cx.textAlign='right';
+    cx.fillText('START LISTENING TO RECORD',W-10,10);cx.textAlign='left'}
+  // pen carriage: the cents scale the pen rides on
+  const cy=ph;
+  cx.fillStyle=css('--panel');cx.fillRect(0,cy,W,CARR);
+  cx.strokeStyle=css('--line');cx.lineWidth=1;cx.beginPath();cx.moveTo(0,cy+.5);cx.lineTo(W,cy+.5);cx.stroke();
+  cx.fillStyle=css('--good');cx.globalAlpha=.35;cx.fillRect(xOf(-3),cy+1,xOf(3)-xOf(-3),5);cx.globalAlpha=1;
+  cx.font=`400 11px ${mono}`;cx.textBaseline='alphabetic';cx.textAlign='center';
+  for(let c=-50;c<=50;c+=5){const x=Math.round(xOf(c))+.5,maj=c%25===0;
+    cx.strokeStyle=css(maj?'--muted':'--line');cx.lineWidth=maj?2:1;
+    cx.beginPath();cx.moveTo(x,cy+1);cx.lineTo(x,cy+(maj?14:8));cx.stroke();
+    if(maj){cx.fillStyle=css('--muted');cx.fillText((c>0?'+':'')+c,Math.max(16,Math.min(W-16,x)),cy+28)}}
+  cx.font=`400 10px ${mono}`;cx.fillStyle=css('--muted');
+  cx.textAlign='left';cx.fillText('flat',8,cy+41);cx.textAlign='right';cx.fillText('sharp',W-8,cy+41);cx.textAlign='left';
+  // the pen: an arm up to the paper edge, with the nib on it
+  const px=xOf(live?needleC:0);
+  cx.globalAlpha=live?1:.4;
+  cx.fillStyle=css('--accent');
+  cx.beginPath();cx.moveTo(px,cy-1);cx.lineTo(px-7,cy+16);cx.lineTo(px+7,cy+16);cx.closePath();cx.fill();
+  cx.beginPath();cx.arc(px,cy-1,live?4:3,0,Math.PI*2);cx.fill();
+  cx.globalAlpha=1;
+}
+
+let lastT=performance.now();
 function frame(t){
   const dt=Math.min(.05,(t-lastT)/1000);lastT=t;
-  needleC+=(targetC-needleC)*Math.min(1,dt*10);
-  needle.setAttribute('transform',`rotate(${(live?Math.max(-50,Math.min(50,needleC)):0)/50*SPAN} ${cx} ${cy})`);
-  needle.style.opacity=live?1:.35;
-  // strobe: velocity proportional to cents error
-  const W=sc.width,H=sc.height,d=devicePixelRatio||1,band=14*d;
-  if(live) phase+=needleC*dt*6*d;
-  sx.clearRect(0,0,W,H);
-  const inTune=live&&Math.abs(needleC)<3;
-  sx.fillStyle=inTune?css('--good'):css('--stripe');
-  sx.globalAlpha=live?(inTune?.85:.75):.15;
-  const rows=[[0,H/2,1],[H/2,H/2,2]]; // second row runs at double speed (octave)
-  rows.forEach(([y,h,k])=>{const p=((phase*k)%(band*2)+band*2)%(band*2);
-    for(let x=-band*2+p;x<W+band;x+=band*2) sx.fillRect(x,y+1,band,h-2)});
-  sx.globalAlpha=1;
+  needleC+=(targetC-needleC)*Math.min(1,dt*12);
+  if(live){
+    if(!wasDrawing&&trace.length&&trace[trace.length-1]!==null){trace.push(null)}
+    if(!wasDrawing&&trace.length)paper+=GAP;
+    paper+=FEED*dt;trace.push({p:paper,c:needleC});
+    // forget what has scrolled well off the top
+    let i=0;while(i<trace.length-1&&(!trace[i]||paper-trace[i].p>H+40))i++;
+    if(i>200)trace.splice(0,i);
+  }else if(wasDrawing)trace.push(null);
+  wasDrawing=live;
+  draw();
   requestAnimationFrame(frame);
 }
-requestAnimationFrame(frame);
 
 /* ---------- pitch detection (YIN) ---------- */
-let ctx,an,buf,yinD,running=false,stream,wake;
+let ctx,src,an,sink,buf,yinD,running=false,stream,wake;
 function yin(b,sr){
   const W=b.length>>1,maxT=Math.min(W-1,Math.floor(sr/60)),minT=Math.floor(sr/1200);
   if(!yinD||yinD.length<maxT+1) yinD=new Float32Array(maxT+1);
@@ -232,37 +296,70 @@ function yin(b,sr){
   for(let t=1;t<=maxT;t++){let s=0;for(let i=0;i<W;i++){const x=b[i]-b[i+t];s+=x*x}sum+=s;d[t]=sum?s*t/sum:1}
   let tau=-1;
   for(let t=minT;t<=maxT;t++){if(d[t]<0.12){while(t+1<=maxT&&d[t+1]<d[t])t++;tau=t;break}}
-  if(tau<0){let best=1;for(let t=minT;t<=maxT;t++)if(d[t]<best){best=d[t];tau=t}if(best>0.25)return null}
+  if(tau<0){let best=1;for(let t=minT;t<=maxT;t++)if(d[t]<best){best=d[t];tau=t}if(best>0.18)return null}
   const a=d[tau-1]??d[tau],c=d[tau+1]??d[tau],den=a+c-2*d[tau];
   const shift=den?(a-c)/(2*den):0;
   return sr/(tau+shift);
 }
+// Gate: an adaptive noise floor, tracked between notes. A note has to clear
+// three times the floor and give three consistent readings in a row before
+// the pen drops, so speech, taps and room noise don't scribble on the chart
+const MIN_GATE=0.003,AGREE=3,AGREE_CENTS=35,RELEASE=450;
+let floor=MIN_GATE/3,cand=0,candN=0,peak=0;
 const hist=[];let lastHeard=0,tick=0;
+const toDb=v=>20*Math.log10(v+1e-9),dbPct=db=>Math.max(0,Math.min(100,(db+66)/66*100));
 function analyse(){
   if(!running)return;
   requestAnimationFrame(analyse);
   if((tick++&1))return;
   an.getFloatTimeDomainData(buf);
   let rms=0;for(let i=0;i<buf.length;i++)rms+=buf[i]*buf[i];rms=Math.sqrt(rms/buf.length);
-  const now=performance.now();
-  if(rms>0.008){const f=yin(buf,ctx.sampleRate);
-    if(f&&f>60&&f<1200){hist.push(f);if(hist.length>5)hist.shift();lastHeard=now;
-      const m=[...hist].sort((x,y)=>x-y)[hist.length>>1];show(m)}}
-  if(now-lastHeard>900&&live){live=false;hist.length=0;$('note').classList.add('idle');$('hint').className='hint';$('hint').textContent='Listening…';near=-1;paintStrings()}
+  const now=performance.now(),gate=Math.max(MIN_GATE,floor*3);
+  let f=null;
+  // skip windows that straddle an attack or a damped stop: their pitch reads sharp
+  const q=buf.length>>2;let e0=0,e3=0;for(let i=0;i<q;i++){e0+=buf[i]*buf[i];e3+=buf[i+3*q]*buf[i+3*q]}
+  const steady=e3>e0*0.25&&e3<e0*4;
+  // and lift the pen in the faint tail of a note, where noise drags the reading
+  if(!live||rms>peak)peak=rms;
+  if(rms>gate&&steady&&!(live&&rms<peak*0.12)){f=yin(buf,ctx.sampleRate);if(f&&(f<60||f>1200))f=null}
+  if(f){
+    if(cand&&Math.abs(1200*Math.log2(f/cand))<AGREE_CENTS)candN++;else candN=1;
+    cand=f;
+    if(candN>=AGREE){hist.push(f);if(hist.length>5)hist.shift();lastHeard=now;
+      show([...hist].sort((x,y)=>x-y)[hist.length>>1])}
+  }else{
+    candN=0;
+    // follow the floor down quickly and up slowly, and only between notes
+    if(!live&&steady)floor=Math.min(0.03,floor+(rms-floor)*(rms<floor?0.3:0.02));
+  }
+  const L=$('level');
+  L.querySelector('i').style.width=dbPct(toDb(rms))+'%';
+  L.querySelector('b').style.left=dbPct(toDb(gate))+'%';
+  L.classList.toggle('hot',!!f&&candN>=AGREE);
+  if(now-lastHeard>RELEASE&&live){live=false;hist.length=0;inSince=0;$('note').classList.add('idle');$('hint').className='hint';$('hint').textContent='Listening…';near=-1;paintStrings()}
 }
-let inSince=0;
+let inSince=0,sheetKey=null,pend=-1,pendN=0;
 function show(f){
+  const fresh=!live;
   live=true;
   const t=TUNINGS[tuningName];
   const midi=69+12*Math.log2(f/a4);
-  if(auto){let best=0,bd=1e9;t.forEach((m,i)=>{const dd=Math.abs(midi-m);if(dd<bd){bd=dd;best=i}});near=best;sel=best}
+  if(auto){let best=0,bd=1e9;t.forEach((m,i)=>{const dd=Math.abs(midi-m);if(dd<bd){bd=dd;best=i}});
+    // a new pluck may land on any string at once; mid-note, a change of string needs a few agreeing readings
+    if(best===sel||fresh){sel=best;pend=-1}
+    else if(best===pend){if(++pendN>=4){sel=best;pend=-1}}
+    else{pend=best;pendN=1}
+    near=sel}
   else near=-1;
   const tgt=t[sel], semis=midi-tgt;
   const useString=auto?Math.abs(semis)<1.5:true;
   let refM,cents;
   if(useString){refM=tgt;cents=semis*100}
   else{refM=Math.round(midi);cents=(midi-refM)*100}
-  targetC=cents;
+  targetC=cents;if(fresh)needleC=cents;
+  const key=useString?`s|${tuningName}|${sel}|${a4}`:`n|${refM}|${a4}`;
+  if(key!==sheetKey){sheetKey=key;
+    newSheet(useString?`String ${6-sel} · ${plain(tgt)} · ${mtof(tgt).toFixed(1)} Hz`:`${plain(refM)} · not a string in this tuning`)}
   const N=$('note'),inTune=Math.abs(cents)<3;
   N.innerHTML=noteHTML(Math.round(midi));N.classList.remove('idle');N.classList.toggle('in',inTune&&Math.abs(cents)<50);
   $('freq').textContent=f.toFixed(1)+' Hz';
@@ -280,9 +377,15 @@ async function start(){
   try{
     ensureCtx();
     stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
-    const src=ctx.createMediaStreamSource(stream);
-    an=ctx.createAnalyser();an.fftSize=4096;buf=new Float32Array(an.fftSize);src.connect(an);
-    running=true;analyse();
+    // the permission prompt can leave the context suspended or interrupted (Safari, iOS)
+    if(ctx.state!=='running')await ctx.resume();
+    src=ctx.createMediaStreamSource(stream);
+    an=ctx.createAnalyser();an.fftSize=4096;buf=new Float32Array(an.fftSize);
+    // pull the analyser through a silent sink so every engine keeps rendering it
+    sink=ctx.createGain();sink.gain.value=0;src.connect(an).connect(sink).connect(ctx.destination);
+    if(demo){paper=0;trace=[];marks=[];demo=false}
+    sheetKey=null;floor=MIN_GATE/3;candN=0;
+    running=true;analyse();$('level').classList.add('on');
     $('go').textContent='Stop listening';$('go').classList.add('on');
     $('status').innerHTML=`A4 = <b id="a4s">${a4}</b> Hz · listening`;
     $('hint').className='hint';$('hint').textContent='Listening… pluck a string';
@@ -293,6 +396,8 @@ async function start(){
   }
 }
 function stop(){running=false;stream?.getTracks().forEach(t=>t.stop());live=false;
+  try{src?.disconnect();sink?.disconnect()}catch(e){}
+  $('level').querySelector('i').style.width='0';$('level').classList.remove('hot','on');
   try{wake?.release()}catch(e){}
   $('go').textContent='Start listening';$('go').classList.remove('on');
   $('status').innerHTML=`A4 = <b id="a4s">${a4}</b> Hz · mic off`;$('note').classList.add('idle')}
@@ -315,6 +420,8 @@ $('play').onclick=()=>{
 
 renderStrings();
 $('note').innerHTML=noteHTML(TUNINGS[tuningName][0]);
+demoSheet();
+requestAnimationFrame(frame);
 })();
 </script>
 
