@@ -1,0 +1,321 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#e7ecef">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script src="../pwa.js" defer></script>
+</head><body>
+<title>Tunerful</title>
+<meta name="description" content="A guitar tuner with a strobe band and cents gauge: it listens through the microphone, spots the string you play, and plays reference tones for eight tunings">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one instrument faceplate — strobe band and cents gauge on top, strings and settings below */
+:root{
+  --bg:#e7ecef; --panel:#f8fafb; --ink:#18222c; --muted:#5a6876; --line:#c5cfd7;
+  --accent:#b8620c; --good:#23875a; --warn:#b9442a; --stripe:#18222c;
+  --f-display:"Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --f-body:"IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10171d; --panel:#172129; --ink:#e4ebf0; --muted:#8798a6; --line:#2a3742;
+  --accent:#f0a447; --good:#5fd08e; --warn:#ef7a5e; --stripe:#e4ebf0; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10171d; --panel:#172129; --ink:#e4ebf0; --muted:#8798a6; --line:#2a3742;
+  --accent:#f0a447; --good:#5fd08e; --warn:#ef7a5e; --stripe:#e4ebf0; color-scheme:dark}
+
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:560px;margin:0 auto;padding-block:20px 32px;display:flex;flex-direction:column;gap:16px}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+h1{font-family:var(--f-display);font-weight:800;font-size:28px;letter-spacing:.04em;text-transform:uppercase;margin:0}
+.status{font-family:var(--f-mono);font-size:12px;color:var(--muted);text-align:right}
+.status b{font-weight:500;color:var(--ink)}
+
+.face{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.readout{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:8px}
+.readout .side{font-family:var(--f-mono);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.readout .side.r{text-align:right}
+.note{font-family:var(--f-display);font-weight:800;font-size:112px;line-height:.85;text-align:center;min-width:2ch;transition:color .2s}
+.note sub,.note sup{font-size:.32em;font-weight:500;vertical-align:baseline}
+.note sup{position:relative;top:-1.6em;margin-left:-.05em}
+.note.in{color:var(--good)}
+.note.idle{color:var(--line)}
+.hint{text-align:center;font-family:var(--f-mono);font-size:13px;min-height:1.3em;color:var(--muted)}
+.hint.in{color:var(--good)} .hint.off{color:var(--accent)}
+
+.strobe{position:relative;height:46px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.strobe canvas{display:block;width:100%;height:100%}
+.strobe .mid{position:absolute;left:50%;top:-1px;bottom:-1px;width:2px;margin-left:-1px;background:var(--accent)}
+.gauge svg{width:100%;height:auto;display:block;overflow:visible}
+.gauge text{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
+.gauge .tick{stroke:var(--line)} .gauge .tick.major{stroke:var(--muted)}
+.gauge .zone{fill:none;stroke:var(--good);stroke-width:6;opacity:.35}
+.gauge .needle{stroke:var(--accent);stroke-width:3;stroke-linecap:round}
+.gauge .hub{fill:var(--accent)}
+
+.go{font:600 16px var(--f-body);background:var(--ink);color:var(--panel);border:0;border-radius:10px;padding:14px;cursor:pointer}
+.go.on{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.msg{font-size:13px;color:var(--warn);line-height:1.45}
+
+.label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.strings{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.str{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 2px 8px;color:var(--ink);cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:2px;transition:border-color .15s, background .15s}
+.str .n{font-family:var(--f-display);font-weight:800;font-size:26px;line-height:1}
+.str .n small{font-size:.5em;font-weight:500;color:var(--muted)}
+.str .hz{font-family:var(--f-mono);font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums}
+.str .num{font-family:var(--f-mono);font-size:10px;color:var(--muted)}
+.str.sel{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.str.near{background:color-mix(in srgb,var(--accent) 14%,var(--panel))}
+.str.done .num{color:var(--good)}
+
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.ctl{display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:4px}
+select,.ctl button,.chip{font:500 14px var(--f-body);color:var(--ink);background:transparent;border:0;padding:8px 10px;border-radius:7px;cursor:pointer}
+select{padding-right:4px}
+.ctl .val{font-family:var(--f-mono);font-size:13px;font-variant-numeric:tabular-nums;min-width:6.5ch;text-align:center}
+.chip{border:1px solid var(--line);background:var(--panel)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.foot{font-size:12px;color:var(--muted);line-height:1.5}
+@media (max-width:420px){.note{font-size:92px}.str .n{font-size:22px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Tunerful</h1>
+    <div class="status" id="status">A4 = <b id="a4s">440</b> Hz · mic off</div>
+  </header>
+
+  <section class="face" aria-label="Tuner display">
+    <div class="readout">
+      <div class="side" id="freq">— Hz</div>
+      <div class="note idle" id="note">E<sub>2</sub></div>
+      <div class="side r" id="cents">± 0 ¢</div>
+    </div>
+    <div class="hint" id="hint">Pluck a string after you start listening</div>
+    <div class="strobe" aria-hidden="true"><canvas id="strobe"></canvas><div class="mid"></div></div>
+    <div class="gauge" aria-hidden="true"><svg id="gauge" viewBox="0 0 320 120"></svg></div>
+    <button class="go" id="go">Start listening</button>
+    <div class="msg" id="msg" hidden></div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:8px">
+    <div class="row" style="justify-content:space-between">
+      <span class="label">Strings · low to high</span>
+      <button class="chip" id="auto" aria-pressed="true">Auto-detect string</button>
+    </div>
+    <div class="strings" id="strings"></div>
+  </section>
+
+  <section class="row">
+    <div class="ctl"><select id="tuning" aria-label="Tuning"></select></div>
+    <div class="ctl" aria-label="Reference pitch">
+      <button id="a4dn" aria-label="Lower A4">−</button>
+      <span class="val" id="a4v">A 440</span>
+      <button id="a4up" aria-label="Raise A4">+</button>
+    </div>
+    <button class="chip" id="play">▶ Play reference</button>
+  </section>
+
+  <p class="foot">Tap a string to lock the tuner to it and turn off auto-detect. The strobe band stands still when the string is in tune and drifts right when sharp, left when flat. Green zone is ±3 cents.</p>
+</div>
+
+<script>
+(()=>{
+const NAMES=['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+const TUNINGS={
+  'Standard':[40,45,50,55,59,64],
+  'Half step down':[39,44,49,54,58,63],
+  'Drop D':[38,45,50,55,59,64],
+  'DADGAD':[38,45,50,55,57,62],
+  'Open G':[38,43,50,55,59,62],
+  'Open D':[38,45,50,54,57,62],
+  'Open E':[40,47,52,56,59,64],
+  'Full step down':[38,43,48,53,57,62]
+};
+const store={get(k,d){try{const v=localStorage.getItem('tunerful.'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){try{localStorage.setItem('tunerful.'+k,JSON.stringify(v))}catch(e){}}};
+
+let a4=store.get('a4',440), tuningName=store.get('tuning','Standard');
+if(!TUNINGS[tuningName]) tuningName='Standard';
+let auto=true, sel=0, near=-1;
+const done=new Set();
+const $=id=>document.getElementById(id);
+const mtof=m=>a4*Math.pow(2,(m-69)/12);
+const noteHTML=m=>{const n=NAMES[((m%12)+12)%12],o=Math.floor(m/12)-1;
+  return n.length>1?`${n[0]}<sup>♯</sup><sub>${o}</sub>`:`${n}<sub>${o}</sub>`};
+const plain=m=>NAMES[((m%12)+12)%12]+(Math.floor(m/12)-1);
+
+/* ---------- strings & controls ---------- */
+const tSel=$('tuning');
+Object.keys(TUNINGS).forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=k;tSel.appendChild(o)});
+tSel.value=tuningName;
+function renderStrings(){
+  const t=TUNINGS[tuningName], box=$('strings'); box.innerHTML='';
+  t.forEach((m,i)=>{
+    const b=document.createElement('button'); b.className='str'; b.id='s'+i;
+    const n=NAMES[m%12];
+    b.innerHTML=`<span class="num">${6-i}${done.has(i)?' ✓':''}</span><span class="n">${n}<small>${Math.floor(m/12)-1}</small></span><span class="hz">${mtof(m).toFixed(1)}</span>`;
+    b.setAttribute('aria-label',`String ${6-i}, ${plain(m)}, ${mtof(m).toFixed(1)} hertz`);
+    b.onclick=()=>{sel=i;setAuto(false);paintStrings()};
+    box.appendChild(b);
+  });
+  paintStrings();
+}
+function paintStrings(){
+  TUNINGS[tuningName].forEach((_,i)=>{const b=$('s'+i);if(!b)return;
+    b.classList.toggle('sel',!auto&&i===sel);
+    b.classList.toggle('near',auto&&i===near);
+    b.classList.toggle('done',done.has(i));
+    b.querySelector('.num').textContent=(6-i)+(done.has(i)?' ✓':'');});
+}
+function setAuto(v){auto=v;$('auto').setAttribute('aria-pressed',v);paintStrings()}
+$('auto').onclick=()=>setAuto(!auto);
+tSel.onchange=()=>{tuningName=tSel.value;store.set('tuning',tuningName);done.clear();renderStrings()};
+function setA4(v){a4=Math.max(415,Math.min(466,v));store.set('a4',a4);$('a4v').textContent='A '+a4;$('a4s').textContent=a4;renderStrings()}
+$('a4dn').onclick=()=>setA4(a4-1);$('a4up').onclick=()=>setA4(a4+1);
+setA4(a4);
+
+/* ---------- gauge ---------- */
+const G=$('gauge'),cx=160,cy=112,R=96,SPAN=55; // degrees each side for ±50¢
+const ang=c=>(Math.max(-50,Math.min(50,c))/50)*SPAN*Math.PI/180;
+let svg='';
+const arc=(c0,c1,r)=>{const a0=ang(c0),a1=ang(c1);
+  return `M${cx+r*Math.sin(a0)} ${cy-r*Math.cos(a0)} A${r} ${r} 0 0 1 ${cx+r*Math.sin(a1)} ${cy-r*Math.cos(a1)}`};
+svg+=`<path class="zone" d="${arc(-3,3,R-4)}"/>`;
+for(let c=-50;c<=50;c+=5){const a=ang(c),maj=c%25===0,r0=maj?R-14:R-8;
+  svg+=`<line class="tick${maj?' major':''}" x1="${cx+r0*Math.sin(a)}" y1="${cy-r0*Math.cos(a)}" x2="${cx+R*Math.sin(a)}" y2="${cy-R*Math.cos(a)}" stroke-width="${maj?2:1}"/>`;
+  if(maj){const rl=R+10;svg+=`<text x="${cx+rl*Math.sin(a)}" y="${cy-rl*Math.cos(a)+4}" text-anchor="middle">${c>0?'+':''}${c}</text>`}}
+svg+=`<text x="16" y="116">flat</text><text x="304" y="116" text-anchor="end">sharp</text>`;
+svg+=`<line id="needle" class="needle" x1="${cx}" y1="${cy}" x2="${cx}" y2="${cy-R+18}"/><circle class="hub" cx="${cx}" cy="${cy}" r="5"/>`;
+G.innerHTML=svg;
+const needle=$('needle');
+let needleC=0,targetC=0,live=false;
+
+/* ---------- strobe ---------- */
+const sc=$('strobe'),sx=sc.getContext('2d');
+let phase=0,lastT=performance.now();
+function sizeStrobe(){const r=sc.getBoundingClientRect(),d=devicePixelRatio||1;sc.width=r.width*d;sc.height=r.height*d}
+addEventListener('resize',sizeStrobe);sizeStrobe();
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+function frame(t){
+  const dt=Math.min(.05,(t-lastT)/1000);lastT=t;
+  needleC+=(targetC-needleC)*Math.min(1,dt*10);
+  needle.setAttribute('transform',`rotate(${(live?Math.max(-50,Math.min(50,needleC)):0)/50*SPAN} ${cx} ${cy})`);
+  needle.style.opacity=live?1:.35;
+  // strobe: velocity proportional to cents error
+  const W=sc.width,H=sc.height,d=devicePixelRatio||1,band=14*d;
+  if(live) phase+=needleC*dt*6*d;
+  sx.clearRect(0,0,W,H);
+  const inTune=live&&Math.abs(needleC)<3;
+  sx.fillStyle=inTune?css('--good'):css('--stripe');
+  sx.globalAlpha=live?(inTune?.85:.75):.15;
+  const rows=[[0,H/2,1],[H/2,H/2,2]]; // second row runs at double speed (octave)
+  rows.forEach(([y,h,k])=>{const p=((phase*k)%(band*2)+band*2)%(band*2);
+    for(let x=-band*2+p;x<W+band;x+=band*2) sx.fillRect(x,y+1,band,h-2)});
+  sx.globalAlpha=1;
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ---------- pitch detection (YIN) ---------- */
+let ctx,an,buf,yinD,running=false,stream,wake;
+function yin(b,sr){
+  const W=b.length>>1,maxT=Math.min(W-1,Math.floor(sr/60)),minT=Math.floor(sr/1200);
+  if(!yinD||yinD.length<maxT+1) yinD=new Float32Array(maxT+1);
+  const d=yinD; d[0]=1; let sum=0;
+  for(let t=1;t<=maxT;t++){let s=0;for(let i=0;i<W;i++){const x=b[i]-b[i+t];s+=x*x}sum+=s;d[t]=sum?s*t/sum:1}
+  let tau=-1;
+  for(let t=minT;t<=maxT;t++){if(d[t]<0.12){while(t+1<=maxT&&d[t+1]<d[t])t++;tau=t;break}}
+  if(tau<0){let best=1;for(let t=minT;t<=maxT;t++)if(d[t]<best){best=d[t];tau=t}if(best>0.25)return null}
+  const a=d[tau-1]??d[tau],c=d[tau+1]??d[tau],den=a+c-2*d[tau];
+  const shift=den?(a-c)/(2*den):0;
+  return sr/(tau+shift);
+}
+const hist=[];let lastHeard=0,tick=0;
+function analyse(){
+  if(!running)return;
+  requestAnimationFrame(analyse);
+  if((tick++&1))return;
+  an.getFloatTimeDomainData(buf);
+  let rms=0;for(let i=0;i<buf.length;i++)rms+=buf[i]*buf[i];rms=Math.sqrt(rms/buf.length);
+  const now=performance.now();
+  if(rms>0.008){const f=yin(buf,ctx.sampleRate);
+    if(f&&f>60&&f<1200){hist.push(f);if(hist.length>5)hist.shift();lastHeard=now;
+      const m=[...hist].sort((x,y)=>x-y)[hist.length>>1];show(m)}}
+  if(now-lastHeard>900&&live){live=false;hist.length=0;$('note').classList.add('idle');$('hint').className='hint';$('hint').textContent='Listening…';near=-1;paintStrings()}
+}
+let inSince=0;
+function show(f){
+  live=true;
+  const t=TUNINGS[tuningName];
+  const midi=69+12*Math.log2(f/a4);
+  if(auto){let best=0,bd=1e9;t.forEach((m,i)=>{const dd=Math.abs(midi-m);if(dd<bd){bd=dd;best=i}});near=best;sel=best}
+  else near=-1;
+  const tgt=t[sel], semis=midi-tgt;
+  const useString=auto?Math.abs(semis)<1.5:true;
+  let refM,cents;
+  if(useString){refM=tgt;cents=semis*100}
+  else{refM=Math.round(midi);cents=(midi-refM)*100}
+  targetC=cents;
+  const N=$('note'),inTune=Math.abs(cents)<3;
+  N.innerHTML=noteHTML(Math.round(midi));N.classList.remove('idle');N.classList.toggle('in',inTune&&Math.abs(cents)<50);
+  $('freq').textContent=f.toFixed(1)+' Hz';
+  $('cents').textContent=(cents>=0?'+':'−')+Math.abs(cents).toFixed(0)+' ¢';
+  const H=$('hint');
+  if(Math.abs(cents)>=100){H.className='hint off';H.textContent=`${Math.abs(semis).toFixed(1)} semitones ${cents>0?'sharp':'flat'} of ${plain(tgt)}`}
+  else if(inTune){H.className='hint in';H.textContent=`In tune${useString?' · string '+(6-sel):''}`;
+    if(useString){if(!inSince)inSince=performance.now();else if(performance.now()-inSince>600&&!done.has(sel)){done.add(sel)}}}
+  else{inSince=0;H.className='hint off';H.textContent=cents>0?`Sharp — tune down${useString?' to '+plain(tgt):''}`:`Flat — tune up${useString?' to '+plain(tgt):''}`}
+  paintStrings();
+}
+function ensureCtx(){if(!ctx)ctx=new (window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')ctx.resume();return ctx}
+async function start(){
+  const msg=$('msg');msg.hidden=true;
+  try{
+    ensureCtx();
+    stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+    const src=ctx.createMediaStreamSource(stream);
+    an=ctx.createAnalyser();an.fftSize=4096;buf=new Float32Array(an.fftSize);src.connect(an);
+    running=true;analyse();
+    $('go').textContent='Stop listening';$('go').classList.add('on');
+    $('status').innerHTML=`A4 = <b id="a4s">${a4}</b> Hz · listening`;
+    $('hint').className='hint';$('hint').textContent='Listening… pluck a string';
+    try{wake=await navigator.wakeLock?.request('screen')}catch(e){}
+  }catch(e){
+    msg.hidden=false;
+    msg.textContent='The microphone isn’t available here, so the tuner can’t hear your guitar. Reference tones still work: tap a string, then Play reference. To tune with the microphone, allow this page to use it in your browser’s settings.';
+  }
+}
+function stop(){running=false;stream?.getTracks().forEach(t=>t.stop());live=false;
+  try{wake?.release()}catch(e){}
+  $('go').textContent='Start listening';$('go').classList.remove('on');
+  $('status').innerHTML=`A4 = <b id="a4s">${a4}</b> Hz · mic off`;$('note').classList.add('idle')}
+$('go').onclick=()=>running?stop():start();
+
+/* ---------- reference tone: decaying harmonics, exact pitch ---------- */
+$('play').onclick=()=>{
+  const c=ensureCtx(),f=mtof(TUNINGS[tuningName][sel]),t0=c.currentTime;
+  const real=new Float32Array(12),imag=new Float32Array(12);
+  for(let k=1;k<12;k++)imag[k]=Math.pow(0.62,k-1)/k*(k%2?1:0.8);
+  const o=c.createOscillator(),g=c.createGain(),lp=c.createBiquadFilter();
+  o.setPeriodicWave(c.createPeriodicWave(real,imag));o.frequency.value=f;
+  lp.type='lowpass';lp.frequency.setValueAtTime(f*10,t0);lp.frequency.exponentialRampToValueAtTime(f*2,t0+2.5);
+  g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(0.45,t0+0.01);g.gain.exponentialRampToValueAtTime(0.001,t0+3.2);
+  o.connect(lp).connect(g).connect(c.destination);o.start(t0);o.stop(t0+3.3);
+  // show the target on the display while the tone plays, if not listening
+  if(!running){$('note').innerHTML=noteHTML(TUNINGS[tuningName][sel]);$('note').classList.remove('idle');$('freq').textContent=f.toFixed(1)+' Hz';
+    $('hint').className='hint';$('hint').textContent=`Reference · string ${6-sel}`}
+};
+
+renderStrings();
+$('note').innerHTML=noteHTML(TUNINGS[tuningName][0]);
+})();
+</script>
+
+</body></html>

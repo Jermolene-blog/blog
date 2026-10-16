@@ -112,6 +112,16 @@
 		"screenshot": "/screenshots/toys/lenticulator.webp"
 	},
 	{
+		"title": "Toys/tunerful",
+		"caption": "Tunerful",
+		"description": "A guitar tuner with a strobe band and cents gauge: it listens through the microphone, spots the string you play, and plays reference tones for eight tunings",
+		"url": "/toys/tunerful/",
+		"tags": "toy",
+		"text": "",
+		"theme-color": "#e7ecef",
+		"screenshot": "/screenshots/toys/tunerful.webp"
+	},
+	{
 		"title": "Toys/vectorious",
 		"caption": "Vectorious",
 		"description": "Quantise a photo to black and white and trace it into a vector drawing, downloadable as SVG or PDF",
