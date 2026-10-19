@@ -5,7 +5,7 @@
 <script src="../pwa.js" defer></script>
 </head><body>
 <title>Spotty Sphericle</title>
-<meta name="description" content="Thousands of dots on a spinning sphere, sized by the light falling on them: flick it, move the light, and breed new variations">
+<meta name="description" content="Thousands of dots on a spinning sphere, cube, doughnut, water drop or cloud, sized by the light falling on them: flick it, move the light, and breed new variations">
 <meta name="toy-short-title" content="Sphericle">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -106,7 +106,7 @@ textarea{width:100%;box-sizing:border-box;min-height:70px;resize:vertical;backgr
 
 <div class="app">
   <div class="stage" id="stage">
-    <canvas id="c" aria-label="Generated halftone sphere"></canvas>
+    <canvas id="c" aria-label="Generated halftone shape"></canvas>
     <div class="hud">
       <span class="seg" role="group" aria-label="Drag on the image to">
         <button id="dragRot" aria-pressed="true">drag: rotate</button><button id="dragLight" aria-pressed="false">drag: light</button>
@@ -118,7 +118,7 @@ textarea{width:100%;box-sizing:border-box;min-height:70px;resize:vertical;backgr
   <aside class="panel" id="panel">
     <div class="head">
       <h1>Spotty Sphericle</h1>
-      <p>Dots on a sphere, sized by Lambert light. Flick the image to send it spinning, or switch to light mode and drag to move the light.</p>
+      <p>Dots on a sphere, or a cube, a doughnut, a rippling water drop or a cloud, sized by Lambert light. Flick the image to send it spinning, or switch to light mode and drag to move the light.</p>
       <div class="actions">
         <button class="btn primary" id="rand">Randomise all</button>
         <button class="btn" id="reset">Reset</button>
@@ -161,6 +161,8 @@ textarea{width:100%;box-sizing:border-box;min-height:70px;resize:vertical;backgr
 <script>
 (() => {
 const DEF = {
+  form:'sphere', formH:1, sharp:16, tube:0.4, point:1, puffs:7, flatBase:0.5, formSeed:1, billow:0, billowRate:0.12,
+  ripple:'none', rippleAmp:0.03, rippleWaves:6, rippleRate:0.3, jiggle:0, jiggleRate:1.2,
   dist:'fib', count:9000, stagger:0, golden:137.508, jitter:0, seed:1,
   tiltX:120, tiltZ:35, yaw:0,
   spin:5, friction:1.2, breathe:0.03, breatheRate:0.12, orbit:0, wobble:0, wobbleRate:0.08,
@@ -173,7 +175,26 @@ const DEF = {
   colorBy:'longitude', arms:21, repeats:1, offset:0, mirror:false, bands:0, drift:0, shadeMix:0.5, invert:false
 };
 
+const isCloud = s => s.form==='cloud', hasRipple = s => s.ripple!=='none';
 const SCHEMA = [
+ {sec:'Form', open:true, items:[
+  {k:'form', type:'select', label:'Form', opts:{sphere:'Sphere',egg:'Egg',cube:'Cube',tetra:'Tetrahedron',octa:'Octahedron',dodeca:'Dodecahedron',icosa:'Icosahedron',cylinder:'Cylinder',cone:'Cone',torus:'Torus (doughnut)',drop:'Water drop',cloud:'Cloud'}},
+  {k:'formH', label:'Height', min:0.3, max:2.5, step:0.01, rr:[0.75,1.3], tip:'Stretches the form along its pole'},
+  {k:'sharp', label:'Edge sharpness', min:2, max:60, step:0.5, rr:[6,30], show:s=>EDGED.has(s.form), tip:'Low values round the edges and corners off'},
+  {k:'tube', label:'Tube thickness', min:0.1, max:0.95, step:0.01, rr:[0.25,0.6], show:s=>s.form==='torus'},
+  {k:'point', label:'Tip pointiness', min:0.2, max:4, step:0.05, rr:[0.6,2], show:s=>s.form==='drop'},
+  {k:'puffs', label:'Puffs', min:2, max:16, step:1, rr:[4,10], show:isCloud},
+  {k:'flatBase', label:'Flat base', min:0, max:1, step:0.01, rr:[0.3,0.8], show:isCloud},
+  {k:'formSeed', label:'Cloud seed', min:1, max:9999, step:1, show:isCloud},
+  {k:'billow', label:'Billow', min:0, max:0.3, step:0.005, rr:[0,0.08], show:isCloud, tip:'The puffs swell and shrink'},
+  {k:'billowRate', label:'Billows per second', min:0.02, max:1, step:0.01, rr:[0.05,0.3], show:s=>isCloud(s)&&s.billow>0},
+  {k:'ripple', type:'select', label:'Surface waves', opts:{none:'None',rings:'Rings from the pole',ribs:'Ribs around the pole',choppy:'Choppy'}},
+  {k:'rippleAmp', label:'Wave height', min:0, max:0.2, step:0.002, rr:[0.01,0.06], show:hasRipple},
+  {k:'rippleWaves', label:'Waves', min:1, max:30, step:1, rr:[3,12], show:hasRipple},
+  {k:'rippleRate', label:'Wave speed (Hz)', min:-2, max:2, step:0.01, rr:[-0.5,0.5], show:hasRipple},
+  {k:'jiggle', label:'Jiggle', min:0, max:0.3, step:0.005, rr:[0,0], tip:'The whole form wobbles like a drop of water'},
+  {k:'jiggleRate', label:'Jiggles per second', min:0.1, max:4, step:0.01, rr:[0.5,2], show:s=>s.jiggle>0},
+ ]},
  {sec:'Structure', open:true, items:[
   {k:'dist', type:'select', label:'Distribution', opts:{rings:'Latitude rings',fib:'Fibonacci spiral',latlong:'Lat–long grid (globe)',cube:'Cube-sphere grid',random:'Random scatter'}},
   {k:'count', label:'Dot count (whole sphere)', min:100, max:40000, step:50, rr:[1500,16000]},
@@ -268,6 +289,13 @@ const PRESETS = {
   'Crescent': {dist:'fib', count:16000, shade:'#465068', lit:'#f3efe4', bg:'#04050a', colorMode:'shade', wrap:0.15, lightAz:200, lightEl:-5, size:0.85, cutoff:0.02, radius:0.42, tiltX:90, tiltZ:0},
   'Hatching': {dist:'rings', count:5200, shape:'line', size:1.25, sizeCurve:0.8, bg:'#121211', lit:'#e9e3d4', stagger:0.5, tiltX:70, tiltZ:20, radius:0.4},
   'Rim': {lightEl:-35, lightAz:90, rim:0.9, rimPow:2.4, ambient:0, spin:12, orbit:20, lit:'#a7dcff', bg:'#000000', radius:0.4, cutoff:0.03},
+  'Dice': {form:'cube', sharp:14, dist:'cube', count:6000, shape:'square', size:0.9, colorMode:'shade', lit:'#f4f1ea', shade:'#3a3d4a', bg:'#0b0c10', ambient:0.2, wrap:0.3, lightAz:150, lightEl:50, spec:0.5, shin:40, tiltX:30, tiltZ:35, yaw:20, spin:6, radius:0.4},
+  'Gem': {form:'icosa', sharp:40, count:14000, colorMode:'palette', palette:'ocean', colorBy:'brightness', shadeMix:0.5, shade:'#000814', bg:'#000814', spec:1.4, shin:70, ambient:0.18, wrap:0.35, lightEl:50, tiltX:20, tiltZ:10, spin:10, radius:0.4},
+  'Doughnut': {form:'torus', tube:0.42, count:14000, colorMode:'palette', palette:'pastel', colorBy:'random', shadeMix:0.65, shade:'#1a0f0a', bg:'#1a0f0a', ambient:0.12, wrap:0.2, size:0.95, tiltX:58, tiltZ:-12, spin:14, radius:0.4},
+  'Water drop': {form:'drop', point:1, ripple:'rings', rippleAmp:0.022, rippleWaves:7, rippleRate:0.45, jiggle:0.035, jiggleRate:1.3, count:14000, colorMode:'shade', lit:'#c8ecff', shade:'#0d3a66', bg:'#020812', spec:0.9, shin:45, rim:0.45, rimPow:2.5, wrap:0.15, ambient:0.05, lightAz:120, lightEl:40, tiltX:14, tiltZ:0, yaw:0, spin:4, radius:0.4},
+  'Cloud': {form:'cloud', puffs:7, flatBase:0.6, formSeed:3, billow:0.035, billowRate:0.1, count:16000, colorMode:'shade', lit:'#ffffff', shade:'#5f6f8c', bg:'#5d93cf', ambient:0.12, wrap:0.3, gamma:0.8, size:0.95, sizeCurve:0.6, cutoff:0, lightAz:75, lightEl:35, tiltX:10, tiltZ:0, yaw:0, spin:3, radius:0.42},
+  'Jelly': {ripple:'choppy', rippleAmp:0.045, rippleWaves:3, rippleRate:0.35, jiggle:0.07, jiggleRate:1.6, colorMode:'palette', palette:'neon', colorBy:'latitude', mirror:true, shadeMix:0.6, shade:'#05010a', bg:'#05010a', spec:0.8, shin:30, tiltX:70, tiltZ:15, spin:6, radius:0.38},
+  'Pumpkin': {formH:0.78, ripple:'ribs', rippleAmp:0.07, rippleWaves:10, rippleRate:0, colorMode:'shade', lit:'#ffa03a', shade:'#4a1500', bg:'#120700', ambient:0.06, spec:0.4, shin:20, wrap:0.1, tiltX:22, tiltZ:-8, spin:8, radius:0.42},
   'Tiles': {dist:'cube', count:7000, shape:'diamond', colorMode:'shade', shade:'#b23a2a', lit:'#f7d77a', bg:'#130b09', size:0.95, tiltX:30, tiltZ:40, yaw:25, radius:0.4, ambient:0.05},
 };
 const PALETTES = [
@@ -347,7 +375,7 @@ function genPoints(S){
     }
     P.x[i]=x;P.y[i]=y;P.z[i]=z;P.tx[i]=tx;P.ty[i]=ty;P.tz[i]=tz;
   }
-  PCACHE.set(key,P); if (PCACHE.size>24) PCACHE.delete(PCACHE.keys().next().value);
+  P.key = key; PCACHE.set(key,P); if (PCACHE.size>24) PCACHE.delete(PCACHE.keys().next().value);
   return P;
 }
 
@@ -359,6 +387,124 @@ const Ry=a=>{const c=Math.cos(a),s=Math.sin(a);return[c,0,s,0,1,0,-s,0,c]};
 const Rz=a=>{const c=Math.cos(a),s=Math.sin(a);return[c,-s,0,s,c,0,0,0,1]};
 const hex2rgb = h => { h=h.replace('#',''); if(h.length===3)h=h.split('').map(c=>c+c).join(''); const n=parseInt(h,16); return [n>>16&255,n>>8&255,n&255]; };
 const mixHex = (a,b,t) => { const A=hex2rgb(a),B=hex2rgb(b); return 'rgb('+A.map((v,i)=>Math.round(v+(B[i]-v)*t)).join(',')+')'; };
+
+/* ---------- forms: each point on the unit sphere is carried out onto another surface ---------- */
+// A form maps a unit direction u to a surface point p and a "core" point inside it; ripples push p away from the core.
+// Normals and the local area stretch (which sets dot size) come from finite differences, so any form gets correct lighting.
+const PHI = (1+Math.sqrt(5))/2;
+const unit = a => { const l=Math.hypot(a[0],a[1],a[2]); return a.map(v=>v/l); };
+const cyc = v => [v,[v[1],v[2],v[0]],[v[2],v[0],v[1]]];
+const flips = v => { let o=[[]]; v.forEach(c=>{ o=o.flatMap(a=>c?[a.concat(c),a.concat(-c)]:[a.concat(0)]); }); return o; };
+// Polyhedra as face normals and inradius; the radius along u is the p-norm of the face distances, so low p rounds the edges
+const FACES = {
+  tetra:{d:0.36, n:[[1,1,1],[1,-1,-1],[-1,1,-1],[-1,-1,1]].map(unit)},
+  cube:{d:0.6, n:flips([1,0,0]).concat(flips([0,1,0]),flips([0,0,1]))},
+  octa:{d:0.6, n:flips([1,1,1]).map(unit)},
+  dodeca:{d:0.8, n:cyc([0,1,PHI]).flatMap(flips).map(unit)},
+  icosa:{d:0.8, n:flips([1,1,1]).concat(cyc([0,1/PHI,PHI]).flatMap(flips)).map(unit)},
+};
+const EDGED = new Set(Object.keys(FACES).concat(['cylinder','cone']));
+// Surfaces of revolution as profiles from the top (s=0) to the bottom (s=1): [radius, height]
+const PROFILES = {
+  egg: () => s => { const t=Math.PI*s; return [0.74*Math.sin(t)*(1-0.17*Math.cos(t)), 0.97*Math.cos(t)]; },
+  drop: st => { const m=st.point, raw=t=>Math.sin(t)*Math.pow(Math.sin(t/2),m); let w=0; for (let k=1;k<400;k++) w=Math.max(w,raw(Math.PI*k/400));
+    return s => { const t=Math.PI*s; return [0.68*raw(t)/w, Math.cos(t)]; }; },
+  // the seam where the sphere's poles land is the inner equator, the least visible part
+  torus: st => { const R=1/(1+st.tube), r=st.tube*R; return s => { const a=Math.PI*(1-2*s); return [R+r*Math.cos(a), r*Math.sin(a)]; }; },
+};
+// Reparametrise a profile by area, so evenly spread dots on the sphere stay evenly spread on the surface.
+// Returns [radius, height, normal radius, normal height]; the normal stays defined at the poles, where waves push along it.
+function revTable(prof){
+  const K=1024, A=new Float64Array(K+1); let [r0,y0]=prof(0);
+  for (let k=1;k<=K;k++){ const [r,y]=prof(k/K); A[k]=A[k-1]+(r+r0)/2*Math.hypot(r-r0,y-y0); r0=r; y0=y; }
+  for (let k=1;k<=K;k++) A[k]/=A[K];
+  return c => { let lo=0, hi=K; while (hi-lo>1){ const mid=(lo+hi)>>1; if (A[mid]<=c) lo=mid; else hi=mid; }
+    const u=(lo+(c-A[lo])/((A[hi]-A[lo])||1))/K, v=prof(u), a=prof(Math.max(0,u-1e-4)), b=prof(Math.min(1,u+1e-4));
+    const dr=b[0]-a[0], dy=b[1]-a[1], l=Math.hypot(dr,dy)||1; return [v[0], v[1], -dy/l, dr/l]; };
+}
+// A cloud is a smooth union of seeded puffs with its underside sliced flat. Rays start from a flat spine through the
+// middle rather than from one centre, so the puffs at the ends are reached square on instead of at a graze.
+function cloudFn(s){
+  const rng=mulberry32((s.formSeed|0)*9301+49297), n=Math.max(1,s.puffs|0), B=[];
+  for (let i=0;i<5;i++){ const f=i/4*2-1; B.push([f*0.55, -0.05, (rng()-.5)*0.1, 0.25-0.06*Math.abs(f), rng()*6.283]); }
+  for (let i=0;i<n;i++){ const f = n>1 ? i/(n-1)*2-1 : 0;
+    B.push([f*0.52+(rng()-.5)*0.1, 0.1+0.26*(1-f*f)*(0.6+rng()*0.6), (rng()-.5)*0.3, 0.19+0.15*(1-Math.abs(f))+rng()*0.07, rng()*6.283]); }
+  for (let i=0;i<Math.ceil(n/3);i++) B.push([(rng()-.5)*0.5, 0.34+rng()*0.14, (rng()-.5)*0.24, 0.12+rng()*0.08, rng()*6.283]);
+  const m=Math.max(...B.map(b=>Math.hypot(b[0],b[1],b[2])+b[3])), ax=0.5/m, az=0.08/m, hb=(0.3/m)*(1-0.75*s.flatBase);
+  B.forEach(b=>{ for (let j=0;j<4;j++) b[j]/=m; });
+  // centre the cloud vertically between its flat base and its highest puff
+  const dy=-(Math.max(...B.map(b=>b[1]+b[3])) + (-0.05/m-hb))/2, y0=-0.05/m+dy; B.forEach(b=>{ b[1]+=dy; });
+  const bil=s.billow, w=2*Math.PI*s.billowRate, q=18;
+  return (x,y,z,o,t) => {
+    const ox=ax*x, oy=y0, oz=az*z;
+    let U=0;
+    for (const b of B){ const r=b[3]*(1+bil*Math.sin(w*t+b[4])), cx=b[0]-ox, cy=b[1]-oy, cz=b[2]-oz, bb=x*cx+y*cy+z*cz, disc=bb*bb-(cx*cx+cy*cy+cz*cz)+r*r;
+      if (disc>0){ const far=bb+Math.sqrt(disc); if (far>0) U+=Math.pow(far,q); } }
+    U=Math.pow(U,1/q);
+    if (y<0) U=Math.pow(Math.pow(U,-10)+Math.pow(-y/hb,10),-0.1);
+    o[0]=ox+x*U; o[1]=oy+y*U; o[2]=oz+z*U; o[3]=ox; o[4]=oy; o[5]=oz;
+  };
+}
+const RIPPLE_DIRS = [[0.6,0.7,0.39],[-0.8,0.1,0.59],[0.15,-0.9,0.41],[-0.3,-0.2,-0.93]].map(unit);
+function makeForm(s){
+  const f=s.form, p=s.sharp, TAU=Math.PI*2;
+  const radial = fn => (x,y,z,o,t) => { const r=fn(x,y,z,t); o[0]=x*r; o[1]=y*r; o[2]=z*r; o[3]=o[4]=o[5]=0; };
+  let at;
+  if (FACES[f]){ const F=FACES[f];
+    at = radial((x,y,z)=>{ let a=0; for (const n of F.n){ const c=(n[0]*x+n[1]*y+n[2]*z)/F.d; if (c>0) a+=Math.pow(c,p); } return Math.pow(a,-1/p); }); }
+  else if (f==='cylinder') at = radial((x,y,z)=>Math.pow(Math.pow(Math.hypot(x,z)/0.75,p)+Math.pow(Math.abs(y)/0.72,p),-1/p));
+  else if (f==='cone'){ const ht=0.95, hb=0.55, k=0.85/(ht+hb);
+    at = radial((x,y,z)=>{ let a=0; if (y<0) a+=Math.pow(-y/hb,p); const c=(Math.hypot(x,z)+k*y)/(k*ht); if (c>0) a+=Math.pow(c,p); return Math.pow(a,-1/p); }); }
+  else if (f==='cloud') at = cloudFn(s);
+  else if (PROFILES[f]){ const T=revTable(PROFILES[f](s));
+    at = (x,y,z,o) => { const v=T((1-y)/2), ph=Math.atan2(z,x), c=Math.cos(ph), sn=Math.sin(ph);
+      o[0]=v[0]*c; o[1]=v[1]; o[2]=v[0]*sn; o[3]=o[0]-v[2]*c; o[4]=o[1]-v[3]; o[5]=o[2]-v[2]*sn; }; }
+  else at = radial(()=>1);
+  const A=s.rippleAmp, W=s.rippleWaves, rw=TAU*s.rippleRate;
+  const rip = s.ripple==='none' || !(A>0) ? null
+    : s.ripple==='rings' ? (x,y,z,t)=>A*Math.sin(2*W*Math.acos(y<-1?-1:y>1?1:y) - rw*t)
+    : s.ripple==='ribs' ? (x,y,z,t)=>A*Math.sin(Math.round(W)*Math.atan2(z,x) - rw*t)*Math.sqrt(Math.max(0,1-y*y))
+    : (x,y,z,t)=>{ let d=0; RIPPLE_DIRS.forEach((v,i)=>{ d+=Math.sin(W*Math.PI*(v[0]*x+v[1]*y+v[2]*z) + rw*t*(1+0.31*i) + 1.7*i); }); return A*0.5*d; };
+  const jg=s.jiggle, jw=TAU*s.jiggleRate, h=s.formH, k=1/Math.max(1,h);
+  return (x,y,z,o,t) => {
+    at(x,y,z,o,t);
+    let d = rip ? rip(x,y,z,t) : 0;
+    if (jg>0){ const a=jw*t; d += jg*(Math.sin(a)*(1.5*y*y-0.5) + 0.7*Math.sin(1.37*a+1)*(x*x-z*z) + 1.2*Math.sin(0.81*a+2)*x*z); }
+    if (d){ const dx=o[0]-o[3], dy=o[1]-o[4], dz=o[2]-o[5], l=Math.hypot(dx,dy,dz)||1; o[0]+=dx/l*d; o[1]+=dy/l*d; o[2]+=dz/l*d; }
+    o[1]*=h; o[4]*=h; for (let j=0;j<6;j++) o[j]*=k;
+  };
+}
+const FORM_KEYS = Object.keys(DEF).slice(0, Object.keys(DEF).indexOf('dist'));
+const formMoves = s => (s.ripple!=='none' && s.rippleAmp>0 && s.rippleRate!==0) || s.jiggle>0 || (s.form==='cloud' && s.billow>0);
+const plainSphere = s => s.form==='sphere' && s.formH===1 && !(s.ripple!=='none' && s.rippleAmp>0) && !(s.jiggle>0);
+const GCACHE = new Map();
+// Per-dot surface position, normal, latitude tangent and sqrt of the area stretch; null means the plain sphere
+function genGeom(s, P, t){
+  if (plainSphere(s)) return null;
+  const moving=formMoves(s), key=P.key+'#'+FORM_KEYS.map(k=>s[k]).join('|');
+  let G=GCACHE.get(key);
+  if (G){ GCACHE.delete(key); GCACHE.set(key,G); if (!moving || G.t===t) return G; }
+  else { const n=P.n, F=()=>new Float32Array(n);
+    G={fn:makeForm(s), px:F(),py:F(),pz:F(), nx:F(),ny:F(),nz:F(), tx:F(),ty:F(),tz:F(), j:F(),
+      occ: s.form==='torus' || s.form==='cloud' || (s.ripple!=='none' && s.rippleAmp>0) || s.jiggle>0};
+    GCACHE.set(key,G); if (GCACHE.size>24) GCACHE.delete(GCACHE.keys().next().value); }
+  G.t=t;
+  const fn=G.fn, o0=new Float64Array(6), o1=new Float64Array(6), o2=new Float64Array(6), E=1e-3;
+  for (let i=0;i<P.n;i++){
+    const x=P.x[i], y=P.y[i], z=P.z[i], tx=P.tx[i], ty=P.ty[i], tz=P.tz[i];
+    const bx=y*tz-z*ty, by=z*tx-x*tz, bz=x*ty-y*tx;
+    fn(x,y,z,o0,t);
+    let ax=x+E*tx, ay=y+E*ty, az=z+E*tz, l=Math.hypot(ax,ay,az); fn(ax/l,ay/l,az/l,o1,t);
+    ax=x+E*bx; ay=y+E*by; az=z+E*bz; l=Math.hypot(ax,ay,az); fn(ax/l,ay/l,az/l,o2,t);
+    const ux=o1[0]-o0[0], uy=o1[1]-o0[1], uz=o1[2]-o0[2], vx=o2[0]-o0[0], vy=o2[1]-o0[1], vz=o2[2]-o0[2];
+    let nx=uy*vz-uz*vy, ny=uz*vx-ux*vz, nz=ux*vy-uy*vx; const nl=Math.hypot(nx,ny,nz), ul=Math.hypot(ux,uy,uz)||1;
+    if (nl>1e-14){ nx/=nl; ny/=nl; nz/=nl; } else { nx=x; ny=y; nz=z; }
+    if (nx*(o0[0]-o0[3])+ny*(o0[1]-o0[4])+nz*(o0[2]-o0[5]) < 0){ nx=-nx; ny=-ny; nz=-nz; }
+    G.px[i]=o0[0]; G.py[i]=o0[1]; G.pz[i]=o0[2]; G.nx[i]=nx; G.ny[i]=ny; G.nz[i]=nz;
+    G.tx[i]=ux/ul; G.ty[i]=uy/ul; G.tz[i]=uz/ul; G.j[i]=Math.min(3, Math.sqrt(nl)/E);
+  }
+  return G;
+}
 
 /* ---------- pens: Path2D for canvas, path strings for SVG ---------- */
 function makePen(svg){
@@ -379,7 +525,7 @@ const LEVELS = 48;
 let spinAng = 0, colourPhase = 0, animT = 0, lightOff = 0, lastStat = '';
 function render(ctx, W, H, svgMode, st, an){
   st = st || S;
-  const TAU = Math.PI*2, s=st, P=genPoints(st), A = an || {spin:spinAng, light:lightOff, colour:colourPhase};
+  const TAU = Math.PI*2, s=st, P=genPoints(st), G=genGeom(st,P,animT), A = an || {spin:spinAng, light:lightOff, colour:colourPhase};
   const breath = s.breathe>0 ? 1 + s.breathe*Math.sin(TAU*s.breatheRate*animT) : 1;
   const m=Math.min(W,H), R=s.radius*m*breath, cx=W/2, cy=H/2;
   const wb = TAU*s.wobbleRate*animT, wX = s.wobble*Math.sin(wb), wZ = s.wobble*(Math.cos(wb)-1);
@@ -396,21 +542,49 @@ function render(ctx, W, H, svgMode, st, an){
   const pens = []; const penFor = k => pens[k] || (pens[k]=makePen(svgMode));
   let drawn = 0;
   const shape = s.shape, fore = s.fore;
+  const GX=G?G.px:P.x, GY=G?G.py:P.y, GZ=G?G.pz:P.z, NX=G?G.nx:P.x, NY=G?G.ny:P.y, NZ=G?G.nz:P.z, TX=G?G.tx:P.tx, TY=G?G.ty:P.ty, TZ=G?G.tz:P.tz, GJ=G?G.j:null;
+  // rotate dot i into view: position q, normal n, perspective scale and screen position; false if it faces away
+  let qx,qy,qz,nx,ny,nz,sc,sx,sy;
+  const view = i => {
+    const gx=GX[i],gy=GY[i],gz=GZ[i], mx=NX[i],my=NY[i],mz=NZ[i];
+    qx=M[0]*gx+M[1]*gy+M[2]*gz; qy=M[3]*gx+M[4]*gy+M[5]*gz; qz=M[6]*gx+M[7]*gy+M[8]*gz;
+    nx=M[0]*mx+M[1]*my+M[2]*mz; ny=M[3]*mx+M[4]*my+M[5]*mz; nz=M[6]*mx+M[7]*my+M[8]*mz;
+    sc=1;
+    if (D){ if (D-qz<0.05 || nz-(nx*qx+ny*qy+nz*qz)/D<=0.002) return false; sc = D/(D-qz)*pnorm; } else if (nz<=0.002) return false;
+    sx=cx+qx*R*sc; sy=cy-qy*R*sc; return true;
+  };
+  // Forms that can hide parts of themselves get a coarse depth buffer: each facing dot splats its tangent disc into it
+  let ZB=null, zg=1, zw=0, zh=0;
+  if (G && G.occ){
+    zg=Math.max(1.5, P.d*R*0.5); zw=Math.ceil(W/zg)+1; zh=Math.ceil(H/zg)+1; ZB=new Float32Array(zw*zh).fill(-1e9);
+    for (let i=0;i<P.n;i++){
+      if (!view(i)) continue;
+      const rs=0.7*P.d*GJ[i], Rp=R*sc, hc=zg*0.5/Rp, nxy=Math.hypot(nx,ny), ex=nxy>1e-6?nx/nxy:1, ey=nxy>1e-6?ny/nxy:0, nzc=Math.max(nz,0.02);
+      const reach=rs*Rp+zg, g0=Math.max(0,Math.floor((sx-reach)/zg)), g1=Math.min(zw-1,Math.floor((sx+reach)/zg)), h0=Math.max(0,Math.floor((sy-reach)/zg)), h1=Math.min(zh-1,Math.floor((sy+reach)/zg));
+      for (let gy=h0;gy<=h1;gy++) for (let gx=g0;gx<=g1;gx++){
+        const ox=((gx+.5)*zg-sx)/Rp, oy=(sy-(gy+.5)*zg)/Rp, a=ox*ex+oy*ey, b=oy*ex-ox*ey;
+        const fa=Math.max(0,Math.abs(a)-hc)/(rs*nzc), fb=Math.max(0,Math.abs(b)-hc)/rs;
+        if (fa*fa+fb*fb>1) continue;
+        let dz=-nxy*a/nzc; dz=dz<-rs?-rs:dz>rs?rs:dz;
+        const k=gy*zw+gx; if (qz+dz>ZB[k]) ZB[k]=qz+dz;
+      }
+    }
+  }
   for (let i=0;i<P.n;i++){
     const px=P.x[i],py=P.y[i],pz=P.z[i];
-    const qx=M[0]*px+M[1]*py+M[2]*pz, qy=M[3]*px+M[4]*py+M[5]*pz, qz=M[6]*px+M[7]*py+M[8]*pz;
-    let sc=1;
-    if (D){ if (qz<=s.persp+0.002) continue; sc = D/(D-qz)*pnorm; } else if (qz<=0.002) continue;
-    const nl=qx*Lx+qy*Ly+qz*Lz;
+    if (!view(i)) continue;
+    if (ZB){ const gx=Math.floor(sx/zg), gy=Math.floor(sy/zg);
+      if (gx>=0 && gy>=0 && gx<zw && gy<zh && qz < ZB[gy*zw+gx] - (0.04+1.2*P.d*GJ[i])) continue; }
+    const nl=nx*Lx+ny*Ly+nz*Lz;
     let b=(nl+s.wrap)/(1+s.wrap); b = b<0?0:b>1?1:b;
     b = s.ambient + (1-s.ambient)*b;
-    if (s.spec>0 && nl>0){ const nh=qx*Hx+qy*Hy+qz*Hz; if (nh>0) b += s.spec*Math.pow(nh, s.shin); }
-    if (s.rim>0) b += s.rim*Math.pow(1-qz, s.rimPow);
+    if (s.spec>0 && nl>0){ const nh=nx*Hx+ny*Hy+nz*Hz; if (nh>0) b += s.spec*Math.pow(nh, s.shin); }
+    if (s.rim>0) b += s.rim*Math.pow(1-nz, s.rimPow);
     b = b<0?0:b>1?1:b;
     b = Math.pow(b, s.gamma);
     if (s.invert) b = 1-b;
     if (b < s.cutoff || b<=0) continue;
-    let r = base*P.w[i]*sc;
+    let r = base*P.w[i]*sc*(GJ?GJ[i]:1);
     if (s.mode!=='opacity') r *= Math.pow(b, s.sizeCurve);
     if (pt!=='none' && s.pulse>0){
       let ph;
@@ -421,7 +595,6 @@ function render(ctx, W, H, svgMode, st, an){
       r *= Math.max(0, 1 - s.pulse*0.5*(1 - Math.sin(ph - pph)));
     }
     if (r < 0.12) continue;
-    const sx=cx+qx*R*sc, sy=cy-qy*R*sc;
     let ci=0;
     if (pal){
       let t;
@@ -445,13 +618,13 @@ function render(ctx, W, H, svgMode, st, an){
     const pen = penFor(ci*LEVELS + (needB ? Math.round(b*(LEVELS-1)) : LEVELS-1));
     drawn++;
     if (shape==='circle' || shape==='ring'){
-      const ang = Math.atan2(-qy, qx), minor = r*(1-fore*(1-qz));
+      const ang = Math.atan2(-ny, nx), minor = r*(1-fore*(1-nz));
       pen.ell(sx,sy,Math.max(minor,0.05),r,ang,false);
       if (shape==='ring') pen.ell(sx,sy,Math.max(minor*0.55,0.03),r*0.55,ang,true);
     } else {
-      const tx0=P.tx[i],ty0=P.ty[i],tz0=P.tz[i];
+      const tx0=TX[i],ty0=TY[i],tz0=TZ[i];
       const tx=M[0]*tx0+M[1]*ty0+M[2]*tz0, ty=M[3]*tx0+M[4]*ty0+M[5]*tz0, tz=M[6]*tx0+M[7]*ty0+M[8]*tz0;
-      const bx=qy*tz-qz*ty, by=qz*tx-qx*tz;
+      const bx=ny*tz-nz*ty, by=nz*tx-nx*tz;
       let ux=tx, uy=-ty, vx=bx, vy=-by;
       const ul=Math.hypot(ux,uy)||1, vl=Math.hypot(vx,vy)||1;
       ux = ux/ul + (ux-ux/ul)*fore; uy = uy/ul + (uy-uy/ul)*fore;
@@ -556,7 +729,7 @@ function outline(r, kind){
 
 /* ---------- explore: mutation ---------- */
 let explore=false, kids=[], history=[], gen=0, hover=-1, trans=null, fadeT0=0;
-const EX = {strength:0.35, secs:{Structure:true, Orientation:true, Framing:false, Lighting:true, Dots:true, Colour:true, Animation:false}};
+const EX = {strength:0.35, secs:{Form:true, Structure:true, Orientation:true, Framing:false, Lighting:true, Dots:true, Colour:true, Animation:false}};
 const gauss=()=>{ let u=0,v=0; while(!u)u=Math.random(); while(!v)v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); };
 function hex2hsl(h){ let [r,g,b]=hex2rgb(h).map(v=>v/255); const mx=Math.max(r,g,b), mn=Math.min(r,g,b), l=(mx+mn)/2; let hh=0, ss=0;
   if (mx!==mn){ const d=mx-mn; ss=l>.5?d/(2-mx-mn):d/(mx+mn); hh = mx===r?((g-b)/d+(g<b?6:0)) : mx===g?((b-r)/d+2) : ((r-g)/d+4); hh/=6; } return [hh,ss,l]; }
@@ -632,7 +805,7 @@ function tick(t){
   else { lastT=0; if (explore) draw(); }
 }
 let paused = matchMedia('(prefers-reduced-motion: reduce)').matches, mom = null;
-const hasMotion=()=>S.spin!==0 || S.breathe>0 || S.orbit!==0 || S.wobble>0 || (S.pulseType!=='none' && S.pulse>0 && S.pulseRate!==0) || (S.colorMode==='palette' && S.drift!==0);
+const hasMotion=()=>formMoves(S) || S.spin!==0 || S.breathe>0 || S.orbit!==0 || S.wobble>0 || (S.pulseType!=='none' && S.pulse>0 && S.pulseRate!==0) || (S.colorMode==='palette' && S.drift!==0);
 const animating=()=>(!paused && hasMotion()) || !!mom || (explore && (!!trans || performance.now()-fadeT0<400));
 function ensureAnim(){ if (animating() && !raf) raf=requestAnimationFrame(tick); syncPlay(); }
 const playBtn=document.getElementById('play');
