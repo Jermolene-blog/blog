@@ -13,8 +13,9 @@
   repeat is found (by FFT cross-correlation, in all eight orientations, so
   round every side of a border), aligned to a fraction of a pixel, and
   median-stacked into one clean tile exactly a period wide, mirror-symmetrised
-  where the ornament is symmetric. That traces as a seamless repeat, a strip or
-  an SVG <pattern>. All of the preprocessing and frieze code is written for
+  where the ornament is symmetric. Rules in the tile are made dead straight
+  and rows of dots equal circles at an even pitch, rather than traced. That
+  traces as a seamless repeat, a strip or an SVG <pattern>. All of the preprocessing and frieze code is written for
   this page.
 
   This file embeds potrace.js (verbatim apart from one added function, which
@@ -439,6 +440,11 @@
         </select>
       </div>
       <div class="control">
+        <label>Fit</label>
+        <label class="inline"><input id="fitRules" type="checkbox" checked> Straight rules</label>
+        <label class="inline"><input id="fitDots" type="checkbox" checked> Dots as circles</label>
+      </div>
+      <div class="control">
         <label for="stripCount">Repeats in strip</label>
         <input id="stripCount" type="number" min="1" max="50" value="7">
       </div>
@@ -480,8 +486,8 @@
   <a href="https://github.com/mozilla/pdf.js">pdf.js</a>, all likewise embedded.
   The preprocessing (Lab channels, median filter, bicubic upscaling, Gaussian blur
   and Sauvola adaptive thresholding) and frieze mode (finding, aligning and
-  median-stacking the repeats of a band into one seamless tile) are written for
-  this page.
+  median-stacking the repeats of a band into one seamless tile, with its rules
+  and rows of dots fitted rather than traced) are written for this page.
   All processing happens locally in your browser; images are never uploaded.
 </footer>
 
@@ -4837,7 +4843,7 @@ var JpxImage = (function () {
       selBtn = $("selectRepeat"), overlay = $("overlay"), allOrient = $("allOrient"),
       symSel = $("symmetry"), stripCount = $("stripCount"), dlTile = $("dlTile"),
       dlStrip = $("dlStrip"), dlPattern = $("dlPattern"), clearBtn = $("clearFrieze"),
-      friezeStats = $("friezeStats"), stackCanvas = $("stack"), previewHost = $("previewHost");
+      friezeStats = $("friezeStats"), fitRules = $("fitRules"), fitDotsChk = $("fitDots"), stackCanvas = $("stack"), previewHost = $("previewHost");
 
   // Larger images are scaled down before tracing. This is a budget on total
   // pixels rather than on the longest side, because what constrains it is the
@@ -5836,6 +5842,125 @@ var JpxImage = (function () {
     return { hits: hits, tw: tw, th: th, P: P, stack: st, rotated: rotated };
   }
 
+  // --- Fitting primitives ----------------------------------------------
+  // Rules and rows of dots are struck with tools that don't wobble, so in a
+  // frieze tile they're better fitted than traced: a rule dead straight, the
+  // dots of a row equal circles at an even pitch. Both work on the
+  // thresholded bitmap of the tile laid out several times over, w×h pixels
+  // with a period of N, before it's traced. The second copy is the one
+  // measured, being clear of the blur's handling of the outer edges.
+
+  // A rule is a run of rows at least 95% foreground right across the tile.
+  // Its body takes in the rows either side that are still more than half
+  // foreground, and is filled solid. The next few rows beyond (up to
+  // `margin`) are its ragged edge, and are cleared, except in the columns
+  // where something carries on well beyond them (as far again), such as a
+  // stem growing out of the rule, which are filled so that it stays joined.
+  function straightenRules(bits, w, h, N, margin) {
+    var frac = new Float32Array(h), claimed = new Uint8Array(h), count = 0, x, y, r, s;
+    for (y = 0; y < h; y++) {
+      for (s = 0, x = 0; x < N; x++) { s += bits[y * w + N + x]; }
+      frac[y] = s / N;
+    }
+    function edge(from, dir) {
+      var rows = [], k;
+      for (k = 1; k <= margin; k++) {
+        r = from + dir * k;
+        if (r < 0 || r >= h || claimed[r] || frac[r] < 0.02) { break; }
+        rows.push(r);
+      }
+      if (!rows.length) { return; }
+      var beyond = rows[rows.length - 1] + dir;
+      if (beyond >= 0 && beyond < h && claimed[beyond]) { return; }   // another rule: leave the gap
+      for (x = 0; x < w; x++) {
+        var keep = 1;
+        for (k = 0; k < margin && keep; k++) {
+          r = beyond + dir * k;
+          keep = r >= 0 && r < h ? bits[r * w + x] : (k ? keep : 0);
+        }
+        for (k = 0; k < rows.length; k++) { bits[rows[k] * w + x] = keep; }
+      }
+      rows.forEach(function (q) { claimed[q] = 1; });
+    }
+    for (y = 0; y < h; y++) {
+      if (frac[y] < 0.95 || claimed[y]) { continue; }
+      var a = y, b = y;
+      while (b + 1 < h && frac[b + 1] >= 0.5) { b++; }
+      while (a > 0 && frac[a - 1] >= 0.5 && !claimed[a - 1]) { a--; }
+      for (r = a; r <= b; r++) { claimed[r] = 1; bits.fill(1, r * w, (r + 1) * w); }
+      edge(a, -1);
+      edge(b, 1);
+      count++;
+      y = b;
+    }
+    return count;
+  }
+
+  // Dots are components of the bitmap that are small, round and solid: no
+  // more than a quarter of the tile's height across, nearly as tall as wide,
+  // filling about π/4 of their bounding box as a disc does, and clear of the
+  // tile's top and bottom. They're cleared from the bitmap and returned as
+  // circles of the same area. The dots in a row (at much the same height)
+  // share one radius if they're of a size, and if they're nearly evenly
+  // spaced they're spaced exactly evenly, a whole number of them to the
+  // period.
+  function fitDots(bits, w, h, N) {
+    var label = new Int32Array(w * h), comps = [], stack = [], i, x, y;
+    for (i = 0; i < w * h; i++) {
+      if (!bits[i] || label[i]) { continue; }
+      var c = { id: comps.length + 1, area: 0, sx: 0, sy: 0, x0: w, x1: 0, y0: h, y1: 0 };
+      comps.push(c);
+      label[i] = c.id;
+      stack.push(i);
+      while (stack.length) {
+        var j = stack.pop(), jx = j % w, jy = (j - jx) / w;
+        c.area++; c.sx += jx + 0.5; c.sy += jy + 0.5;
+        if (jx < c.x0) { c.x0 = jx; } if (jx > c.x1) { c.x1 = jx; }
+        if (jy < c.y0) { c.y0 = jy; } if (jy > c.y1) { c.y1 = jy; }
+        [jx > 0 ? j - 1 : -1, jx < w - 1 ? j + 1 : -1, j - w, j + w].forEach(function (q) {
+          if (q >= 0 && q < w * h && bits[q] && !label[q]) { label[q] = c.id; stack.push(q); }
+        });
+      }
+    }
+    var dots = comps.filter(function (c) {
+      var bw = c.x1 - c.x0 + 1, bh = c.y1 - c.y0 + 1, fill = c.area / (bw * bh);
+      return c.y0 > 0 && c.y1 < h - 1 && c.area >= 12 && Math.max(bw, bh) <= h / 4 &&
+          bw / bh > 0.75 && bw / bh < 1.33 && fill > 0.65 && fill < 0.9;
+    });
+    var isDot = new Uint8Array(comps.length + 1);
+    dots.forEach(function (c) { isDot[c.id] = 1; });
+    for (i = 0; i < w * h; i++) { if (isDot[label[i]]) { bits[i] = 0; } }
+
+    // Measure the rows of dots in the second copy, by centre
+    var mid = dots.map(function (c) {
+      return { x: c.sx / c.area - N, y: c.sy / c.area, r: Math.sqrt(c.area / Math.PI) };
+    }).filter(function (d) { return d.x >= 0 && d.x < N; });
+    mid.sort(function (a, b) { return a.y - b.y; });
+    var rows = [], circles = [];
+    mid.forEach(function (d) {
+      var row = rows[rows.length - 1];
+      if (row && d.y - row.last < 0.5 * d.r) { row.dots.push(d); } else { rows.push(row = { dots: [d] }); }
+      row.last = d.y;
+    });
+    rows.forEach(function (row) {
+      var ds = row.dots.sort(function (a, b) { return a.x - b.x; }), k = ds.length,
+          rs = ds.map(function (d) { return d.r; }), rMean = rs.reduce(function (a, b) { return a + b; }) / k,
+          yMean = ds.reduce(function (a, d) { return a + d.y; }, 0) / k,
+          sameSize = (Math.max.apply(null, rs) - Math.min.apply(null, rs)) < 0.3 * rMean,
+          pitch = N / k, offs = ds.map(function (d, n) { return d.x - n * pitch; }),
+          off = offs.reduce(function (a, b) { return a + b; }) / k,
+          even = offs.every(function (o) { return Math.abs(o - off) < 0.25 * pitch; });
+      ds.forEach(function (d, n) {
+        var cx = even ? off + n * pitch : d.x, cy = even ? yMean : d.y, r = sameSize ? rMean : d.r;
+        for (var copy = 0; copy * N < w; copy++) {
+          var px = cx + copy * N;
+          if (px + r > 0 && px - r < w) { circles.push({ x: px, y: cy, r: r }); }
+        }
+      });
+    });
+    return { circles: circles, perPeriod: mid.length };
+  }
+
   // Traces `count` periods of the tile seamlessly: lays out count + 2 copies
   // side by side, blurs and thresholds them, traces, keeps the curves that
   // reach into the middle count periods and shifts them to start at 0. The
@@ -5853,6 +5978,8 @@ var JpxImage = (function () {
     var work = upscaleAndBlur(src, w, M, w, M, opts.sigma);
     var t = opts.mode === "manual" ? opts.threshold : clamp255(otsu(work.hist) + opts.offset);
     var bits = thresholdBits(work.data, w, M, t, opts.inv, null, 0), scale = tile.pitch;
+    var rules = opts.rules ? straightenRules(bits, w, M, N, Math.max(1, Math.round(0.75 / scale))) : 0,
+        dots = opts.dots ? fitDots(bits, w, M, N) : { circles: [], perPeriod: 0 };
     Potrace.loadBitmap(bits, w, M);
     Potrace.setParameter({
       turdsize: Math.round(opts.turdsize / (scale * scale)),
@@ -5873,7 +6000,13 @@ var JpxImage = (function () {
         return n++ % 2 ? s : (+s - P).toFixed(3);
       }).trim());
     });
-    return { d: kept.join(" "), threshold: t, height: M * scale };
+    dots.circles.forEach(function (c) {
+      var cx = c.x * scale - P, cy = num(c.y * scale), r = num(c.r * scale);
+      if (cx + c.r * scale < 0 || cx - c.r * scale > count * P) { return; }
+      kept.push("M " + num(cx - c.r * scale) + " " + cy + " A " + r + " " + r + " 0 1 0 " +
+          num(cx + c.r * scale) + " " + cy + " A " + r + " " + r + " 0 1 0 " + num(cx - c.r * scale) + " " + cy + " Z");
+    });
+    return { d: kept.join(" "), threshold: t, height: M * scale, rules: rules, dots: dots.perPeriod };
   }
 
   function num(v) { return String(+v.toFixed(3)); }
@@ -6026,7 +6159,8 @@ var JpxImage = (function () {
           fzKey = chanKey + "|" + [b.x, b.y, b.w, b.h].join(",") + "|" + allOrient.checked,
           symKey = fzKey + "|" + symSel.value,
           fzTraceKey = symKey + "|" + sig + "|" + mode + "|" + (mode === "manual" ? thr.value : "") +
-              "|" + off + "|" + inv + "|" + turd.value + "|" + alpha.value;
+              "|" + off + "|" + inv + "|" + turd.value + "|" + alpha.value +
+              "|" + fitRules.checked + "|" + fitDotsChk.checked;
       stages.push(
         { name: "fz", msg: "Finding the repeats…", key: function () { return fzKey; },
           run: function () { return analyseFrieze(cache.chan.value, chanKey, b, allOrient.checked); } },
@@ -6100,7 +6234,8 @@ var JpxImage = (function () {
   function friezeOptions() {
     return {
       sigma: +sigma.value, mode: modeSel.value, threshold: +thr.value, offset: +offset.value,
-      inv: invChk.checked, turdsize: +turd.value, alphamax: +alpha.value
+      inv: invChk.checked, turdsize: +turd.value, alphamax: +alpha.value,
+      rules: fitRules.checked, dots: fitDotsChk.checked
     };
   }
 
@@ -6124,7 +6259,9 @@ var JpxImage = (function () {
     friezeStats.textContent = fz.hits.length + " repeat" + (fz.hits.length === 1 ? "" : "s") +
         (fz.hits.length > 1 ? " (" + angles + ")" : "") + " · mean match " + mean.toFixed(2) +
         " · period " + fz.P.toFixed(1) + " px · mirror symmetry " + t.corr.toFixed(2) +
-        (t.on ? " (applied)" : " (not applied)") + " · threshold " + tr.threshold;
+        (t.on ? " (applied)" : " (not applied)") + " · threshold " + tr.threshold +
+        (tr.rules ? " · " + tr.rules + " rule" + (tr.rules === 1 ? "" : "s") + " straightened" : "") +
+        (tr.dots ? " · " + tr.dots + " dot" + (tr.dots === 1 ? "" : "s") + " per repeat fitted as circles" : "");
     drawStack(t.tile);
     $("stackFrame").style.setProperty("--frame-ar", t.tile.N + " / " + t.tile.M);
     $("previewFrame").style.setProperty("--frame-ar", 3 * t.tile.N + " / " + t.tile.M);
@@ -6401,6 +6538,8 @@ var JpxImage = (function () {
     showFrieze();
   });
   allOrient.addEventListener("change", scheduleTrace);
+  fitRules.addEventListener("change", scheduleTrace);
+  fitDotsChk.addEventListener("change", scheduleTrace);
   symSel.addEventListener("change", scheduleTrace);
 
   function stripLength() { return Math.max(1, Math.min(50, Math.round(+stripCount.value) || 1)); }
