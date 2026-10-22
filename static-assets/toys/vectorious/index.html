@@ -5457,6 +5457,10 @@ var JpxImage = (function () {
     for (i = 0; i < ct.data.length; i++) { ct.data[i] -= mean; norm += ct.data[i] * ct.data[i]; }
     norm = Math.sqrt(norm);
     if (!(norm > 0)) { return found; }
+    // A window must have a quarter of the template's contrast to count:
+    // correlation ignores contrast, so faint noise in a flat area, such as
+    // the background round a scanned book, can otherwise score well
+    var minVar = 0.0625 * norm * norm / ct.data.length;
     var re = new Float64Array(n), im = new Float64Array(n);
     for (p = 0; p < ks.length; p += 2) {
       var vs = [orient(ct.data, ct.w, ct.h, ks[p]), p + 1 < ks.length ? orient(ct.data, ct.w, ct.h, ks[p + 1]) : null];
@@ -5492,7 +5496,7 @@ var JpxImage = (function () {
             var s = si.s1[(y + vh) * w1 + x + vw] - si.s1[y * w1 + x + vw] - si.s1[(y + vh) * w1 + x] + si.s1[y * w1 + x],
                 s2 = si.s2[(y + vh) * w1 + x + vw] - si.s2[y * w1 + x + vw] - si.s2[(y + vh) * w1 + x] + si.s2[y * w1 + x],
                 vr = s2 - s * s / cnt;
-            ncc[y * mw + x] = vr > 1e-6 * cnt ? corr[y * nx + x] / n / (Math.sqrt(vr) * norm) : 0;
+            ncc[y * mw + x] = vr > minVar * cnt ? corr[y * nx + x] / n / (Math.sqrt(vr) * norm) : 0;
           }
         }
         var pl = placement(ks[p + q], tw, th);
@@ -5552,13 +5556,16 @@ var JpxImage = (function () {
     for (i = 0; i < n; i++) { m += t[i]; }
     m /= n;
     for (i = 0; i < n; i++) { out[i] = t[i] - m; s += out[i] * out[i]; }
+    out.minVar = Math.max(1e-6, 0.0625 * s / n);
     s = Math.sqrt(s) || 1;
     for (i = 0; i < n; i++) { out[i] /= s; }
     return out;
   }
 
   // NCC at full resolution of the normalised template tn with the image, the
-  // template's origin landing on image pixel corner (ox, oy), both integers
+  // template's origin landing on image pixel corner (ox, oy), both integers.
+  // As in coarseMatches, a window with under a quarter of the template's
+  // contrast (tn.minVar, per pixel) scores 0.
   function nccAt(chan, tn, tw, th, k, ox, oy) {
     var A = ORIENTATIONS[k], bx = hitBox({ k: k, ox: ox, oy: oy }, tw, th);
     if (bx.x < 0 || bx.y < 0 || bx.x + bx.w > W || bx.y + bx.h > H) { return -2; }
@@ -5571,7 +5578,7 @@ var JpxImage = (function () {
       }
     }
     var vr = s2 - s * s / n;
-    return vr > 1e-6 * n ? st / Math.sqrt(vr) : 0;    // tn sums to zero, so Σ(v − m)·tn = Σ v·tn
+    return vr > tn.minVar * n ? st / Math.sqrt(vr) : 0;    // tn sums to zero, so Σ(v − m)·tn = Σ v·tn
   }
 
   // Moves a coarse hit uphill to the best whole-pixel position at full
@@ -5611,7 +5618,11 @@ var JpxImage = (function () {
       var r = refine(chan, tn, tw, th, c, ds);
       if (r.score >= 0.35) { hits.push(r); }
     });
-    return suppress(hits, tw, th);
+    // Real repeats score much alike; something that merely resembles one,
+    // such as another ornament, scores well below them
+    hits = suppress(hits, tw, th);
+    var cut = median(hits.map(function (h) { return h.score; })) - 0.2;
+    return hits.filter(function (h) { return h.score >= cut; });
   }
 
   // Neighbouring repeats in the same orientation, as displacements in
