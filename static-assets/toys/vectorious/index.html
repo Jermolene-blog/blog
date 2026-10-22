@@ -7,8 +7,15 @@
   (luminance, CIE Lab a* or b*, or saturation), median-filtered, upscaled
   bicubically and blurred; the threshold is global (Otsu's, with an offset, or
   manual) or adaptive (Sauvola's). Tracing at ×4 and scaling the result back
-  down gives potrace four times the resolution to place each edge with. All of
-  that preprocessing is written for this page.
+  down gives potrace four times the resolution to place each edge with.
+
+  Frieze mode is for a band of repeating ornament: box one repeat, and every
+  repeat is found (by FFT cross-correlation, in all eight orientations, so
+  round every side of a border), aligned to a fraction of a pixel, and
+  median-stacked into one clean tile exactly a period wide, mirror-symmetrised
+  where the ornament is symmetric. That traces as a seamless repeat, a strip or
+  an SVG <pattern>. All of the preprocessing and frieze code is written for
+  this page.
 
   This file embeds potrace.js (verbatim apart from one added function, which
   accepts a ready-made bitmap) — a JavaScript port of Potrace
@@ -90,7 +97,8 @@
     letter-spacing: 0.08em;
     color: var(--muted);
   }
-  #prepSection, #traceSection, #viewSection { display: none; }
+  #prepSection, #traceSection, #viewSection, #friezeSection { display: none; }
+  body.has-frieze #friezeSection { display: block; }
   body.has-image #prepSection, body.has-image #traceSection, body.has-image #viewSection { display: block; }
   [hidden] { display: none !important; }
 
@@ -218,6 +226,37 @@
   }
   .frame canvas, .frame svg { display: block; width: 100%; height: 100%; }
   #bit { image-rendering: pixelated; }
+  #overlay { position: absolute; inset: 0; pointer-events: none; }
+  .frame.selecting { cursor: crosshair; }
+  button.active { border-color: var(--accent); color: var(--accent); }
+  input[type=number] {
+    font: inherit;
+    font-size: 0.85rem;
+    width: 5em;
+    padding: 0.3rem 0.45rem;
+    border-radius: 7px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--ink);
+  }
+  #friezeStats {
+    margin-top: 0.6rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+    min-height: 1.2em;
+  }
+  #friezePanels {
+    display: grid;
+    margin-top: 0.8rem;
+    gap: 1rem;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    align-items: start;
+  }
+  @media (max-width: 640px) { #friezePanels { grid-template-columns: minmax(0, 1fr); } }
+  .frame.still { cursor: default; touch-action: auto; }
+  #stack { image-rendering: auto; }
+  #previewHost { position: absolute; inset: 0; }
+  #previewHost svg { width: 100%; height: 100%; display: block; }
 
   footer {
     padding: 0.4rem 1.4rem 1.2rem;
@@ -357,6 +396,9 @@
           <span class="val" id="zoomValue">1.0×</span>
         </div>
       </div>
+      <div class="control">
+        <button id="selectRepeat" type="button">Select repeat</button>
+      </div>
       <div class="spacer"></div>
       <div class="control">
         <button id="download" class="primary" type="button" disabled>Download SVG</button>
@@ -368,7 +410,7 @@
     <div id="panels">
       <figure>
         <figcaption>Original</figcaption>
-        <div class="frame"><div class="zoom"><canvas id="orig"></canvas></div></div>
+        <div class="frame"><div class="zoom"><canvas id="orig"></canvas><svg id="overlay" preserveAspectRatio="none"></svg></div></div>
       </figure>
       <figure>
         <figcaption>Quantised (1-bit)</figcaption>
@@ -377,6 +419,52 @@
       <figure>
         <figcaption>Traced vector</figcaption>
         <div class="frame"><div class="zoom" id="svgHost"></div></div>
+      </figure>
+    </div>
+  </section>
+
+  <section id="friezeSection">
+    <h2>Frieze</h2>
+    <div class="controls">
+      <div class="control">
+        <label>Search</label>
+        <label class="inline"><input id="allOrient" type="checkbox" checked> All orientations (whole border)</label>
+      </div>
+      <div class="control">
+        <label for="symmetry">Mirror symmetry</label>
+        <select id="symmetry">
+          <option value="auto" selected>Auto</option>
+          <option value="on">On</option>
+          <option value="off">Off</option>
+        </select>
+      </div>
+      <div class="control">
+        <label for="stripCount">Repeats in strip</label>
+        <input id="stripCount" type="number" min="1" max="50" value="7">
+      </div>
+      <div class="spacer"></div>
+      <div class="control">
+        <button id="dlTile" class="primary" type="button" disabled>Download repeat</button>
+      </div>
+      <div class="control">
+        <button id="dlStrip" class="primary" type="button" disabled>Download strip</button>
+      </div>
+      <div class="control">
+        <button id="dlPattern" class="primary" type="button" disabled>Download pattern</button>
+      </div>
+      <div class="control">
+        <button id="clearFrieze" type="button">Clear</button>
+      </div>
+    </div>
+    <div id="friezeStats"></div>
+    <div id="friezePanels">
+      <figure>
+        <figcaption>Stacked tile</figcaption>
+        <div class="frame still" id="stackFrame"><canvas id="stack"></canvas></div>
+      </figure>
+      <figure>
+        <figcaption>Repeat preview (three copies)</figcaption>
+        <div class="frame still" id="previewFrame"><div id="previewHost"></div></div>
       </figure>
     </div>
   </section>
@@ -391,7 +479,9 @@
   (<code>.jp2</code>) files are decoded by the Apache-2.0 licensed
   <a href="https://github.com/mozilla/pdf.js">pdf.js</a>, all likewise embedded.
   The preprocessing (Lab channels, median filter, bicubic upscaling, Gaussian blur
-  and Sauvola adaptive thresholding) is written for this page.
+  and Sauvola adaptive thresholding) and frieze mode (finding, aligning and
+  median-stacking the repeats of a band into one seamless tile) are written for
+  this page.
   All processing happens locally in your browser; images are never uploaded.
 </footer>
 
@@ -4743,7 +4833,11 @@ var JpxImage = (function () {
       alpha = $("alphamax"), alphaVal = $("alphamaxValue"),
       dlBtn = $("download"), pdfBtn = $("downloadPdf"), statusEl = $("status"),
       origCanvas = $("orig"), bitCanvas = $("bit"), svgHost = $("svgHost"),
-      panels = $("panels"), zoomSlider = $("zoom"), zoomVal = $("zoomValue");
+      panels = $("panels"), zoomSlider = $("zoom"), zoomVal = $("zoomValue"),
+      selBtn = $("selectRepeat"), overlay = $("overlay"), allOrient = $("allOrient"),
+      symSel = $("symmetry"), stripCount = $("stripCount"), dlTile = $("dlTile"),
+      dlStrip = $("dlStrip"), dlPattern = $("dlPattern"), clearBtn = $("clearFrieze"),
+      friezeStats = $("friezeStats"), stackCanvas = $("stack"), previewHost = $("previewHost");
 
   // Larger images are scaled down before tracing. This is a budget on total
   // pixels rather than on the longest side, because what constrains it is the
@@ -4763,6 +4857,8 @@ var JpxImage = (function () {
   var MAX_WORK_PIXELS = 80e6;
   var rgba = null, W = 0, H = 0;
   var lastSVG = null, baseName = "traced";
+  // The boxed repeat, {x, y, w, h} in source pixels, while drawing it and after
+  var frieze = { box: null }, selecting = false, dragBox = null;
 
   function setStatus(text) { statusEl.textContent = text; }
 
@@ -4918,6 +5014,8 @@ var JpxImage = (function () {
     ctx.drawImage(source, 0, 0, W, H);
     rgba = ctx.getImageData(0, 0, W, H).data;
     cache = {};
+    frieze.box = null;
+    setSelecting(false);
     document.body.classList.add("has-image");
     panels.style.setProperty("--frame-ar", W + " / " + H);
     resetView();
@@ -5219,6 +5317,633 @@ var JpxImage = (function () {
     ctx.putImageData(img, 0, 0);
   }
 
+  // --- Frieze mode -------------------------------------------------------
+  // For a band of ornament that repeats, such as the border tooled on a book
+  // cover. The user boxes one repeat; every other repeat is found (along the
+  // band, and round the other sides of a border at 90°, 180° and 270°,
+  // mirrored or not), aligned to a fraction of a pixel, and their per-pixel
+  // median taken, which cancels the wear, grain and lighting that differ from
+  // one repeat to the next. The stack is sampled exactly one period wide, so
+  // it traces as a seamless tile.
+
+  var TILE_SCALE = 4;   // the stack is built at four times the source resolution
+
+  // The eight ways a repeat can lie on the page, as matrices [a, b, c, d]
+  // taking template coordinates (u, v) to image coordinates
+  // (a·u + b·v, c·u + d·v): the four rotations, then the same mirrored
+  var ORIENTATIONS = [
+    [1, 0, 0, 1], [0, -1, 1, 0], [-1, 0, 0, -1], [0, 1, -1, 0],
+    [-1, 0, 0, 1], [0, -1, -1, 0], [1, 0, 0, -1], [0, 1, 1, 0]
+  ];
+
+  // Where a template of tw×th lands in orientation k: the size of its
+  // bounding box, and the offset (bx, by) from the box's top left corner to
+  // where template coordinate (0, 0) lands
+  function placement(k, tw, th) {
+    var A = ORIENTATIONS[k], xs = [0, A[0] * tw, A[1] * th, A[0] * tw + A[1] * th],
+        ys = [0, A[2] * tw, A[3] * th, A[2] * tw + A[3] * th];
+    var minX = Math.min.apply(null, xs), minY = Math.min.apply(null, ys);
+    return { w: Math.max.apply(null, xs) - minX, h: Math.max.apply(null, ys) - minY, bx: -minX, by: -minY };
+  }
+
+  // The template as it appears in orientation k
+  function orient(t, tw, th, k) {
+    var A = ORIENTATIONS[k], pl = placement(k, tw, th), out = new Float32Array(pl.w * pl.h);
+    for (var v = 0; v < th; v++) {
+      for (var u = 0; u < tw; u++) {
+        var x = Math.floor(A[0] * (u + 0.5) + A[1] * (v + 0.5) + pl.bx),
+            y = Math.floor(A[2] * (u + 0.5) + A[3] * (v + 0.5) + pl.by);
+        out[y * pl.w + x] = t[v * tw + u];
+      }
+    }
+    return { data: out, w: pl.w, h: pl.h };
+  }
+
+  function boxDown(src, w, h, ds) {
+    var cw = Math.floor(w / ds), ch = Math.floor(h / ds), out = new Float32Array(cw * ch), x, y, i, j;
+    for (y = 0; y < ch * ds; y++) {
+      var row = y * w, orow = ((y / ds) | 0) * cw;
+      for (x = 0; x < cw * ds; x++) { out[orow + ((x / ds) | 0)] += src[row + x]; }
+    }
+    for (i = 0, j = 1 / (ds * ds); i < out.length; i++) { out[i] *= j; }
+    return { data: out, w: cw, h: ch };
+  }
+
+  // In-place radix-2 FFT of a complex sequence held as separate real and
+  // imaginary arrays, n a power of two; the inverse is unscaled
+  var twiddles = {};
+  function fft(re, im, inv) {
+    var n = re.length, i, j, len, k, t;
+    var tw = twiddles[n];
+    if (!tw) {
+      tw = twiddles[n] = { c: new Float64Array(n >> 1), s: new Float64Array(n >> 1) };
+      for (i = 0; i < n >> 1; i++) { tw.c[i] = Math.cos(2 * Math.PI * i / n); tw.s[i] = Math.sin(2 * Math.PI * i / n); }
+    }
+    for (i = 1, j = 0; i < n; i++) {
+      var bit = n >> 1;
+      for (; j & bit; bit >>= 1) { j ^= bit; }
+      j ^= bit;
+      if (i < j) { t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; }
+    }
+    var sgn = inv ? 1 : -1;
+    for (len = 2; len <= n; len <<= 1) {
+      var half = len >> 1, step = n / len;
+      for (i = 0; i < n; i += len) {
+        for (k = 0; k < half; k++) {
+          var wr = tw.c[k * step], wi = sgn * tw.s[k * step], a = i + k, b = a + half,
+              tr = re[b] * wr - im[b] * wi, ti = re[b] * wi + im[b] * wr;
+          re[b] = re[a] - tr; im[b] = im[a] - ti;
+          re[a] += tr; im[a] += ti;
+        }
+      }
+    }
+  }
+
+  function fft2(re, im, nx, ny, inv) {
+    var y, x, cr = new Float64Array(ny), ci = new Float64Array(ny);
+    for (y = 0; y < ny; y++) { fft(re.subarray(y * nx, (y + 1) * nx), im.subarray(y * nx, (y + 1) * nx), inv); }
+    for (x = 0; x < nx; x++) {
+      for (y = 0; y < ny; y++) { cr[y] = re[y * nx + x]; ci[y] = im[y * nx + x]; }
+      fft(cr, ci, inv);
+      for (y = 0; y < ny; y++) { re[y * nx + x] = cr[y]; im[y * nx + x] = ci[y]; }
+    }
+  }
+
+  function pow2(n) { var p = 1; while (p < n) { p <<= 1; } return p; }
+
+  // The search image: the channel shrunk by ds, its Fourier transform, and
+  // integral images for the window sums that normalise the correlation.
+  // Kept between searches of the same channel.
+  var searchCache = { key: null };
+  function searchImage(chan, ds, key) {
+    if (searchCache.key === key) { return searchCache; }
+    var img = boxDown(chan, W, H, ds), nx = pow2(img.w), ny = pow2(img.h),
+        re = new Float64Array(nx * ny), im = new Float64Array(nx * ny),
+        w1 = img.w + 1, s1 = new Float64Array(w1 * (img.h + 1)), s2 = new Float64Array(w1 * (img.h + 1)),
+        x, y, r1, r2;
+    for (y = 0; y < img.h; y++) {
+      for (r1 = 0, r2 = 0, x = 0; x < img.w; x++) {
+        var v = img.data[y * img.w + x];
+        re[y * nx + x] = v;
+        r1 += v; r2 += v * v;
+        s1[(y + 1) * w1 + x + 1] = s1[y * w1 + x + 1] + r1;
+        s2[(y + 1) * w1 + x + 1] = s2[y * w1 + x + 1] + r2;
+      }
+    }
+    fft2(re, im, nx, ny, false);
+    searchCache = { key: key, img: img, nx: nx, ny: ny, re: re, im: im, s1: s1, s2: s2, ds: ds };
+    return searchCache;
+  }
+
+  // Normalised cross-correlation of the template in each orientation over
+  // the whole shrunken image, by FFT. The orientations go two at a time, as
+  // the real and imaginary parts of one transform: for real templates t1, t2
+  // packed as z = t1 + i·t2, multiplying the image's transform by Z(−f) and
+  // transforming back gives both correlations at once, one per part.
+  // Returns local maxima scoring over minScore, positions in source pixels.
+  function coarseMatches(si, t, tw, th, ks, minScore) {
+    var ds = si.ds, ct = boxDown(t, tw, th, ds), nx = si.nx, ny = si.ny, n = nx * ny,
+        img = si.img, found = [], p, i;
+    var mean = 0;
+    for (i = 0; i < ct.data.length; i++) { mean += ct.data[i]; }
+    mean /= ct.data.length;
+    var norm = 0;
+    for (i = 0; i < ct.data.length; i++) { ct.data[i] -= mean; norm += ct.data[i] * ct.data[i]; }
+    norm = Math.sqrt(norm);
+    if (!(norm > 0)) { return found; }
+    var re = new Float64Array(n), im = new Float64Array(n);
+    for (p = 0; p < ks.length; p += 2) {
+      var vs = [orient(ct.data, ct.w, ct.h, ks[p]), p + 1 < ks.length ? orient(ct.data, ct.w, ct.h, ks[p + 1]) : null];
+      re.fill(0); im.fill(0);
+      [re, im].forEach(function (dst, q) {
+        var o = vs[q];
+        if (!o) { return; }
+        for (var y = 0; y < o.h; y++) {
+          for (var x = 0; x < o.w; x++) { dst[y * nx + x] = o.data[y * o.w + x]; }
+        }
+      });
+      fft2(re, im, nx, ny, false);
+      // Q(f) = I(f)·Z(−f), in place
+      var qr = new Float64Array(n), qi = new Float64Array(n);
+      for (var fy = 0; fy < ny; fy++) {
+        var my = ((ny - fy) % ny) * nx;
+        for (var fx = 0; fx < nx; fx++) {
+          var a = fy * nx + fx, b = my + (nx - fx) % nx;
+          qr[a] = si.re[a] * re[b] - si.im[a] * im[b];
+          qi[a] = si.re[a] * im[b] + si.im[a] * re[b];
+        }
+      }
+      fft2(qr, qi, nx, ny, true);
+      for (var q = 0; q < 2; q++) {
+        var o = vs[q];
+        if (!o) { continue; }
+        var corr = q ? qi : qr, vw = o.w, vh = o.h, cnt = vw * vh, w1 = img.w + 1,
+            mw = img.w - vw + 1, mh = img.h - vh + 1;
+        if (mw < 1 || mh < 1) { continue; }
+        var ncc = new Float32Array(mw * mh);
+        for (var y = 0; y < mh; y++) {
+          for (var x = 0; x < mw; x++) {
+            var s = si.s1[(y + vh) * w1 + x + vw] - si.s1[y * w1 + x + vw] - si.s1[(y + vh) * w1 + x] + si.s1[y * w1 + x],
+                s2 = si.s2[(y + vh) * w1 + x + vw] - si.s2[y * w1 + x + vw] - si.s2[(y + vh) * w1 + x] + si.s2[y * w1 + x],
+                vr = s2 - s * s / cnt;
+            ncc[y * mw + x] = vr > 1e-6 * cnt ? corr[y * nx + x] / n / (Math.sqrt(vr) * norm) : 0;
+          }
+        }
+        var pl = placement(ks[p + q], tw, th);
+        for (y = 0; y < mh; y++) {
+          for (x = 0; x < mw; x++) {
+            var c = ncc[y * mw + x];
+            if (c < minScore) { continue; }
+            var peak = true;
+            for (var dy = -1; dy <= 1 && peak; dy++) {
+              for (var dx = -1; dx <= 1; dx++) {
+                var yy = y + dy, xx = x + dx;
+                if ((dx || dy) && yy >= 0 && yy < mh && xx >= 0 && xx < mw && ncc[yy * mw + xx] > c) { peak = false; break; }
+              }
+            }
+            if (peak) { found.push({ k: ks[p + q], ox: x * ds + pl.bx, oy: y * ds + pl.by, score: c }); }
+          }
+        }
+      }
+    }
+    return found;
+  }
+
+  // The bounding box of a hit, in source pixels
+  function hitBox(hit, tw, th) {
+    var pl = placement(hit.k, tw, th);
+    return { x: hit.ox - pl.bx, y: hit.oy - pl.by, w: pl.w, h: pl.h };
+  }
+
+  // Keeps the best of any hits that overlap. Two along the same axis clash
+  // when nearer than 0.8 of the template's size in both directions, so that
+  // neighbouring repeats survive even when the box was drawn a little wider
+  // than the period; otherwise when they share a quarter of their area.
+  function suppress(hits, tw, th) {
+    hits.sort(function (a, b) { return b.score - a.score; });
+    var kept = [];
+    hits.slice(0, 4000).forEach(function (h) {
+      var bh = hitBox(h, tw, th);
+      bh.cx = bh.x + bh.w / 2;
+      bh.cy = bh.y + bh.h / 2;
+      var clash = kept.some(function (o) {
+        var bo = o.box;
+        if ((h.k & 1) === (o.hit.k & 1)) {
+          return Math.abs(bh.cx - bo.cx) < 0.8 * bh.w && Math.abs(bh.cy - bo.cy) < 0.8 * bh.h;
+        }
+        var ix = Math.min(bh.x + bh.w, bo.x + bo.w) - Math.max(bh.x, bo.x),
+            iy = Math.min(bh.y + bh.h, bo.y + bo.h) - Math.max(bh.y, bo.y);
+        return ix > 0 && iy > 0 && ix * iy > 0.25 * bh.w * bh.h;
+      });
+      if (!clash) { kept.push({ hit: h, box: bh }); }
+    });
+    return kept.map(function (o) { return o.hit; });
+  }
+
+  // Zero-mean, unit-norm copy of a template
+  function normalised(t) {
+    var n = t.length, m = 0, s = 0, i, out = new Float32Array(n);
+    for (i = 0; i < n; i++) { m += t[i]; }
+    m /= n;
+    for (i = 0; i < n; i++) { out[i] = t[i] - m; s += out[i] * out[i]; }
+    s = Math.sqrt(s) || 1;
+    for (i = 0; i < n; i++) { out[i] /= s; }
+    return out;
+  }
+
+  // NCC at full resolution of the normalised template tn with the image, the
+  // template's origin landing on image pixel corner (ox, oy), both integers
+  function nccAt(chan, tn, tw, th, k, ox, oy) {
+    var A = ORIENTATIONS[k], bx = hitBox({ k: k, ox: ox, oy: oy }, tw, th);
+    if (bx.x < 0 || bx.y < 0 || bx.x + bx.w > W || bx.y + bx.h > H) { return -2; }
+    var dx = A[0] + A[1] < 0 ? -1 : 0, dy = A[2] + A[3] < 0 ? -1 : 0,
+        s = 0, s2 = 0, st = 0, n = tw * th;
+    for (var v = 0; v < th; v++) {
+      for (var u = 0; u < tw; u++) {
+        var val = chan[(oy + A[2] * u + A[3] * v + dy) * W + ox + A[0] * u + A[1] * v + dx];
+        s += val; s2 += val * val; st += val * tn[v * tw + u];
+      }
+    }
+    var vr = s2 - s * s / n;
+    return vr > 1e-6 * n ? st / Math.sqrt(vr) : 0;    // tn sums to zero, so Σ(v − m)·tn = Σ v·tn
+  }
+
+  // Moves a coarse hit uphill to the best whole-pixel position at full
+  // resolution, then to a fraction of a pixel with a parabola through the
+  // scores either side
+  function refine(chan, tn, tw, th, hit, reach) {
+    var ox = Math.round(hit.ox), oy = Math.round(hit.oy), best = nccAt(chan, tn, tw, th, hit.k, ox, oy);
+    for (var step = 0; step < reach * 3; step++) {
+      var bx = ox, by = oy;
+      for (var dy = -1; dy <= 1; dy++) {
+        for (var dx = -1; dx <= 1; dx++) {
+          if (!dx && !dy) { continue; }
+          var s = nccAt(chan, tn, tw, th, hit.k, ox + dx, oy + dy);
+          if (s > best) { best = s; bx = ox + dx; by = oy + dy; }
+        }
+      }
+      if (bx === ox && by === oy) { break; }
+      ox = bx; oy = by;
+    }
+    function vertex(m, p) {
+      var den = m - 2 * best + p;
+      return den < 0 ? Math.max(-0.5, Math.min(0.5, 0.5 * (m - p) / den)) : 0;
+    }
+    var fx = vertex(nccAt(chan, tn, tw, th, hit.k, ox - 1, oy), nccAt(chan, tn, tw, th, hit.k, ox + 1, oy)),
+        fy = vertex(nccAt(chan, tn, tw, th, hit.k, ox, oy - 1), nccAt(chan, tn, tw, th, hit.k, ox, oy + 1));
+    return { k: hit.k, ox: ox + fx, oy: oy + fy, score: best };
+  }
+
+  // Every repeat of the template t (tw×th, source pixels) in the image
+  function findRepeats(chan, chanKey, t, tw, th, allOrient) {
+    var ds = Math.max(1, Math.min(4, Math.floor(Math.min(tw, th) / 16))),
+        si = searchImage(chan, ds, chanKey + "|" + ds),
+        ks = allOrient ? [0, 1, 2, 3, 4, 5, 6, 7] : [0],
+        coarse = suppress(coarseMatches(si, t, tw, th, ks, 0.3), tw, th).slice(0, 400),
+        tn = normalised(t), hits = [];
+    coarse.forEach(function (c) {
+      var r = refine(chan, tn, tw, th, c, ds);
+      if (r.score >= 0.35) { hits.push(r); }
+    });
+    return suppress(hits, tw, th);
+  }
+
+  // Neighbouring repeats in the same orientation, as displacements in
+  // template coordinates (A is orthogonal, so its inverse is its transpose)
+  function neighbourSteps(hits) {
+    var steps = [];
+    hits.forEach(function (h) {
+      var best = null, bd = Infinity;
+      hits.forEach(function (o) {
+        if (o === h || o.k !== h.k) { return; }
+        var d = Math.hypot(o.ox - h.ox, o.oy - h.oy);
+        if (d < bd) { bd = d; best = o; }
+      });
+      if (best) {
+        var A = ORIENTATIONS[h.k], ex = best.ox - h.ox, ey = best.oy - h.oy;
+        steps.push({ u: A[0] * ex + A[2] * ey, v: A[1] * ex + A[3] * ey });
+      }
+    });
+    return steps;
+  }
+
+  function median(a) {
+    var s = a.slice().sort(function (x, y) { return x - y; });
+    return s.length ? s[s.length >> 1] : NaN;
+  }
+
+  // The period along the template's u axis. The repeats are gathered into
+  // lines (same direction, same distance across), each line's repeats are
+  // numbered by position, allowing for gaps, and the period is the slope of
+  // a least-squares fit of position against number, all lines sharing the
+  // slope. That uses the whole length of every line, so the jitter of
+  // hand-tooled impressions mostly averages out.
+  function measurePeriod(hits, tw, th) {
+    var pts = hits.map(function (h) {
+      var A = ORIENTATIONS[h.k], cx = h.ox + A[0] * tw / 2 + A[1] * th / 2,
+          cy = h.oy + A[2] * tw / 2 + A[3] * th / 2, horiz = A[0] !== 0;
+      return { horiz: horiz, along: horiz ? cx : cy, across: horiz ? cy : cx };
+    });
+    pts.sort(function (a, b) { return (a.horiz - b.horiz) || (a.across - b.across); });
+    var lines = [], cur = null;
+    pts.forEach(function (p) {
+      if (!cur || cur.horiz !== p.horiz || p.across - cur.last > 0.3 * th) {
+        cur = { horiz: p.horiz, last: p.across, along: [] };
+        lines.push(cur);
+      }
+      cur.last = p.across;
+      cur.along.push(p.along);
+    });
+    var gaps = [];
+    lines.forEach(function (l) {
+      l.along.sort(function (a, b) { return a - b; });
+      for (var i = 1; i < l.along.length; i++) { gaps.push(l.along[i] - l.along[i - 1]); }
+    });
+    var p0 = median(gaps);
+    if (!(p0 > 0)) { return tw; }
+    var sxy = 0, sxx = 0;
+    lines.forEach(function (l) {
+      var idx = l.along.map(function (a) { return Math.round((a - l.along[0]) / p0); }),
+          n = idx.length, mi = 0, ma = 0, i;
+      for (i = 0; i < n; i++) { mi += idx[i] / n; ma += l.along[i] / n; }
+      for (i = 0; i < n; i++) { sxy += (idx[i] - mi) * (l.along[i] - ma); sxx += (idx[i] - mi) * (idx[i] - mi); }
+    });
+    return sxx > 0 ? sxy / sxx : p0;
+  }
+
+  // True when neighbouring repeats lie along the template's v axis, which is
+  // to say that the user boxed a repeat of a vertical band
+  function runsVertically(hits) {
+    var votes = 0;
+    neighbourSteps(hits).forEach(function (s) { votes += Math.abs(s.v) > Math.abs(s.u) ? 1 : -1; });
+    return votes > 0;
+  }
+
+  // Bicubic sample of the channel at continuous image coordinates (pixel
+  // centres at +0.5), edges replicated. The tables for each axis come from
+  // cubicTaps, since along a tile row only one image axis changes.
+  function cubicTaps(p) {
+    var x = p - 0.5, x0 = Math.floor(x), t = x - x0;
+    return { i: x0 - 1, w: [cubic(t + 1), cubic(t), cubic(t - 1), cubic(t - 2)] };
+  }
+
+  // Resamples every repeat onto one grid exactly a period P wide, at
+  // TILE_SCALE times the source resolution, centred on the template's
+  // centre, normalises each to zero mean and unit spread (so repeats lit
+  // differently weigh the same), takes the per-pixel median, and gives it
+  // back the repeats' average level and spread
+  function stackRepeats(chan, hits, tw, th, P) {
+    var N = Math.max(4, Math.round(TILE_SCALE * P)), pitch = P / N, M = Math.max(4, Math.round(th / pitch)),
+        u0 = tw / 2 - P / 2, n = hits.length, tiles = [], mSum = 0, sSum = 0, i, j;
+    hits.forEach(function (h) {
+      var A = ORIENTATIONS[h.k], tile = new Float32Array(N * M), x, y;
+      // image x and y as functions of the tile column i and row j
+      var colTaps = [], rowTaps = [];
+      for (i = 0; i < N; i++) { colTaps.push(u0 + (i + 0.5) * pitch); }
+      for (j = 0; j < M; j++) { rowTaps.push((j + 0.5) * pitch); }
+      var xFromCol = A[0] !== 0, yFromCol = A[2] !== 0,
+          xt = (xFromCol ? colTaps : rowTaps).map(function (q) { return cubicTaps(h.ox + (xFromCol ? A[0] : A[1]) * q); }),
+          yt = (yFromCol ? colTaps : rowTaps).map(function (q) { return cubicTaps(h.oy + (yFromCol ? A[2] : A[3]) * q); });
+      var sum = 0, sum2 = 0;
+      for (j = 0; j < M; j++) {
+        for (i = 0; i < N; i++) {
+          var tx = xt[xFromCol ? i : j], ty = yt[yFromCol ? i : j], acc = 0;
+          for (y = 0; y < 4; y++) {
+            var yy = Math.min(H - 1, Math.max(0, ty.i + y)) * W, ra = 0;
+            for (x = 0; x < 4; x++) { ra += tx.w[x] * chan[yy + Math.min(W - 1, Math.max(0, tx.i + x))]; }
+            acc += ty.w[y] * ra;
+          }
+          tile[j * N + i] = acc;
+          sum += acc; sum2 += acc * acc;
+        }
+      }
+      var m = sum / tile.length, s = Math.sqrt(Math.max(1e-6, sum2 / tile.length - m * m));
+      for (i = 0; i < tile.length; i++) { tile[i] = (tile[i] - m) / s; }
+      mSum += m; sSum += s;
+      tiles.push(tile);
+    });
+    var out = new Float32Array(N * M), buf = new Float32Array(n), mean = mSum / n, spread = sSum / n;
+    for (i = 0; i < out.length; i++) {
+      for (j = 0; j < n; j++) { buf[j] = tiles[j][i]; }
+      out[i] = select(buf, n >> 1) * spread + mean;
+    }
+    return { data: out, N: N, M: M, pitch: pitch, P: P, u0: u0 };
+  }
+
+  // The k-th smallest of a (reordered in place), by quickselect
+  function select(a, k) {
+    var lo = 0, hi = a.length - 1;
+    while (hi > lo) {
+      var pivot = a[(lo + hi) >> 1], i = lo, j = hi;
+      while (i <= j) {
+        while (a[i] < pivot) { i++; }
+        while (a[j] > pivot) { j--; }
+        if (i <= j) { var t = a[i]; a[i] = a[j]; a[j] = t; i++; j--; }
+      }
+      if (k <= j) { hi = j; } else if (k >= i) { lo = i; } else { break; }
+    }
+    return a[k];
+  }
+
+  // The stack resampled back onto the template's own grid, as the template
+  // for a second, sharper search. The stack is periodic, so it wraps.
+  function templateFromStack(st, tw, th) {
+    var t = new Float32Array(tw * th), N = st.N, M = st.M;
+    function at(i, j) {
+      var i0 = Math.floor(i), j0 = Math.min(M - 1, Math.max(0, Math.floor(j))), fi = i - i0,
+          j1 = Math.min(M - 1, j0 + 1), fj = Math.min(1, Math.max(0, j - j0));
+      var a = ((i0 % N) + N) % N, b = (a + 1) % N;
+      return (st.data[j0 * N + a] * (1 - fi) + st.data[j0 * N + b] * fi) * (1 - fj) +
+             (st.data[j1 * N + a] * (1 - fi) + st.data[j1 * N + b] * fi) * fj;
+    }
+    for (var v = 0; v < th; v++) {
+      for (var u = 0; u < tw; u++) {
+        var acc = 0;
+        for (var sy = 0; sy < 4; sy++) {
+          for (var sx = 0; sx < 4; sx++) {
+            acc += at((u + (sx + 0.5) / 4 - st.u0) / st.pitch - 0.5, (v + (sy + 0.5) / 4) / st.pitch - 0.5);
+          }
+        }
+        t[v * tw + u] = acc / 16;
+      }
+    }
+    return t;
+  }
+
+  // The vertical axis about which the tile best matches its own reflection,
+  // the tile wrapping round at its edges. Axis positions run in half-pixel
+  // steps, c2 being twice the axis's x; reflecting column x about it gives
+  // column c2 − 1 − x. Every fourth row is plenty to find it.
+  function mirrorAxis(st) {
+    var N = st.N, M = st.M, d = st.data, n = 0, m = 0, m2 = 0, x, y;
+    for (y = 0; y < M; y += 4) {
+      for (x = 0; x < N; x++) { m += d[y * N + x]; m2 += d[y * N + x] * d[y * N + x]; n++; }
+    }
+    m /= n;
+    var vr = m2 / n - m * m, best = { corr: -1, c2: 0 };
+    if (!(vr > 0)) { return best; }
+    for (var c2 = 0; c2 < 2 * N; c2++) {
+      var s = 0;
+      for (y = 0; y < M; y += 4) {
+        var row = y * N;
+        for (x = 0; x < N; x++) { s += d[row + x] * d[row + (((c2 - 1 - x) % N) + N) % N]; }
+      }
+      var corr = (s / n - m * m) / vr;
+      if (corr > best.corr) { best = { corr: corr, c2: c2 }; }
+    }
+    return best;
+  }
+
+  // Averages the tile with its reflection, and rolls it round so the axis
+  // sits in the middle
+  function symmetrise(st, c2) {
+    var N = st.N, M = st.M, d = st.data, out = new Float32Array(N * M),
+        shift = ((Math.round(N / 2 - c2 / 2) % N) + N) % N;
+    for (var y = 0; y < M; y++) {
+      for (var x = 0; x < N; x++) {
+        out[y * N + (x + shift) % N] = (d[y * N + x] + d[y * N + (((c2 - 1 - x) % N) + N) % N]) / 2;
+      }
+    }
+    return { data: out, N: N, M: M, pitch: st.pitch, P: st.P, u0: st.u0 };
+  }
+
+  // The whole analysis of the boxed repeat: find the repeats, measure the
+  // period, stack them; then do it again with the stack as the template
+  function analyseFrieze(chan, chanKey, box, allOrient) {
+    var tw = box.w, th = box.h, t = new Float32Array(tw * th), x, y;
+    for (y = 0; y < th; y++) {
+      for (x = 0; x < tw; x++) { t[y * tw + x] = chan[(box.y + y) * W + box.x + x]; }
+    }
+    var hits = findRepeats(chan, chanKey, t, tw, th, allOrient);
+    var rotated = false;
+    if (hits.length > 1 && runsVertically(hits)) {
+      // A repeat of a vertical band: turn the template so the band runs
+      // across it, and look again
+      var o = orient(t, tw, th, 1);
+      t = o.data; tw = o.w; th = o.h;
+      rotated = true;
+      hits = findRepeats(chan, chanKey, t, tw, th, allOrient);
+    }
+    if (!hits.length) { return null; }
+    var P = measurePeriod(hits, tw, th), st = stackRepeats(chan, hits, tw, th, P);
+    t = templateFromStack(st, tw, th);
+    var again = findRepeats(chan, chanKey, t, tw, th, allOrient);
+    if (again.length >= hits.length / 2) {
+      hits = again;
+      P = measurePeriod(hits, tw, th);
+      st = stackRepeats(chan, hits, tw, th, P);
+    }
+    return { hits: hits, tw: tw, th: th, P: P, stack: st, rotated: rotated };
+  }
+
+  // Traces `count` periods of the tile seamlessly: lays out count + 2 copies
+  // side by side, blurs and thresholds them, traces, keeps the curves that
+  // reach into the middle count periods and shifts them to start at 0. The
+  // caller clips to the period, so shapes crossing the tile's edges carry on
+  // into the next copy exactly. Returns path data in source pixels.
+  function traceTile(tile, count, opts) {
+    var N = tile.N, M = tile.M, reps = count + 2, w = N * reps, src = new Uint8Array(w * M), x, y, i;
+    for (y = 0; y < M; y++) {
+      for (x = 0; x < N; x++) {
+        var v = tile.data[y * N + x];
+        v = v <= 0 ? 0 : v >= 255 ? 255 : (v + 0.5) | 0;
+        for (i = 0; i < reps; i++) { src[y * w + i * N + x] = v; }
+      }
+    }
+    var work = upscaleAndBlur(src, w, M, w, M, opts.sigma);
+    var t = opts.mode === "manual" ? opts.threshold : clamp255(otsu(work.hist) + opts.offset);
+    var bits = thresholdBits(work.data, w, M, t, opts.inv, null, 0), scale = tile.pitch;
+    Potrace.loadBitmap(bits, w, M);
+    Potrace.setParameter({
+      turdsize: Math.round(opts.turdsize / (scale * scale)),
+      alphamax: opts.alphamax,
+      optcurve: true,
+      opttolerance: 0.2 / scale,
+      turnpolicy: "minority"
+    });
+    var svg;
+    Potrace.process(function () { svg = Potrace.getSVG(scale); });
+    var d = (svg.match(/ d="([^"]*)"/) || [])[1] || "", P = tile.P, kept = [];
+    (d.match(/M[^M]*/g) || []).forEach(function (sub) {
+      var nums = sub.match(/-?\d+(\.\d+)?/g) || [], lo = Infinity, hi = -Infinity;
+      for (var j = 0; j < nums.length; j += 2) { lo = Math.min(lo, +nums[j]); hi = Math.max(hi, +nums[j]); }
+      if (hi < P || lo > (count + 1) * P) { return; }
+      var n = 0;
+      kept.push(sub.replace(/-?\d+(\.\d+)?/g, function (s) {
+        return n++ % 2 ? s : (+s - P).toFixed(3);
+      }).trim());
+    });
+    return { d: kept.join(" "), threshold: t, height: M * scale };
+  }
+
+  function num(v) { return String(+v.toFixed(3)); }
+
+  // A strip of `count` repeats, clipped to its own length
+  function stripSVG(tr, count, P) {
+    var w = num(count * P), h = num(tr.height);
+    return "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 " + w + " " + h +
+        "\" width=\"" + w + "\" height=\"" + h + "\"><defs><clipPath id=\"period\"><rect width=\"" + w +
+        "\" height=\"" + h + "\"/></clipPath></defs><path clip-path=\"url(#period)\" fill=\"black\" " +
+        "fill-rule=\"evenodd\" d=\"" + tr.d + "\"/></svg>";
+  }
+
+  // A <pattern> one period wide, filling a strip of `count` repeats
+  function patternSVG(tr, count, P) {
+    var p = num(P), w = num(count * P), h = num(tr.height);
+    return "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 " + w + " " + h +
+        "\" width=\"" + w + "\" height=\"" + h + "\"><defs><pattern id=\"frieze\" width=\"" + p +
+        "\" height=\"" + h + "\" patternUnits=\"userSpaceOnUse\"><path fill=\"black\" fill-rule=\"evenodd\" d=\"" +
+        tr.d + "\"/></pattern></defs><rect width=\"" + w + "\" height=\"" + h + "\" fill=\"url(#frieze)\"/></svg>";
+  }
+
+  // Three copies of the single repeat side by side, each in its own
+  // viewport, so that any seam between them shows. Each viewport reaches a
+  // hair (a quarter of a source pixel) past its period: two clipped edges
+  // meeting exactly leave a faint antialiasing line however perfect the
+  // join, and that would be mistaken for a seam.
+  function previewSVG(tr, P) {
+    var e = 0.25, p = num(P + 2 * e), h = num(tr.height), s = "";
+    for (var i = 0; i < 3; i++) {
+      s += "<svg x=\"" + num(i * P - e) + "\" width=\"" + p + "\" height=\"" + h + "\" viewBox=\"" + num(-e) + " 0 " +
+          p + " " + h + "\"><path fill=\"black\" fill-rule=\"evenodd\" d=\"" + tr.d + "\"/></svg>";
+    }
+    return "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 " + num(3 * P) + " " + h + "\">" + s + "</svg>";
+  }
+
+  // The stack as a greyscale picture
+  function drawStack(tile) {
+    stackCanvas.width = tile.N;
+    stackCanvas.height = tile.M;
+    var ctx = stackCanvas.getContext("2d"), img = ctx.createImageData(tile.N, tile.M);
+    for (var i = 0; i < tile.data.length; i++) {
+      var v = Math.max(0, Math.min(255, tile.data[i]));
+      img.data[i * 4] = img.data[i * 4 + 1] = img.data[i * 4 + 2] = v;
+      img.data[i * 4 + 3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+
+  // Outlines the boxed repeat and every repeat found, on the Original panel
+  function drawOverlay() {
+    var s = "", fz = frieze.box && cache.fz && cache.fz.value;
+    overlay.setAttribute("viewBox", "0 0 " + W + " " + H);
+    var lw = num(Math.max(W, H) / 400);
+    if (fz) {
+      fz.hits.forEach(function (h) {
+        var A = ORIENTATIONS[h.k], pts = [[0, 0], [fz.tw, 0], [fz.tw, fz.th], [0, fz.th]].map(function (q) {
+          return num(h.ox + A[0] * q[0] + A[1] * q[1]) + "," + num(h.oy + A[2] * q[0] + A[3] * q[1]);
+        });
+        s += "<polygon points=\"" + pts.join(" ") + "\" fill=\"none\" stroke=\"#2fb8a8\" stroke-width=\"" + lw + "\"/>";
+      });
+    }
+    var b = selecting && dragBox ? dragBox : frieze.box;
+    if (b) {
+      s += "<rect x=\"" + b.x + "\" y=\"" + b.y + "\" width=\"" + b.w + "\" height=\"" + b.h +
+          "\" fill=\"rgba(125,91,214,0.15)\" stroke=\"#7d5bd6\" stroke-width=\"" + num(lw * 2) + "\"/>";
+    }
+    overlay.innerHTML = s;
+  }
+
   // --- Pipeline ----------------------------------------------------------
   // Each stage's result is cached against a key made of the settings it
   // depends on, so moving the threshold doesn't redo the upscaling and moving
@@ -5271,7 +5996,6 @@ var JpxImage = (function () {
           var bits = thresholdBits(cache.work.value.data, ws.w, ws.h, threshold, inv,
               cache.map.value, off);
           drawBits(bits, ws.w, ws.h);
-          Potrace.loadBitmap(bits, ws.w, ws.h);
           return bits;
         } },
       { name: "trace", msg: "Tracing…",
@@ -5279,6 +6003,8 @@ var JpxImage = (function () {
         run: function () {
           // Speck size and curve tolerance are in source pixels, so they keep
           // their meaning at any upscale; corner smoothing is scale-free.
+          // The bitmap is loaded afresh because frieze mode traces too.
+          Potrace.loadBitmap(cache.bits.value, ws.w, ws.h);
           Potrace.setParameter({
             turdsize: Math.round(+turd.value * ws.f * ws.f),
             alphamax: +alpha.value,
@@ -5294,6 +6020,30 @@ var JpxImage = (function () {
           return svg;
         } }
     ];
+
+    if (frieze.box) {
+      var b = frieze.box,
+          fzKey = chanKey + "|" + [b.x, b.y, b.w, b.h].join(",") + "|" + allOrient.checked,
+          symKey = fzKey + "|" + symSel.value,
+          fzTraceKey = symKey + "|" + sig + "|" + mode + "|" + (mode === "manual" ? thr.value : "") +
+              "|" + off + "|" + inv + "|" + turd.value + "|" + alpha.value;
+      stages.push(
+        { name: "fz", msg: "Finding the repeats…", key: function () { return fzKey; },
+          run: function () { return analyseFrieze(cache.chan.value, chanKey, b, allOrient.checked); } },
+        { name: "fzTile", msg: null, key: function () { return symKey; },
+          run: function () {
+            var fz = cache.fz.value;
+            if (!fz) { return null; }
+            var ax = mirrorAxis(fz.stack),
+                on = symSel.value === "on" || (symSel.value === "auto" && ax.corr >= 0.85);
+            return { tile: on ? symmetrise(fz.stack, ax.c2) : fz.stack, corr: ax.corr, on: on };
+          } },
+        { name: "fzTrace", msg: "Tracing the repeat…", key: function () { return fzTraceKey; },
+          run: function () {
+            return cache.fzTile.value ? traceTile(cache.fzTile.value.tile, 1, friezeOptions()) : null;
+          } }
+      );
+    }
 
     dlBtn.disabled = true;
     pdfBtn.disabled = true;
@@ -5341,6 +6091,44 @@ var JpxImage = (function () {
         (ws.f > 1 ? " · traced at ×" + ws.f + (ws.f < +upscaleSel.value ? " (the most memory allows)" : "") : "") +
         " · " + desc + (invChk.checked ? " · inverted" : "") +
         " · " + paths + " shape" + (paths === 1 ? "" : "s"));
+    showFrieze();
+  }
+
+  // The tracing controls as they apply to a frieze tile. Adaptive
+  // thresholding means nothing on a tile one repeat wide, so Sauvola falls
+  // back to Otsu there, keeping the offset.
+  function friezeOptions() {
+    return {
+      sigma: +sigma.value, mode: modeSel.value, threshold: +thr.value, offset: +offset.value,
+      inv: invChk.checked, turdsize: +turd.value, alphamax: +alpha.value
+    };
+  }
+
+  function showFrieze() {
+    document.body.classList.toggle("has-frieze", !!frieze.box);
+    drawOverlay();
+    var fz = frieze.box && cache.fz && cache.fz.value;
+    dlTile.disabled = dlStrip.disabled = dlPattern.disabled = !fz;
+    if (!frieze.box) { return; }
+    if (!fz) {
+      friezeStats.textContent = "No repeats found. Try a box round exactly one repeat of the band.";
+      stackCanvas.width = stackCanvas.height = 1;
+      previewHost.innerHTML = "";
+      return;
+    }
+    var t = cache.fzTile.value, tr = cache.fzTrace.value, byAngle = [0, 0, 0, 0], mean = 0;
+    fz.hits.forEach(function (h) { byAngle[h.k & 3]++; mean += h.score; });
+    mean /= fz.hits.length;
+    var angles = byAngle.map(function (n, a) { return n ? n + " at " + a * 90 + "°" : ""; })
+        .filter(Boolean).join(", ");
+    friezeStats.textContent = fz.hits.length + " repeat" + (fz.hits.length === 1 ? "" : "s") +
+        (fz.hits.length > 1 ? " (" + angles + ")" : "") + " · mean match " + mean.toFixed(2) +
+        " · period " + fz.P.toFixed(1) + " px · mirror symmetry " + t.corr.toFixed(2) +
+        (t.on ? " (applied)" : " (not applied)") + " · threshold " + tr.threshold;
+    drawStack(t.tile);
+    $("stackFrame").style.setProperty("--frame-ar", t.tile.N + " / " + t.tile.M);
+    $("previewFrame").style.setProperty("--frame-ar", 3 * t.tile.N + " / " + t.tile.M);
+    previewHost.innerHTML = previewSVG(tr, fz.P);
   }
 
   var traceTimer = null;
@@ -5427,9 +6215,11 @@ var JpxImage = (function () {
       frame.setPointerCapture(e.pointerId);
       var p = localXY(e);
       p.sx = p.x; p.sy = p.y;
+      // In selection mode a single pointer draws the box instead of panning
+      p.select = selecting && !pointerCount;
       pointers[e.pointerId] = p;
       pointerCount++;
-      frame.classList.add("panning");
+      if (!p.select) { frame.classList.add("panning"); }
       e.preventDefault();
     });
 
@@ -5438,7 +6228,11 @@ var JpxImage = (function () {
       if (!prev) { return; }
       var p = localXY(e);
       p.sx = prev.sx; p.sy = prev.sy;
-      if (pointerCount === 1) {
+      p.select = prev.select;
+      if (p.select) {
+        dragBox = imageBox(imagePoint(p.sx, p.sy), imagePoint(p.x, p.y));
+        drawOverlay();
+      } else if (pointerCount === 1) {
         view.tx += p.x - prev.x;
         view.ty += p.y - prev.y;
         applyView();
@@ -5463,6 +6257,17 @@ var JpxImage = (function () {
       delete pointers[e.pointerId];
       pointerCount--;
       if (!pointerCount) { frame.classList.remove("panning"); }
+      if (p.select) {
+        var box = dragBox;
+        setSelecting(false);
+        if (e.type === "pointerup" && box && box.w >= 8 && box.h >= 8) {
+          frieze.box = box;
+          runPipeline();
+        } else {
+          drawOverlay();
+        }
+        return;
+      }
       // Double-tap to fit (mouse double-click is handled by dblclick below)
       if (e.type === "pointerup" && e.pointerType !== "mouse" &&
           Math.hypot(p.x - p.sx, p.y - p.sy) < 12) {
@@ -5496,6 +6301,27 @@ var JpxImage = (function () {
   });
 
   window.addEventListener("resize", applyView);
+
+  // From panel-local pixels to source pixels, through the current zoom
+  function imagePoint(px, py) {
+    var f = frameSize();
+    return { x: (px - view.tx) / view.s * W / f.w, y: (py - view.ty) / view.s * H / f.h };
+  }
+
+  // The whole-pixel box spanned by two points, kept within the image
+  function imageBox(a, b) {
+    var x0 = Math.max(0, Math.round(Math.min(a.x, b.x))), y0 = Math.max(0, Math.round(Math.min(a.y, b.y))),
+        x1 = Math.min(W, Math.round(Math.max(a.x, b.x))), y1 = Math.min(H, Math.round(Math.max(a.y, b.y)));
+    return { x: x0, y: y0, w: Math.max(0, x1 - x0), h: Math.max(0, y1 - y0) };
+  }
+
+  function setSelecting(on) {
+    selecting = on;
+    dragBox = null;
+    selBtn.classList.toggle("active", on);
+    selBtn.textContent = on ? "Drag round one repeat…" : "Select repeat";
+    frames.forEach(function (f) { f.classList.toggle("selecting", on); });
+  }
 
   // --- Wiring ------------------------------------------------------------
 
@@ -5548,17 +6374,52 @@ var JpxImage = (function () {
   turd.addEventListener("input", function () { turdVal.textContent = turd.value; scheduleTrace(); });
   alpha.addEventListener("input", function () { alphaVal.textContent = (+alpha.value).toFixed(2); scheduleTrace(); });
 
-  dlBtn.addEventListener("click", function () {
-    if (!lastSVG) { return; }
-    var blob = new Blob([lastSVG], { type: "image/svg+xml" });
+  function downloadSVG(svg, name) {
+    var blob = new Blob([svg], { type: "image/svg+xml" });
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
     a.href = url;
-    a.download = baseName + ".svg";
+    a.download = name;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  dlBtn.addEventListener("click", function () {
+    if (lastSVG) { downloadSVG(lastSVG, baseName + ".svg"); }
+  });
+
+  // --- Frieze wiring -----------------------------------------------------
+
+  selBtn.addEventListener("click", function () { setSelecting(!selecting); drawOverlay(); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && selecting) { setSelecting(false); drawOverlay(); }
+  });
+  clearBtn.addEventListener("click", function () {
+    frieze.box = null;
+    showFrieze();
+  });
+  allOrient.addEventListener("change", scheduleTrace);
+  symSel.addEventListener("change", scheduleTrace);
+
+  function stripLength() { return Math.max(1, Math.min(50, Math.round(+stripCount.value) || 1)); }
+
+  dlTile.addEventListener("click", function () {
+    var fz = cache.fz && cache.fz.value;
+    if (fz) { downloadSVG(stripSVG(cache.fzTrace.value, 1, fz.P), baseName + "-repeat.svg"); }
+  });
+  dlPattern.addEventListener("click", function () {
+    var fz = cache.fz && cache.fz.value;
+    if (fz) { downloadSVG(patternSVG(cache.fzTrace.value, stripLength(), fz.P), baseName + "-pattern.svg"); }
+  });
+  // The strip is traced as a whole, rather than built from copies of the
+  // single repeat, so that it has no joins at all
+  dlStrip.addEventListener("click", function () {
+    var fz = cache.fz && cache.fz.value, n = stripLength();
+    if (!fz) { return; }
+    var tr = traceTile(cache.fzTile.value.tile, n, friezeOptions());
+    downloadSVG(stripSVG(tr, n, fz.P), baseName + "-strip-" + n + ".svg");
   });
 
   pdfBtn.addEventListener("click", function () {
