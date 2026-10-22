@@ -15,7 +15,10 @@
   median-stacked into one clean tile exactly a period wide, mirror-symmetrised
   where the ornament is symmetric. Rules in the tile are made dead straight
   and rows of dots equal circles at an even pitch, rather than traced. That
-  traces as a seamless repeat, a strip or an SVG <pattern>. All of the preprocessing and frieze code is written for
+  traces as a seamless repeat, a strip or an SVG <pattern>. For ornament struck
+  one impression at a time with a hand tool, stamp mode stacks the impressions
+  one by one instead, each aligned in rotation as well as position, and rebuilds
+  the whole design by placing the one tracing back at every impression. All of the preprocessing and frieze code is written for
   this page.
 
   This file embeds potrace.js (verbatim apart from one added function, which
@@ -100,6 +103,7 @@
   }
   #prepSection, #traceSection, #viewSection, #friezeSection { display: none; }
   body.has-frieze #friezeSection { display: block; }
+  body.stamp-mode .band-only, body:not(.stamp-mode) .stamp-only { display: none; }
   body.has-image #prepSection, body.has-image #traceSection, body.has-image #viewSection { display: block; }
   [hidden] { display: none !important; }
 
@@ -428,6 +432,13 @@
     <h2>Frieze</h2>
     <div class="controls">
       <div class="control">
+        <label for="friezeKind">Repeats are</label>
+        <select id="friezeKind">
+          <option value="band" selected>A band (rolled, evenly spaced)</option>
+          <option value="stamp">Stamps (struck one by one)</option>
+        </select>
+      </div>
+      <div class="control">
         <label>Search</label>
         <label class="inline"><input id="allOrient" type="checkbox" checked> All orientations (whole border)</label>
       </div>
@@ -444,7 +455,7 @@
         <label class="inline"><input id="fitRules" type="checkbox" checked> Straight rules</label>
         <label class="inline"><input id="fitDots" type="checkbox" checked> Dots as circles</label>
       </div>
-      <div class="control">
+      <div class="control band-only">
         <label for="stripCount">Repeats in strip</label>
         <input id="stripCount" type="number" min="1" max="50" value="7">
       </div>
@@ -452,11 +463,14 @@
       <div class="control">
         <button id="dlTile" class="primary" type="button" disabled>Download repeat</button>
       </div>
-      <div class="control">
+      <div class="control band-only">
         <button id="dlStrip" class="primary" type="button" disabled>Download strip</button>
       </div>
-      <div class="control">
+      <div class="control band-only">
         <button id="dlPattern" class="primary" type="button" disabled>Download pattern</button>
+      </div>
+      <div class="control stamp-only">
+        <button id="dlRebuild" class="primary" type="button" disabled>Download rebuilt design</button>
       </div>
       <div class="control">
         <button id="clearFrieze" type="button">Clear</button>
@@ -469,7 +483,7 @@
         <div class="frame still" id="stackFrame"><canvas id="stack"></canvas></div>
       </figure>
       <figure>
-        <figcaption>Repeat preview (three copies)</figcaption>
+        <figcaption id="previewCaption">Repeat preview (three copies)</figcaption>
         <div class="frame still" id="previewFrame"><div id="previewHost"></div></div>
       </figure>
     </div>
@@ -487,7 +501,8 @@
   The preprocessing (Lab channels, median filter, bicubic upscaling, Gaussian blur
   and Sauvola adaptive thresholding) and frieze mode (finding, aligning and
   median-stacking the repeats of a band into one seamless tile, with its rules
-  and rows of dots fitted rather than traced) are written for this page.
+  and rows of dots fitted rather than traced, or stacking separately struck
+  stamps and rebuilding the design from them) are written for this page.
   All processing happens locally in your browser; images are never uploaded.
 </footer>
 
@@ -4843,7 +4858,8 @@ var JpxImage = (function () {
       selBtn = $("selectRepeat"), overlay = $("overlay"), allOrient = $("allOrient"),
       symSel = $("symmetry"), stripCount = $("stripCount"), dlTile = $("dlTile"),
       dlStrip = $("dlStrip"), dlPattern = $("dlPattern"), clearBtn = $("clearFrieze"),
-      friezeStats = $("friezeStats"), fitRules = $("fitRules"), fitDotsChk = $("fitDots"), stackCanvas = $("stack"), previewHost = $("previewHost");
+      friezeStats = $("friezeStats"), fitRules = $("fitRules"), fitDotsChk = $("fitDots"),
+      kindSel = $("friezeKind"), dlRebuild = $("dlRebuild"), stackCanvas = $("stack"), previewHost = $("previewHost");
 
   // Larger images are scaled down before tracing. This is a budget on total
   // pixels rather than on the longest side, because what constrains it is the
@@ -5853,6 +5869,320 @@ var JpxImage = (function () {
     return { hits: hits, tw: tw, th: th, P: P, stack: st, rotated: rotated };
   }
 
+  // --- Stamp mode --------------------------------------------------------
+  // For ornament struck one impression at a time with a hand tool, as on
+  // most tooled bindings: arches, fleurons, rosettes. Unlike a rolled band,
+  // the impressions aren't evenly spaced, and each is turned a little as the
+  // binder placed it, so they're stacked one by one rather than as a
+  // period-wide strip, each first aligned in rotation as well as position.
+  // The stack is traced once, and the tracing placed back at every
+  // impression to rebuild the whole design.
+  //
+  // A pose places the template's centre at image point (cx, cy), in
+  // orientation k, turned by an angle a (radians): template point q lands at
+  // (cx, cy) + M·(q − centre), M being the orientation's matrix times the
+  // rotation.
+
+  var STAMP_TURN = 2 * Math.PI / 180;            // impressions turned by up to 2°
+
+  function poseMatrix(p) {
+    var A = ORIENTATIONS[p.k], c = Math.cos(p.a), s = Math.sin(p.a);
+    return [A[0] * c + A[1] * s, A[1] * c - A[0] * s, A[2] * c + A[3] * s, A[3] * c - A[2] * s];
+  }
+
+  function hitPose(h, tw, th) {
+    var A = ORIENTATIONS[h.k];
+    return { k: h.k, a: 0, cx: h.ox + A[0] * tw / 2 + A[1] * th / 2, cy: h.oy + A[2] * tw / 2 + A[3] * th / 2,
+             score: h.score };
+  }
+
+  // NCC of the normalised template with the image sampled bilinearly under
+  // a pose; −2 if the pose reaches outside the image
+  function nccPose(chan, tn, tw, th, p) {
+    var M = poseMatrix(p), hx = tw / 2, hy = th / 2, i, j;
+    var corners = [[-hx, -hy], [hx, -hy], [-hx, hy], [hx, hy]];
+    for (i = 0; i < 4; i++) {
+      var x = p.cx + M[0] * corners[i][0] + M[1] * corners[i][1],
+          y = p.cy + M[2] * corners[i][0] + M[3] * corners[i][1];
+      if (x < 1 || y < 1 || x > W - 1 || y > H - 1) { return -2; }
+    }
+    var s = 0, s2 = 0, st = 0, n = tw * th;
+    for (j = 0; j < th; j++) {
+      var qy = j + 0.5 - hy,
+          bx = p.cx + M[1] * qy - 0.5, by = p.cy + M[3] * qy - 0.5;
+      for (i = 0; i < tw; i++) {
+        var qx = i + 0.5 - hx, sx = bx + M[0] * qx, sy = by + M[2] * qx,
+            x0 = Math.floor(sx), y0 = Math.floor(sy), fx = sx - x0, fy = sy - y0, r = y0 * W + x0,
+            v = (chan[r] * (1 - fx) + chan[r + 1] * fx) * (1 - fy) +
+                (chan[r + W] * (1 - fx) + chan[r + W + 1] * fx) * fy;
+        s += v; s2 += v * v; st += v * tn[j * tw + i];
+      }
+    }
+    var vr = s2 - s * s / n;
+    return vr > tn.minVar * n ? st / Math.sqrt(vr) : 0;
+  }
+
+  // Parabolic vertex of three evenly spaced scores, as an offset in steps
+  function vertex3(m, c, p) {
+    var den = m - 2 * c + p;
+    return den < 0 ? Math.max(-1, Math.min(1, 0.5 * (m - p) / den)) : 0;
+  }
+
+  // Aligns a pose to the template in angle and position: a sweep of angles
+  // to start with, then alternate parabolic refinements of the angle and of
+  // each coordinate
+  function refinePose(chan, tn, tw, th, p0, sweep) {
+    var p = { k: p0.k, a: p0.a, cx: p0.cx, cy: p0.cy }, best = nccPose(chan, tn, tw, th, p), d, s;
+    function tryAt(q) { return nccPose(chan, tn, tw, th, q); }
+    if (sweep) {
+      var step = STAMP_TURN / 8, a0 = p.a;
+      for (d = -8; d <= 8; d++) {
+        s = tryAt({ k: p.k, a: a0 + d * step, cx: p.cx, cy: p.cy });
+        if (s > best) { best = s; p.a = a0 + d * step; }
+      }
+    }
+    var da = STAMP_TURN / 16, dp = 0.5;
+    for (var it = 0; it < 4; it++) {
+      // position: climb in half-pixel steps, then fit a parabola
+      for (var climb = 0; climb < 8; climb++) {
+        var moved = false;
+        [[dp, 0], [-dp, 0], [0, dp], [0, -dp]].forEach(function (o) {
+          var q = { k: p.k, a: p.a, cx: p.cx + o[0], cy: p.cy + o[1] }, sc = tryAt(q);
+          if (sc > best) { best = sc; p = q; moved = true; }
+        });
+        if (!moved) { break; }
+      }
+      var ox = vertex3(tryAt({ k: p.k, a: p.a, cx: p.cx - dp, cy: p.cy }), best, tryAt({ k: p.k, a: p.a, cx: p.cx + dp, cy: p.cy })),
+          oy = vertex3(tryAt({ k: p.k, a: p.a, cx: p.cx, cy: p.cy - dp }), best, tryAt({ k: p.k, a: p.a, cx: p.cx, cy: p.cy + dp })),
+          q1 = { k: p.k, a: p.a, cx: p.cx + ox * dp, cy: p.cy + oy * dp }, s1 = tryAt(q1);
+      if (s1 > best) { best = s1; p = q1; }
+      var oa = vertex3(tryAt({ k: p.k, a: p.a - da, cx: p.cx, cy: p.cy }), best, tryAt({ k: p.k, a: p.a + da, cx: p.cx, cy: p.cy })),
+          q2 = { k: p.k, a: p.a + oa * da, cx: p.cx, cy: p.cy }, s2 = tryAt(q2);
+      if (s2 > best) { best = s2; p = q2; }
+      dp /= 2;
+      da /= 2;
+    }
+    p.score = best;
+    return p;
+  }
+
+  // Each impression resampled (bicubic) onto the template's frame at
+  // TILE_SCALE times the resolution, normalised as in stackRepeats, and the
+  // per-pixel median taken. The normalised impressions are kept, to find
+  // what they agree on (see stampAgreement).
+  function stackStamps(chan, poses, tw, th) {
+    var S = TILE_SCALE, N = tw * S, M = th * S, n = poses.length, tiles = [], mSum = 0, sSum = 0, i, j;
+    poses.forEach(function (p) {
+      var R = poseMatrix(p), tile = new Float32Array(N * M), sum = 0, sum2 = 0;
+      for (j = 0; j < M; j++) {
+        var qy = (j + 0.5) / S - th / 2;
+        for (i = 0; i < N; i++) {
+          var qx = (i + 0.5) / S - tw / 2,
+              tx = cubicTaps(p.cx + R[0] * qx + R[1] * qy), ty = cubicTaps(p.cy + R[2] * qx + R[3] * qy), acc = 0;
+          for (var y = 0; y < 4; y++) {
+            var yy = Math.min(H - 1, Math.max(0, ty.i + y)) * W, ra = 0;
+            for (var x = 0; x < 4; x++) { ra += tx.w[x] * chan[yy + Math.min(W - 1, Math.max(0, tx.i + x))]; }
+            acc += ty.w[y] * ra;
+          }
+          tile[j * N + i] = acc;
+          sum += acc; sum2 += acc * acc;
+        }
+      }
+      var m = sum / tile.length, s = Math.sqrt(Math.max(1e-6, sum2 / tile.length - m * m));
+      for (i = 0; i < tile.length; i++) { tile[i] = (tile[i] - m) / s; }
+      mSum += m; sSum += s;
+      tiles.push(tile);
+    });
+    var out = new Float32Array(N * M), buf = new Float32Array(n), mean = mSum / n, spread = sSum / n;
+    for (i = 0; i < out.length; i++) {
+      for (j = 0; j < n; j++) { buf[j] = tiles[j][i]; }
+      out[i] = select(buf, n >> 1) * spread + mean;
+    }
+    return { data: out, N: N, M: M, pitch: 1 / S, mean: mean, spread: spread, tiles: tiles };
+  }
+
+  // The stack back at the source resolution, as the template for another pass
+  function templateFromStamp(st, tw, th) {
+    var t = new Float32Array(tw * th), S = TILE_SCALE;
+    for (var v = 0; v < th; v++) {
+      for (var u = 0; u < tw; u++) {
+        var acc = 0;
+        for (var y = 0; y < S; y++) {
+          for (var x = 0; x < S; x++) { acc += st.data[(v * S + y) * st.N + u * S + x]; }
+        }
+        t[v * tw + u] = acc / (S * S);
+      }
+    }
+    return t;
+  }
+
+  // Find the impressions, align each in angle and position, stack; then
+  // again, with the stack as the template
+  function analyseStamps(chan, chanKey, box, allOrient) {
+    var tw = box.w, th = box.h, t = new Float32Array(tw * th), x, y;
+    for (y = 0; y < th; y++) {
+      for (x = 0; x < tw; x++) { t[y * tw + x] = chan[(box.y + y) * W + box.x + x]; }
+    }
+    var hits = findRepeats(chan, chanKey, t, tw, th, allOrient);
+    if (!hits.length) { return null; }
+    var tn = normalised(t), poses = [];
+    hits.forEach(function (h) {
+      var p = refinePose(chan, tn, tw, th, hitPose(h, tw, th), true);
+      if (p.score > -2) { poses.push(p); }
+    });
+    if (!poses.length) { return null; }
+    var st = stackStamps(chan, poses, tw, th);
+    tn = normalised(templateFromStamp(st, tw, th));
+    poses = poses.map(function (p) { return refinePose(chan, tn, tw, th, p, false); })
+        .filter(function (p) { return p.score > -2; });
+    var cut = median(poses.map(function (p) { return p.score; })) - 0.2;
+    poses = poses.filter(function (p) { return p.score >= cut; });
+    st = stackStamps(chan, poses, tw, th);
+    return { stamp: true, poses: poses, hits: poses, tw: tw, th: th, stack: st };
+  }
+
+  // Where pixel (x, y) of an N×M stamp lands when reflected about an axis:
+  // vertical or horizontal (c2 being twice its position, in pixels), or
+  // diagonal through the middle (slope s = ±1, shifted by d pixels), as
+  // corner pieces usually are. In pixel-index coordinates, not necessarily
+  // whole.
+  function reflectPoint(ax, x, y, N, M) {
+    if (ax.type === "v") { return [ax.c2 - 1 - x, y]; }
+    if (ax.type === "h") { return [x, ax.c2 - 1 - y]; }
+    var X = x + 0.5 - N / 2, Y = y + 0.5 - M / 2;
+    return [ax.s * (Y - ax.d) + N / 2 - 0.5, ax.s * X + ax.d + M / 2 - 0.5];
+  }
+
+  function bilinearAt(d, N, M, x, y) {
+    if (x < 0 || y < 0 || x > N - 1 || y > M - 1) { return NaN; }
+    var x0 = Math.min(N - 2, Math.floor(x)), y0 = Math.min(M - 2, Math.floor(y)), fx = x - x0, fy = y - y0, r = y0 * N + x0;
+    return (d[r] * (1 - fx) + d[r + 1] * fx) * (1 - fy) + (d[r + N] * (1 - fx) + d[r + N + 1] * fx) * fy;
+  }
+
+  // The stamp's own mirror axis, whichever of vertical, horizontal and the
+  // two diagonals matches its reflection best, searched near the middle
+  // since a stamp doesn't wrap round. Every other row and column is plenty.
+  function stampMirror(st) {
+    var N = st.N, M = st.M, d = st.data, best = { corr: -1 }, axes = [], c2, k;
+    for (c2 = Math.round(N * 0.8); c2 <= Math.round(N * 1.2); c2++) { axes.push({ type: "v", c2: c2 }); }
+    for (c2 = Math.round(M * 0.8); c2 <= Math.round(M * 1.2); c2++) { axes.push({ type: "h", c2: c2 }); }
+    var reach = Math.round(0.1 * Math.min(N, M));
+    for (k = -reach; k <= reach; k++) { axes.push({ type: "d", s: 1, d: k }, { type: "d", s: -1, d: k }); }
+    axes.forEach(function (ax) {
+      var n = 0, sa = 0, sb = 0, saa = 0, sbb = 0, sab = 0;
+      for (var y = 0; y < M; y += 2) {
+        for (var x = 0; x < N; x += 2) {
+          var m = reflectPoint(ax, x, y, N, M), b = bilinearAt(d, N, M, m[0], m[1]);
+          if (b !== b) { continue; }
+          var a = d[y * N + x];
+          n++; sa += a; sb += b; saa += a * a; sbb += b * b; sab += a * b;
+        }
+      }
+      if (n < N * M / 16) { return; }               // too little overlaps to judge
+      var cov = sab / n - sa * sb / n / n, va = saa / n - sa * sa / n / n, vb = sbb / n - sb * sb / n / n,
+          corr = va > 0 && vb > 0 ? cov / Math.sqrt(va * vb) : -1;
+      if (corr > best.corr) { best = { corr: corr, axis: ax }; }
+    });
+    return best;
+  }
+
+  // Averages the stack (and each impression, so that traceStamp's test of
+  // agreement sees the same thing) with its reflection, where the
+  // reflection falls inside
+  function symmetriseStamp(st, mirrorFit) {
+    var N = st.N, M = st.M, ax = mirrorFit.axis, maps = new Float32Array(N * M * 2), i, x, y;
+    for (y = 0, i = 0; y < M; y++) {
+      for (x = 0; x < N; x++, i++) {
+        var m = reflectPoint(ax, x, y, N, M);
+        maps[2 * i] = m[0];
+        maps[2 * i + 1] = m[1];
+      }
+    }
+    function mirror(d) {
+      var out = new Float32Array(d.length);
+      for (var j = 0; j < d.length; j++) {
+        var b = bilinearAt(d, N, M, maps[2 * j], maps[2 * j + 1]);
+        out[j] = b === b ? (d[j] + b) / 2 : d[j];
+      }
+      return out;
+    }
+    return { data: mirror(st.data), N: N, M: M, pitch: st.pitch, mean: st.mean, spread: st.spread,
+             tiles: st.tiles.map(mirror) };
+  }
+
+  // Traces the stamp. Whatever lies just outside the stamp in each
+  // impression (its neighbours, a rule) is different every time, and
+  // stacks to a faint ghost that can still cross the threshold. So a shape
+  // is kept only if somewhere it is foreground in at least 85% of the
+  // impressions individually, which the stamp's own shapes are and ghosts
+  // never are. Returns path data in source pixels, in the template's frame.
+  function traceStamp(st, opts) {
+    var N = st.N, M = st.M, src = new Uint8Array(N * M), i;
+    for (i = 0; i < src.length; i++) {
+      var v = st.data[i];
+      src[i] = v <= 0 ? 0 : v >= 255 ? 255 : (v + 0.5) | 0;
+    }
+    var work = upscaleAndBlur(src, N, M, N, M, opts.sigma);
+    var t = opts.mode === "manual" ? opts.threshold : clamp255(otsu(work.hist) + opts.offset);
+    var bits = thresholdBits(work.data, N, M, t, opts.inv, null, 0), n = st.tiles.length, kept = 0;
+    if (n >= 4) {
+      var zt = (t - st.mean) / st.spread, core = new Uint8Array(N * M), label = new Int32Array(N * M);
+      for (i = 0; i < core.length; i++) {
+        for (var c = 0, j = 0; j < n; j++) { if ((st.tiles[j][i] < zt) !== opts.inv) { c++; } }
+        core[i] = c >= 0.85 * n ? 1 : 0;
+      }
+      var id = 0, stack = [], keep = [0];
+      for (i = 0; i < bits.length; i++) {
+        if (!bits[i] || label[i]) { continue; }
+        var hasCore = false;
+        label[i] = ++id;
+        stack.push(i);
+        while (stack.length) {
+          var q = stack.pop(), qx = q % N;
+          if (core[q]) { hasCore = true; }
+          [qx > 0 ? q - 1 : -1, qx < N - 1 ? q + 1 : -1, q - N, q + N].forEach(function (r) {
+            if (r >= 0 && r < bits.length && bits[r] && !label[r]) { label[r] = id; stack.push(r); }
+          });
+        }
+        keep.push(hasCore ? 1 : 0);
+        if (hasCore) { kept++; }
+      }
+      for (i = 0; i < bits.length; i++) { if (bits[i] && !keep[label[i]]) { bits[i] = 0; } }
+    }
+    Potrace.loadBitmap(bits, N, M);
+    Potrace.setParameter({
+      turdsize: Math.round(opts.turdsize / (st.pitch * st.pitch)),
+      alphamax: opts.alphamax,
+      optcurve: true,
+      opttolerance: 0.2 / st.pitch,
+      turnpolicy: "minority"
+    });
+    var svg;
+    Potrace.process(function () { svg = Potrace.getSVG(st.pitch); });
+    return { d: (svg.match(/ d="([^"]*)"/) || [])[1] || "", threshold: t,
+             width: N * st.pitch, height: M * st.pitch, rules: 0, dots: 0 };
+  }
+
+  function stampSVG(tr) {
+    var w = num(tr.width), h = num(tr.height);
+    return "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 " + w + " " + h + "\" width=\"" + w +
+        "\" height=\"" + h + "\"><path fill=\"black\" fill-rule=\"evenodd\" d=\"" + tr.d + "\"/></svg>";
+  }
+
+  // Every impression rebuilt from the one tracing, at its own place and
+  // angle, on the page's own coordinates (those of the traced vector)
+  function rebuildSVG(tr, fz) {
+    var hw = fz.tw / 2, hh = fz.th / 2, uses = fz.poses.map(function (p) {
+      var R = poseMatrix(p), e = p.cx - R[0] * hw - R[1] * hh, f = p.cy - R[2] * hw - R[3] * hh;
+      return "<use href=\"#stamp\" transform=\"matrix(" + [R[0], R[2], R[1], R[3], e, f].map(function (v) {
+        return +v.toFixed(5);
+      }).join(" ") + ")\"/>";
+    });
+    return "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 " + W + " " + H + "\" width=\"" + W +
+        "\" height=\"" + H + "\"><defs><path id=\"stamp\" fill-rule=\"evenodd\" d=\"" + tr.d + "\"/></defs>" +
+        "<g fill=\"black\">" + uses.join("") + "</g></svg>";
+  }
+
   // --- Fitting primitives ----------------------------------------------
   // Rules and rows of dots are struck with tools that don't wobble, so in a
   // frieze tile they're better fitted than traced: a rule dead straight, the
@@ -6074,9 +6404,19 @@ var JpxImage = (function () {
     var lw = num(Math.max(W, H) / 400);
     if (fz) {
       fz.hits.forEach(function (h) {
-        var A = ORIENTATIONS[h.k], pts = [[0, 0], [fz.tw, 0], [fz.tw, fz.th], [0, fz.th]].map(function (q) {
-          return num(h.ox + A[0] * q[0] + A[1] * q[1]) + "," + num(h.oy + A[2] * q[0] + A[3] * q[1]);
-        });
+        var pts;
+        if (fz.stamp) {
+          var R = poseMatrix(h);
+          pts = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(function (q) {
+            var qx = q[0] * fz.tw / 2, qy = q[1] * fz.th / 2;
+            return num(h.cx + R[0] * qx + R[1] * qy) + "," + num(h.cy + R[2] * qx + R[3] * qy);
+          });
+        } else {
+          var A = ORIENTATIONS[h.k];
+          pts = [[0, 0], [fz.tw, 0], [fz.tw, fz.th], [0, fz.th]].map(function (q) {
+            return num(h.ox + A[0] * q[0] + A[1] * q[1]) + "," + num(h.oy + A[2] * q[0] + A[3] * q[1]);
+          });
+        }
         s += "<polygon points=\"" + pts.join(" ") + "\" fill=\"none\" stroke=\"#2fb8a8\" stroke-width=\"" + lw + "\"/>";
       });
     }
@@ -6167,25 +6507,30 @@ var JpxImage = (function () {
 
     if (frieze.box) {
       var b = frieze.box,
-          fzKey = chanKey + "|" + [b.x, b.y, b.w, b.h].join(",") + "|" + allOrient.checked,
+          stampMode = kindSel.value === "stamp",
+          fzKey = chanKey + "|" + [b.x, b.y, b.w, b.h].join(",") + "|" + allOrient.checked + "|" + kindSel.value,
           symKey = fzKey + "|" + symSel.value,
           fzTraceKey = symKey + "|" + sig + "|" + mode + "|" + (mode === "manual" ? thr.value : "") +
               "|" + off + "|" + inv + "|" + turd.value + "|" + alpha.value +
               "|" + fitRules.checked + "|" + fitDotsChk.checked;
       stages.push(
         { name: "fz", msg: "Finding the repeats…", key: function () { return fzKey; },
-          run: function () { return analyseFrieze(cache.chan.value, chanKey, b, allOrient.checked); } },
+          run: function () {
+            return (stampMode ? analyseStamps : analyseFrieze)(cache.chan.value, chanKey, b, allOrient.checked);
+          } },
         { name: "fzTile", msg: null, key: function () { return symKey; },
           run: function () {
             var fz = cache.fz.value;
             if (!fz) { return null; }
-            var ax = mirrorAxis(fz.stack),
+            var ax = fz.stamp ? stampMirror(fz.stack) : mirrorAxis(fz.stack),
                 on = symSel.value === "on" || (symSel.value === "auto" && ax.corr >= 0.85);
-            return { tile: on ? symmetrise(fz.stack, ax.c2) : fz.stack, corr: ax.corr, on: on };
+            return { tile: !on ? fz.stack : fz.stamp ? symmetriseStamp(fz.stack, ax) : symmetrise(fz.stack, ax.c2),
+                     corr: ax.corr, on: on };
           } },
         { name: "fzTrace", msg: "Tracing the repeat…", key: function () { return fzTraceKey; },
           run: function () {
-            return cache.fzTile.value ? traceTile(cache.fzTile.value.tile, 1, friezeOptions()) : null;
+            var t = cache.fzTile.value;
+            return !t ? null : stampMode ? traceStamp(t.tile, friezeOptions()) : traceTile(t.tile, 1, friezeOptions());
           } }
       );
     }
@@ -6239,6 +6584,23 @@ var JpxImage = (function () {
     showFrieze();
   }
 
+  function showStamp(fz, t, tr) {
+    var byAngle = [0, 0, 0, 0], mean = 0, turns = [];
+    fz.poses.forEach(function (p) { byAngle[p.k & 3]++; mean += p.score; turns.push(Math.abs(p.a) * 180 / Math.PI); });
+    mean /= fz.poses.length;
+    turns.sort(function (a, b) { return a - b; });
+    var n = fz.poses.length, angles = byAngle.map(function (c, a) { return c ? c + " at " + a * 90 + "°" : ""; })
+        .filter(Boolean).join(", ");
+    friezeStats.textContent = n + " impression" + (n === 1 ? "" : "s") + (n > 1 ? " (" + angles + ")" : "") +
+        " · mean match " + mean.toFixed(2) + " · turned by up to " + turns[n - 1].toFixed(2) + "° (median " +
+        turns[n >> 1].toFixed(2) + "°) · mirror symmetry " + t.corr.toFixed(2) + (t.on ? " (applied)" : " (not applied)") +
+        " · threshold " + tr.threshold;
+    drawStack(t.tile);
+    $("stackFrame").style.setProperty("--frame-ar", t.tile.N + " / " + t.tile.M);
+    $("previewFrame").style.setProperty("--frame-ar", t.tile.N + " / " + t.tile.M);
+    previewHost.innerHTML = stampSVG(tr).replace(/ width="[^"]*" height="[^"]*"/, "");
+  }
+
   // The tracing controls as they apply to a frieze tile. Adaptive
   // thresholding means nothing on a tile one repeat wide, so Sauvola falls
   // back to Otsu there, keeping the offset.
@@ -6252,9 +6614,12 @@ var JpxImage = (function () {
 
   function showFrieze() {
     document.body.classList.toggle("has-frieze", !!frieze.box);
+    document.body.classList.toggle("stamp-mode", kindSel.value === "stamp");
+    dlTile.textContent = kindSel.value === "stamp" ? "Download stamp" : "Download repeat";
+    $("previewCaption").textContent = kindSel.value === "stamp" ? "Traced stamp" : "Repeat preview (three copies)";
     drawOverlay();
     var fz = frieze.box && cache.fz && cache.fz.value;
-    dlTile.disabled = dlStrip.disabled = dlPattern.disabled = !fz;
+    dlTile.disabled = dlStrip.disabled = dlPattern.disabled = dlRebuild.disabled = !fz;
     if (!frieze.box) { return; }
     if (!fz) {
       friezeStats.textContent = "No repeats found. Try a box round exactly one repeat of the band.";
@@ -6263,6 +6628,7 @@ var JpxImage = (function () {
       return;
     }
     var t = cache.fzTile.value, tr = cache.fzTrace.value, byAngle = [0, 0, 0, 0], mean = 0;
+    if (fz.stamp) { showStamp(fz, t, tr); return; }
     fz.hits.forEach(function (h) { byAngle[h.k & 3]++; mean += h.score; });
     mean /= fz.hits.length;
     var angles = byAngle.map(function (n, a) { return n ? n + " at " + a * 90 + "°" : ""; })
@@ -6557,8 +6923,18 @@ var JpxImage = (function () {
 
   dlTile.addEventListener("click", function () {
     var fz = cache.fz && cache.fz.value;
-    if (fz) { downloadSVG(stripSVG(cache.fzTrace.value, 1, fz.P), baseName + "-repeat.svg"); }
+    if (!fz) { return; }
+    if (fz.stamp) {
+      downloadSVG(stampSVG(cache.fzTrace.value), baseName + "-stamp.svg");
+    } else {
+      downloadSVG(stripSVG(cache.fzTrace.value, 1, fz.P), baseName + "-repeat.svg");
+    }
   });
+  dlRebuild.addEventListener("click", function () {
+    var fz = cache.fz && cache.fz.value;
+    if (fz && fz.stamp) { downloadSVG(rebuildSVG(cache.fzTrace.value, fz), baseName + "-rebuilt.svg"); }
+  });
+  kindSel.addEventListener("change", scheduleTrace);
   dlPattern.addEventListener("click", function () {
     var fz = cache.fz && cache.fz.value;
     if (fz) { downloadSVG(patternSVG(cache.fzTrace.value, stripLength(), fz.P), baseName + "-pattern.svg"); }
