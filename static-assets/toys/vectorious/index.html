@@ -18,7 +18,9 @@
   traces as a seamless repeat, a strip or an SVG <pattern>. For ornament struck
   one impression at a time with a hand tool, stamp mode stacks the impressions
   one by one instead, each aligned in rotation as well as position, and rebuilds
-  the whole design by placing the one tracing back at every impression. All of the preprocessing and frieze code is written for
+  the whole design by placing the one tracing back at every impression. Bands,
+  stamps and the straight rules found in the trace can be added to a design,
+  which puts them all together as one SVG of the whole cover. All of the preprocessing and frieze code is written for
   this page.
 
   This file embeds potrace.js (verbatim apart from one added function, which
@@ -101,7 +103,14 @@
     letter-spacing: 0.08em;
     color: var(--muted);
   }
-  #prepSection, #traceSection, #viewSection, #friezeSection { display: none; }
+  #prepSection, #traceSection, #viewSection, #friezeSection, #designSection { display: none; }
+  body.has-image #designSection { display: block; }
+  #designList { font-size: 0.85rem; max-width: 40em; }
+  #designList ol { margin: 0; padding-left: 1.4em; }
+  #designList button { font-size: 0.75rem; padding: 0.1rem 0.5rem; margin-left: 0.5rem; }
+  #designFigure { margin-top: 0.8rem; max-width: 640px; }
+  #designHost { position: absolute; inset: 0; }
+  #designHost svg { width: 100%; height: 100%; display: block; }
   body.has-frieze #friezeSection { display: block; }
   body.stamp-mode .band-only, body:not(.stamp-mode) .stamp-only { display: none; }
   body.has-image #prepSection, body.has-image #traceSection, body.has-image #viewSection { display: block; }
@@ -443,6 +452,13 @@
         <label class="inline"><input id="allOrient" type="checkbox" checked> All orientations (whole border)</label>
       </div>
       <div class="control">
+        <label for="minMatch">Minimum match</label>
+        <div class="row">
+          <input id="minMatch" type="range" min="0.3" max="0.95" step="0.01" value="0.3">
+          <span class="val" id="minMatchValue">auto</span>
+        </div>
+      </div>
+      <div class="control">
         <label for="symmetry">Mirror symmetry</label>
         <select id="symmetry">
           <option value="auto" selected>Auto</option>
@@ -473,6 +489,9 @@
         <button id="dlRebuild" class="primary" type="button" disabled>Download rebuilt design</button>
       </div>
       <div class="control">
+        <button id="addToDesign" type="button" disabled>Add to design</button>
+      </div>
+      <div class="control">
         <button id="clearFrieze" type="button">Clear</button>
       </div>
     </div>
@@ -487,6 +506,31 @@
         <div class="frame still" id="previewFrame"><div id="previewHost"></div></div>
       </figure>
     </div>
+  </section>
+
+  <section id="designSection">
+    <h2>Design</h2>
+    <div class="controls">
+      <div class="control" id="designIntro">
+        <label>Elements</label>
+        <div id="designList">Nothing yet. Add each frieze or stamp from the Frieze section, and the
+          straight rules from the traced vector, to build them into one SVG.</div>
+      </div>
+      <div class="spacer"></div>
+      <div class="control">
+        <button id="addRules" type="button" disabled>Add straight rules</button>
+      </div>
+      <div class="control">
+        <button id="dlDesign" class="primary" type="button" disabled>Download design</button>
+      </div>
+      <div class="control">
+        <button id="clearDesign" type="button" disabled>Clear design</button>
+      </div>
+    </div>
+    <figure id="designFigure" hidden>
+      <figcaption>Design</figcaption>
+      <div class="frame still" id="designFrame"><div id="designHost"></div></div>
+    </figure>
   </section>
 </main>
 
@@ -4859,7 +4903,9 @@ var JpxImage = (function () {
       symSel = $("symmetry"), stripCount = $("stripCount"), dlTile = $("dlTile"),
       dlStrip = $("dlStrip"), dlPattern = $("dlPattern"), clearBtn = $("clearFrieze"),
       friezeStats = $("friezeStats"), fitRules = $("fitRules"), fitDotsChk = $("fitDots"),
-      kindSel = $("friezeKind"), dlRebuild = $("dlRebuild"), stackCanvas = $("stack"), previewHost = $("previewHost");
+      kindSel = $("friezeKind"), dlRebuild = $("dlRebuild"), minMatch = $("minMatch"),
+      addToDesignBtn = $("addToDesign"), addRulesBtn = $("addRules"), dlDesign = $("dlDesign"),
+      clearDesignBtn = $("clearDesign"), stackCanvas = $("stack"), previewHost = $("previewHost");
 
   // Larger images are scaled down before tracing. This is a budget on total
   // pixels rather than on the longest side, because what constrains it is the
@@ -5038,6 +5084,8 @@ var JpxImage = (function () {
     cache = {};
     frieze.box = null;
     setSelecting(false);
+    design = [];
+    showDesign();
     document.body.classList.add("has-image");
     panels.style.setProperty("--frame-ar", W + " / " + H);
     resetView();
@@ -5623,8 +5671,9 @@ var JpxImage = (function () {
     return { k: hit.k, ox: ox + fx, oy: oy + fy, score: best };
   }
 
-  // Every repeat of the template t (tw×th, source pixels) in the image
-  function findRepeats(chan, chanKey, t, tw, th, allOrient) {
+  // Every repeat of the template t (tw×th, source pixels) in the image,
+  // scoring at least minScore if that's given
+  function findRepeats(chan, chanKey, t, tw, th, allOrient, minScore) {
     var ds = Math.max(1, Math.min(4, Math.floor(Math.min(tw, th) / 16))),
         si = searchImage(chan, ds, chanKey + "|" + ds),
         ks = allOrient ? [0, 1, 2, 3, 4, 5, 6, 7] : [0],
@@ -5635,9 +5684,11 @@ var JpxImage = (function () {
       if (r.score >= 0.35) { hits.push(r); }
     });
     // Real repeats score much alike; something that merely resembles one,
-    // such as another ornament, scores well below them
+    // such as another ornament, usually scores well below them. When false
+    // matches outnumber the real ones, as for a small, plain template, the
+    // user sets the cut.
     hits = suppress(hits, tw, th);
-    var cut = median(hits.map(function (h) { return h.score; })) - 0.2;
+    var cut = minScore || median(hits.map(function (h) { return h.score; })) - 0.2;
     return hits.filter(function (h) { return h.score >= cut; });
   }
 
@@ -5837,17 +5888,17 @@ var JpxImage = (function () {
         out[y * N + (x + shift) % N] = (d[y * N + x] + d[y * N + (((c2 - 1 - x) % N) + N) % N]) / 2;
       }
     }
-    return { data: out, N: N, M: M, pitch: st.pitch, P: st.P, u0: st.u0 };
+    return { data: out, N: N, M: M, pitch: st.pitch, P: st.P, u0: st.u0, shift: shift };
   }
 
   // The whole analysis of the boxed repeat: find the repeats, measure the
   // period, stack them; then do it again with the stack as the template
-  function analyseFrieze(chan, chanKey, box, allOrient) {
+  function analyseFrieze(chan, chanKey, box, allOrient, minScore) {
     var tw = box.w, th = box.h, t = new Float32Array(tw * th), x, y;
     for (y = 0; y < th; y++) {
       for (x = 0; x < tw; x++) { t[y * tw + x] = chan[(box.y + y) * W + box.x + x]; }
     }
-    var hits = findRepeats(chan, chanKey, t, tw, th, allOrient);
+    var hits = findRepeats(chan, chanKey, t, tw, th, allOrient, minScore);
     var rotated = false;
     if (hits.length > 1 && runsVertically(hits)) {
       // A repeat of a vertical band: turn the template so the band runs
@@ -5855,12 +5906,12 @@ var JpxImage = (function () {
       var o = orient(t, tw, th, 1);
       t = o.data; tw = o.w; th = o.h;
       rotated = true;
-      hits = findRepeats(chan, chanKey, t, tw, th, allOrient);
+      hits = findRepeats(chan, chanKey, t, tw, th, allOrient, minScore);
     }
     if (!hits.length) { return null; }
     var P = measurePeriod(hits, tw, th), st = stackRepeats(chan, hits, tw, th, P);
     t = templateFromStack(st, tw, th);
-    var again = findRepeats(chan, chanKey, t, tw, th, allOrient);
+    var again = findRepeats(chan, chanKey, t, tw, th, allOrient, minScore);
     if (again.length >= hits.length / 2) {
       hits = again;
       P = measurePeriod(hits, tw, th);
@@ -6018,12 +6069,12 @@ var JpxImage = (function () {
 
   // Find the impressions, align each in angle and position, stack; then
   // again, with the stack as the template
-  function analyseStamps(chan, chanKey, box, allOrient) {
+  function analyseStamps(chan, chanKey, box, allOrient, minScore) {
     var tw = box.w, th = box.h, t = new Float32Array(tw * th), x, y;
     for (y = 0; y < th; y++) {
       for (x = 0; x < tw; x++) { t[y * tw + x] = chan[(box.y + y) * W + box.x + x]; }
     }
-    var hits = findRepeats(chan, chanKey, t, tw, th, allOrient);
+    var hits = findRepeats(chan, chanKey, t, tw, th, allOrient, minScore);
     if (!hits.length) { return null; }
     var tn = normalised(t), poses = [];
     hits.forEach(function (h) {
@@ -6035,8 +6086,9 @@ var JpxImage = (function () {
     tn = normalised(templateFromStamp(st, tw, th));
     poses = poses.map(function (p) { return refinePose(chan, tn, tw, th, p, false); })
         .filter(function (p) { return p.score > -2; });
-    var cut = median(poses.map(function (p) { return p.score; })) - 0.2;
+    var cut = minScore || median(poses.map(function (p) { return p.score; })) - 0.2;
     poses = poses.filter(function (p) { return p.score >= cut; });
+    if (!poses.length) { return null; }
     st = stackStamps(chan, poses, tw, th);
     return { stamp: true, poses: poses, hits: poses, tw: tw, th: th, stack: st };
   }
@@ -6169,18 +6221,250 @@ var JpxImage = (function () {
         "\" height=\"" + h + "\"><path fill=\"black\" fill-rule=\"evenodd\" d=\"" + tr.d + "\"/></svg>";
   }
 
-  // Every impression rebuilt from the one tracing, at its own place and
-  // angle, on the page's own coordinates (those of the traced vector)
+  // --- The design: elements composed into one SVG ----------------------
+  // A tooled cover is made of a handful of tools used over and over: stamps,
+  // rolls and fillets. Each element of the design is one of them, rebuilt
+  // from its clean tracing at every place it was used, as SVG in the page's
+  // own coordinates (those of the traced vector): `defs` holds the tracing,
+  // `body` the placements. Elements are snapshots, so changing the controls
+  // afterwards doesn't change one already added.
+
+  function svgMatrix(a, b, c, d, e, f) {
+    return "matrix(" + [a, b, c, d, e, f].map(function (v) { return +v.toFixed(5); }).join(" ") + ")";
+  }
+
+  // A stamp at each of its impressions
+  function stampElement(tr, fz, id) {
+    var hw = fz.tw / 2, hh = fz.th / 2;
+    return {
+      defs: "<path id=\"" + id + "\" fill-rule=\"evenodd\" d=\"" + tr.d + "\"/>",
+      body: fz.poses.map(function (p) {
+        var R = poseMatrix(p);
+        return "<use href=\"#" + id + "\" transform=\"" +
+            svgMatrix(R[0], R[2], R[1], R[3], p.cx - R[0] * hw - R[1] * hh, p.cy - R[2] * hw - R[3] * hh) + "\"/>";
+      }).join(""),
+      label: "Stamp, " + fz.poses.length + " impression" + (fz.poses.length === 1 ? "" : "s")
+    };
+  }
+
+  // Every impression rebuilt from the one tracing, as an SVG of its own
   function rebuildSVG(tr, fz) {
-    var hw = fz.tw / 2, hh = fz.th / 2, uses = fz.poses.map(function (p) {
-      var R = poseMatrix(p), e = p.cx - R[0] * hw - R[1] * hh, f = p.cy - R[2] * hw - R[3] * hh;
-      return "<use href=\"#stamp\" transform=\"matrix(" + [R[0], R[2], R[1], R[3], e, f].map(function (v) {
-        return +v.toFixed(5);
-      }).join(" ") + ")\"/>";
+    return composeSVG([stampElement(tr, fz, "stamp")]);
+  }
+
+  // The lines of a band: its repeats grouped by direction and distance
+  // across (as in measurePeriod), each line fitted by least squares as a
+  // first repeat's centre c0 plus a step v per repeat, n repeats long. The
+  // step is the line's own, so a side tooled a little longer or askew than
+  // the others still lines up from end to end.
+  function bandLines(hits, tw, th, P) {
+    var pts = hits.map(function (h) {
+      var A = ORIENTATIONS[h.k], cx = h.ox + A[0] * tw / 2 + A[1] * th / 2,
+          cy = h.oy + A[2] * tw / 2 + A[3] * th / 2, horiz = A[0] !== 0;
+      return { k: h.k, x: cx, y: cy, horiz: horiz, along: horiz ? cx : cy, across: horiz ? cy : cx };
     });
+    pts.sort(function (a, b) { return (a.horiz - b.horiz) || (a.across - b.across); });
+    var groups = [], cur = null;
+    pts.forEach(function (p) {
+      if (!cur || cur.horiz !== p.horiz || p.across - cur.last > 0.3 * th) { groups.push(cur = { pts: [] }); }
+      cur.horiz = p.horiz;
+      cur.last = p.across;
+      cur.pts.push(p);
+    });
+    // A line breaks where repeats go missing for more than two periods,
+    // and a stretch of fewer than three, or under a fifth as long as the
+    // longest, is more likely chance than a band
+    var runs = [];
+    groups.forEach(function (g) {
+      var ps = g.pts.sort(function (a, b) { return a.along - b.along; }), run = [ps[0]];
+      for (var i = 1; i <= ps.length; i++) {
+        if (i < ps.length && ps[i].along - ps[i - 1].along < 3.5 * P) { run.push(ps[i]); continue; }
+        if (run.length >= 3) { runs.push({ pts: run }); }
+        run = [ps[i]];
+      }
+    });
+    var longest = 0;
+    runs.forEach(function (r) { longest = Math.max(longest, r.pts.length); });
+    runs = runs.filter(function (r) { return r.pts.length >= longest / 5; });
+    return runs.map(function (g) {
+      var ps = g.pts, counts = {}, k = ps[0].k;
+      ps.forEach(function (p) { counts[p.k] = (counts[p.k] || 0) + 1; if (counts[p.k] > counts[k]) { k = p.k; } });
+      var idx = ps.map(function (p) { return Math.round((p.along - ps[0].along) / P); }), n = ps.length;
+      var A = ORIENTATIONS[k], c0, v;
+      if (n === 1 || idx[n - 1] === 0) {
+        c0 = { x: ps[0].x, y: ps[0].y };
+        v = { x: A[0] * P, y: A[2] * P };
+      } else {
+        var mi = 0, mx = 0, my = 0, sii = 0, six = 0, siy = 0, i;
+        for (i = 0; i < n; i++) { mi += idx[i] / n; mx += ps[i].x / n; my += ps[i].y / n; }
+        for (i = 0; i < n; i++) {
+          var di = idx[i] - mi;
+          sii += di * di; six += di * (ps[i].x - mx); siy += di * (ps[i].y - my);
+        }
+        v = { x: six / sii, y: siy / sii };
+        c0 = { x: mx - mi * v.x, y: my - mi * v.y };
+      }
+      var count = idx[n - 1] + 1;
+      // Run the line the way the template's u axis runs in this orientation
+      if (v.x * A[0] + v.y * A[2] < 0) {
+        c0 = { x: c0.x + (count - 1) * v.x, y: c0.y + (count - 1) * v.y };
+        v = { x: -v.x, y: -v.y };
+      }
+      return { k: k, c0: c0, v: v, count: count };
+    });
+  }
+
+  // A band traced once as a strip as long as its longest line, and placed
+  // along every line, each clipped to its own length
+  function bandElement(fz, tile, opts, id) {
+    var lines = bandLines(fz.hits, fz.tw, fz.th, fz.P), longest = 1;
+    lines.forEach(function (l) { longest = Math.max(longest, l.count); });
+    var tr = traceTile(tile, longest, opts), P = fz.P, h = num(tr.height),
+        // the strip starts at tile column 0, which the stack put at template
+        // u0, and symmetrising rolled round by `shift` columns
+        uStart = tile.u0 - (tile.shift || 0) * tile.pitch, clips = {}, defs = "", body = "";
+    lines.forEach(function (l) {
+      var A = ORIENTATIONS[l.k], len = Math.hypot(l.v.x, l.v.y), ux = l.v.x / len, uy = l.v.y / len,
+          // across the band, perpendicular to the line, on the side the
+          // template's v axis falls
+          yx = -uy, yy = ux;
+      if (yx * A[1] + yy * A[3] < 0) { yx = -yx; yy = -yy; }
+      var s = len / P,
+          e = l.c0.x + (uStart - fz.tw / 2) * s * ux - (fz.th / 2) * yx,
+          f = l.c0.y + (uStart - fz.tw / 2) * s * uy - (fz.th / 2) * yy;
+      if (!clips[l.count]) {
+        clips[l.count] = id + "-" + l.count;
+        defs += "<clipPath id=\"" + clips[l.count] + "\"><rect width=\"" + num(l.count * P) + "\" height=\"" + h +
+            "\"/></clipPath>";
+      }
+      body += "<g transform=\"" + svgMatrix(s * ux, s * uy, yx, yy, e, f) + "\"><use href=\"#" + id +
+          "\" clip-path=\"url(#" + clips[l.count] + ")\"/></g>";
+    });
+    return {
+      defs: "<path id=\"" + id + "\" fill-rule=\"evenodd\" d=\"" + tr.d + "\"/>" + defs,
+      body: body,
+      label: "Band, " + fz.hits.length + " repeats in " + lines.length + " line" + (lines.length === 1 ? "" : "s")
+    };
+  }
+
+  // Straight rules in the traced bitmap: runs of foreground at least minLen
+  // long, row by row (or column by column), joined into one rule where they
+  // overlap from one row to the next. Each is fitted as a thin rectangle by
+  // its moments: its axis from the principal direction, so a rule a little
+  // askew comes out straight and askew rather than stepped, its length from
+  // its ends, its thickness from its area. Returns rectangles as four
+  // corners each, in bitmap pixels.
+  function findRules(bits, w, h, minLen) {
+    var found = [], gap = 3;                       // gaps of up to 3 pixels in a run are bridged
+    [false, true].forEach(function (vert) {
+      var lines = vert ? w : h, span = vert ? h : w, open = [], comps = [], i, j;
+      function at(line, pos) { return vert ? bits[pos * w + line] : bits[line * w + pos]; }
+      for (i = 0; i < lines; i++) {
+        var runs = [], start = -1, last = -1;
+        for (j = 0; j <= span; j++) {
+          var on = j < span && at(i, j);
+          if (on) {
+            if (start < 0 || j - last > gap + 1) {
+              if (start >= 0 && last + 1 - start >= minLen) { runs.push([start, last + 1]); }
+              start = j;
+            }
+            last = j;
+          }
+        }
+        if (start >= 0 && last + 1 - start >= minLen) { runs.push([start, last + 1]); }
+        var next = [];
+        runs.forEach(function (r) {
+          var c = null;
+          for (var q = 0; q < open.length && !c; q++) {
+            var o = open[q].run, ov = Math.min(r[1], o[1]) - Math.max(r[0], o[0]);
+            if (ov > 0.5 * Math.min(r[1] - r[0], o[1] - o[0])) { c = open[q].comp; }
+          }
+          if (!c) { comps.push(c = { n: 0, sa: 0, sb: 0, saa: 0, sbb: 0, sab: 0, ends: [] }); }
+          // a = position along the run, b = the line it's on, at pixel centres
+          // (Σ(a + 0.5)² over the run is the integral of x² over it, less L/12)
+          var L = r[1] - r[0], b = i + 0.5, sa = L * (r[0] + r[1]) / 2,
+              saa = (Math.pow(r[1], 3) - Math.pow(r[0], 3)) / 3 - L / 12;
+          c.n += L; c.sa += sa; c.sb += L * b; c.saa += saa; c.sbb += L * b * b; c.sab += b * sa;
+          c.ends.push([r[0], b], [r[1], b]);
+          next.push({ run: r, comp: c });
+        });
+        open = next;
+      }
+      comps.forEach(function (c) {
+        var ma = c.sa / c.n, mb = c.sb / c.n, caa = c.saa / c.n - ma * ma, cbb = c.sbb / c.n - mb * mb,
+            cab = c.sab / c.n - ma * mb, th = 0.5 * Math.atan2(2 * cab, caa - cbb),
+            da = Math.cos(th), db = Math.sin(th), lo = Infinity, hi = -Infinity;
+        c.ends.forEach(function (e) {
+          var t = (e[0] - ma) * da + (e[1] - mb) * db;
+          lo = Math.min(lo, t); hi = Math.max(hi, t);
+        });
+        var len = hi - lo, thick = c.n / len;
+        if (len < minLen || thick > 0.05 * len || Math.abs(th) > 5 * Math.PI / 180) { return; }
+        var mid = (lo + hi) / 2, ca = ma + mid * da, cb = mb + mid * db, pa = -db, pb = da, corners = [];
+        [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(function (s) {
+          var a = ca + s[0] * len / 2 * da + s[1] * thick / 2 * pa, b = cb + s[0] * len / 2 * db + s[1] * thick / 2 * pb;
+          corners.push(vert ? [b, a] : [a, b]);
+        });
+        if (vert) { corners.reverse(); }               // keep every rectangle wound the same way
+        found.push({ corners: corners, vert: vert, ca: ca, cb: cb, th: th, len: len, thick: thick });
+      });
+    });
+    // What's still short after joining is the edge of some ornament, not a
+    // rule: real ones run a good part of the way across
+    return mergeRules(found).filter(function (r) { return r.len >= 2 * minLen; })
+        .map(function (r) { return r.corners; });
+  }
+
+  // Joins pieces of one rule broken where ornament crosses it or the
+  // threshold left a gap: same direction and angle, in line to within one
+  // and a half times their thickness (or two pixels, a fine fillet being
+  // barely more than one thick), and no further apart end to end than a
+  // third of their length together. Fillets are run unbroken, so a long gap
+  // is still most likely the same rule.
+  function mergeRules(rules) {
+    var merged = true;
+    while (merged) {
+      merged = false;
+      outer: for (var i = 0; i < rules.length; i++) {
+        for (var j = i + 1; j < rules.length; j++) {
+          var a = rules[i], b = rules[j];
+          if (a.vert !== b.vert || Math.abs(a.th - b.th) > 0.5 * Math.PI / 180) { continue; }
+          var da = Math.cos(a.th), db = Math.sin(a.th),
+              off = Math.abs(-(b.ca - a.ca) * db + (b.cb - a.cb) * da),
+              t = (b.ca - a.ca) * da + (b.cb - a.cb) * db,
+              lo = Math.min(-a.len / 2, t - b.len / 2), hi = Math.max(a.len / 2, t + b.len / 2),
+              gapAlong = Math.abs(t) - (a.len + b.len) / 2;
+          if (off > Math.max(2, 1.5 * Math.max(a.thick, b.thick)) || gapAlong > (hi - lo) / 3) { continue; }
+          var len = hi - lo, mid = (lo + hi) / 2, thick = (a.thick * a.len + b.thick * b.len) / (a.len + b.len),
+              ca = a.ca + mid * da, cb = a.cb + mid * db, pa = -db, pb = da, corners = [];
+          [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(function (s) {
+            var x = ca + s[0] * len / 2 * da + s[1] * thick / 2 * pa, y = cb + s[0] * len / 2 * db + s[1] * thick / 2 * pb;
+            corners.push(a.vert ? [y, x] : [x, y]);
+          });
+          if (a.vert) { corners.reverse(); }
+          rules.splice(j, 1);
+          rules[i] = { corners: corners, vert: a.vert, ca: ca, cb: cb, th: a.th, len: len, thick: thick };
+          merged = true;
+          break outer;
+        }
+      }
+    }
+    return rules;
+  }
+
+  function rulesElement(rects, scale) {
+    var d = rects.map(function (r) {
+      return "M" + r.map(function (p) { return num(p[0] * scale) + " " + num(p[1] * scale); }).join(" L") + " Z";
+    }).join(" ");
+    // nonzero, so that rules crossing at a corner merge rather than cancel
+    return { defs: "", body: "<path fill-rule=\"nonzero\" d=\"" + d + "\"/>",
+             label: "Straight rules, " + rects.length };
+  }
+
+  function composeSVG(elements) {
     return "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 " + W + " " + H + "\" width=\"" + W +
-        "\" height=\"" + H + "\"><defs><path id=\"stamp\" fill-rule=\"evenodd\" d=\"" + tr.d + "\"/></defs>" +
-        "<g fill=\"black\">" + uses.join("") + "</g></svg>";
+        "\" height=\"" + H + "\"><defs>" + elements.map(function (e) { return e.defs; }).join("") + "</defs>" +
+        "<g fill=\"black\">" + elements.map(function (e) { return e.body; }).join("") + "</g></svg>";
   }
 
   // --- Fitting primitives ----------------------------------------------
@@ -6508,7 +6792,9 @@ var JpxImage = (function () {
     if (frieze.box) {
       var b = frieze.box,
           stampMode = kindSel.value === "stamp",
-          fzKey = chanKey + "|" + [b.x, b.y, b.w, b.h].join(",") + "|" + allOrient.checked + "|" + kindSel.value,
+          minScore = +minMatch.value > 0.3 ? +minMatch.value : 0,
+          fzKey = chanKey + "|" + [b.x, b.y, b.w, b.h].join(",") + "|" + allOrient.checked + "|" + kindSel.value +
+              "|" + minScore,
           symKey = fzKey + "|" + symSel.value,
           fzTraceKey = symKey + "|" + sig + "|" + mode + "|" + (mode === "manual" ? thr.value : "") +
               "|" + off + "|" + inv + "|" + turd.value + "|" + alpha.value +
@@ -6516,7 +6802,7 @@ var JpxImage = (function () {
       stages.push(
         { name: "fz", msg: "Finding the repeats…", key: function () { return fzKey; },
           run: function () {
-            return (stampMode ? analyseStamps : analyseFrieze)(cache.chan.value, chanKey, b, allOrient.checked);
+            return (stampMode ? analyseStamps : analyseFrieze)(cache.chan.value, chanKey, b, allOrient.checked, minScore);
           } },
         { name: "fzTile", msg: null, key: function () { return symKey; },
           run: function () {
@@ -6571,6 +6857,7 @@ var JpxImage = (function () {
     applyView();   // restore the current zoom on the freshly injected SVG
     dlBtn.disabled = false;
     pdfBtn.disabled = false;
+    addRulesBtn.disabled = false;
     var signed = (off > 0 ? "+" : "−") + Math.abs(off);
     var desc = mode === "sauvola" ?
         "adaptive threshold (window " + win.value + ", k " + (+sauK.value).toFixed(2) +
@@ -6619,7 +6906,7 @@ var JpxImage = (function () {
     $("previewCaption").textContent = kindSel.value === "stamp" ? "Traced stamp" : "Repeat preview (three copies)";
     drawOverlay();
     var fz = frieze.box && cache.fz && cache.fz.value;
-    dlTile.disabled = dlStrip.disabled = dlPattern.disabled = dlRebuild.disabled = !fz;
+    dlTile.disabled = dlStrip.disabled = dlPattern.disabled = dlRebuild.disabled = addToDesignBtn.disabled = !fz;
     if (!frieze.box) { return; }
     if (!fz) {
       friezeStats.textContent = "No repeats found. Try a box round exactly one repeat of the band.";
@@ -6935,6 +7222,63 @@ var JpxImage = (function () {
     if (fz && fz.stamp) { downloadSVG(rebuildSVG(cache.fzTrace.value, fz), baseName + "-rebuilt.svg"); }
   });
   kindSel.addEventListener("change", scheduleTrace);
+  minMatch.addEventListener("input", function () {
+    $("minMatchValue").textContent = +minMatch.value > 0.3 ? (+minMatch.value).toFixed(2) : "auto";
+    scheduleTrace();
+  });
+
+  // --- Design wiring -----------------------------------------------------
+
+  var design = [], designSeq = 0;
+
+  function showDesign() {
+    var list = $("designList");
+    if (!design.length) {
+      list.textContent = "Nothing yet. Add each frieze or stamp from the Frieze section, and the " +
+          "straight rules from the traced vector, to build them into one SVG.";
+    } else {
+      var ol = document.createElement("ol");
+      design.forEach(function (el, i) {
+        var li = document.createElement("li"), rm = document.createElement("button");
+        li.textContent = el.label;
+        rm.type = "button";
+        rm.textContent = "Remove";
+        rm.addEventListener("click", function () { design.splice(i, 1); showDesign(); });
+        li.appendChild(rm);
+        ol.appendChild(li);
+      });
+      list.textContent = "";
+      list.appendChild(ol);
+    }
+    dlDesign.disabled = clearDesignBtn.disabled = !design.length;
+    $("designFigure").hidden = !design.length;
+    $("designFrame").style.setProperty("--frame-ar", W + " / " + H);
+    $("designHost").innerHTML = design.length ? composeSVG(design) : "";
+  }
+
+  addToDesignBtn.addEventListener("click", function () {
+    var fz = cache.fz && cache.fz.value;
+    if (!fz) { return; }
+    var id = "e" + (++designSeq);
+    design.push(fz.stamp ? stampElement(cache.fzTrace.value, fz, id) :
+        bandElement(fz, cache.fzTile.value.tile, friezeOptions(), id));
+    showDesign();
+  });
+  // Rules come from the bitmap behind the traced vector, so they follow the
+  // tracing controls: a run must reach an eighth of the image's shorter
+  // side, and a rule a quarter of it once its pieces are joined
+  addRulesBtn.addEventListener("click", function () {
+    var bits = cache.bits && cache.bits.value, ws = workSize();
+    if (!bits) { return; }
+    var rects = findRules(bits, ws.w, ws.h, Math.round(Math.min(ws.w, ws.h) / 8));
+    if (!rects.length) { setStatus("No straight rules found in the traced bitmap."); return; }
+    design.push(rulesElement(rects, W / ws.w));
+    showDesign();
+  });
+  dlDesign.addEventListener("click", function () {
+    if (design.length) { downloadSVG(composeSVG(design), baseName + "-design.svg"); }
+  });
+  clearDesignBtn.addEventListener("click", function () { design = []; showDesign(); });
   dlPattern.addEventListener("click", function () {
     var fz = cache.fz && cache.fz.value;
     if (fz) { downloadSVG(patternSVG(cache.fzTrace.value, stripLength(), fz.P), baseName + "-pattern.svg"); }
