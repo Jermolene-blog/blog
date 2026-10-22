@@ -5,7 +5,8 @@
   1-bit monochrome (automatic Otsu threshold or manual), and trace the
   outlines to a vector image, downloadable as SVG or PDF.
 
-  This file embeds, verbatim, potrace.js — a JavaScript port of Potrace
+  This file embeds potrace.js (verbatim apart from one added function, which
+  accepts a ready-made bitmap) — a JavaScript port of Potrace
   (http://potrace.sourceforge.net), Copyright (C) 2001-2013 Peter Selinger,
   port by kilobtye (https://github.com/kilobtye/potrace), licensed under the
   GNU General Public License — Potrace itself is offered under "version 2 or,
@@ -313,7 +314,7 @@
 </footer>
 
 <script>
-/* ==================== potrace.js (embedded verbatim) ==================== */
+/* ===== potrace.js (embedded verbatim, apart from loadBitmap, marked below) ===== */
 /* Copyright (C) 2001-2013 Peter Selinger.
  *
  * A javascript port of Potrace (http://potrace.sourceforge.net).
@@ -486,8 +487,26 @@ var Potrace = (function() {
     }
     info.isReady = true;
   }
-  
-  
+
+  // Local addition, not in kilobtye's potrace.js: accept a ready-made bitmap,
+  // one Int8 per pixel with 1 for black, instead of an image to draw on a
+  // canvas and threshold at 128. Vectorious thresholds the image itself, at up
+  // to four times its size, which is larger than a canvas can be. The array is
+  // used as it is, not copied.
+  function loadBitmap(data, w, h) {
+    if (info.isReady) {
+      clear();
+    }
+    bm = Object.create(Bitmap.prototype);
+    bm.w = w;
+    bm.h = h;
+    bm.size = w * h;
+    bm.arraybuffer = data.buffer;
+    bm.data = data;
+    info.isReady = true;
+  }
+
+
   function bmToPathlist() {
   
     var bm1 = bm.copy(),
@@ -1612,6 +1631,7 @@ var Potrace = (function() {
   return{
     loadImageFromFile: loadImageFromFile,
     loadImageFromUrl: loadImageFromUrl,
+    loadBitmap: loadBitmap,
     setParameter: setParameter,
     process: process,
     getSVG: getSVG,
