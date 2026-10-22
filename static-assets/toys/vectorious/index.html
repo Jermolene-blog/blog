@@ -2,8 +2,13 @@
 <!--
   Vectorious — bitmap vs. vector
   A self-contained single-page application. Load an image, quantise it to
-  1-bit monochrome (automatic Otsu threshold or manual), and trace the
-  outlines to a vector image, downloadable as SVG or PDF.
+  1-bit monochrome, and trace the outlines to a vector image, downloadable as
+  SVG or PDF. Before thresholding, the image can be reduced to one channel
+  (luminance, CIE Lab a* or b*, or saturation), median-filtered, upscaled
+  bicubically and blurred; the threshold is global (Otsu's, with an offset, or
+  manual) or adaptive (Sauvola's). Tracing at ×4 and scaling the result back
+  down gives potrace four times the resolution to place each edge with. All of
+  that preprocessing is written for this page.
 
   This file embeds potrace.js (verbatim apart from one added function, which
   accepts a ready-made bitmap) — a JavaScript port of Potrace
@@ -85,8 +90,9 @@
     letter-spacing: 0.08em;
     color: var(--muted);
   }
-  #traceSection, #viewSection { display: none; }
-  body.has-image #traceSection, body.has-image #viewSection { display: block; }
+  #prepSection, #traceSection, #viewSection { display: none; }
+  body.has-image #prepSection, body.has-image #traceSection, body.has-image #viewSection { display: block; }
+  [hidden] { display: none !important; }
 
   #drop {
     border: 2px dashed var(--line);
@@ -118,8 +124,18 @@
   }
   button:disabled { opacity: 0.45; cursor: default; }
   #file { display: none; }
+  select {
+    font: inherit;
+    font-size: 0.85rem;
+    padding: 0.3rem 0.45rem;
+    border-radius: 7px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--ink);
+  }
+  input[type=range]:disabled { opacity: 0.45; }
 
-  #controls, #viewbar {
+  .controls, #viewbar {
     display: flex;
     background: var(--panel);
     border: 1px solid var(--line);
@@ -129,7 +145,7 @@
     flex-wrap: wrap;
     align-items: end;
   }
-  #controls .spacer, #viewbar .spacer { flex: 1; }
+  .controls .spacer, #viewbar .spacer { flex: 1; }
   .control { display: flex; flex-direction: column; gap: 0.25rem; }
   .control > label:first-child {
     font-size: 0.72rem;
@@ -234,16 +250,80 @@
     </div>
   </section>
 
+  <section id="prepSection">
+    <h2>Preprocessing</h2>
+    <div class="controls">
+      <div class="control">
+        <label for="channel">Channel</label>
+        <select id="channel">
+          <option value="luminance" selected>Luminance</option>
+          <option value="lab-b">Yellowness (Lab b*)</option>
+          <option value="lab-a">Redness (Lab a*)</option>
+          <option value="saturation">Saturation</option>
+        </select>
+      </div>
+      <div class="control">
+        <label for="median">Median filter</label>
+        <select id="median">
+          <option value="0" selected>Off</option>
+          <option value="1">3×3</option>
+          <option value="2">5×5</option>
+        </select>
+      </div>
+      <div class="control">
+        <label for="upscale">Upscale</label>
+        <select id="upscale">
+          <option value="1" selected>×1</option>
+          <option value="2">×2</option>
+          <option value="3">×3</option>
+          <option value="4">×4</option>
+        </select>
+      </div>
+      <div class="control">
+        <label for="sigma">Blur</label>
+        <div class="row">
+          <input id="sigma" type="range" min="0" max="3" step="0.1" value="0">
+          <span class="val" id="sigmaValue">off</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section id="traceSection">
     <h2>Tracing controls</h2>
-    <div id="controls">
+    <div class="controls">
       <div class="control">
-        <label for="threshold">Threshold</label>
+        <label for="thresholdMode">Threshold</label>
+        <select id="thresholdMode">
+          <option value="otsu" selected>Auto (Otsu)</option>
+          <option value="manual">Manual</option>
+          <option value="sauvola">Adaptive (Sauvola)</option>
+        </select>
         <div class="row">
           <input id="threshold" type="range" min="1" max="255" value="128">
           <span class="val" id="thresholdValue">128</span>
         </div>
-        <label class="inline"><input id="autoThreshold" type="checkbox" checked> Auto (Otsu)</label>
+      </div>
+      <div class="control" id="offsetControl">
+        <label for="offset">Offset</label>
+        <div class="row">
+          <input id="offset" type="range" min="-60" max="60" value="0">
+          <span class="val" id="offsetValue">0</span>
+        </div>
+      </div>
+      <div class="control" id="windowControl" hidden>
+        <label for="window">Window</label>
+        <div class="row">
+          <input id="window" type="range" min="5" max="251" step="2" value="51">
+          <span class="val" id="windowValue">51 px</span>
+        </div>
+      </div>
+      <div class="control" id="kControl" hidden>
+        <label for="sauvolaK">Sensitivity (k)</label>
+        <div class="row">
+          <input id="sauvolaK" type="range" min="0.02" max="0.6" step="0.01" value="0.2">
+          <span class="val" id="sauvolaKValue">0.20</span>
+        </div>
       </div>
       <div class="control">
         <label>Options</label>
@@ -310,6 +390,8 @@
   <a href="https://github.com/yWorks/svg2pdf.js">svg2pdf.js</a>, and JPEG 2000
   (<code>.jp2</code>) files are decoded by the Apache-2.0 licensed
   <a href="https://github.com/mozilla/pdf.js">pdf.js</a>, all likewise embedded.
+  The preprocessing (Lab channels, median filter, bicubic upscaling, Gaussian blur
+  and Sauvola adaptive thresholding) is written for this page.
   All processing happens locally in your browser; images are never uploaded.
 </footer>
 
@@ -4652,7 +4734,11 @@ var JpxImage = (function () {
 
   var $ = function (id) { return document.getElementById(id); };
   var fileInput = $("file"), drop = $("drop"), chooseBtn = $("choose"),
-      thr = $("threshold"), thrVal = $("thresholdValue"), autoChk = $("autoThreshold"),
+      channelSel = $("channel"), medianSel = $("median"), upscaleSel = $("upscale"),
+      sigma = $("sigma"), sigmaVal = $("sigmaValue"),
+      modeSel = $("thresholdMode"), thr = $("threshold"), thrVal = $("thresholdValue"),
+      offset = $("offset"), offsetVal = $("offsetValue"),
+      win = $("window"), winVal = $("windowValue"), sauK = $("sauvolaK"), sauKVal = $("sauvolaKValue"),
       invChk = $("invert"), turd = $("turdsize"), turdVal = $("turdsizeValue"),
       alpha = $("alphamax"), alphaVal = $("alphamaxValue"),
       dlBtn = $("download"), pdfBtn = $("downloadPdf"), statusEl = $("status"),
@@ -4668,9 +4754,15 @@ var JpxImage = (function () {
   // measured here came to 1.20 MB of SVG squeezed into 1600 px and 1.28 MB at
   // its full 2652 px: shrinking it bought almost nothing and lost the hatching.
   var MAX_PIXELS = 12e6;
-  var gray = null, W = 0, H = 0, otsuValue = 128;
-  var lastDataURL = null, lastSVG = null, baseName = "traced";
-  var quantCanvas = document.createElement("canvas");
+  // Upscaling happens off-canvas, so it has a budget of its own, set by
+  // memory: the working image, the bitmap and potrace's copy of it take a
+  // byte per working pixel each, and the upscaler's intermediate, widened but
+  // not yet heightened, takes four bytes per pixel. 80 million pixels lets a
+  // 1736×2576 scan of a book cover (the case upscaling was added for) go to
+  // ×4, at around 300 MB.
+  var MAX_WORK_PIXELS = 80e6;
+  var rgba = null, W = 0, H = 0;
+  var lastSVG = null, baseName = "traced";
 
   function setStatus(text) { statusEl.textContent = text; }
 
@@ -4824,28 +4916,21 @@ var JpxImage = (function () {
     ctx.fillStyle = "#ffffff";           // flatten transparency to white
     ctx.fillRect(0, 0, W, H);
     ctx.drawImage(source, 0, 0, W, H);
-    var data = ctx.getImageData(0, 0, W, H).data;
-    gray = new Uint8Array(W * H);
-    for (var i = 0, j = 0; j < gray.length; i += 4, j++) {
-      gray[j] = Math.round(0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]);
-    }
-    otsuValue = otsu(gray);
-    if (autoChk.checked) { thr.value = otsuValue; }
-    thrVal.textContent = thr.value;
+    rgba = ctx.getImageData(0, 0, W, H).data;
+    cache = {};
     document.body.classList.add("has-image");
     panels.style.setProperty("--frame-ar", W + " / " + H);
     resetView();
     var note = scale < 1 ? " (scaled down from " + w + "×" + h + ")" : "";
     setStatus("Loaded " + W + "×" + H + " px" + note + ".");
-    quantAndTrace();
+    runPipeline();
   }
 
-  // Otsu's method: threshold maximising between-class variance
-  function otsu(g) {
-    var hist = new Array(256), i;
-    for (i = 0; i < 256; i++) { hist[i] = 0; }
-    for (i = 0; i < g.length; i++) { hist[g[i]]++; }
-    var total = g.length, sum = 0;
+  // Otsu's method: threshold maximising between-class variance, from a
+  // 256-bin histogram
+  function otsu(hist) {
+    var i, total = 0, sum = 0;
+    for (i = 0; i < 256; i++) { total += hist[i]; }
     for (i = 0; i < 256; i++) { sum += i * hist[i]; }
     var sumB = 0, wB = 0, wF = 0, maxVar = -1, best = 128;
     for (i = 0; i < 256; i++) {
@@ -4861,67 +4946,415 @@ var JpxImage = (function () {
     return Math.min(255, best);
   }
 
-  // --- Quantise + trace --------------------------------------------------
+  // --- Preprocessing -----------------------------------------------------
+  // Everything between the loaded pixels and the 1-bit bitmap handed to
+  // potrace, in pipeline order: take one channel of the colour, median-filter
+  // it, upscale and blur it to the working scale, and threshold it. Left at
+  // their defaults (luminance, no filtering, ×1, global threshold) these
+  // stages reproduce exactly the bitmap the page has always traced.
 
-  function quantize() {
-    var t = +thr.value, inv = invChk.checked;
-    quantCanvas.width = W; quantCanvas.height = H;
-    var ctx = quantCanvas.getContext("2d");
-    var out = ctx.createImageData(W, H);
-    for (var j = 0, i = 0; j < gray.length; j++, i += 4) {
-      var black = gray[j] < t;
-      if (inv) { black = !black; }
-      var v = black ? 0 : 255;
-      out.data[i] = out.data[i + 1] = out.data[i + 2] = v;
-      out.data[i + 3] = 255;
+  var SRGB_TO_LINEAR = new Float32Array(256);
+  (function () {
+    for (var i = 0; i < 256; i++) {
+      var c = i / 255;
+      SRGB_TO_LINEAR[i] = c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
     }
-    ctx.putImageData(out, 0, 0);
-    bitCanvas.width = W; bitCanvas.height = H;
-    bitCanvas.getContext("2d").drawImage(quantCanvas, 0, 0);
+  })();
+
+  function labF(t) {
+    return t > 216 / 24389 ? Math.cbrt(t) : (24389 / 27 * t + 16) / 116;
+  }
+
+  // One 8-bit channel of the source pixels. Luminance is the weighted sum the
+  // page has always used. The others are computed as floats (Lab via linear
+  // sRGB and XYZ with a D65 white) and stretched so that their 0.5th to 99.5th
+  // percentiles span 0–255, which gives the threshold slider and its offset
+  // the same reach whichever channel is chosen. Lab b* is the one for gilding
+  // on dark leather: the highlights on the grain are bright but not yellow, so
+  // they barely register in it.
+  function computeChannel(name) {
+    var n = W * H, out = new Uint8Array(n), i, j;
+    if (name === "luminance") {
+      for (i = 0, j = 0; j < n; i += 4, j++) {
+        out[j] = Math.round(0.2126 * rgba[i] + 0.7152 * rgba[i + 1] + 0.0722 * rgba[i + 2]);
+      }
+      return out;
+    }
+    var v = new Float32Array(n), lin = SRGB_TO_LINEAR;
+    for (i = 0, j = 0; j < n; i += 4, j++) {
+      var r = rgba[i], g = rgba[i + 1], b = rgba[i + 2];
+      if (name === "saturation") {
+        var mx = Math.max(r, g, b);
+        v[j] = mx ? (mx - Math.min(r, g, b)) / mx : 0;
+      } else {
+        var lr = lin[r], lg = lin[g], lb = lin[b];
+        var fy = labF(0.2126729 * lr + 0.7151522 * lg + 0.0721750 * lb);
+        v[j] = name === "lab-b" ?
+            200 * (fy - labF((0.0193339 * lr + 0.1191920 * lg + 0.9503041 * lb) / 1.08883)) :
+            500 * (labF((0.4124564 * lr + 0.3575761 * lg + 0.1804375 * lb) / 0.95047) - fy);
+      }
+    }
+    stretchTo8(v, out);
+    return out;
+  }
+
+  function stretchTo8(v, out) {
+    var n = v.length, lo = Infinity, hi = -Infinity, i;
+    for (i = 0; i < n; i++) {
+      if (v[i] < lo) { lo = v[i]; }
+      if (v[i] > hi) { hi = v[i]; }
+    }
+    if (!(hi > lo)) { return; }                   // a flat channel stays all 0
+    var BINS = 4096, hist = new Uint32Array(BINS), s = (BINS - 1) / (hi - lo);
+    for (i = 0; i < n; i++) { hist[((v[i] - lo) * s) | 0]++; }
+    var cut = n * 0.005, a = 0, b = BINS - 1, acc;
+    for (acc = 0; a < BINS - 1 && acc + hist[a] <= cut; a++) { acc += hist[a]; }
+    for (acc = 0; b > a && acc + hist[b] <= cut; b--) { acc += hist[b]; }
+    var vlo = lo + a / s, m = 255 / ((b + 1 - a) / s);
+    for (i = 0; i < n; i++) {
+      var x = (v[i] - vlo) * m;
+      out[i] = x <= 0 ? 0 : x >= 255 ? 255 : (x + 0.5) | 0;
+    }
+  }
+
+  // Median over a (2r+1)² square, edges replicated. Huang's running
+  // histogram: sliding the window one pixel along changes only two columns,
+  // and the median moves only a little, so it's found by stepping from where
+  // it was rather than by sorting.
+  function medianFilter(src, w, h, r) {
+    var out = new Uint8Array(w * h), hist = new Int32Array(256),
+        side = 2 * r + 1, half = (side * side - 1) >> 1, rows = new Int32Array(side);
+    for (var y = 0; y < h; y++) {
+      var k, v, x;
+      for (k = 0; k < side; k++) { rows[k] = Math.min(h - 1, Math.max(0, y + k - r)) * w; }
+      hist.fill(0);
+      for (x = -r; x <= r; x++) {
+        var xc = Math.min(w - 1, Math.max(0, x));
+        for (k = 0; k < side; k++) { hist[src[rows[k] + xc]]++; }
+      }
+      var med = 0, below = 0;                     // below = how many values < med
+      while (below + hist[med] <= half) { below += hist[med++]; }
+      out[y * w] = med;
+      for (x = 1; x < w; x++) {
+        var xo = Math.max(0, x - r - 1), xi = Math.min(w - 1, x + r);
+        for (k = 0; k < side; k++) {
+          v = src[rows[k] + xo]; hist[v]--; if (v < med) { below--; }
+          v = src[rows[k] + xi]; hist[v]++; if (v < med) { below++; }
+        }
+        while (below > half) { below -= hist[--med]; }
+        while (below + hist[med] <= half) { below += hist[med++]; }
+        out[y * w + x] = med;
+      }
+    }
+    return out;
+  }
+
+  // Keys' cubic convolution kernel with a = -0.5, as used for bicubic scaling
+  function cubic(x) {
+    x = Math.abs(x);
+    return x < 1 ? (1.5 * x - 2.5) * x * x + 1 :
+           x < 2 ? ((-0.5 * x + 2.5) * x - 4) * x + 2 : 0;
+  }
+
+  // Weights taking a line of nIn samples to nOut: bicubic interpolation
+  // followed by a Gaussian blur of the given sigma at the output scale, folded
+  // into one kernel so that each output sample is a short weighted sum of
+  // input samples. Output sample o draws on inputs start[o] … start[o]+len-1,
+  // with weights w[o*len …]. Both steps replicate the edge samples.
+  function resampleKernel(nIn, nOut, sigma) {
+    var f = nOut / nIn, r = sigma > 0 ? Math.ceil(3 * sigma) : 0, k, m;
+    var g = new Float64Array(2 * r + 1), gsum = 0;
+    for (k = -r; k <= r; k++) { gsum += g[k + r] = r ? Math.exp(-k * k / (2 * sigma * sigma)) : 1; }
+    for (k = 0; k < g.length; k++) { g[k] /= gsum; }
+    var len = Math.min(nIn, Math.ceil(2 * r / f) + 5),
+        start = new Int32Array(nOut), w = new Float32Array(nOut * len), acc = new Float64Array(len);
+    for (var o = 0; o < nOut; o++) {
+      var s0 = Math.floor((o + 0.5) / f - 0.5 - r / f) - 1;
+      s0 = Math.min(nIn - len, Math.max(0, s0));
+      start[o] = s0;
+      acc.fill(0);
+      for (k = -r; k <= r; k++) {
+        var x = (Math.min(nOut - 1, Math.max(0, o + k)) + 0.5) / f - 0.5,
+            x0 = Math.floor(x), t = x - x0;
+        for (m = -1; m <= 2; m++) {
+          acc[Math.min(nIn - 1, Math.max(0, x0 + m)) - s0] += g[k + r] * cubic(t - m);
+        }
+      }
+      w.set(acc, o * len);
+    }
+    return { start: start, w: w, len: len };
+  }
+
+  // The channel at the working size w2×h2, blurred, as 8-bit values, with
+  // their histogram. Potrace follows the pixel staircase, so tracing at ×4
+  // gives it four times the resolution to place an edge with.
+  function upscaleAndBlur(src, w, h, w2, h2, sigma) {
+    var out = new Uint8Array(w2 * h2), hist = new Uint32Array(256), i;
+    if (w2 === w && h2 === h && !(sigma > 0)) {
+      out.set(src);
+      for (i = 0; i < out.length; i++) { hist[out[i]]++; }
+      return { data: out, hist: hist };
+    }
+    var kx = resampleKernel(w, w2, sigma), ky = resampleKernel(h, h2, sigma),
+        lx = kx.len, ly = ky.len, x, y, t, acc;
+    // Horizontal pass, source rows to working width
+    var tmp = new Float32Array(h * w2);
+    for (y = 0; y < h; y++) {
+      for (x = 0; x < w2; x++) {
+        var s = y * w + kx.start[x], b = x * lx;
+        for (acc = 0, t = 0; t < lx; t++) { acc += src[s + t] * kx.w[b + t]; }
+        tmp[y * w2 + x] = acc;
+      }
+    }
+    // Vertical pass, a row at a time
+    var line = new Float32Array(w2);
+    for (y = 0; y < h2; y++) {
+      line.fill(0);
+      for (t = 0; t < ly; t++) {
+        var wt = ky.w[y * ly + t];
+        if (!wt) { continue; }
+        var base = (ky.start[y] + t) * w2;
+        for (x = 0; x < w2; x++) { line[x] += wt * tmp[base + x]; }
+      }
+      for (x = 0, i = y * w2; x < w2; x++, i++) {
+        var v = line[x];
+        v = v <= 0 ? 0 : v >= 255 ? 255 : (v + 0.5) | 0;
+        out[i] = v;
+        hist[v]++;
+      }
+    }
+    return { data: out, hist: hist };
+  }
+
+  // Sauvola's adaptive threshold, T = m·(1 + k·(s/128 − 1)) for the mean m
+  // and standard deviation s over a window round each pixel: it follows the
+  // local level, so worn or unevenly lit areas threshold as well as the rest,
+  // and drops below the mean where there's little contrast, so flat
+  // background stays background. The window sums come from integral images,
+  // so the cost doesn't depend on the window size. It's computed at the
+  // source scale, which is cheap and plenty, since the threshold varies
+  // slowly; the working scale interpolates it. With inv, it's computed on the
+  // inverted channel, the formula being lopsided towards a light background.
+  function sauvolaMap(src, w, h, size, k, inv) {
+    var w1 = w + 1, sum = new Float64Array(w1 * (h + 1)), sq = new Float64Array(w1 * (h + 1)),
+        x, y, rs, rq;
+    for (y = 0; y < h; y++) {
+      for (rs = 0, rq = 0, x = 0; x < w; x++) {
+        var v = inv ? 255 - src[y * w + x] : src[y * w + x];
+        rs += v;
+        rq += v * v;
+        sum[(y + 1) * w1 + x + 1] = sum[y * w1 + x + 1] + rs;
+        sq[(y + 1) * w1 + x + 1] = sq[y * w1 + x + 1] + rq;
+      }
+    }
+    var out = new Float32Array(w * h), r = size >> 1;
+    for (y = 0; y < h; y++) {
+      var y0 = Math.max(0, y - r) * w1, y1 = Math.min(h, y + r + 1) * w1,
+          rowsN = (y1 - y0) / w1;
+      for (x = 0; x < w; x++) {
+        var x0 = Math.max(0, x - r), x1 = Math.min(w, x + r + 1), n = rowsN * (x1 - x0),
+            m = (sum[y1 + x1] - sum[y0 + x1] - sum[y1 + x0] + sum[y0 + x0]) / n,
+            q = (sq[y1 + x1] - sq[y0 + x1] - sq[y1 + x0] + sq[y0 + x0]) / n;
+        out[y * w + x] = m * (1 + k * (Math.sqrt(Math.max(0, q - m * m)) / 128 - 1));
+      }
+    }
+    return out;
+  }
+
+  // For each working-scale coordinate, the two source-scale neighbours and
+  // the weight of the second, for interpolating a source-scale map
+  function lerpTable(nIn, nOut) {
+    var i0 = new Int32Array(nOut), i1 = new Int32Array(nOut), t = new Float32Array(nOut);
+    for (var o = 0; o < nOut; o++) {
+      var x = Math.min(nIn - 1, Math.max(0, (o + 0.5) * nIn / nOut - 0.5)), x0 = Math.floor(x);
+      i0[o] = x0;
+      i1[o] = Math.min(nIn - 1, x0 + 1);
+      t[o] = x - x0;
+    }
+    return { i0: i0, i1: i1, t: t };
+  }
+
+  // The bitmap for potrace, 1 for black. Globally, black is darker than the
+  // threshold, the other way round when inverted; adaptively, the map gives a
+  // threshold per pixel (see sauvolaMap for how it handles inversion).
+  function thresholdBits(work, w2, h2, t, inv, tmap, off) {
+    var bits = new Int8Array(w2 * h2), i, x, y;
+    if (!tmap) {
+      for (i = 0; i < bits.length; i++) { bits[i] = (work[i] < t) !== inv ? 1 : 0; }
+      return bits;
+    }
+    var lx = lerpTable(W, w2), ly = lerpTable(H, h2);
+    for (y = 0, i = 0; y < h2; y++) {
+      var ra = ly.i0[y] * W, rb = ly.i1[y] * W, ty = ly.t[y];
+      for (x = 0; x < w2; x++, i++) {
+        var a = lx.i0[x], b = lx.i1[x], tx = lx.t[x],
+            top = tmap[ra + a] + (tmap[ra + b] - tmap[ra + a]) * tx,
+            bot = tmap[rb + a] + (tmap[rb + b] - tmap[rb + a]) * tx,
+            v = inv ? 255 - work[i] : work[i];
+        bits[i] = v < top + (bot - top) * ty + off ? 1 : 0;
+      }
+    }
+    return bits;
+  }
+
+  // Shows the bitmap in the Quantised panel, sampled down if it's bigger than
+  // a canvas may safely be
+  function drawBits(bits, w2, h2) {
+    var d = Math.min(1, Math.sqrt(MAX_PIXELS / (w2 * h2))),
+        cw = Math.max(1, Math.round(w2 * d)), ch = Math.max(1, Math.round(h2 * d));
+    bitCanvas.width = cw;
+    bitCanvas.height = ch;
+    var ctx = bitCanvas.getContext("2d"), img = ctx.createImageData(cw, ch),
+        px = new Uint32Array(img.data.buffer), BLACK = 0xff000000, WHITE = 0xffffffff, x, y, i;
+    if (cw === w2 && ch === h2) {
+      for (i = 0; i < px.length; i++) { px[i] = bits[i] ? BLACK : WHITE; }
+    } else {
+      var xs = new Int32Array(cw);
+      for (x = 0; x < cw; x++) { xs[x] = Math.min(w2 - 1, Math.floor((x + 0.5) * w2 / cw)); }
+      for (y = 0, i = 0; y < ch; y++) {
+        var row = Math.min(h2 - 1, Math.floor((y + 0.5) * h2 / ch)) * w2;
+        for (x = 0; x < cw; x++, i++) { px[i] = bits[row + xs[x]] ? BLACK : WHITE; }
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+
+  // --- Pipeline ----------------------------------------------------------
+  // Each stage's result is cached against a key made of the settings it
+  // depends on, so moving the threshold doesn't redo the upscaling and moving
+  // a tracing slider redoes neither. Slow stages put their name on the status
+  // line and yield first so that it can paint; a newer run started meanwhile
+  // makes this one give up at its next yield.
+
+  var cache = {}, runGen = 0;
+
+  function workSize() {
+    var f = +upscaleSel.value;
+    if (W * H * f * f > MAX_WORK_PIXELS) {
+      f = Math.max(1, Math.floor(10 * Math.sqrt(MAX_WORK_PIXELS / (W * H))) / 10);
+    }
+    return { f: f, w: Math.round(W * f), h: Math.round(H * f) };
+  }
+
+  function clamp255(t) { return Math.min(255, Math.max(1, Math.round(t))); }
+
+  function runPipeline() {
+    if (!rgba) { return; }
+    var gen = ++runGen, ws = workSize(), mode = modeSel.value, inv = invChk.checked,
+        off = +offset.value, rMed = +medianSel.value, sig = +sigma.value,
+        chanKey = channelSel.value + "|" + rMed,
+        workKey = chanKey + "|" + ws.w + "×" + ws.h + "|" + sig,
+        mapKey = mode === "sauvola" ? chanKey + "|" + win.value + "|" + sauK.value + "|" + inv : "",
+        threshold = 0, bitsKey = "";
+    var stages = [
+      { name: "chan", msg: "Extracting the channel…", key: function () { return chanKey; },
+        run: function () {
+          var c = computeChannel(channelSel.value);
+          return rMed ? medianFilter(c, W, H, rMed) : c;
+        } },
+      { name: "work", msg: "Upscaling and blurring…", key: function () { return workKey; },
+        run: function () {
+          var r = upscaleAndBlur(cache.chan.value, W, H, ws.w, ws.h, sig);
+          r.otsu = otsu(r.hist);
+          return r;
+        } },
+      { name: "map", msg: mapKey ? "Computing the adaptive threshold…" : null, key: function () { return mapKey; },
+        run: function () {
+          return mapKey ? sauvolaMap(cache.chan.value, W, H, +win.value, +sauK.value, inv) : null;
+        } },
+      { name: "bits", msg: null,
+        key: function () {
+          threshold = mode === "otsu" ? clamp255(cache.work.value.otsu + off) : +thr.value;
+          return bitsKey = workKey + "|" + mode + "|" + threshold + "|" + inv + "|" + mapKey + "|" + off;
+        },
+        run: function () {
+          var bits = thresholdBits(cache.work.value.data, ws.w, ws.h, threshold, inv,
+              cache.map.value, off);
+          drawBits(bits, ws.w, ws.h);
+          Potrace.loadBitmap(bits, ws.w, ws.h);
+          return bits;
+        } },
+      { name: "trace", msg: "Tracing…",
+        key: function () { return bitsKey + "|" + turd.value + "|" + alpha.value; },
+        run: function () {
+          // Speck size and curve tolerance are in source pixels, so they keep
+          // their meaning at any upscale; corner smoothing is scale-free.
+          Potrace.setParameter({
+            turdsize: Math.round(+turd.value * ws.f * ws.f),
+            alphamax: +alpha.value,
+            optcurve: true,
+            opttolerance: 0.2 * ws.f,
+            turnpolicy: "minority"
+          });
+          var svg;
+          Potrace.process(function () {
+            svg = Potrace.getSVG(W / ws.w).replace("<svg",
+                "<svg viewBox=\"0 0 " + W + " " + H + "\"");
+          });
+          return svg;
+        } }
+    ];
+
+    dlBtn.disabled = true;
+    pdfBtn.disabled = true;
+    var yielded = {};
+    (function next(i) {
+      if (gen !== runGen) { return; }
+      try {
+        for (; i < stages.length; i++) {
+          var st = stages[i], key = st.key();
+          if (cache[st.name] && cache[st.name].key === key) { continue; }
+          if (st.msg && !yielded[i]) {
+            yielded[i] = true;
+            setStatus(st.msg);
+            setTimeout(function () { next(i); }, 30);
+            return;
+          }
+          cache[st.name] = null;                  // let the old result go first
+          cache[st.name] = { key: key, value: st.run() };
+        }
+      } catch (e) {
+        cache = {};
+        setStatus(e instanceof RangeError ? "Ran out of memory — try a smaller upscale." :
+            "Something went wrong: " + e.message);
+        return;
+      }
+      finish(ws, mode, threshold, off);
+    })(0);
+  }
+
+  function finish(ws, mode, threshold, off) {
+    if (mode === "otsu") { thr.value = threshold; }
+    thrVal.textContent = mode === "sauvola" ? "–" : thr.value;
+    lastSVG = cache.trace.value;
+    svgHost.innerHTML = lastSVG;
+    applyView();   // restore the current zoom on the freshly injected SVG
+    dlBtn.disabled = false;
+    pdfBtn.disabled = false;
+    var signed = (off > 0 ? "+" : "−") + Math.abs(off);
+    var desc = mode === "sauvola" ?
+        "adaptive threshold (window " + win.value + ", k " + (+sauK.value).toFixed(2) +
+            (off ? ", offset " + signed : "") + ")" :
+        "threshold " + threshold + (mode === "otsu" ? (off ? " (auto " + signed + ")" : " (auto)") : "");
+    var paths = (lastSVG.match(/M/g) || []).length;
+    setStatus(W + "×" + H + " px" +
+        (ws.f > 1 ? " · traced at ×" + ws.f + (ws.f < +upscaleSel.value ? " (the most memory allows)" : "") : "") +
+        " · " + desc + (invChk.checked ? " · inverted" : "") +
+        " · " + paths + " shape" + (paths === 1 ? "" : "s"));
   }
 
   var traceTimer = null;
   function scheduleTrace() {
-    if (!gray) { return; }
+    if (!rgba) { return; }
     clearTimeout(traceTimer);
-    traceTimer = setTimeout(quantAndTrace, 150);
+    traceTimer = setTimeout(runPipeline, 150);
   }
 
-  function quantAndTrace() {
-    if (!gray) { return; }
-    quantize();
-    setStatus("Tracing…");
-    dlBtn.disabled = true;
-    pdfBtn.disabled = true;
-    // let the status repaint before the (synchronous) trace runs
-    setTimeout(function () {
-      Potrace.setParameter({
-        turdsize: +turd.value,
-        alphamax: +alpha.value,
-        optcurve: true,
-        opttolerance: 0.2,
-        turnpolicy: "minority"
-      });
-      var url = quantCanvas.toDataURL("image/png");
-      var done = function () {
-        lastSVG = Potrace.getSVG(1).replace("<svg",
-            "<svg viewBox=\"0 0 " + W + " " + H + "\"");
-        svgHost.innerHTML = lastSVG;
-        applyView();   // restore the current zoom on the freshly injected SVG
-        dlBtn.disabled = false;
-        pdfBtn.disabled = false;
-        setStatus(W + "×" + H + " px · threshold " + thr.value +
-            (autoChk.checked ? " (auto)" : "") + (invChk.checked ? " · inverted" : ""));
-      };
-      if (url === lastDataURL) {
-        // bitmap unchanged (only trace parameters changed) — reuse loaded bitmap
-        Potrace.process(done);
-      } else {
-        lastDataURL = url;
-        Potrace.loadImageFromUrl(url);
-        Potrace.process(done);
-      }
-    }, 30);
+  function showModeControls() {
+    var mode = modeSel.value;
+    $("offsetControl").hidden = mode === "manual";
+    $("windowControl").hidden = $("kControl").hidden = mode !== "sauvola";
+    thr.disabled = mode === "sauvola";
   }
 
   // --- Sample image ------------------------------------------------------
@@ -5090,18 +5523,27 @@ var JpxImage = (function () {
     }
   });
 
+  [channelSel, medianSel, upscaleSel].forEach(function (sel) {
+    sel.addEventListener("change", scheduleTrace);
+  });
+  sigma.addEventListener("input", function () {
+    sigmaVal.textContent = +sigma.value ? (+sigma.value).toFixed(1) + " px" : "off";
+    scheduleTrace();
+  });
+  // Dragging the threshold takes it over from Otsu
   thr.addEventListener("input", function () {
-    autoChk.checked = false;
+    modeSel.value = "manual";
+    showModeControls();
     thrVal.textContent = thr.value;
     scheduleTrace();
   });
-  autoChk.addEventListener("change", function () {
-    if (autoChk.checked && gray) {
-      thr.value = otsuValue;
-      thrVal.textContent = thr.value;
-    }
+  modeSel.addEventListener("change", function () { showModeControls(); scheduleTrace(); });
+  offset.addEventListener("input", function () {
+    offsetVal.textContent = (+offset.value > 0 ? "+" : "") + offset.value;
     scheduleTrace();
   });
+  win.addEventListener("input", function () { winVal.textContent = win.value + " px"; scheduleTrace(); });
+  sauK.addEventListener("input", function () { sauKVal.textContent = (+sauK.value).toFixed(2); scheduleTrace(); });
   invChk.addEventListener("change", scheduleTrace);
   turd.addEventListener("input", function () { turdVal.textContent = turd.value; scheduleTrace(); });
   alpha.addEventListener("input", function () { alphaVal.textContent = (+alpha.value).toFixed(2); scheduleTrace(); });
