@@ -20,7 +20,8 @@
   one by one instead, each aligned in rotation as well as position, and rebuilds
   the whole design by placing the one tracing back at every impression. Bands,
   stamps and the straight rules found in the trace can be added to a design,
-  which puts them all together as one SVG of the whole cover. All of the preprocessing and frieze code is written for
+  which puts them all together as one SVG of the whole cover, with whatever
+  they don't account for traced as it is, so that nothing is lost. All of the preprocessing and frieze code is written for
   this page.
 
   This file embeds potrace.js (verbatim apart from one added function, which
@@ -519,6 +520,9 @@
       <div class="spacer"></div>
       <div class="control">
         <button id="addRules" type="button" disabled>Add straight rules</button>
+      </div>
+      <div class="control">
+        <button id="addRest" type="button" disabled>Add the rest</button>
       </div>
       <div class="control">
         <button id="dlDesign" class="primary" type="button" disabled>Download design</button>
@@ -4905,7 +4909,7 @@ var JpxImage = (function () {
       friezeStats = $("friezeStats"), fitRules = $("fitRules"), fitDotsChk = $("fitDots"),
       kindSel = $("friezeKind"), dlRebuild = $("dlRebuild"), minMatch = $("minMatch"),
       addToDesignBtn = $("addToDesign"), addRulesBtn = $("addRules"), dlDesign = $("dlDesign"),
-      clearDesignBtn = $("clearDesign"), stackCanvas = $("stack"), previewHost = $("previewHost");
+      clearDesignBtn = $("clearDesign"), addRestBtn = $("addRest"), stackCanvas = $("stack"), previewHost = $("previewHost");
 
   // Larger images are scaled down before tracing. This is a budget on total
   // pixels rather than on the longest side, because what constrains it is the
@@ -6243,7 +6247,16 @@ var JpxImage = (function () {
         return "<use href=\"#" + id + "\" transform=\"" +
             svgMatrix(R[0], R[2], R[1], R[3], p.cx - R[0] * hw - R[1] * hh, p.cy - R[2] * hw - R[3] * hh) + "\"/>";
       }).join(""),
-      label: "Stamp, " + fz.poses.length + " impression" + (fz.poses.length === 1 ? "" : "s")
+      label: "Stamp, " + fz.poses.length + " impression" + (fz.poses.length === 1 ? "" : "s"),
+      paint: function (ctx, base) {
+        var path = new Path2D(tr.d);
+        fz.poses.forEach(function (p) {
+          var R = poseMatrix(p);
+          ctx.setTransform(base);
+          ctx.transform(R[0], R[2], R[1], R[3], p.cx - R[0] * hw - R[1] * hh, p.cy - R[2] * hw - R[3] * hh);
+          paintPath(ctx, path);
+        });
+      }
     };
   }
 
@@ -6322,7 +6335,7 @@ var JpxImage = (function () {
     var tr = traceTile(tile, longest, opts), P = fz.P, h = num(tr.height),
         // the strip starts at tile column 0, which the stack put at template
         // u0, and symmetrising rolled round by `shift` columns
-        uStart = tile.u0 - (tile.shift || 0) * tile.pitch, clips = {}, defs = "", body = "";
+        uStart = tile.u0 - (tile.shift || 0) * tile.pitch, clips = {}, defs = "", body = "", placed = [];
     lines.forEach(function (l) {
       var A = ORIENTATIONS[l.k], len = Math.hypot(l.v.x, l.v.y), ux = l.v.x / len, uy = l.v.y / len,
           // across the band, perpendicular to the line, on the side the
@@ -6339,11 +6352,25 @@ var JpxImage = (function () {
       }
       body += "<g transform=\"" + svgMatrix(s * ux, s * uy, yx, yy, e, f) + "\"><use href=\"#" + id +
           "\" clip-path=\"url(#" + clips[l.count] + ")\"/></g>";
+      placed.push({ m: [s * ux, s * uy, yx, yy, e, f], len: l.count * P });
     });
     return {
       defs: "<path id=\"" + id + "\" fill-rule=\"evenodd\" d=\"" + tr.d + "\"/>" + defs,
       body: body,
-      label: "Band, " + fz.hits.length + " repeats in " + lines.length + " line" + (lines.length === 1 ? "" : "s")
+      label: "Band, " + fz.hits.length + " repeats in " + lines.length + " line" + (lines.length === 1 ? "" : "s"),
+      paint: function (ctx, base) {
+        var path = new Path2D(tr.d);
+        placed.forEach(function (pl) {
+          ctx.save();
+          ctx.setTransform(base);
+          ctx.transform.apply(ctx, pl.m);
+          ctx.beginPath();
+          ctx.rect(0, 0, pl.len, tr.height);
+          ctx.clip();
+          paintPath(ctx, path);
+          ctx.restore();
+        });
+      }
     };
   }
 
@@ -6411,8 +6438,49 @@ var JpxImage = (function () {
     });
     // What's still short after joining is the edge of some ornament, not a
     // rule: real ones run a good part of the way across
-    return mergeRules(found).filter(function (r) { return r.len >= 2 * minLen; })
-        .map(function (r) { return r.corners; });
+    var rules = mergeRules(found).filter(function (r) { return r.len >= 2 * minLen; });
+    return snapCorners(rules, 0.04 * Math.min(w, h));
+  }
+
+  // A frame's rules meet at right angles, but each was found only as far as
+  // its last unbroken run, so its ends stop short of the corner or run past
+  // it. Each end moves to where the nearest crossing rule within `reach`
+  // crosses it, plus half that rule's thickness so the corner closes
+  // square. Returns the rectangles as corners, in bitmap pixels.
+  function snapCorners(rules, reach) {
+    var segs = rules.map(function (r) {
+      var c = Math.cos(r.th), s = Math.sin(r.th),
+          cx = r.vert ? r.cb : r.ca, cy = r.vert ? r.ca : r.cb,
+          dx = r.vert ? s : c, dy = r.vert ? c : s;
+      return { vert: r.vert, dx: dx, dy: dy, thick: r.thick,
+               p: [[cx - dx * r.len / 2, cy - dy * r.len / 2], [cx + dx * r.len / 2, cy + dy * r.len / 2]] };
+    });
+    var ends = segs.map(function (g) { return [g.p[0].slice(), g.p[1].slice()]; });
+    segs.forEach(function (g, gi) {
+      [0, 1].forEach(function (e) {
+        var E = g.p[e], ux = e ? g.dx : -g.dx, uy = e ? g.dy : -g.dy, best = null;
+        segs.forEach(function (q) {
+          if (q.vert === g.vert) { return; }
+          // where the two centrelines cross
+          var den = g.dx * q.dy - g.dy * q.dx;
+          if (Math.abs(den) < 1e-6) { return; }
+          var wx = q.p[0][0] - g.p[0][0], wy = q.p[0][1] - g.p[0][1], t = (wx * q.dy - wy * q.dx) / den,
+              X = [g.p[0][0] + t * g.dx, g.p[0][1] + t * g.dy],
+              along = (X[0] - E[0]) * ux + (X[1] - E[1]) * uy,
+              qlen = Math.hypot(q.p[1][0] - q.p[0][0], q.p[1][1] - q.p[0][1]),
+              qt = (X[0] - q.p[0][0]) * q.dx + (X[1] - q.p[0][1]) * q.dy;
+          if (Math.abs(along) > reach || qt < -reach || qt > qlen + reach) { return; }
+          if (!best || Math.abs(along) < Math.abs(best.along)) { best = { along: along, X: X, half: q.thick / 2 }; }
+        });
+        if (best) { ends[gi][e] = [best.X[0] + ux * best.half, best.X[1] + uy * best.half]; }
+      });
+    });
+    return segs.map(function (g, gi) {
+      var a = ends[gi][0], b = ends[gi][1], px = -g.dy * g.thick / 2, py = g.dx * g.thick / 2;
+      // across is the along direction turned the same way for every rule,
+      // so all are wound alike and merge where they cross
+      return [[a[0] - px, a[1] - py], [b[0] - px, b[1] - py], [b[0] + px, b[1] + py], [a[0] + px, a[1] + py]];
+    });
   }
 
   // Joins pieces of one rule broken where ornament crosses it or the
@@ -6458,7 +6526,88 @@ var JpxImage = (function () {
     }).join(" ");
     // nonzero, so that rules crossing at a corner merge rather than cancel
     return { defs: "", body: "<path fill-rule=\"nonzero\" d=\"" + d + "\"/>",
-             label: "Straight rules, " + rects.length };
+             label: "Straight rules, " + rects.length,
+             paint: function (ctx, base) { ctx.setTransform(base); paintPath(ctx, new Path2D(d), "nonzero"); } };
+  }
+
+  // Paints an element's shape for the mask of what the design covers,
+  // filled and then stroked half the covering margin wide either side, so
+  // that a placement a pixel or two off still covers what it stands for.
+  // The margin is in page pixels whatever the transform's scale.
+  var COVER_MARGIN = 2;
+  function paintPath(ctx, path, rule) {
+    var m = ctx.getTransform(), scale = Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) || 1;
+    ctx.fill(path, rule || "evenodd");
+    ctx.lineWidth = 2 * COVER_MARGIN * coverScale / scale;
+    ctx.stroke(path);
+  }
+  var coverScale = 1;                              // canvas pixels per page pixel
+
+  // Morphological opening of a bitmap, in place, by a (2r+1)² square: each
+  // erosion and dilation is a running count along rows, then along columns
+  function openBitmap(bits, w, h, r) {
+    var tmp = new Int8Array(w * h), out = new Int8Array(w * h);
+    function pass(src, dst, horiz, erode) {
+      var lines = horiz ? h : w, len = horiz ? w : h, stride = horiz ? 1 : w, step = horiz ? w : 1;
+      for (var l = 0; l < lines; l++) {
+        var base = l * step, count = 0, k;
+        for (k = 0; k < r && k < len; k++) { count += src[base + k * stride]; }
+        for (k = 0; k < len; k++) {
+          var add = k + r, drop = k - r - 1;
+          if (add < len) { count += src[base + add * stride]; }
+          if (drop >= 0) { count -= src[base + drop * stride]; }
+          var span = Math.min(len - 1, k + r) - Math.max(0, k - r) + 1;
+          dst[base + k * stride] = erode ? (count === span ? 1 : 0) : (count > 0 ? 1 : 0);
+        }
+      }
+    }
+    pass(bits, tmp, true, true);
+    pass(tmp, out, false, true);
+    pass(out, tmp, true, false);
+    pass(tmp, out, false, false);
+    for (var i = 0; i < bits.length; i++) { bits[i] = bits[i] && out[i] ? 1 : 0; }
+  }
+
+  // What the design doesn't cover: the traced bitmap less every element
+  // painted over it, traced as one more element so that nothing is lost.
+  // The mask is painted at the bitmap's scale, or as near as a canvas
+  // allows.
+  function restElement(bits, w2, h2, opts) {
+    var d = Math.min(1, Math.sqrt(MAX_PIXELS / (w2 * h2))), cw = Math.max(1, Math.round(w2 * d)),
+        ch = Math.max(1, Math.round(h2 * d)), canvas = document.createElement("canvas");
+    canvas.width = cw;
+    canvas.height = ch;
+    var ctx = canvas.getContext("2d", { willReadFrequently: true });
+    coverScale = cw / W;
+    var base = new DOMMatrix([cw / W, 0, 0, ch / H, 0, 0]);
+    ctx.fillStyle = ctx.strokeStyle = "#000";
+    ctx.lineJoin = "round";
+    design.forEach(function (el) { if (el.paint) { el.paint(ctx, base); } });
+    var mask = ctx.getImageData(0, 0, cw, ch).data, rest = new Int8Array(w2 * h2), x, y, i;
+    var xs = new Int32Array(w2);
+    for (x = 0; x < w2; x++) { xs[x] = Math.min(cw - 1, Math.floor((x + 0.5) * cw / w2)); }
+    for (y = 0, i = 0; y < h2; y++) {
+      var row = Math.min(ch - 1, Math.floor((y + 0.5) * ch / h2)) * cw;
+      for (x = 0; x < w2; x++, i++) { rest[i] = bits[i] && mask[(row + xs[x]) * 4 + 3] < 128 ? 1 : 0; }
+    }
+    // The slivers left where a placement is a pixel or two off are thinner
+    // than the margin; an opening (erode, then grow back within what was
+    // there) removes them and keeps whatever has any body to it, such as a
+    // missed ornament, even where it touches something covered
+    openBitmap(rest, w2, h2, Math.max(1, Math.round(COVER_MARGIN * w2 / W)));
+    Potrace.loadBitmap(rest, w2, h2);
+    Potrace.setParameter({
+      turdsize: Math.round(opts.turdsize * opts.f * opts.f),
+      alphamax: opts.alphamax,
+      optcurve: true,
+      opttolerance: 0.2 * opts.f,
+      turnpolicy: "minority"
+    });
+    var svg;
+    Potrace.process(function () { svg = Potrace.getSVG(W / w2); });
+    var dd = (svg.match(/ d="([^"]*)"/) || [])[1] || "", n = (dd.match(/M/g) || []).length;
+    return { defs: "", body: "<path fill-rule=\"evenodd\" d=\"" + dd + "\"/>",
+             label: "The rest, " + n + " shape" + (n === 1 ? "" : "s") };
   }
 
   function composeSVG(elements) {
@@ -7251,6 +7400,7 @@ var JpxImage = (function () {
       list.appendChild(ol);
     }
     dlDesign.disabled = clearDesignBtn.disabled = !design.length;
+    addRestBtn.disabled = !design.length || design.some(function (el) { return el.rest; }) || !(cache.bits && cache.bits.value);
     $("designFigure").hidden = !design.length;
     $("designFrame").style.setProperty("--frame-ar", W + " / " + H);
     $("designHost").innerHTML = design.length ? composeSVG(design) : "";
@@ -7273,6 +7423,16 @@ var JpxImage = (function () {
     var rects = findRules(bits, ws.w, ws.h, Math.round(Math.min(ws.w, ws.h) / 8));
     if (!rects.length) { setStatus("No straight rules found in the traced bitmap."); return; }
     design.push(rulesElement(rects, W / ws.w));
+    showDesign();
+  });
+  // Everything the other elements don't account for, from the traced
+  // bitmap; it stays as traced, so it's best added last
+  addRestBtn.addEventListener("click", function () {
+    var bits = cache.bits && cache.bits.value, ws = workSize();
+    if (!bits) { return; }
+    var el = restElement(bits, ws.w, ws.h, { turdsize: +turd.value, alphamax: +alpha.value, f: ws.f });
+    el.rest = true;
+    design.push(el);
     showDesign();
   });
   dlDesign.addEventListener("click", function () {
