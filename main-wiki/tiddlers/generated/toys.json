@@ -33,6 +33,17 @@
 		"screenshot": "/screenshots/toys/engravery.webp"
 	},
 	{
+		"title": "Toys/fractaliser",
+		"caption": "Fractaliser",
+		"description": "A fast, smooth explorer of the Mandelbrot set and its relatives, the Tricorn, Burning Ship and Cubic Multibrot, and their Julia sets: zoom deep into them, randomise, and browse nearby variations of colour and place",
+		"url": "/toys/fractaliser/",
+		"tags": "toy",
+		"text": "",
+		"category": "trifles",
+		"theme-color": "#05070b",
+		"screenshot": "/screenshots/toys/fractaliser.webp"
+	},
+	{
 		"title": "Toys/jpegulator",
 		"caption": "Jpegulator",
 		"description": "Turn PNG, WebP, TIFF and other images into JPEGs, cropped and resized alike, one at a time or a whole folder into a ZIP",
