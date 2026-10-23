@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#1b2140"/>
+<stop offset="0.35" stop-color="#6a3f7a"/>
+<stop offset="0.6" stop-color="#e0634a"/>
+<stop offset="0.68" stop-color="#ffb35c"/>
+</linearGradient>
+<linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#3a2533"/>
+<stop offset="1" stop-color="#0a0c12"/>
+</linearGradient>
+<radialGradient id="glow" cx="256" cy="348" r="210" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#ffd08a" stop-opacity="0.85"/>
+<stop offset="0.3" stop-color="#ff8f45" stop-opacity="0.35"/>
+<stop offset="1" stop-color="#ff8f45" stop-opacity="0"/>
+</radialGradient>
+<clipPath id="above"><rect width="512" height="348"/></clipPath>
+</defs>
+<rect width="512" height="512" fill="url(#sky)"/>
+<rect width="512" height="348" fill="url(#glow)"/>
+<g fill="#ffb35c" opacity="0.55">
+<rect x="60" y="150" width="210" height="9" rx="4.5"/>
+<rect x="300" y="186" width="160" height="7" rx="3.5"/>
+<rect x="110" y="222" width="120" height="6" rx="3"/>
+</g>
+<circle cx="256" cy="348" r="78" fill="#fff1d6" clip-path="url(#above)"/>
+<rect y="348" width="512" height="164" fill="url(#sea)"/>
+<g fill="#ffcf8a">
+<rect x="206" y="362" width="100" height="6" rx="3" opacity="0.9"/>
+<rect x="222" y="384" width="68" height="5" rx="2.5" opacity="0.7"/>
+<rect x="236" y="404" width="40" height="4" rx="2" opacity="0.5"/>
+<rect x="246" y="422" width="20" height="3" rx="1.5" opacity="0.35"/>
+</g>
+</svg>

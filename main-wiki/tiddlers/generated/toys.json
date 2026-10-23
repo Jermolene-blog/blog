@@ -122,6 +122,17 @@
 		"screenshot": "/screenshots/toys/spotty-sphericle.webp"
 	},
 	{
+		"title": "Toys/sunthesis",
+		"caption": "Sunthesis",
+		"description": "Photorealistic sunsets computed from the physics of sunlight passing through air, haze, cloud and water: start from one of 43 real photographs, then randomise, explore nearby skies and export HDR pictures",
+		"url": "/toys/sunthesis/",
+		"tags": "toy",
+		"text": "",
+		"category": "trifles",
+		"theme-color": "#0a0c12",
+		"screenshot": "/screenshots/toys/sunthesis.webp"
+	},
+	{
 		"title": "Toys/lenticulator",
 		"caption": "The Lenticulator",
 		"description": "Print and fold lenticular pictures that change as the observer moves",
