@@ -2,11 +2,10 @@ caption: Toys
 tags: page
 title: Toys
 
-//Interactive things//
-
+\procedure toy-listing(category)
 <div class="jermolene-toy-listing">
 
-<$list filter="[tag[toy]sort[caption]]">
+<$list filter="[tag[toy]category<category>sort[caption]]">
 
 <div class="jermolene-toy">
 
@@ -41,3 +40,18 @@ title: Toys
 </$list>
 
 </div>
+\end
+
+//Interactive things//
+
+!! Games
+
+<<toy-listing games>>
+
+!! Trifles
+
+<<toy-listing trifles>>
+
+!! Tools
+
+<<toy-listing tools>>

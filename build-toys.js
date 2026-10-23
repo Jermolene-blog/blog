@@ -6,7 +6,8 @@ Each immediate subdirectory of `static-assets/toys` that contains an
 read from the toy's own HTML `<title>` and `<meta>` tags. The caption comes from
 `<meta name="toy-title">`, falling back to `og:title` and then `<title>`; the
 description from `<meta name="toy-description">`, falling back to the standard
-`description` and then `og:description`. The toy is therefore
+`description` and then `og:description`; and its category, one of `games`,
+`trifles` or `tools`, from `<meta name="toy-category">`. The toy is therefore
 the single source of truth for its own listing: adding, renaming or
 re-describing a toy automatically updates the index at build time.
 
@@ -23,6 +24,9 @@ Usage: node build-toys.js
 
 const fs = require("fs"),
 	path = require("path");
+
+// The categories the toys index is divided into, in the order it lists them
+const categories = ["games","trifles","tools"];
 
 const rootDir = __dirname,
 	toysDir = path.join(rootDir,"static-assets","toys"),
@@ -79,7 +83,8 @@ function readToy(name) {
 		description = metaTags["toy-description"] || metaTags.description || metaTags["og:description"] || "",
 		shortCaption = metaTags["toy-short-title"] || "",
 		themeColor = metaTags["theme-color"] || "",
-		backgroundColor = metaTags["toy-background-color"] || "";
+		backgroundColor = metaTags["toy-background-color"] || "",
+		category = metaTags["toy-category"] || "";
 	if(!description) {
 		console.log("build-toys: warning: toys/" + name + " has no description meta tag");
 	}
@@ -91,6 +96,12 @@ function readToy(name) {
 		tags: "toy",
 		text: ""
 	};
+	if(categories.indexOf(category) !== -1) {
+		toy.category = category;
+	} else {
+		console.log("build-toys: warning: toys/" + name + " has " + (category ? "an unknown category '" + category + "'" :
+			"no toy-category meta tag") + "; it should be one of " + categories.join(", "));
+	}
 	if(shortCaption) {
 		toy["short-caption"] = shortCaption;
 	}
