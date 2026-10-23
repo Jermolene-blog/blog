@@ -150,7 +150,19 @@ h1 { font-family: var(--display); font-weight: 400; font-size: 30px; line-height
   header { order: 1; } .board { order: 2; } .play { order: 3; }
   .play { gap: 8px; }
   .msg { order: 1; min-height: 20px; } .tray { order: 2; min-height: 48px; } .controls { order: 3; } .rack { order: 4; }
-  .board { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  .board { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 12px; gap: 8px; }
+  /* Readable at arm's length: the card's words grow with the screen (about 23px on the largest iPhones) and sit tight together */
+  .wrap { padding-inline: max(10px, env(safe-area-inset-left, 0px)) max(10px, env(safe-area-inset-right, 0px)); }
+  .w { font-size: clamp(1.25rem, 5.4vw, 1.5rem); height: 1.2em; letter-spacing: .02em; }
+  .w .dot { width: .62em; }
+  .w .dot::before { width: max(6px, .26em); height: max(6px, .26em); }
+  .words { gap: 4px 14px; padding-block: 8px; }
+  .chip { font-size: 1.25rem; padding: 7px 12px 6px; }
+  .chip.other { font-size: 1.125rem; }
+  .chips { gap: 6px; }
+  .bonus { padding: 10px; gap: 8px; }
+  .count { font-size: 1.6rem; }
+  .bonus h3, .legend { font-size: .9375rem; }
 }
 
 /* Tablet / desktop landscape: play column on the left, word board on the right, board scrolls on its own. */
@@ -191,7 +203,7 @@ h1 { font-family: var(--display); font-weight: 400; font-size: 30px; line-height
   .intro .seg { margin-bottom: 12px; }
 }
 
-@media (max-width: 420px) { h1 { font-size: 26px; } .w { font-size: 1.0625rem; } }
+@media (max-width: 420px) { h1 { font-size: 26px; } }
 </style>
 
 <div class="wrap">

@@ -311,10 +311,10 @@ function simulateShot(W, vx, vz, lead = 0) {
 /* ===== END PHYSICS ===== */
 
 const SEATS = [
-  { name: 'Cobalt', color: '#3a6fd8', pad: [-PAD, PAD] },
-  { name: 'Oxblood', color: '#c23a2e', pad: [PAD, PAD] },
-  { name: 'Jade', color: '#2fa274', pad: [PAD, -PAD] },
-  { name: 'Amber', color: '#e7a91f', pad: [-PAD, -PAD] },
+  { name: 'Cobalt', color: '#0a5cff', pad: [-PAD, PAD] },
+  { name: 'Oxblood', color: '#d90b1e', pad: [PAD, PAD] },
+  { name: 'Jade', color: '#00b558', pad: [PAD, -PAD] },
+  { name: 'Amber', color: '#ffc000', pad: [-PAD, -PAD] },
 ];
 const MODES = ['human', 'cpu', 'off'];
 const MODE_LABEL = { human: 'Player', cpu: 'Computer', off: 'Empty seat' };
@@ -594,11 +594,11 @@ function dressMarble(e, m) {
   if (marbleFinish === 'glass') {
     e.mesh.material = new THREE.MeshPhysicalMaterial({
       color: 0xffffff, transmission: 1, thickness: R * 1.8, ior: 1.52, roughness: 0.02, metalness: 0,
-      attenuationColor: col.clone().lerp(WHITE, 0.45), attenuationDistance: 1.4,
+      attenuationColor: col.clone().lerp(WHITE, 0.08), attenuationDistance: 0.45,
       clearcoat: 1, clearcoatRoughness: 0.02, specularIntensity: 1, envMapIntensity: 1.5,
     });
     for (let k = 0; k < 3; k++) {
-      const v = new THREE.Mesh(vaneGeo, new THREE.MeshStandardMaterial({ color: col, roughness: 0.35, emissive: col, emissiveIntensity: 0.12, side: THREE.DoubleSide }));
+      const v = new THREE.Mesh(vaneGeo, new THREE.MeshStandardMaterial({ color: col, roughness: 0.35, emissive: col, emissiveIntensity: 0.3, side: THREE.DoubleSide }));
       v.rotation.set(0.25 * (k - 1), k * Math.PI / 3, 0.3);   // slight twist so each vane catches light differently
       e.mesh.add(v);
     }
