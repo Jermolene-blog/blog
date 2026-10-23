@@ -1,0 +1,1054 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#e8ebe3">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script src="../pwa.js" defer></script>
+</head><body>
+<title>Rug Addict</title>
+<meta name="description" content="Persian, Anatolian, Caucasian and Turkmen rugs generated knot by knot from the grammar of real carpets: borders, field, medallions and motifs, shown as wool pile, as a weaver's cartoon or on the floor of a room, with randomise and eight-way exploration">
+<meta name="toy-category" content="trifles">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,500;0,700;1,500&family=Alegreya+Sans:wght@400;500;700&family=Cutive+Mono&display=swap">
+<style>
+/* Layout: graph-paper workshop. The rug hangs on the left like work on a loom; the cartoon (controls, variations, grammar) sits to the right. */
+:root{
+  --paper:#e8ebe3; --grid:#dde2d6; --grid2:#ccd3c3;
+  --card:#f6f7f2; --ink:#1b2130; --muted:#5a6170; --rule:#c4cabb;
+  --indigo:#2c3e7b; --indigo-ink:#f6f7f2; --saffron:#a8781f;
+  --shadow:rgba(27,33,48,.28);
+  --f-display:'Alegreya',Georgia,'Times New Roman',serif;
+  --f-body:'Alegreya Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-data:'Cutive Mono',ui-monospace,'SF Mono',Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#13151c; --grid:#191c25; --grid2:#20242f;
+  --card:#1a1d26; --ink:#e5e3da; --muted:#9a9ca7; --rule:#2d3240;
+  --indigo:#9fb1ee; --indigo-ink:#13151c; --saffron:#ddb05a; --shadow:rgba(0,0,0,.55);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#13151c; --grid:#191c25; --grid2:#20242f;
+  --card:#1a1d26; --ink:#e5e3da; --muted:#9a9ca7; --rule:#2d3240;
+  --indigo:#9fb1ee; --indigo-ink:#13151c; --saffron:#ddb05a; --shadow:rgba(0,0,0,.55);
+  color-scheme:dark}
+[hidden]{display:none!important}
+html,body{min-height:100%}
+body{background-color:var(--paper);
+  background-image:linear-gradient(var(--grid2) 1px,transparent 1px),linear-gradient(90deg,var(--grid2) 1px,transparent 1px),linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:80px 80px,80px 80px,8px 8px,8px 8px;
+  color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1380px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:22px 56px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px;margin-bottom:18px}
+h1{font-family:var(--f-display);font-weight:700;font-style:italic;font-size:clamp(2.2rem,5vw,3.4rem);line-height:1;margin:0;letter-spacing:-.01em}
+.tag{font-family:var(--f-data);font-size:.82rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+h2{font-family:var(--f-display);font-weight:700;font-size:1.35rem;margin:0;text-wrap:balance}
+h3{font-family:var(--f-display);font-weight:700;font-size:1.1rem;margin:0 0 .3em}
+.main{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:920px){.main{grid-template-columns:minmax(0,1fr)}}
+.stage{position:sticky;top:max(12px,env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:12px;min-width:0}
+@media (max-width:920px){.stage{position:static}}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:600 .95rem var(--f-body);color:var(--ink);background:var(--card);border:1px solid var(--ink);padding:7px 14px;border-radius:2px;cursor:pointer;min-height:36px}
+.btn:hover{background:var(--paper)}
+.btn.primary{background:var(--indigo);border-color:var(--indigo);color:var(--indigo-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.4;cursor:default}
+.btn:focus-visible,.seg button:focus-visible,.thumb:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--saffron);outline-offset:2px}
+.seg{display:inline-flex;border:1px solid var(--ink);border-radius:2px;overflow:hidden;margin-left:auto}
+.seg button{font:600 .9rem var(--f-body);background:var(--card);color:var(--ink);border:0;padding:7px 12px;cursor:pointer;min-height:34px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+.loom{background:var(--card);border:1px solid var(--rule);display:flex;justify-content:center;align-items:center;padding:20px 12px;min-height:240px}
+#rug{display:block;filter:drop-shadow(0 8px 14px var(--shadow)) drop-shadow(0 1px 2px var(--shadow));max-width:100%}
+#rug.cartoon{filter:none;outline:1px solid var(--rule)}
+.loom.roommode{padding:0;display:block}
+.room{position:relative}
+.roomgl{width:100%;touch-action:none}
+.roomgl canvas{display:block;width:100%;height:100%}
+.roombar{position:absolute;top:max(10px,env(safe-area-inset-top,0px));left:10px;right:10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;pointer-events:none}
+.roombar>*{pointer-events:auto}
+.roombar .btn{min-height:32px;padding:5px 11px;font-size:.88rem;background:color-mix(in srgb,var(--card) 88%,transparent)}
+.roombar label{font-size:.88rem;display:flex;align-items:center;gap:5px;background:color-mix(in srgb,var(--card) 88%,transparent);border:1px solid var(--ink);padding:5px 10px;border-radius:2px;min-height:32px;box-sizing:border-box}
+.roommsg{position:absolute;left:10px;right:10px;bottom:8px;margin:0;font-family:var(--f-data);font-size:.75rem;color:#3a3530;text-shadow:0 0 6px rgba(255,255,255,.8);pointer-events:none}
+.caption{font-family:var(--f-data);font-size:.82rem;color:var(--muted);margin:0}
+.panel{display:flex;flex-direction:column;gap:18px;min-width:0}
+.box{background:var(--card);border:1px solid var(--rule);padding:14px 16px}
+.boxhead{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-bottom:12px}
+.boxhead .hint{font-size:.88rem;color:var(--muted)}
+.thumbs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.thumb{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:5px;min-width:0}
+.thumb .tframe{aspect-ratio:5/8;max-width:100%;display:flex;align-items:center;justify-content:center;background:var(--paper);border:1px solid var(--rule)}
+.thumb:hover .tframe{border-color:var(--ink)}
+.thumb canvas{max-width:92%;max-height:94%;image-rendering:pixelated}
+.thumb span{font-family:var(--f-data);font-size:.68rem;line-height:1.25;color:var(--muted);overflow-wrap:anywhere}
+.strength{display:flex;align-items:center;gap:8px;font-size:.88rem;color:var(--muted)}
+.strength input{width:110px}
+details.group{border-top:1px solid var(--rule)}
+details.group:first-of-type{border-top:0}
+details.group summary{list-style:none;display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer;font-family:var(--f-display);font-weight:700;font-size:1.05rem}
+details.group summary::-webkit-details-marker{display:none}
+details.group summary::before{content:"";width:7px;height:7px;border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:rotate(-45deg);transition:transform .15s;margin-right:2px}
+details.group[open] summary::before{transform:rotate(45deg)}
+.lock{margin-left:auto;font:500 .8rem var(--f-data);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:none;border:1px solid var(--rule);padding:3px 8px;border-radius:2px;cursor:pointer}
+.lock[aria-pressed="true"]{color:var(--card);background:var(--saffron);border-color:var(--saffron)}
+.rows{display:flex;flex-direction:column;gap:7px;padding-bottom:12px}
+.row{display:grid;grid-template-columns:10.5em minmax(0,1fr) 3.4em;gap:10px;align-items:center}
+.row label{font-size:.92rem}
+.row output{font-family:var(--f-data);font-size:.8rem;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.row input[type=range]{width:100%;accent-color:var(--indigo)}
+.row select{font:inherit;font-size:.92rem;padding:4px 6px;background:var(--paper);color:var(--ink);border:1px solid var(--rule);border-radius:2px;width:100%;min-width:0}
+.row input[type=checkbox]{accent-color:var(--indigo);width:18px;height:18px;justify-self:start}
+@media (max-width:420px){.row{grid-template-columns:8.5em minmax(0,1fr) 2.8em}}
+.tree{font-family:var(--f-data);font-size:.84rem;line-height:1.55;margin:0;padding:0;list-style:none;overflow-wrap:anywhere}
+.tree ul{list-style:none;margin:0;padding-left:16px;border-left:1px dotted var(--muted)}
+.tree li{position:relative;padding-left:12px}
+.tree ul li::before{content:"";position:absolute;left:0;top:.8em;width:8px;border-top:1px dotted var(--muted)}
+.tree b{font-family:var(--f-body);font-weight:700;color:var(--ink)}
+.sw{display:inline-block;width:.9em;height:.9em;vertical-align:-.1em;border:1px solid var(--rule);margin-right:3px}
+.swrow{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.swrow .sw{width:1.5em;height:1.5em;margin:0}
+.recipe textarea{width:100%;min-height:120px;font-family:var(--f-data);font-size:.75rem;background:var(--paper);color:var(--ink);border:1px solid var(--rule);padding:8px;box-sizing:border-box}
+.recipe .bar{margin-top:8px}
+.msg{font-size:.85rem;color:var(--muted)}
+.presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.presets .btn{font-size:.86rem;padding:5px 10px;min-height:32px}
+.presets .btn[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+.notes{margin-top:40px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:18px}
+.notes article{background:var(--card);border:1px solid var(--rule);padding:16px 18px;min-width:0}
+.notes p{margin:.3em 0 .6em;max-width:65ch}
+.notes .wide{grid-column:1/-1}
+.lex{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:14px;margin-top:10px}
+.lex figure{margin:0;display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;align-items:start}
+.lex canvas{width:64px;height:64px;image-rendering:pixelated;border:1px solid var(--rule)}
+.lex figcaption b{display:block;font-family:var(--f-display);font-size:1rem}
+.lex figcaption{font-size:.88rem;color:var(--muted)}
+.lex figcaption i{color:var(--ink)}
+.sources{font-size:.85rem;color:var(--muted)}
+.sources a{color:var(--indigo)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <h1>Rug Addict</h1>
+  <span class="tag">Rug maker on the grammar of Persian &amp; Anatolian carpets</span>
+</header>
+
+<div class="main">
+  <section class="stage" aria-label="Rug">
+    <div class="bar">
+      <button class="btn primary" id="rand" type="button">Randomise</button>
+      <button class="btn" id="reset" type="button">Reset</button>
+      <button class="btn" id="back" type="button" disabled>Back</button>
+      <div class="seg" role="group" aria-label="View">
+        <button type="button" id="vRug" aria-pressed="true">Rug</button>
+        <button type="button" id="vCart" aria-pressed="false">Cartoon</button>
+        <button type="button" id="vRoom" aria-pressed="false">Room</button>
+      </div>
+    </div>
+    <div class="loom" id="loom"><canvas id="rug" aria-label="Generated rug"></canvas>
+      <div class="room" id="room" hidden>
+        <div class="roomgl" id="roomGL"></div>
+        <div class="roombar">
+          <button class="btn" id="camOver" type="button">Overhead</button>
+          <button class="btn" id="camStand" type="button">Standing</button>
+          <label for="furn"><input type="checkbox" id="furn" checked> Furniture</label>
+        </div>
+        <p class="roommsg" id="roomMsg">Drag to orbit · right-drag or two fingers to pan · scroll or pinch to zoom</p>
+      </div>
+    </div>
+    <p class="caption" id="cap"></p>
+  </section>
+
+  <section class="panel">
+    <div class="box">
+      <div class="boxhead"><h2>References</h2><span class="hint">Load a parameter set that reproduces a known design, then explore from it.</span></div>
+      <div class="presets" id="presets"></div>
+    </div>
+
+    <div class="box">
+      <div class="boxhead">
+        <h2>Explore</h2>
+        <span class="hint">Eight mutations of this rug. Tap one to take it and breed again.</span>
+        <label class="strength" for="str">Step <input type="range" id="str" min="0.05" max="1" step="0.05" value="0.35"></label>
+        <button class="btn" id="reroll" type="button">New eight</button>
+      </div>
+      <div class="thumbs" id="thumbs"></div>
+    </div>
+
+    <div class="box" id="controls"></div>
+
+    <div class="box">
+      <div class="boxhead"><h2>Grammar of this rug</h2></div>
+      <div id="grammar"></div>
+    </div>
+
+    <div class="box recipe">
+      <div class="boxhead"><h2>Recipe</h2><span class="hint">The parameters as text, to keep or paste back.</span></div>
+      <textarea id="recipe" spellcheck="false" aria-label="Recipe JSON"></textarea>
+      <div class="bar"><button class="btn" id="copy" type="button">Copy</button><button class="btn" id="apply" type="button">Apply pasted recipe</button><span class="msg" id="rmsg"></span></div>
+    </div>
+  </section>
+</div>
+
+<section class="notes" aria-label="Notes on rug design">
+  <article>
+    <h3>Anatomy</h3>
+    <p>Almost every classical rug shares one skeleton: a <i>field</i> framed by a wide <i>main border</i>, which is flanked by two to six narrow <i>guard stripes</i>. Many add a central <i>medallion</i>, often with <i>pendants</i> on its long axis, and corner <i>spandrels</i> that repeat a quarter of the medallion.</p>
+    <p>Layout and motif are separate choices. A rug can be "all-over" in layout and "Herati" in motif at the same time. This app keeps them separate in the same way.</p>
+  </article>
+  <article>
+    <h3>Two knots</h3>
+    <p>The <i>symmetric</i> (Turkish, Ghiordes) knot wraps two warps; the <i>asymmetric</i> (Persian, Senneh) knot wraps one and lies loose round the next, so it packs tighter. Fine asymmetric knotting suits flowing curvilinear city drawing; the symmetric knot suits bold rectilinear village and tribal designs.</p>
+    <p>The names mislead: both knots are tied inside and outside Iran. The <b>Drawing</b> slider moves from village to city, and the knot count sets how smooth the curves can be.</p>
+  </article>
+  <article>
+    <h3>The cartoon</h3>
+    <p>Workshop rugs are woven from a <i>naqsheh</i>: a painted design on graph paper where each square is one knot. Because the design is mirror-symmetric, the designer usually draws only one quarter and the weaver reflects it. Village and nomad weavers often work from memory instead, which is why their corners and repeats wander.</p>
+    <p>Switch to <b>Cartoon</b> to see the knot grid, with the quarter a weaver would actually need in full colour.</p>
+  </article>
+  <article>
+    <h3>Why it reads as wool</h3>
+    <p>Knot count matters: real rugs run from about 25 knots per square inch for nomad work to several hundred in fine city pieces, so the caption reports the density your settings imply. But a flat square per knot still looks like pixels. The <b>Rug</b> view treats each knot as two tufts of heathered yarn whose fibres spill into their neighbours and lean toward one end of the rug. It adds abrash, wavering village edges, overcast side cords, flatwoven ends and a knotted warp fringe. <b>Pile texture</b> controls most of this.</p>
+  </article>
+  <article>
+    <h3>Layouts</h3>
+    <p><b>Medallion:</b> one centred figure on a ground. <b>Stacked:</b> a column of hooked medallions, common in Anatolia and the Caucasus. <b>All-over:</b> an endless repeat with no centre. <b>Prayer:</b> a pointed niche (mihrab) at one end, so only left–right symmetry. <b>Garden:</b> compartments divided by water channels, after the Persian paradise garden. <b>Gul rows:</b> Turkmen octagons in rows with minor guls between.</p>
+  </article>
+  <article>
+    <h3>Colour and abrash</h3>
+    <p>Wool was dyed in small batches, so a weaver who ran out of one lot and began another left horizontal bands of shifted tone across the rug. This <i>abrash</i> is prized in old pieces. Palettes here are named after weaving centres whose colour habits they borrow, from Heriz brick red to the apricot and sage of Oushak.</p>
+  </article>
+  <article>
+    <h3>How the generator reads</h3>
+    <p>The rug is computed knot by knot. The border is a stack of bands measured from the edge, with repeats fitted so each side mirrors at its middle and corners mitre cleanly. The field is evaluated in folded, quarter coordinates, so every design is symmetric the way a cartoon would make it. Contours come from a depth pass: a knot next to anything drawn on top of it becomes the dark outline colour.</p>
+  </article>
+  <article class="wide">
+    <h3>Motif lexicon</h3>
+    <p>Meanings below are traditional readings. They come mostly from oral tradition and dealer lore, and the same shape is read differently from village to village, so treat them as associations rather than a code.</p>
+    <div class="lex" id="lex"></div>
+  </article>
+  <article class="wide sources">
+    <h3>Sources</h3>
+    Knots: <a href="https://en.wikipedia.org/wiki/Knotted-pile_carpet" target="_blank" rel="noopener">Knotted-pile carpet (Wikipedia)</a>, <a href="https://www.woven.is/blog/persian-knot-vs-turkish-knot.htm" target="_blank" rel="noopener">Woven: Persian vs Turkish knot</a>.
+    Layout: <a href="https://www.arabnews.com/node/222798" target="_blank" rel="noopener">Arab News: Persian carpet design and layout</a>, <a href="https://little-persia.com/pages/persian-oriental-rug-design" target="_blank" rel="noopener">Little Persia: rug design</a>, <a href="https://nazmiyalantiquerugs.com/rug-patterns-carpet-designs/" target="_blank" rel="noopener">Nazmiyal: patterns and motifs</a>.
+    Motifs: <a href="https://en.wikipedia.org/wiki/Kilim_motifs" target="_blank" rel="noopener">Kilim motifs (Wikipedia)</a>, <a href="https://goturkiye.com/the-5-most-common-anatolian-motifs-and-their-meanings" target="_blank" rel="noopener">Go Türkiye: Anatolian motifs</a>.
+    Cartoons: <a href="https://oldnewhouse.com/pages/naksha-the-rug-map-design-blueprint-of-indian-oriental-carpets" target="_blank" rel="noopener">Old New House: Naksha</a>, <a href="https://ecarpetgallery.com/us_en/glossary/" target="_blank" rel="noopener">eCarpet Gallery glossary</a>.
+  </article>
+</section>
+</div>
+
+<script>
+(()=>{
+'use strict';
+// ---------- palettes ----------
+const PAL={
+ Heriz:{c:['#a8402e','#1e2b45','#e9dcc0','#6e9bb5','#d4955c','#4e6a4a','#2a1c15'],n:['brick red','navy','ivory','sky blue','apricot','green','walnut']},
+ Tabriz:{c:['#7c1e27','#1a2440','#ecdcbf','#c8a24c','#bf6f6c','#3f5d47','#1a1314'],n:['claret','midnight','ivory','gold','rose','bottle green','black-brown']},
+ Kazak:{c:['#b3322b','#26386a','#efe5cc','#3f7e56','#e0b23e','#5c2d42','#22160f'],n:['madder','indigo','ivory','green','weld yellow','aubergine','brown-black']},
+ Oushak:{c:['#d79b7c','#5e7a93','#efe3cc','#8ea47f','#b85d3f','#d9b264','#5b3d2e'],n:['apricot','slate blue','ivory','sage','terracotta','saffron','umber']},
+ Qashqai:{c:['#a3442c','#1d2b4d','#eee2c9','#d87a2a','#e2c04a','#477a5a','#1b120d'],n:['rust','indigo','ivory','orange','yellow','green','black']},
+ Tekke:{c:['#7a2224','#3e1416','#e7d7bd','#1f2846','#b7582f','#6f7a62','#140c0b'],n:['madder','liver','ivory','indigo','orange-red','grey-green','black']},
+ Isfahan:{c:['#9d2a36','#20305b','#f0e6d2','#4f9095','#c9a55b','#d8a4a1','#141a33'],n:['crimson','navy','ivory','turquoise','gold','pink','ink']},
+ Lotto:{c:['#a5262a','#1d2b55','#f0e2c0','#e6b437','#3e6b4b','#6a8fb0','#1a1210'],n:['red','blue','ivory','yellow','green','light blue','black']},
+ Hamadan:{c:['#c29a6b','#2a2f4c','#efe2c7','#9b3b2c','#6f8c6d','#d6b46a','#2b1d14'],n:['camel','navy','ivory','red','green','gold','brown']},
+ Baluch:{c:['#931a28','#24111a','#e2d5bd','#cf4e22','#8c7564','#4a2c4e','#150a0d'],n:['madder','aubergine-black','ivory','orange','camel','purple','black-brown']},
+ Turquoise:{c:['#2b1d17','#a5c6b8','#efe5cc','#e0521e','#a8761b','#e0498c','#3a1520','#b4352a','#eeae2c','#2e4c9e','#2a8784'],n:['dark brown','pale aqua','ivory','orange','mustard','magenta','aubergine','brick red','gold','royal blue','teal']},
+};
+// every palette carries 11 colours so any colourway works with any palette
+for(const k in PAL){const P=PAL[k];const ext=[[0,'deep '],[4,'second '],[1,'light '],[3,'bright ']];
+ while(P.c.length<11){const[i,pre]=ext[P.c.length-7];P.c.push(P.c[i]);P.n.push(pre+P.n[i])}}
+// palette index meaning: 0 primary, 1 dark, 2 light, 3-5 accents, 6 outline
+const CW=[
+ {field:0,fA:2,fB:1,fC:3,med:1,m1:0,m2:2,spand:2,border:1,bA:0,bB:2,bC:4,guard:2,gA:0,gB:1},
+ {field:1,fA:0,fB:2,fC:4,med:0,m1:2,m2:1,spand:0,border:0,bA:2,bB:1,bC:3,guard:2,gA:1,gB:0},
+ {field:2,fA:0,fB:1,fC:3,med:0,m1:1,m2:3,spand:1,border:1,bA:2,bB:0,bC:4,guard:0,gA:2,gB:1},
+ {field:0,fA:3,fB:2,fC:1,med:2,m1:0,m2:1,spand:1,border:2,bA:0,bB:1,bC:3,guard:1,gA:2,gB:0},
+ {field:3,fA:2,fB:0,fC:1,med:0,m1:2,m2:3,spand:2,border:1,bA:3,bB:2,bC:0,guard:2,gA:0,gB:1},
+ {field:1,fA:2,fB:3,fC:4,med:2,m1:0,m2:1,spand:0,border:4,bA:1,bB:2,bC:0,guard:0,gA:2,gB:1},
+ {field:1,fA:0,fB:3,fC:4,med:0,m1:1,m2:3,spand:1,border:0,bA:1,bB:6,bC:2,guard:6,gA:0,gB:3},
+ {field:0,fA:5,fB:10,fC:8,med:4,m1:7,m2:9,spand:1,border:1,bA:7,bB:3,bC:6,guard:1,gA:6,gB:5},
+];
+// ---------- parameter spec ----------
+const OPT={
+ layout:{medallion:'Central medallion',stacked:'Stacked medallions',pole:'Pole medallion with panel',allover:'All-over repeat',prayer:'Prayer niche',garden:'Garden compartments',guls:'Gul rows'},
+ motif:{herati:'Herati (fish)',boteh:'Boteh',minakhani:'Mina khani',star:'Eight-pointed star',eli:'Elibelinde',gul:'Gul',ram:"Ram's horn",palm:'Palmette',rosette:'Octagonal rosette',sprig:'Flowering sprig',pinwheel:'Pinwheel star'},
+ fillB:{none:'None',arrow:'Arrow',star:'Star',pinwheel:'Pinwheel star',sprig:'Flowering sprig',ram:"Ram's horn"},
+ medShape:{diamond:'Stepped or lobed diamond',octagon:'Cut-corner rectangle'},
+ medFill:{rings:'Concentric rings',octagons:'Octagon lattice and cartouche'},
+ toothStyle:{zigzag:'Sawtooth line',teeth:'Reciprocal teeth'},
+ panelFill:{hooked:'Hooks, wheels and animal',field:'Field motif',plain:'Plain'},
+ mainBorder:{herati:'Herati turtle',vine:'Meander vine',cartouche:'Cartouches',reciprocal:'Reciprocal teeth',stars:'Stars',eli:'Elibelinde',boteh:'Boteh',shook:'S-hooks',leaf:'Crossed serrated leaves',bracket:'Rosettes and bracket hooks'},
+ guard:{barber:'Barber pole',slant:'Slanted polychrome blocks',zigzag:'Zigzag line',dots:'Rosettes',vine:'Small vine',reciprocal:'Reciprocal teeth',chain:'Diamond chain',plain:'Plain'},
+ palette:Object.fromEntries(Object.keys(PAL).map(k=>[k,k])),
+};
+const SPECS=[
+ {k:'layout',g:'Layout',t:'sel',l:'Layout'},
+ {k:'knots',g:'Layout',t:'rng',l:'Knots across',min:40,max:400,s:2},
+ {k:'aspect',g:'Layout',t:'rng',l:'Length ÷ width',min:1.1,max:2.2,s:0.05},
+ {k:'style',g:'Layout',t:'rng',l:'Drawing (village→city)',min:0,max:1,s:0.01},
+ {k:'motif',g:'Field',t:'sel',l:'Field motif'},
+ {k:'tiles',g:'Field',t:'rng',l:'Repeats across',min:2,max:12,s:1},
+ {k:'tileRatio',g:'Field',t:'rng',l:'Row spacing ÷ column spacing',min:0.5,max:1.5,s:0.02},
+ {k:'density',g:'Field',t:'rng',l:'Scatter density',min:0,max:1,s:0.05},
+ {k:'fillB',g:'Field',t:'sel',l:'Second motif'},
+ {k:'mix',g:'Field',t:'rng',l:'Share of second motif',min:0,max:0.6,s:0.02},
+ {k:'alternate',g:'Field',t:'bool',l:'Alternate the two motifs'},
+ {k:'sideFill',g:'Field',t:'bool',l:'Fill only beside medallions'},
+ {k:'brick',g:'Field',t:'bool',l:'Half-drop repeat'},
+ {k:'outline',g:'Field',t:'bool',l:'Dark contours'},
+ {k:'medSize',g:'Medallion',t:'rng',l:'Size',min:0.2,max:0.9,s:0.01},
+ {k:'medElong',g:'Medallion',t:'rng',l:'Elongation',min:0.7,max:1.8,s:0.05},
+ {k:'lobes',g:'Medallion',t:'rng',l:'Lobes',min:0,max:16,s:4},
+ {k:'lobeDepth',g:'Medallion',t:'rng',l:'Lobe depth',min:0,max:0.4,s:0.01},
+ {k:'rings',g:'Medallion',t:'rng',l:'Rings',min:1,max:5,s:1},
+ {k:'hooks',g:'Medallion',t:'rng',l:'Latch hooks',min:0,max:1,s:0.05},
+ {k:'medCount',g:'Medallion',t:'rng',l:'Count when stacked',min:2,max:5,s:1},
+ {k:'pendants',g:'Medallion',t:'bool',l:'Pendants'},
+ {k:'spandrels',g:'Medallion',t:'bool',l:'Corner spandrels'},
+ {k:'medShape',g:'Medallion',t:'sel',l:'Stacked medallion shape'},
+ {k:'medFill',g:'Medallion',t:'sel',l:'Stacked medallion contents'},
+ {k:'medBlocks',g:'Medallion',t:'bool',l:'Check blocks in corners'},
+ {k:'lozSize',g:'Medallion',t:'rng',l:'Pole lozenge size',min:0.2,max:0.8,s:0.01},
+ {k:'panelFill',g:'Medallion',t:'sel',l:'Panel contents'},
+ {k:'mainBorder',g:'Borders',t:'sel',l:'Main border'},
+ {k:'guard',g:'Borders',t:'sel',l:'Guard stripe'},
+ {k:'guards',g:'Borders',t:'rng',l:'Guards each side',min:0,max:3,s:1},
+ {k:'borderWidth',g:'Borders',t:'rng',l:'Main border width',min:0.04,max:0.2,s:0.005},
+ {k:'guardRatio',g:'Borders',t:'rng',l:'Guard ÷ main width',min:0.2,max:1,s:0.02},
+ {k:'pearls',g:'Borders',t:'bool',l:'Pearl stripes'},
+ {k:'tooth',g:'Borders',t:'bool',l:'Inner tooth band'},
+ {k:'toothStyle',g:'Borders',t:'sel',l:'Tooth band style'},
+ {k:'palette',g:'Colour',t:'sel',l:'Palette'},
+ {k:'colourway',g:'Colour',t:'rng',l:'Colourway',min:0,max:7,s:1},
+ {k:'abrash',g:'Colour',t:'rng',l:'Abrash',min:0,max:1,s:0.05},
+ {k:'texture',g:'Weave',t:'rng',l:'Pile texture',min:0,max:1,s:0.05},
+ {k:'wear',g:'Weave',t:'rng',l:'Wear',min:0,max:1,s:0.05},
+ {k:'fringe',g:'Weave',t:'bool',l:'Kilim ends & fringe'},
+ {k:'size',g:'Weave',t:'rng',l:'Width in metres',min:0.6,max:3.5,s:0.05},
+ {k:'rowRatio',g:'Weave',t:'rng',l:'Rows ÷ knots per cm',min:0.8,max:2.2,s:0.05},
+ {k:'seed',g:'Weave',t:'rng',l:'Seed',min:1,max:999,s:1},
+];
+const GROUPS=['Layout','Field','Medallion','Borders','Colour','Weave'];
+const DEFAULTS={alternate:false,sideFill:false,medShape:'diamond',medFill:'rings',medBlocks:false,toothStyle:'zigzag',rowRatio:1.15,tileRatio:1,fillB:'none',mix:0,lozSize:0.5,panelFill:'hooked',guardRatio:0.32,pearls:false,tooth:false,size:1.8,layout:'medallion',knots:180,aspect:1.5,style:0.2,motif:'star',tiles:7,density:0.45,brick:true,outline:true,
+ medSize:0.56,medElong:1.25,lobes:8,lobeDepth:0.1,rings:3,hooks:0.6,medCount:3,pendants:true,spandrels:true,
+ mainBorder:'herati',guard:'barber',guards:1,borderWidth:0.12,palette:'Heriz',colourway:0,abrash:0.35,texture:0.6,wear:0.08,fringe:true,seed:7};
+
+// ---------- maths ----------
+function hash2(i,j,s){let h=(Math.imul(i|0,374761393)+Math.imul(j|0,668265263)+Math.imul(s|0,982451653))|0;h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return (h>>>0)/4294967296}
+function vnoise(x,y,s){const xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi,u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf);
+ const a=hash2(xi,yi,s),b=hash2(xi+1,yi,s),c=hash2(xi,yi+1,s),d=hash2(xi+1,yi+1,s);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v}
+function seg(px,py,ax,ay,bx,by){const dx=bx-ax,dy=by-ay;let t=((px-ax)*dx+(py-ay)*dy)/(dx*dx+dy*dy);t=t<0?0:t>1?1:t;return Math.hypot(px-ax-t*dx,py-ay-t*dy)}
+function pl(px,py,pts){let m=1e9;for(let i=0;i<pts.length-1;i++)m=Math.min(m,seg(px,py,pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1]));return m}
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+function hex2rgb(h){const n=parseInt(h.slice(1),16);return[(n>>16)&255,(n>>8)&255,n&255]}
+
+// ---------- motifs: (x,y) in [-1,1], y down. Return 0 ground, 1..3 colour roles ----------
+const M={
+ star(x,y){const a=Math.abs(x),b=Math.abs(y);if(!(Math.max(a,b)<0.62||a+b<0.88))return 0;if(a+b<0.28)return 3;if(Math.max(a,b)<0.36||a+b<0.5)return 2;return 1},
+ herati(x,y){const a=Math.abs(x),b=Math.abs(y),r=Math.hypot(a,b),th=Math.atan2(b,a);
+  if(r<0.13)return 3;if(r<0.27*(0.8+0.2*Math.cos(8*th)))return 2;
+  const rc=Math.hypot(1-a,1-b);if(rc<0.11)return 3;if(rc<0.22)return 2;
+  if(Math.hypot(1-a,b)<0.12||Math.hypot(a,1-b)<0.12)return 3;
+  if(Math.abs(a+b-0.6)<0.07)return 1;
+  const px=a-0.57,py=b-0.57,al=(px-py)*0.7071,ac=(px+py)*0.7071+0.25*al*al;
+  if((al/0.44)**2+(ac/0.13)**2<1)return (Math.abs(ac)<0.035&&Math.abs(al)<0.3)?2:1;
+  return 0},
+ boteh(x,y){const yy=-y,t=(yy+0.72)/1.44;if(t<0||t>1)return 0;
+  const bend=t>0.45?0.42*((t-0.45)/0.55)**2:0;
+  const w=t<0.4?0.46*Math.sqrt(Math.max(0,1-((0.4-t)/0.4)**2)):0.46*Math.pow(Math.max(0,1-(t-0.4)/0.6),1.2);
+  const dx=x-bend;if(Math.abs(dx)>=w)return 0;
+  if(t>0.2&&t<0.36&&Math.abs(dx)<w*0.3)return 3;
+  if(Math.abs(dx)<w*0.58&&t>0.1&&t<0.78)return 2;return 1},
+ minakhani(x,y){const a=Math.abs(x),b=Math.abs(y);
+  const fl=(dx,dy,R,n)=>{const r=Math.hypot(dx,dy),th=Math.atan2(dy,dx);if(r<R*0.32)return 3;if(r<R*(0.65+0.35*Math.abs(Math.cos(n*th))))return 2;return 0};
+  let v=fl(a,b,0.34,3);if(v)return v;v=fl(1-a,1-b,0.34,3);if(v)return v;
+  v=fl(1-a,b,0.22,2)||fl(a,1-b,0.22,2);if(v)return v===2?1:3;
+  if(Math.abs(a+b-1)<0.06||Math.abs(a-b)<0.05)return 1;return 0},
+ gul(x,y){const a=Math.abs(x),b=Math.abs(y),o=Math.max(a,b,(a+b)*0.74);if(o>0.86)return 0;if(o>0.76)return 3;
+  if(Math.max(a,b)<0.17||a+b<0.25)return 3;if(Math.abs(a-0.4)+Math.abs(b-0.4)<0.13)return 3;return x*y>0?1:2},
+ eli(x,y){const a=Math.abs(x);
+  if(a+Math.abs(y+0.74)<0.17)return 2;
+  if(a<0.08&&y>-0.6&&y<0.86)return 1;
+  if(Math.min(pl(a,y,[[0.06,-0.5],[0.5,-0.12],[0.12,0.26]]),seg(a,y,0.1,0.34,0.5,0.82))<0.085)return 1;
+  if(Math.abs(a-0.58)<0.08&&Math.abs(y+0.12)<0.13)return 2;
+  if(Math.abs(a-0.27)+Math.abs(y+0.1)<0.07)return 3;return 0},
+ ram(x,y){const a=Math.abs(x),b=Math.abs(y);
+  if(a+b<0.2)return 2;if(a<0.08&&b<0.86)return 1;
+  if(Math.abs(b-0.58)<0.08&&a<0.64)return 1;if(a>0.5&&a<0.64&&b>0.2&&b<0.64)return 1;if(b>0.2&&b<0.32&&a>0.34&&a<0.64)return 1;
+  if(Math.abs(a-0.82)+Math.abs(b-0.82)<0.12)return 3;if(Math.abs(a-0.3)+b<0.1)return 3;return 0},
+ palm(x,y){const yy=-y,a=Math.abs(x),ry=yy+0.3,r=Math.hypot(x,ry),th=Math.atan2(x,ry);
+  if(ry>-0.05&&Math.abs(th)<1.45){const lim=0.68*(0.78+0.22*Math.abs(Math.cos(7*th)));if(r<lim){if(r<0.2)return 3;if(r<0.44)return 2;return 1}}
+  if(a<0.07&&yy<-0.25&&yy>-0.86)return 1;if(Math.abs(yy+0.44)<0.07&&a<0.32)return 2;return 0},
+ rose(x,y){const r=Math.hypot(x,y),th=Math.atan2(y,x);if(r<0.2)return 3;if(r<0.55*(0.7+0.3*Math.abs(Math.cos(4*th))))return 1;return 0},
+ // 4 = dark outline/ground colour. h = per-cell hash, picks a variant as village weavers do
+ rosette(x,y,h=0){const a=Math.abs(x)/0.78,b=Math.abs(y)/0.94,o=Math.max(a,b,(a+b)*0.74);if(o>1)return 0;
+  const r=Math.hypot(x/0.78,y/0.94),th=Math.atan2(y/0.94,x/0.78);
+  if(h<0.25){const s=M.star(x/0.52,y/0.64);return s===3?2:s?4:1}
+  if(h<0.5){if(Math.abs(y)<0.1&&Math.abs(x)<0.5)return 4;if(Math.abs(Math.abs(x)-0.42)<0.08&&Math.abs(y)<0.42)return 4;if(Math.abs(x)<0.13&&Math.abs(Math.abs(y)-0.45)<0.1)return 2;return 1}
+  if(h<0.75){if(r<0.2)return 2;if(o>0.86)return 4;if(r<0.78&&Math.abs(Math.sin(4*th))<0.32)return 4;return 1}
+  const f=(th/(2*Math.PI)*10+10)%1;if(o>0.6&&o<0.86&&f<0.4)return 2;if(o<0.5)return Math.abs(x)<0.1||Math.abs(y)<0.1?1:4;return 4},
+ arrow(x,y,h=0){const c=h<0.5?2:1,a=Math.abs(x);
+  if(y<-0.38&&y>-0.92&&a<(y+0.92)*0.75)return c;if(a<0.1&&y>-0.45&&y<0.85)return c;
+  for(const yk of[0.3,0.58])if(seg(a,y,0,yk,0.42,yk+0.3)<0.09)return c;return 0},
+ sprig(x,y,h=0){const a=Math.abs(x);
+  if(Math.hypot(x,y+0.72)<0.22)return Math.hypot(x,y+0.72)<0.09?2:3;
+  if(a<0.07&&y>-0.55&&y<0.92)return 1;
+  for(let k=0;k<5;k++){const yk=-0.42+k*0.27;if(seg(a,y,0,yk,0.42-k*0.03,yk+0.24)<0.075)return 1+(k%3)}return 0},
+ pinwheel(x,y){const r=Math.hypot(x,y),th=Math.atan2(y,x),k=Math.round(th/(Math.PI/4)),dth=th-k*Math.PI/4;
+  if(r<0.14)return 3;const w=0.33*(1-r/0.95);if(r<0.95&&Math.abs(dth+0.12*r)*r<w*0.6+0.02)return(k&1)?2:1;return 0},
+ animal(x,y){ // quadruped pictogram lying along the rug's axis; not mirrored
+  if(Math.abs(x+0.02)<0.24&&Math.abs(y)<0.44)return 1;
+  for(const ly of[-0.32,0.32])if(Math.abs(y-ly)<0.08&&x>0.1&&x<0.7)return 1;
+  if(seg(x,y,-0.15,-0.4,-0.62,-0.62)<0.11||seg(x,y,-0.62,-0.62,-0.48,-0.9)<0.1)return 1;
+  if(seg(x,y,-0.12,0.42,-0.5,0.66)<0.07)return 1;if(Math.hypot(x+0.58,y+0.7)<0.06)return 3;return 0},
+};
+// ---------- border motifs: x along in half-width units [-Lr,Lr], b across [-1,1] (−1 outermost) ----------
+const BM={
+ vine(x,b,i,Lr){const ph=x/Lr,w=0.5*Math.sin(Math.PI*ph);if(Math.abs(b-w)<0.11)return 1;
+  for(const s of[1,-1]){const dx=x-s*0.5*Lr,dy=b+s*0.42,r=Math.hypot(dx,dy),th=Math.atan2(dy,dx);if(r<0.13)return 3;if(r<0.36*(0.72+0.28*Math.abs(Math.cos(4*th))))return 2}return 0},
+ cartouche(x,b,i,Lr){const rc=Math.hypot(Lr-Math.abs(x),b);if(rc<0.42)return rc<0.16?3:1;
+  const q=(Math.abs(x)/(Lr*0.58))**4+(Math.abs(b)/0.64)**4;if(q<1){if(M.star(x/0.42,b/0.42))return 3;return q<0.45?1:2}return 0},
+ reciprocal(x,b,i,Lr){const ph=Math.abs(x)/Lr;return b<-0.8+1.6*ph?1:2},
+ stars(x,b){return M.star(x/0.88,b/0.88)},
+ eli(x,b){return M.eli(x/0.92,b/0.95)},
+ boteh(x,b,i){return M.boteh(((i&1)?-x:x)/0.9,b/0.95)},
+ shook(x,b,i,Lr){const sx=x/Lr*0.95,sb=b*0.92,P=[[-0.55,0.12],[-0.55,-0.55],[0.18,-0.55],[0.18,-0.16]];
+  if(Math.min(pl(sx,sb,P),pl(-sx,-sb,P))<0.14)return (i&1)?1:2;if(Math.abs(sx)+Math.abs(sb)<0.12)return 3;return 0},
+ bracket(x,b,i,Lr){const sx=x/Lr*1.0;
+  if(i&1){const P=[[0.55,-0.68],[-0.62,-0.68],[-0.62,0.62],[0.22,0.62],[0.22,0.12]];
+   if(pl(sx,b,P)<0.16)return 3;if(seg(sx,b,0.36,0.62,0.82,0.92)<0.11||seg(sx,b,0.38,0.36,0.84,0.64)<0.09)return 4;
+   const r=Math.hypot(sx+0.18,b+0.05);if(r<0.24)return r<0.08?6:(Math.abs(Math.sin(4*Math.atan2(b+0.05,sx+0.18)))<0.5?5:0);return 0}
+  const r=Math.hypot(sx,b),th=Math.atan2(b,sx);if(r<0.14)return 2;if(r<0.3)return Math.abs(sx)+Math.abs(b)<0.3?6:1;
+  if(r<0.74*(0.8+0.2*Math.cos(8*th))||(r<0.95&&Math.abs(Math.sin(4*th))<0.2))return 1;return 0},
+ leaf(x,b,i,Lr){const sx=x/Lr;
+  if(i%7===3&&Math.hypot(sx*1.3,b)<0.42)return Math.hypot(sx*1.3+0.12,b+0.12)<0.12?2:3;
+  for(const s of[1,-1]){const al=(sx+s*b)*0.7071,ac=(sx-s*b)*0.7071,w=0.55*(1+0.2*Math.sin(al*26));
+   if((al/1.35)**2+(ac/w)**2<1)return Math.abs(ac)<0.05?0:1}
+  return 0},
+ herati(x,b,i,Lr){const r=Math.hypot(x,b);if(r<0.42)return r<0.17?3:1;
+  const px=Math.abs(x)-Lr*0.55;
+  for(const s of[1,-1]){const al=(px-s*b)*0.7071,ac=(px+s*b)*0.7071;if((al/0.5)**2+(ac/0.15)**2<1)return 2}
+  if(Math.hypot(Lr-Math.abs(x),b)<0.24)return 3;return 0},
+};
+const GM={
+ dots(x,b){const r=Math.hypot(x,b);return r<0.55?(r<0.22?2:1):0},
+ vine(x,b,i,Lr){const w=0.45*Math.sin(Math.PI*x/Lr);if(Math.abs(b-w)<0.17)return 1;
+  if(Math.hypot(x-0.5*Lr,b+0.45)<0.27||Math.hypot(x+0.5*Lr,b-0.45)<0.27)return 2;return 0},
+ reciprocal:BM.reciprocal,
+ chain(x,b){const d=Math.abs(x)+Math.abs(b);return d<0.85?(d<0.36?2:1):0},
+ zigzag(x,b,i,Lr){const t=1-2*Math.abs(x)/Lr;if(Math.abs(b-t*0.5)<0.24)return 1;if(Math.hypot(x,b+0.62)<0.13||Math.hypot(Lr-Math.abs(x),b-0.62)<0.13)return 2;return 0},
+ plain(){return 0},
+};
+
+// ---------- build: compute the knot grid ----------
+function build(p){
+ const W=Math.round(p.knots),H=Math.max(10,Math.round(W*p.aspect));
+ const cw=Object.assign({},CW[p.colourway|0],{line:6});
+ const C=new Uint8Array(W*H),D=new Uint8Array(W*H);
+ const G=p.guards|0;
+ let mainW=Math.max(4,Math.round(W*p.borderWidth));
+ const gr=p.guardRatio,tr=p.tooth?(p.toothStyle==='teeth'?0.42:0.55):0;
+ mainW=Math.max(3,Math.min(mainW,Math.floor((0.34*W-2-2*G)/(1+2*gr*G+tr))));
+ const gW=Math.max(2,Math.round(mainW*gr)),tW=Math.max(3,Math.round(mainW*tr));
+ const bands=[];const Lb=(c,pearl)=>bands.push({kind:'line',w:1,col:c,pearl:!!(pearl&&p.pearls)});
+ Lb(cw.line,true);
+ for(let g=0;g<G;g++){bands.push({kind:'guard',w:gW});Lb(g&1?cw.gB:cw.line)}
+ bands.push({kind:'main',w:mainW});
+ for(let g=G-1;g>=0;g--){Lb(g&1?cw.gB:cw.line);bands.push({kind:'guard',w:gW})}
+ Lb(cw.line,true);
+ if(p.tooth)bands.push({kind:'tooth',w:tW});
+ let acc=0;for(const b of bands){b.b0=acc;acc+=b.w;
+  if(b.kind!=='line'){const tgt=b.w*(b.kind==='main'?(p.mainBorder==='bracket'?1.05:1.8):1.5);
+   const hv=(H-1)/2-b.b0,hh=(W-1)/2-b.b0;
+   b.Lv=2*hv/Math.max(1,Math.round(2*hv/tgt));b.Lh=2*hh/Math.max(1,Math.round(2*hh/tgt))}}
+ const total=acc;
+ const fw=(W-2*total)/2,fh=(H-2*total)/2,A=fh/fw,cx=(W-1)/2,cy=(H-1)/2;
+ const sty=p.style,el=p.medElong,rings=p.rings|0;
+ const alt=(c,list)=>{for(const k of list)if(k!==c)return k;return c};
+ const pick=(v,g)=>{if(v===4)return g===cw.line?cw.field:cw.line;let c=v===1?cw.fA:v===2?cw.fB:cw.fC;if(c===g)c=v===1?cw.fC:cw.fA;if(c===g)c=alt(g,[cw.fB,cw.line]);return c};
+ const ringCols=start=>{const out=[start];const pool=[cw.med,cw.m1,cw.m2,cw.fC,cw.line];for(let i=1;i<6;i++){const prev=out[i-1],prev2=out[i-2];let c=pool.find(k=>k!==prev&&k!==prev2&&k!==cw.field);if(c===undefined)c=alt(prev,pool);out.push(c)}return out};
+ const RC=ringCols(cw.med),RC2=ringCols(alt(cw.med,[cw.m1,cw.m2])),SC=[cw.spand,alt(cw.spand,[cw.m2,cw.m1,cw.fC])];
+ function medLevel(du,dv,R,elg,rg,hooks){
+  const vv=dv/elg,d1=du+vv,d2=Math.hypot(du,vv),d=d1+(d2-d1)*sty,th=Math.atan2(vv,du);
+  const lob=p.lobes>0?1+p.lobeDepth*Math.cos(p.lobes*th):1,r=d/(R*lob);
+  if(r<1)return 1+Math.min(rg-1,Math.floor((1-r)*rg));
+  if(hooks>0){const hl=0.22*hooks;if(r<1+hl){const nh=Math.max(2,Math.round(R*fw*1.4/6)),ph=th/(Math.PI/2)*nh,f=ph-Math.floor(ph);
+   if((f>0.15&&f<0.38)||(r>1+hl*0.6&&f>0.15&&f<0.62))return 1}}
+  return 0}
+ const T=2/p.tiles,MOT=M[p.motif],flipM=(p.motif==='boteh'||p.motif==='palm');
+ const Tr=T*p.tileRatio,MB=p.fillB!=='none'&&(p.mix>0||p.alternate)?M[p.fillB]:null;
+ function fill(au,av,scale,dens){
+  const j=Math.round(av/Tr),off=(p.brick&&(j&1))?0.5:0,fi=au/T-off,i=Math.round(fi),ci=i*2+(off?1:0),cj=Math.abs(j),sd=p.seed|0;
+  if(dens<1&&hash2(ci,cj,sd)>=dens)return 0;
+  let lx=(fi-i)*2/scale;const ly=(av/Tr-j)*2/scale,h=hash2(ci,cj,sd+13);
+  if(MB&&(p.alternate?(j&1):hash2(ci,cj,sd+77)<p.mix))return MB(lx,ly,h);
+  if(flipM&&(j&1))lx=-lx;return MOT(lx,ly,h)}
+ // layout constants
+ let R=Math.min(p.medSize,0.92,(A*0.86)/(el*(p.pendants?1.45:1)));
+ const S=Math.min(R*0.95,0.9,A*0.6);
+ const N=p.medCount|0,segV=2*A/N,Rk=Math.min(p.medSize*0.75,0.9,segV*0.46/el);
+ const gCols=Math.max(2,Math.round(p.tiles/2)),Tg=2/gCols,gRows=Math.max(2,Math.round(2*A/(Tg*0.82))),Tv=2*A/gRows;
+ const nx=Math.max(2,Math.min(6,Math.round(p.tiles/2))),ny=Math.max(2,Math.round(nx*A)),gx=2/nx,gy=2*A/ny;
+ const ah=Math.min(0.95,A*0.55),va=-A+0.05,vs=va+ah,nw=0.84;
+ const water=alt(cw.field,[3,5,1].filter(k=>k!==cw.spand));
+ const tk=Math.max(0.03,1.1/fw),kn0=1/fw;
+ for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+  const i=y*W+x,e=Math.min(x,y,W-1-x,H-1-y);
+  if(e<total){let bi=0;while(bands[bi].b0+bands[bi].w<=e)bi++;const b=bands[bi];
+   if(b.kind==='line'){C[i]=b.pearl&&((x+y)&1)?2:b.col;D[i]=0;continue}
+   const o=e-b.b0,dx=Math.min(x,W-1-x),dy=Math.min(y,H-1-y);
+   let s,Lp;if(dx<=dy){s=dy-b.b0+0.5;Lp=b.Lv}else{s=dx-b.b0+0.5;Lp=b.Lh}
+   const ph=s/Lp,idx=Math.floor(ph),a=(ph-idx)*2-1,Lr=Lp/b.w,xx=a*Lr,bb=((o+0.5)/b.w)*2-1;let v;
+   if(b.kind==='tooth'&&p.toothStyle==='teeth'){const P=Math.max(4,b.w*1.1),t=Math.abs((s/P)%1*2-1);v=(bb<-0.55||bb<-0.55+1.5*(1-t))?1:0;C[i]=v?cw.bB:cw.field;D[i]=v;continue}
+   if(b.kind==='tooth'){const P=Math.max(3,b.w*0.9),t=Math.abs((s/P)%1*2-1)*2-1;
+    v=Math.abs(bb+0.15-t*0.45)<0.2?1:Math.abs(bb-0.5-t*0.3)<0.13?2:0;C[i]=v===1?cw.m2:v===2?cw.line:cw.border;D[i]=v?1:0;continue}
+   if(b.kind==='guard'&&p.guard==='slant'){
+    const side=dx<=dy,ra=side?y:x,sg=side?(x<W/2?1:-1):(y<H/2?1:-1),P=b.w*1.55,t=(ra+sg*o*1.1)/P,k=Math.floor(t),f=t-k;
+    const cyc=[cw.gA,cw.gB,cw.gA,5,cw.gA,cw.fC,cw.gB,cw.gA];
+    if(f<0.8&&bb>-0.86&&bb<0.86){v=1;C[i]=(f>0.3&&f<0.42&&bb>-0.2)?cw.guard:cyc[Math.floor(hash2(k,side?1:2,(p.seed|0)+40)*8)]}else{v=0;C[i]=cw.guard}
+    D[i]=v;continue}
+   if(b.kind==='main'&&p.mainBorder==='bracket'){v=BM.bracket(xx,bb,idx,Lr);const rc=[cw.bA,4,cw.bB,8,7,10][Math.floor(hash2(idx>>1,1,(p.seed|0)+60)*6)];
+    C[i]=v===0?cw.border:v===1?rc:v===2?alt(rc,[2,cw.bC]):v===3?cw.bC:v===4?cw.bB:v===5?cw.bA:9;D[i]=v?1:0;continue}
+   if(b.kind==='main'){v=BM[p.mainBorder](xx,bb,idx,Lr);C[i]=v===0?cw.border:v===1?cw.bA:v===2?cw.bB:cw.bC}
+   else{v=p.guard==='barber'?((Math.floor((s+o)/(b.w*0.75))&1)?1:2):GM[p.guard](xx,bb,idx,Lr);C[i]=v===0?cw.guard:v===1?cw.gA:v===2?cw.gB:cw.bC;if(C[i]===cw.guard&&v)C[i]=cw.bC}
+   D[i]=v?1:0;continue}
+  const u=(x-cx)/fw,v=(y-cy)/fw,au=Math.abs(u),av=Math.abs(v);
+  let g=cw.field,c=g,d=0,f;
+  switch(p.layout){
+   case 'pole':{
+    const kn=1/fw,pw=Math.min(p.medSize,0.85),pL=Math.min(pw*p.medElong,A*0.62),polew=0.08;
+    const lzc=pL+(A-pL)*0.46,lzx=p.lozSize,lzy=Math.min(p.lozSize*0.62,(A-pL)*0.4);
+    let done=false;
+    // canted corners
+    if(p.spandrels){const sa=Math.min(0.3,A*0.16),sc=0.42,al=A-av,ac=1-au,q=al/sa+ac/sc;
+     if(q<1){const dist=(1-q)*sa*sc/Math.hypot(sa,sc);done=true;
+      if(dist<1.6*kn){c=cw.med;d=2}
+      else if(pl(ac,al,[[sc*0.62,sa*0.16],[sc*0.24,sa*0.24],[sc*0.16,sa*0.62]])<1.3*kn){c=cw.fC;d=2}}}
+    // lozenge
+    if(!done&&p.pendants){const dl=au/lzx+Math.abs(av-lzc)/lzy;
+     if(dl<1){done=true;d=3;const bands=[[0.9,cw.med],[0.68,cw.m1]];
+      if(dl>0.8)c=cw.med;
+      else if(dl>0.52){c=cw.m1;if(((x+y)%4===0)||((x-y)%4===0&&dl>0.66))c=cw.med}
+      else{const n=Math.max(2,(p.rings|0)*2),seq=[cw.med,cw.fC,cw.med,cw.m2,2,5],k2=Math.floor((0.52-dl)/0.52*n);c=seq[k2%seq.length];if(dl<0.52/n)c=5}}
+     else if(dl<1+0.09*p.hooks/Math.max(0.3,lzx)&&((x+y)%3===0)){c=cw.med;d=2;done=true}}
+    // anchor at the field end
+    if(!done&&p.pendants){const t=(A-0.04-av)/0.17;
+     if(t>=0&&t<=1&&au<0.14*t&&!(t>0.6&&au<0.14*(t-0.6)*2.5)){c=cw.med;d=2;done=true}}
+    // pole
+    if(!done&&p.pendants&&au<polew&&av>=pL&&av<A-0.1){done=true;d=2;
+     if(au>polew-1.2*kn)c=cw.line;else{const fr=((av-pL)/0.2)%1,q=au/(polew*0.6)+Math.abs(fr-0.5)*2*(0.2/2)/(polew*0.6);c=q<1?(q<0.4?cw.m2:cw.line):cw.med}}
+    // central panel
+    const out=Math.max(au-pw,av-pL);
+    if(!done&&out<0){done=true;d=2;const ek=-out*fw,zz=Math.max(3,0.09*fw);
+     if(ek<1)c=2;else if(ek<3.2)c=cw.line;
+     else if(ek<3.2+zz){const along=(au-pw>av-pL)?av:au,P=Math.max(3,zz),tt=Math.abs((along*fw/P)%1*2-1),bb=(ek-3.2)/zz;c=Math.abs(bb-0.25-tt*0.5)<0.16?cw.line:cw.med}
+     else if(ek<4.4+zz)c=cw.m2;
+     else{c=cw.med;const ins=(4.4+zz)*kn,iw=pw-ins,il=pL-ins;let r=0;
+      if(p.panelFill==='hooked'){
+       if(av>0.56*il){const vv=M.ram(u/(iw*0.92),(av-0.78*il)/(0.24*il));if(vv)r=vv===1?4:2}
+       else if(Math.abs(av-0.37*il)<0.19*il&&au<0.62*iw){const rr=Math.hypot(u/(0.58*iw),(av-0.37*il)/(0.18*il)),th=Math.atan2(av-0.4*il,u);
+        if(rr<1)r=rr<0.22?2:rr>0.84?4:Math.abs(Math.sin(4*th))<0.35?1:4}
+       else if(av<0.2*il){const vv=M.animal(u/(0.78*iw),v/(0.21*il));if(vv)r=vv===3?2:5}
+       if(!r&&au>0.6*iw){const fr=(av/(0.17*il))%1,lx=(au-0.78*iw)/(0.15*iw),ly=(fr-0.5)*2;if(pl(lx,ly,[[-0.6,-0.6],[0.5,-0.6],[-0.2,0.7]])<0.22)r=4}
+      }else if(p.panelFill==='field'){r=fill(au,av,0.8,1)}
+      if(r){c=r===5?cw.fC:pick(r,cw.med);d=3}}}
+    else if(!done&&out<2.7*kn&&p.hooks>0&&!(au<polew+kn&&av>pL)){
+     const along=(au-pw>av-pL)?av:au,k=Math.round(along*fw),m3=((k%3)+3)%3,eo=out*fw;
+     if((m3===0&&eo<2.2)||(eo>=1.5&&eo<2.7&&m3!==2&&k%3!==-2)){c=2;d=2;done=true}}
+    if(!done){f=fill(au,av,1,p.density);if(f){c=pick(f,g);d=1}}
+    break}
+   case 'allover':f=fill(au,av,1,1);if(f){c=pick(f,g);d=1}break;
+   case 'medallion':case 'stacked':{
+    let done=false;
+    if(p.layout==='medallion'){
+     const ml=medLevel(au,av,R,el,rings,p.hooks);
+     if(ml){c=RC[ml-1];d=1+ml;done=true;const rs=R*0.24;if(au<rs&&av<rs*el){const sv=M.star(au/rs,av/(rs*el));if(sv){c=sv===2?alt(c,[cw.m2,cw.fA]):sv===3?alt(c,[cw.fC,cw.m1]):alt(c,[cw.m1,cw.fB]);d=9}}}
+     else if(p.pendants){const Rv=R*el,pc=Rv+R*0.32;
+      if(au+Math.abs(av-pc)*0.9<R*0.2){c=au+Math.abs(av-pc)*0.9<R*0.09?RC[0]:RC[1];d=3;done=true}
+      else if(au<0.7/fw&&av>Rv*0.85&&av<pc){c=RC[0];d=2;done=true}}
+    }else{
+     const k=clamp(Math.floor((v+A)/segV),0,N-1),cv=-A+segV*(k+0.5),dv=Math.abs(v-cv);
+     if(p.medShape==='octagon'){const mw=Math.min(p.medSize,0.9),mh=Math.min(segV*0.475,mw*el),cut=0.3,a=au/mw,b=dv/mh,oct=Math.max(a,b,(a+b)/(2-cut));
+      if(oct<1){done=true;d=2;const kk=Math.min(k,N-1-k),gC=(kk&1)?cw.spand:cw.med;c=gC;
+       const sS=(v-cv)/mh,tS=u/mw,ln=1.1*kn0/Math.min(mw,mh);
+       if(p.medFill==='octagons'){
+        const octo=(ds,dt,ox,oy)=>Math.max(Math.abs(ds)/ox,Math.abs(dt)/oy,(Math.abs(ds)/ox+Math.abs(dt)/oy)*0.72);
+        let hit=0;
+        const cart=Math.max(Math.abs(sS)/0.6,Math.abs(tS)/0.34,(Math.abs(sS)/0.6*0.45+Math.abs(tS)/0.34));
+        if(cart<1){if(cart>1-ln*2.2)hit=cw.m1;else{const inn=Math.max(Math.abs(sS)/0.36,Math.abs(tS)/0.17);
+          if(inn<1){const q=Math.max(Math.abs(sS)/0.1,Math.abs(tS)/0.12);hit=q<1?[2,7,10,3][(sS<0?1:0)+(tS<0?2:0)]:(Math.max(Math.abs(sS)/0.24,Math.abs(tS)/0.13)<1?8:(kk&1?6:9))}else hit=kk&1?6:9}}
+        else{const cells=[];for(const sc of[-0.62,0,0.62])for(const tc of[-0.6,0.6])cells.push([sc,tc]);cells.push([-0.76,0],[0.76,0]);
+         for(const[sc,tc]of cells){const o=octo(sS-sc,tS-tc,sc===0&&tc===0?0.3:0.3,0.3);
+          if(o<1.0&&o>1-ln*4.2){hit=cw.m1;break}
+          if(o<0.5){const rr=o/0.5,th=Math.atan2(tS-tc,sS-sc);hit=rr<0.3?(kk&1?7:9):(Math.abs(Math.sin(3*th))<0.55?2:0);if(hit)break}}
+         if(!hit&&p.medBlocks&&Math.abs(Math.abs(sS)-0.92)<0.07&&Math.abs(Math.abs(tS)-0.55)<0.2&&(x%3)<2&&(y%3)<2)hit=(kk&1)?3:8;}
+        if(hit){c=hit;d=3}}
+       else{const lv=Math.floor((1-oct)*rings*1.6);c=lv%2?(kk&1?cw.med:cw.spand):gC;if(lv>=rings*1.6-1)c=cw.m2;d=2+lv}}}
+     const ml=done?0:medLevel(au,dv,Rk,el,rings,p.hooks);
+     if(ml){const L=(Math.min(k,N-1-k)&1)?RC2:RC;c=L[ml-1];d=1+ml;done=true;const rs=Rk*0.3;if(au<rs&&dv<rs*el){const sv=M.star(au/rs,dv/(rs*el));if(sv){c=alt(c,[cw.fA,cw.fC]);d=9}}}
+    }
+    if(!done&&p.spandrels){const sl=medLevel(1-au,A-av,S,1,Math.min(2,rings),p.hooks*0.6);if(sl){c=SC[sl-1];d=1+sl;done=true}}
+    if(!done&&p.sideFill&&p.layout==='stacked'){const mw=p.medShape==='octagon'?Math.min(p.medSize,0.9):Rk,cc=(mw+1)/2,hw=(1-mw)/2*0.92;
+     if(au>mw){const jj=Math.round(av/Tr),lx=(au-cc)/hw,ly=(av/Tr-jj)*2,hh=hash2(jj,3,(p.seed|0)+13),useB=MB&&(p.alternate?(jj&1):hash2(jj,5,(p.seed|0)+77)<p.mix);
+      const mv=useB?MB(lx,ly,hh):MOT(lx,ly,hh);if(mv){c=pick(mv,g);d=1}}done=true}
+    if(!done){f=fill(au,av,0.78,p.density);if(f){c=pick(f,g);d=1}}
+    break}
+   case 'prayer':{
+    let inN;if(v>A-0.03||au>nw)inN=false;else if(v>=vs)inN=true;else if(v<va)inN=false;else{const t=(vs-v)/(vs-va);inN=au<nw*Math.pow(Math.max(0,1-Math.pow(t,1.7)),0.55)}
+    if(!inN){g=cw.spand;c=g;d=1;f=fill(au,v,0.7,p.density);if(f){c=pick(f,g);d=2}}
+    else{let hit=0;const top=vs-0.12,bot=A*0.8;
+     if(au<tk&&v>top&&v<bot)hit=2;
+     else{const step=Math.max(0.16,(bot-top)/7);
+      for(let vb=bot-step*0.5;vb>top+step*0.3;vb-=step){const t=(vb-top)/(bot-top),ex=nw*(0.35+0.5*t),ey=vb-step*0.9;
+       if(seg(au,v,0,vb,ex,ey)<tk*0.9){hit=2;break}
+       if(Math.abs(au-ex)+Math.abs(v-ey)<0.08+0.04*t){hit=1;break}
+       if(Math.abs(au-ex*0.55)+Math.abs(v-(vb+(ey-vb)*0.55-0.06))<0.05){hit=3;break}}
+      if(!hit){const fr=Math.hypot(au,v-(top-0.06));if(fr<0.13)hit=fr<0.06?3:1}
+      if(!hit&&v>=bot-0.02&&v<A-0.06){const tt=(v-bot)/(A-0.06-bot),w=0.07+0.15*Math.sin(Math.PI*Math.min(1,tt));if(au<w)hit=Math.abs(tt-0.45)<0.12?3:2}}
+     if(hit){c=pick(hit,g);d=2}else if(p.density>0){f=fill(au,v,0.6,p.density*0.5);if(f){c=pick(f,g);d=1}}}
+    break}
+   case 'garden':{
+    const fx=(u+1)/gx,ix=clamp(Math.floor(fx),0,nx-1),lx=(fx-ix)*2-1,fy=(v+A)/gy,iy=clamp(Math.floor(fy),0,ny-1),ly=(fy-iy)*2-1;
+    const ch=Math.max(1.6/fw,0.045),ex=(1-Math.abs(lx))*gx/2,ey=(1-Math.abs(ly))*gy/2;
+    if(ex<ch||ey<ch){c=water;d=1;if((ex<ch&&ex<ch*0.35&&(Math.floor(y/2)&1))||(ey<ch&&ey<ch*0.35&&(Math.floor(x/2)&1)))c=alt(water,[2,cw.fA])}
+    else{const fi=Math.min(ix,nx-1-ix),fj=Math.min(iy,ny-1-iy),cg=((fi+fj)&1)?cw.spand:cw.field;c=cg;d=0;
+     const m=Math.min(gx,gy)*0.43;let mx=(lx*gx/2)/m;if(flipM&&(fj&1))mx=-mx;if(u<0&&flipM)mx=-mx;const mv=MOT(mx,(ly*gy/2)/m);if(mv){c=pick(mv,cg);d=2}}
+    break}
+   case 'guls':{
+    const fx=(au+1)/Tg-0.5,ki=Math.round(fx),la=(fx-ki)*2,fy=(av+A)/Tv-0.5,kj=Math.round(fy),lb=(fy-kj)*2;
+    const gv=M.gul(la*1.06,lb*1.06*(Tv/Tg));
+    if(gv){c=pick(gv,g);d=1}
+    else{const ca=((au+1)/Tg-Math.round((au+1)/Tg))*2,cb=((av+A)/Tv-Math.round((av+A)/Tv))*2*(Tv/Tg),q=Math.abs(ca)+Math.abs(cb);
+     if(q<0.42){c=q<0.17?pick(1,g):pick(3,g);d=1}}
+    break}
+  }
+  C[i]=c;D[i]=d}
+ if(p.outline){const C2=C.slice();
+  for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){const i=y*W+x,dd=D[i];
+   if(D[i-1]>dd||D[i+1]>dd||D[i-W]>dd||D[i+W]>dd){if(C[i]!==cw.line)C2[i]=cw.line}}
+  C.set(C2)}
+ return{W,H,C,D,cw,bands,total,mainW,gW}
+}
+
+// ---------- render ----------
+function render(cv,rug,p,k,mode){
+ const{W,H,C}=rug,pal=PAL[p.palette].c.map(hex2rgb),cart=mode==='cartoon',fr=!cart&&p.fringe;
+ const ke=fr?3:0,FL=fr?Math.max(3,Math.round(H*0.05*k)):0,Wp=W*k,Hb=(H+2*ke)*k,Hp=Hb+2*FL;
+ cv.width=Wp;cv.height=Hp;const ctx=cv.getContext('2d');ctx.clearRect(0,0,Wp,Hp);
+ const img=ctx.createImageData(Wp,Hb),out=img.data,seed=p.seed|0,tex=p.texture,ab=p.abrash,wr=p.wear;
+ const FOUND=[214,203,178],PAPER=[246,244,236],GRIDC=[120,132,150],RULE=[70,80,110];
+ const half=(p.layout==='prayer');
+ const kn=new Float32Array(3);
+ const put=(px,py,r,g,b)=>{const o=(py*Wp+px)*4;out[o]=r;out[o+1]=g;out[o+2]=b;out[o+3]=255};
+ for(let ky=0;ky<H+2*ke;ky++){
+  const y=ky-ke,inRug=y>=0&&y<H;
+  for(let x=0;x<W;x++){
+   let r,g,b,worn=0;
+   if(inRug){const ci=C[y*W+x];[r,g,b]=pal[ci];
+    if(!cart){
+     if(ab>0){const n=(vnoise(x/W*1.4+ci*4.1,y/(H*0.045)+ci*2.7,seed+ci*31)-0.5)+(vnoise(ci*9.2,y/(H*0.012),seed+5)-0.5)*0.6;const f=1+ab*0.42*n;r*=f;g*=f;b*=f}
+     if(wr>0){const wv=vnoise(x/11,y/11,seed+99)*0.7+vnoise(x/4,y/4,seed+7)*0.3,cb=1-Math.hypot((x-W/2)/W,(y-H/2)/H)*0.9;
+      const th=1.05-wr*0.55;worn=clamp((wv*cb*1.15-th)/0.1,0,1);if(worn>0){r+=(FOUND[0]*0.85-r)*worn*0.6;g+=(FOUND[1]*0.85-g)*worn*0.6;b+=(FOUND[2]*0.85-b)*worn*0.6}}
+    }}
+   else{const ci=rug.cw.field;[r,g,b]=pal[ky===1||ky===H+2*ke-2?rug.cw.line:ci];r*=0.9;g*=0.9;b*=0.9}
+   const hk=hash2(x,ky,seed+3)-0.5;
+   let dim=0;
+   if(cart&&inRug){const inQ=x<W/2&&(half||y<H/2);if(!inQ)dim=0.62}
+   for(let py=0;py<k;py++)for(let px=0;px<k;px++){
+    let R=r,G=g,B=b;
+    if(cart){
+     if(dim){R+=(PAPER[0]-R)*dim;G+=(PAPER[1]-G)*dim;B+=(PAPER[2]-B)*dim}
+     if(k>=4&&inRug){if((px===0&&x%10===0)||(py===0&&y%10===0)){R+=(RULE[0]-R)*0.55;G+=(RULE[1]-G)*0.55;B+=(RULE[2]-B)*0.55}else if(px===0||py===0){R+=(GRIDC[0]-R)*0.22;G+=(GRIDC[1]-G)*0.22;B+=(GRIDC[2]-B)*0.22}}
+    }else{
+     let sh;
+     if(!inRug){sh=(py&1)?0.9:1.02}
+     else if(k>=3){const ex=(px+0.5)/k*2-1,ey=(py+0.5)/k*2-1;sh=1+tex*(hk*0.16-0.2*(ex*ex*0.55+ey*ey)-0.07*ey)}
+     else sh=1+tex*hk*0.14;
+     if(worn>0.3&&k>=3&&px===(k>>1)){sh*=0.82}
+     R*=sh;G*=sh;B*=sh}
+    put(x*k+px,ky*k+py,R<0?0:R>255?255:R,G<0?0:G>255?255:G,B<0?0:B>255?255:B)}
+  }}
+ ctx.putImageData(img,0,FL);
+ if(fr){const lw=Math.max(1,k*0.55);ctx.lineWidth=lw;ctx.lineCap='round';
+  for(const side of[0,1]){const y0=side?FL+Hb:FL,dir=side?1:-1;
+   for(let x=0;x<W;x++){const h=hash2(x,side,seed+11),grp=Math.floor(x/4),gc=(grp*4+2)*k,xc=x*k+k/2,len=FL*(0.78+0.2*h);
+    const tint=228+Math.round(h*16);ctx.strokeStyle=`rgb(${tint},${tint-8},${tint-26})`;
+    ctx.beginPath();ctx.moveTo(xc,y0);ctx.quadraticCurveTo(xc+(gc-xc)*0.3,y0+dir*len*0.35,xc+(gc-xc)*0.2+(h-0.5)*k*2,y0+dir*len);ctx.stroke()}}}
+}
+
+// ---------- pile renderer: what makes it read as wool ----------
+// Fibres spill across knot boundaries, yarn is heathered, each knot is two tufts,
+// the pile leans toward one end, the edges wander, sides are overcast with cord,
+// the ends finish in a flatwoven band and a warp fringe.
+function renderPile(rug,p,kp){
+ const{W,H,C,cw}=rug,pal=PAL[p.palette].c.map(hex2rgb),seed=p.seed|0;
+ const tex=p.texture,ab=p.abrash,wr=p.wear,village=1-p.style;
+ const m=2,ke=p.fringe?Math.max(3,Math.round(H*0.014)):0,FLk=p.fringe?Math.max(5,Math.round(H*0.05)):0;
+ const KW=W+2*m,KH=H+2*ke+2*FLk+2*m,CWp=Math.round(KW*kp),CHp=Math.round(KH*kp);
+ const cv=document.createElement('canvas');cv.width=CWp;cv.height=CHp;
+ const ctx=cv.getContext('2d'),img=ctx.createImageData(CWp,CHp),out=img.data;
+ const ox=m,oy=m+FLk+ke,wob=0.25+1.3*village*village;
+ // edge wander, per pixel row / column, in knots
+ const dl=new Float32Array(CHp),dr=new Float32Array(CHp),dt=new Float32Array(CWp),db=new Float32Array(CWp);
+ for(let Y=0;Y<CHp;Y++){const v=Y/kp;dl[Y]=(vnoise(v*0.035,0.5,seed+51)-0.5)*2*wob;dr[Y]=(vnoise(v*0.035,9.5,seed+52)-0.5)*2*wob}
+ for(let X=0;X<CWp;X++){const u=X/kp;dt[X]=(vnoise(u*0.05,3.5,seed+53)-0.5)*1.4*wob;db[X]=(vnoise(u*0.05,7.5,seed+54)-0.5)*1.4*wob}
+ const FOUND=[226,214,188],WEFT=[150,118,92];
+ const spill=0.12+0.5*tex,lean=0.18*tex,tufts=kp>=2.5,cord=0.85,cordC=pal[cw.line],kil=pal[2],kilLine=pal[cw.line],kilAcc=pal[cw.border];
+ // abrash per colour per knot row, precomputed
+ const NC=pal.length,abr=new Float32Array(NC*H);
+ for(let c=0;c<NC;c++)for(let y=0;y<H;y++)abr[c*H+y]=1+ab*0.42*((vnoise(c*4.1,y/(H*0.045)+c*2.7,seed+c*31)-0.5)+(vnoise(c*9.2,y/(H*0.012),seed+5)-0.5)*0.6);
+ for(let Y=0;Y<CHp;Y++){
+  const fv0=Y/kp-oy,left=dl[Y],right=W+dr[Y];
+  for(let X=0;X<CWp;X++){
+   const fu=X/kp-ox,top=dt[X],bot=H+db[X];
+   const u=(fu-left)/(right-left)*W,v=(fv0-top)/(bot-top)*H;
+   let r,g,b,a=255;
+   if(v<-ke||v>=H+ke||u<-cord||u>=W+cord)continue;
+   const hx=hash2(X,Y,seed);
+   if(u<0||u>=W){ // overcast side cord
+    if(v<0||v>=H)continue;
+    const t=u<0?(u+cord)/cord:(W+cord-u)/cord,s=v*1.6+(u<0?u:-u)*1.2,fr=s-Math.floor(s);
+    const sh=(0.55+0.45*Math.sin(Math.PI*t))*(0.72+0.38*Math.sin(Math.PI*fr))*(0.94+hx*0.12);
+    [r,g,b]=cordC;r=r*sh+12;g=g*sh+10;b=b*sh+8}
+   else if(v<0||v>=H){ // flatwoven kilim end
+    const kv=v<0?-v:v-H,band=Math.floor(kv);
+    [r,g,b]=(band===1&&ke>3)?kilLine:(band===ke-2&&ke>4)?kilAcc:kil;
+    const fr=kv*3-Math.floor(kv*3),wu=u*2-Math.floor(u*2);
+    const sh=(0.86+0.14*Math.sin(Math.PI*fr))*(0.95+0.05*(wu<0.5?1:0))*(0.94+hx*0.1);r*=sh;g*=sh;b*=sh}
+   else{ // pile
+    const n1=vnoise(u*2.3,v*2.3,seed+1)-0.5,n2=vnoise(u*2.3+17,v*2.3,seed+2)-0.5;
+    let su=u+n1*spill+(hx-0.5)*spill*0.6,sv=v+n2*spill+(hash2(X,Y,seed+9)-0.5)*spill*0.6-lean;
+    const ku=su<0?0:su>=W?W-1:su|0,kv=sv<0?0:sv>=H?H-1:sv|0,ci=C[kv*W+ku];
+    [r,g,b]=pal[ci];const af=abr[ci*H+kv];
+    let f=af*(1+tex*((hash2(X,Y,seed+4)-0.5)*0.2+(vnoise(u*3.7,v*1.15,seed+5)-0.5)*0.24));
+    if(tufts){const tx=su*2-Math.floor(su*2),ty=sv-Math.floor(sv);f*=1-tex*0.13*(1-Math.sin(Math.PI*tx)*Math.sin(Math.PI*ty))}
+    f*=1+0.06*tex*(v/H-0.5)+(vnoise(u*0.03,v*0.03,seed+8)-0.5)*0.08*tex;
+    r*=f*(1+(hash2(X,Y,seed+21)-0.5)*0.05*tex);g*=f;b*=f*(1+(hash2(X,Y,seed+22)-0.5)*0.05*tex);
+    if(wr>0){const wv=vnoise(u/11,v/11,seed+99)*0.7+vnoise(u/4,v/4,seed+7)*0.3,cb=1-Math.hypot(u/W-0.5,v/H-0.5)*0.9;
+     const worn=clamp((wv*cb*1.15-(1.05-wr*0.55))/0.12,0,1);
+     if(worn>0){const wu=u*2-Math.floor(u*2),wy=v*3-Math.floor(v*3),F=wu<0.4?FOUND:wy<0.5?WEFT:FOUND,k2=worn*0.75;
+      r+=(F[0]*0.9-r)*k2;g+=(F[1]*0.9-g)*k2;b+=(F[2]*0.9-b)*k2}}
+   }
+   const o=(Y*CWp+X)*4;out[o]=r<0?0:r>255?255:r;out[o+1]=g<0?0:g>255?255:g;out[o+2]=b<0?0:b>255?255:b;out[o+3]=a}}
+ ctx.putImageData(img,0,0);
+ if(p.fringe){ctx.lineCap='round';
+  for(const side of[0,1]){const dir=side?1:-1;
+   for(let x=0;x<W;x+=0.5){const X=Math.round((ox+x+0.25)*kp),Xc=clamp(X,0,CWp-1);
+    const fu=x+0.25,endKnot=side?H+db[Xc]+ke:dt[Xc]-ke;
+    const y0=(oy+endKnot)*kp-dir*kp*0.3,h=hash2(x*2|0,side,seed+11),grp=Math.floor(x/2)*2+1;
+    const off=left0(dl,dr,Math.round(y0),CHp,x,W)*kp,gx=(ox+grp)*kp+off;
+    const len=FLk*kp*(0.72+0.24*h),xc=(ox+fu)*kp+off;
+    const t=218+Math.round(h*22);ctx.strokeStyle=`rgb(${t},${t-7},${t-24})`;ctx.lineWidth=Math.max(0.8,kp*0.42);
+    ctx.beginPath();ctx.moveTo(xc,y0);
+    const knotY=y0+dir*len*0.18;
+    ctx.quadraticCurveTo(xc+(gx-xc)*0.6,knotY,gx+(xc-gx)*0.25,knotY+dir*kp*0.6);
+    ctx.quadraticCurveTo(gx+(xc-gx)*0.4+(h-0.5)*kp*1.5,knotY+dir*len*0.5,xc+(gx-xc)*0.3+(h-0.5)*kp*3,y0+dir*len);ctx.stroke()}}}
+ return{canvas:cv,kp,KW,KH,m,ke,FLk}
+}
+function left0(dl,dr,Y,CHp,x,W){Y=clamp(Y,0,CHp-1);const l=dl[Y],r=dr[Y];return l+(r-l)*(x/W)}
+
+// ---------- 3D room ----------
+const Room=(()=>{
+ let T=null,ren,scene,cam,ctl,rugMesh,shadowMesh,furn,roomGroup,raf=0,dirty=true,loading=null,dims={w:1.8,l:2.7},roomDims={w:6,l:7},visible=false;
+ const SRC=['https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js','https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js'];
+ function load(){if(loading)return loading;loading=SRC.reduce((pr,src)=>pr.then(()=>new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(new Error(src));document.head.appendChild(s)})),Promise.resolve());return loading}
+ function woodTex(){const c=document.createElement('canvas');c.width=c.height=1024;const x=c.getContext('2d');
+  const rows=8,rh=1024/rows;let s=17;
+  for(let r=0;r<rows;r++){let pos=-hash2(r,1,s)*600;
+   while(pos<1024){const len=380+hash2(r,pos|0,s)*520,h=hash2(r,pos|0,s+1);
+    const base=[150+h*30,104+h*22,66+h*16];
+    x.fillStyle=`rgb(${base.map(Math.round).join(',')})`;x.fillRect(pos,r*rh,len,rh);
+    for(let g=0;g<26;g++){const yy=r*rh+hash2(g,pos|0,s+2)*rh,dk=hash2(g,r,s+3);x.strokeStyle=`rgba(${dk<0.5?'70,40,20':'200,160,110'},${0.06+dk*0.1})`;x.lineWidth=0.6+dk*1.6;
+     x.beginPath();x.moveTo(pos,yy);for(let t=0;t<=len;t+=32)x.lineTo(pos+t,yy+Math.sin(t*0.011+g)*2.5*(1+dk));x.stroke()}
+    x.fillStyle='rgba(40,24,12,.55)';x.fillRect(pos,r*rh,2,rh);pos+=len}
+   x.fillStyle='rgba(40,24,12,.5)';x.fillRect(0,r*rh,1024,2)}
+  const t=new T.CanvasTexture(c);t.wrapS=t.wrapT=T.RepeatWrapping;t.encoding=T.sRGBEncoding;t.anisotropy=ren.capabilities.getMaxAnisotropy();return t}
+ function shadowTex(){const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');
+  x.filter='blur(14px)';x.fillStyle='rgba(0,0,0,1)';x.fillRect(36,36,184,184);
+  const t=new T.CanvasTexture(c);return t}
+ function std(col,rough=0.85,extra={}){return new T.MeshStandardMaterial(Object.assign({color:col,roughness:rough,metalness:0},extra))}
+ function box(w,h,d,mat,x,y,z,parent){const m=new T.Mesh(new T.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.castShadow=m.receiveShadow=true;parent.add(m);return m}
+ function cyl(r1,r2,h,mat,x,y,z,parent,seg=20){const m=new T.Mesh(new T.CylinderGeometry(r1,r2,h,seg),mat);m.position.set(x,y,z);m.castShadow=m.receiveShadow=true;parent.add(m);return m}
+ function buildRoom(){
+  if(roomGroup){scene.remove(roomGroup)}
+  roomGroup=new T.Group();scene.add(roomGroup);
+  const RW=Math.max(5.2,dims.w+3.4),RL=Math.max(6,dims.l+3.6),RH=2.75;roomDims={w:RW,l:RL};
+  const floorT=woodTex();floorT.repeat.set(RW/1.8,RL/1.8);floorT.rotation=Math.PI/2;
+  const floor=new T.Mesh(new T.PlaneGeometry(RW,RL),std(0xffffff,0.62,{map:floorT}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;roomGroup.add(floor);
+  const wallM=std(0xe7e1d6,0.95,{side:T.BackSide}),ceilM=std(0xf3f0ea,1,{side:T.BackSide}),none=new T.MeshBasicMaterial({visible:false});
+  const shell=new T.Mesh(new T.BoxGeometry(RW,RH,RL),[wallM,wallM,ceilM,none,wallM,wallM]);shell.position.y=RH/2;shell.receiveShadow=true;roomGroup.add(shell);
+  const sk=std(0xf4f1ea,0.6);
+  for(const[w,d,x,z]of[[RW,0.02,0,-RL/2+0.01],[RW,0.02,0,RL/2-0.01],[0.02,RL,-RW/2+0.01,0],[0.02,RL,RW/2-0.01,0]]){const s=box(w,0.14,d,sk,x,0.07,z,roomGroup);s.castShadow=false}
+  // window on the -x wall
+  const wz=-RL*0.12,ww=1.5,wh=1.6,wy=1.55;
+  const glass=new T.Mesh(new T.PlaneGeometry(ww,wh),new T.MeshBasicMaterial({color:0xe9f1f6}));glass.position.set(-RW/2+0.005,wy,wz);glass.rotation.y=Math.PI/2;roomGroup.add(glass);
+  const fr=std(0xf6f4ef,0.5);
+  for(const[w,h,dy,dz]of[[ww+0.12,0.06,wh/2,0],[ww+0.12,0.06,-wh/2,0],[0.06,wh,0,ww/2],[0.06,wh,0,-ww/2],[0.04,wh,0,0],[ww,0.04,0.15,0]]){
+   const b=box(0.05,h,w,fr,-RW/2+0.03,wy+dy,wz+dz,roomGroup);b.castShadow=false}
+  box(0.18,0.04,ww+0.2,fr,-RW/2+0.09,wy-wh/2-0.03,wz,roomGroup);
+  // lights
+  scene.children.filter(o=>o.isLight).forEach(l=>scene.remove(l));
+  scene.add(new T.HemisphereLight(0xfff4e2,0x7a6550,0.62));
+  const sun=new T.DirectionalLight(0xfff0d8,0.95);sun.position.set(-RW/2-2.5,4.2,wz+1.2);sun.target.position.set(0.3,0,0);scene.add(sun);scene.add(sun.target);
+  sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);const sc=sun.shadow.camera;sc.left=-RL;sc.right=RL;sc.top=RL;sc.bottom=-RL;sc.near=0.5;sc.far=20;sun.shadow.bias=-0.0006;sun.shadow.radius=4;
+  const fill=new T.DirectionalLight(0xdfe8ff,0.25);fill.position.set(RW,3,RL);scene.add(fill);
+  // furniture
+  furn=new T.Group();roomGroup.add(furn);
+  const sofaM=std(0x44523f,0.95),wood=std(0x4b2f1d,0.55),brass=std(0xb08a4a,0.35,{metalness:0.6});
+  const sz=dims.l/2+0.62,sw=Math.min(2.3,Math.max(1.7,dims.w*1.05));
+  box(sw,0.24,0.92,sofaM,0,0.26,sz,furn);box(sw-0.36,0.16,0.7,std(0x4d5c47,1),0,0.46,sz-0.08,furn);
+  box(sw,0.5,0.22,sofaM,0,0.6,sz+0.35,furn);box(0.2,0.36,0.92,sofaM,-sw/2+0.1,0.48,sz,furn);box(0.2,0.36,0.92,sofaM,sw/2-0.1,0.48,sz,furn);
+  for(const dx of[-1,1])for(const dz of[-1,1])cyl(0.025,0.02,0.14,wood,dx*(sw/2-0.08),0.07,sz+dz*0.38,furn,8);
+  for(const dx of[-0.45,0.45]){const c=box(0.42,0.38,0.12,std(0xb4573b,1),dx*sw*0.5,0.68,sz+0.2,furn);c.rotation.x=-0.25}
+  const tz=dims.l/2-0.55;box(1.0,0.04,0.55,wood,0,0.42,tz,furn);
+  for(const dx of[-1,1])for(const dz of[-1,1])cyl(0.02,0.018,0.4,wood,dx*0.45,0.2,tz+dz*0.23,furn,8);
+  box(0.24,0.03,0.17,std(0x2c3e7b,0.8),0.18,0.455,tz-0.05,furn);box(0.22,0.025,0.16,std(0xd9c9a3,0.9),0.19,0.48,tz-0.04,furn);
+  cyl(0.05,0.04,0.12,std(0xe9e4d8,0.4),-0.28,0.5,tz+0.06,furn);
+  const ax=dims.w/2+0.75,az=-dims.l*0.12;
+  const arm=new T.Group();arm.position.set(ax,0,az);arm.rotation.y=-Math.PI/2+0.35;furn.add(arm);
+  box(0.82,0.3,0.8,std(0x8b4a32,0.9),0,0.3,0,arm);box(0.82,0.55,0.16,std(0x8b4a32,0.9),0,0.66,0.32,arm);
+  box(0.13,0.26,0.8,std(0x7c4029,0.9),-0.37,0.55,0,arm);box(0.13,0.26,0.8,std(0x7c4029,0.9),0.37,0.55,0,arm);
+  const lx=RW/2-0.45,lz=RL/2-0.45;cyl(0.16,0.18,0.03,brass,lx,0.015,lz,furn);cyl(0.012,0.012,1.55,brass,lx,0.79,lz,furn,8);
+  const shade=cyl(0.14,0.24,0.3,std(0xf2e6cc,0.9,{emissive:0xffd9a0,emissiveIntensity:0.55,side:T.DoubleSide}),lx,1.6,lz,furn);shade.castShadow=false;
+  const bulb=new T.PointLight(0xffc887,0.5,6,2);bulb.position.set(lx,1.5,lz);furn.add(bulb);
+  const px=-RW/2+0.55,pz=RL/2-0.6;cyl(0.2,0.15,0.4,std(0xb5603d,0.8),px,0.2,pz,furn);
+  for(let i=0;i<7;i++){const l=new T.Mesh(new T.IcosahedronGeometry(0.22+hash2(i,1,3)*0.1,0),std(0x47683e,0.8,{flatShading:true}));l.position.set(px+(hash2(i,2,3)-0.5)*0.4,0.62+hash2(i,4,3)*0.6,pz+(hash2(i,5,3)-0.5)*0.4);l.castShadow=true;furn.add(l)}
+  furn.visible=$('furn').checked;
+  // under-rug soft shadow
+  shadowMesh=new T.Mesh(new T.PlaneGeometry(1,1),new T.MeshBasicMaterial({map:shadowTex(),transparent:true,opacity:0.35,depthWrite:false}));shadowMesh.rotation.x=-Math.PI/2;shadowMesh.position.y=0.002;roomGroup.add(shadowMesh);
+ }
+ async function show(host,pile,p,rug){
+  visible=true;
+  try{await load()}catch(e){$('roomMsg').textContent='The 3D library could not load, so the room view is unavailable.';return}
+  T=window.THREE;
+  if(!ren){
+   ren=new T.WebGLRenderer({antialias:true});ren.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+   ren.outputEncoding=T.sRGBEncoding;ren.toneMapping=T.ACESFilmicToneMapping;ren.toneMappingExposure=1.05;ren.shadowMap.enabled=true;ren.shadowMap.type=T.PCFSoftShadowMap;
+   host.appendChild(ren.domElement);scene=new T.Scene();scene.background=new T.Color(0x2b2724);
+   cam=new T.PerspectiveCamera(48,1,0.05,60);
+   ctl=new T.OrbitControls(cam,ren.domElement);ctl.enableDamping=true;ctl.dampingFactor=0.09;ctl.screenSpacePanning=false;ctl.maxPolarAngle=Math.PI/2-0.03;ctl.minDistance=0.35;ctl.maxDistance=16;
+   ctl.addEventListener('change',()=>{dirty=true});
+   new ResizeObserver(()=>{size();dirty=true}).observe(host);
+   $('camOver').addEventListener('click',()=>preset('over'));$('camStand').addEventListener('click',()=>preset('stand'));
+   $('furn').addEventListener('change',e=>{if(furn){furn.visible=e.target.checked;dirty=true}});
+   update(pile,p,rug,true);size();preset('stand');
+  }else update(pile,p,rug,false);
+  size();loop()}
+ function size(){if(!ren)return;const host=ren.domElement.parentElement,w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;ren.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+ function preset(k){const ex=Math.max(dims.w,dims.l);
+  if(k==='over'){const tn=Math.tan(cam.fov*Math.PI/360),h=Math.max((dims.l*1.12/2+0.2)/tn,(dims.w*1.1/2+0.2)/(tn*cam.aspect));ctl.target.set(0,0,0);cam.position.set(0,h,0.001)}
+  else{ctl.target.set(0,0.1,dims.l*0.05);cam.position.set(roomDims.w/2-0.5,1.62,-roomDims.l/2+0.6)}
+  ctl.update();dirty=true}
+ function update(pile,p,rug,first){
+  if(!T)return;
+  const mpk=p.size/rug.W,pw=pile.KW*mpk,pl=pile.KH*mpk;
+  const nd={w:p.size,l:rug.H*mpk};
+  const rebuild=first||Math.abs(nd.w-dims.w)>0.01||Math.abs(nd.l-dims.l)>0.01;dims=nd;
+  if(rebuild)buildRoom();
+  if(rugMesh){rugMesh.geometry.dispose();rugMesh.material.map.dispose();rugMesh.material.dispose();scene.remove(rugMesh)}
+  const t=new T.CanvasTexture(pile.canvas);t.encoding=T.sRGBEncoding;t.anisotropy=ren.capabilities.getMaxAnisotropy();
+  const b=new T.CanvasTexture(pile.canvas);b.anisotropy=t.anisotropy;
+  const mat=new T.MeshStandardMaterial({map:t,bumpMap:b,bumpScale:0.012,roughness:0.97,metalness:0,alphaTest:0.4,transparent:false});
+  rugMesh=new T.Mesh(new T.PlaneGeometry(pw,pl),mat);rugMesh.rotation.x=-Math.PI/2;rugMesh.position.y=0.008;rugMesh.receiveShadow=true;scene.add(rugMesh);
+  shadowMesh.scale.set(dims.w*1.35,dims.l*1.25,1);
+  dirty=true}
+ function loop(){cancelAnimationFrame(raf);const step=()=>{if(!visible)return;const moved=ctl.update();if(moved||dirty){ren.render(scene,cam);dirty=false}raf=requestAnimationFrame(step)};raf=requestAnimationFrame(step)}
+ function hide(){visible=false;cancelAnimationFrame(raf)}
+ return{show,hide,update:(pile,p,rug)=>{if(ren&&visible)update(pile,p,rug,false)}};
+})();
+
+// ---------- state ----------
+let p=Object.assign({},DEFAULTS),committed=Object.assign({},p),hist=[],locks={},view='rug',variants=[],strength=0.35;
+const $=id=>document.getElementById(id);
+const specBy=Object.fromEntries(SPECS.map(s=>[s.k,s]));
+const rnd=Math.random;
+function gauss(){return Math.sqrt(-2*Math.log(1-rnd()))*Math.cos(2*Math.PI*rnd())}
+function snap(s,v){v=clamp(v,s.min,s.max);return Math.round((v-s.min)/s.s)*s.s+s.min}
+function fmt(s,v){if(s.t==='bool')return v?'yes':'no';if(s.t==='sel')return OPT[s.k][v];return s.s<1?(+v).toFixed(s.s<0.05?2:2):String(Math.round(v))}
+function randomValue(s){if(s.t==='sel'){const o=Object.keys(OPT[s.k]);return o[Math.floor(rnd()*o.length)]}if(s.t==='bool')return rnd()<0.6;return snap(s,s.min+rnd()*(s.max-s.min))}
+function mutate(base){
+ const q=Object.assign({},base),changed=[],prob=0.05+0.3*strength;
+ const free=SPECS.filter(s=>!locks[s.g]);if(!free.length)return{q,changed};
+ for(const s of free){if(rnd()>=prob)continue;
+  if(s.t==='rng'){const nv=snap(s,q[s.k]+gauss()*strength*(s.max-s.min)*0.45);if(nv!==q[s.k]){q[s.k]=nv;changed.push(s)}}
+  else if(s.t==='sel'){const nv=randomValue(s);if(nv!==q[s.k]){q[s.k]=nv;changed.push(s)}}
+  else{q[s.k]=!q[s.k];changed.push(s)}}
+ let guard=0;while(!changed.length&&guard++<20){const s=free[Math.floor(rnd()*free.length)];const nv=s.t==='bool'?!q[s.k]:s.t==='sel'?randomValue(s):snap(s,q[s.k]+(rnd()<0.5?-1:1)*Math.max(s.s,(s.max-s.min)*0.2*strength));if(nv!==q[s.k]){q[s.k]=nv;changed.push(s)}}
+ return{q,changed}}
+function commit(np){hist.push(committed);if(hist.length>80)hist.shift();p=Object.assign({},np);committed=Object.assign({},p);$('back').disabled=false;syncControls();renderMain();regenVariants()}
+
+// ---------- controls ----------
+function buildControls(){
+ const host=$('controls');host.innerHTML='';
+ const head=document.createElement('div');head.className='boxhead';head.innerHTML='<h2>Parameters</h2><span class="hint">Lock a group to keep it fixed while randomising and exploring.</span>';host.appendChild(head);
+ for(const g of GROUPS){
+  const det=document.createElement('details');det.className='group';det.open=(g==='Layout'||g==='Field');
+  const sum=document.createElement('summary');sum.textContent=g;
+  const lk=document.createElement('button');lk.type='button';lk.className='lock';lk.textContent='Lock';lk.setAttribute('aria-pressed','false');lk.setAttribute('aria-label','Lock '+g);
+  lk.addEventListener('click',ev=>{ev.preventDefault();ev.stopPropagation();locks[g]=!locks[g];lk.setAttribute('aria-pressed',String(!!locks[g]));lk.textContent=locks[g]?'Locked':'Lock';regenVariants()});
+  sum.appendChild(lk);det.appendChild(sum);
+  const rows=document.createElement('div');rows.className='rows';
+  for(const s of SPECS.filter(s=>s.g===g)){
+   const row=document.createElement('div');row.className='row';const id='p_'+s.k;
+   const lab=document.createElement('label');lab.htmlFor=id;lab.textContent=s.l;row.appendChild(lab);
+   let inp;
+   if(s.t==='sel'){inp=document.createElement('select');for(const[k,v]of Object.entries(OPT[s.k])){const o=document.createElement('option');o.value=k;o.textContent=v;inp.appendChild(o)}}
+   else if(s.t==='bool'){inp=document.createElement('input');inp.type='checkbox'}
+   else{inp=document.createElement('input');inp.type='range';inp.min=s.min;inp.max=s.max;inp.step=s.s}
+   inp.id=id;row.appendChild(inp);
+   const out=document.createElement('output');out.id='o_'+s.k;out.htmlFor=id;row.appendChild(out);
+   const read=()=>s.t==='sel'?inp.value:s.t==='bool'?inp.checked:parseFloat(inp.value);
+   inp.addEventListener('input',()=>{p[s.k]=read();out.textContent=s.t==='rng'?fmt(s,p[s.k]):'';scheduleMain(true)});
+   inp.addEventListener('change',()=>{p[s.k]=read();if(JSON.stringify(p)!==JSON.stringify(committed)){hist.push(committed);committed=Object.assign({},p);$('back').disabled=false}renderMain();regenVariants()});
+   rows.appendChild(row)}
+  det.appendChild(rows);host.appendChild(det)}
+}
+function syncControls(){for(const s of SPECS){const inp=$('p_'+s.k),out=$('o_'+s.k);if(!inp)continue;
+ if(s.t==='bool')inp.checked=!!p[s.k];else inp.value=p[s.k];out.textContent=s.t==='rng'?fmt(s,p[s.k]):''}}
+
+// ---------- main render ----------
+let rafId=0,draftQ=false,fullT=0;
+function scheduleMain(draft){draftQ=draftQ||!!draft;if(rafId)return;rafId=requestAnimationFrame(()=>{rafId=0;const d=draftQ;draftQ=false;renderMain(d)})}
+function pileKp(rug,draft,target){const KW=rug.W+4,KH=rug.H*1.14+4;
+ let kp=draft?clamp(Math.round(520/KW),1,3):clamp(Math.round(target/KW),2,7);
+ const cap=draft?7e5:2.4e6;while(kp>1&&KW*KH*kp*kp>cap)kp--;return kp}
+function renderMain(draft){
+ const rug=build(p),cv=$('rug'),loom=$('loom');
+ const dpr=Math.min(2,window.devicePixelRatio||1),narrow=window.innerWidth<=920;
+ const availW=Math.max(160,loom.clientWidth-28),availH=Math.max(300,window.innerHeight*(narrow?0.66:0.74));
+ if(view==='room'){
+  const pile=renderPile(rug,p,pileKp(rug,draft,1400));Room.show($('roomGL'),pile,p,rug);
+  if(draft){clearTimeout(fullT);fullT=setTimeout(()=>renderMain(false),260)}
+ }else if(view==='cartoon'){
+  const k=Math.max(1,Math.floor(Math.min(availW*dpr/rug.W,availH*dpr/(rug.H+6))));
+  render(cv,rug,p,k,'cartoon');cv.style.width=(cv.width/dpr)+'px';cv.style.height=(cv.height/dpr)+'px';cv.style.imageRendering=k<3?'pixelated':'auto';
+ }else{
+  const pile=renderPile(rug,p,pileKp(rug,draft,Math.max(availW*dpr,600)));
+  const s=Math.min(availW/pile.canvas.width,availH/pile.canvas.height);
+  cv.width=pile.canvas.width;cv.height=pile.canvas.height;cv.getContext('2d').drawImage(pile.canvas,0,0);
+  cv.style.width=(pile.canvas.width*s)+'px';cv.style.height=(pile.canvas.height*s)+'px';cv.style.imageRendering='auto';
+  if(draft){clearTimeout(fullT);fullT=setTimeout(()=>renderMain(false),260)}
+ }
+ cv.classList.toggle('cartoon',view==='cartoon');
+ const perIn=rug.W/(p.size*39.37),kpsi=perIn*perIn*p.rowRatio,rows=Math.round(rug.H*p.rowRatio);
+ $('cap').textContent=`${rug.W} knots × ${rows} rows · ${p.size.toFixed(2)} × ${(p.size*rug.H/rug.W).toFixed(2)} m · about ${kpsi<10?kpsi.toFixed(1):Math.round(kpsi)} knots per square inch (${kpsi<30?'coarse nomad or village':kpsi<120?'village to town':kpsi<250?'fine city':'very fine workshop'}) · ${p.style<0.5?'symmetric knot, rectilinear drawing':'asymmetric knot, curvilinear drawing'}`+(view==='cartoon'?' · quarter map in full colour':'');
+ renderGrammar(rug);
+ try{$('recipe').value=JSON.stringify(p,null,1)}catch(e){}
+}
+
+// ---------- variants ----------
+let vTimer=0;
+function regenVariants(){clearTimeout(vTimer);vTimer=setTimeout(()=>{variants=Array.from({length:8},()=>mutate(p));drawVariants()},30)}
+function drawVariants(){
+ const host=$('thumbs');host.innerHTML='';
+ variants.forEach((vr,ix)=>{
+  const b=document.createElement('button');b.type='button';b.className='thumb';
+  const names=vr.changed.map(s=>s.t==='rng'?s.l:`${s.l}: ${fmt(s,vr.q[s.k])}`);
+  b.setAttribute('aria-label','Variation '+(ix+1)+': '+names.join(', '));
+  const fr=document.createElement('div');fr.className='tframe';const cv=document.createElement('canvas');fr.appendChild(cv);b.appendChild(fr);
+  const sp=document.createElement('span');sp.textContent=names.slice(0,2).join(' · ')+(names.length>2?` +${names.length-2}`:'');b.appendChild(sp);
+  b.addEventListener('click',()=>commit(vr.q));
+  host.appendChild(b);
+  setTimeout(()=>{const r=build(vr.q);render(cv,r,vr.q,r.W<90?2:1,'rug')},ix*8)})
+}
+
+// ---------- grammar ----------
+function sw(ci){return `<span class="sw" style="background:${PAL[p.palette].c[ci]}"></span>`}
+function nm(ci){return PAL[p.palette].n[ci]}
+function renderGrammar(rug){
+ const cw=rug.cw,L=p.layout,mot=OPT.motif[p.motif].toLowerCase();
+ const strip=rug.bands.map(b=>b.kind==='line'?(b.pearl?'pearls':'line'):b.kind==='tooth'?(p.toothStyle==='teeth'?'teeth':'sawtooth'):b.kind==='guard'?(p.guard==='plain'?'plain guard':'guard'):'<b>MAIN</b>').join(' · ');
+ let field='';
+ const medDesc=()=>{if(p.layout==='stacked'&&p.medShape==='octagon')return `cut-corner rectangles alternating ${nm(cw.med)} and ${nm(cw.spand)}, ${OPT.medFill[p.medFill].toLowerCase()}${p.medBlocks?', check blocks':''}`;const parts=[];parts.push(p.lobes>0&&p.lobeDepth>0.02?`${p.lobes}-lobed`:(p.style<0.4?'stepped diamond':'oval'));parts.push(`${p.rings} ring${p.rings>1?'s':''}`);if(p.hooks>0.05)parts.push('latch-hooked');return parts.join(', ')};
+ const fillDesc=sc=>p.density<=0?'':`<li>Fill: ${sc?'scattered ':''}${mot}${p.brick?', half-drop':''}${sc?`, ${Math.round(p.density*100)}% of cells`:''}</li>`;
+ if(L==='medallion')field=`<li>Medallion ${sw(cw.med)}: ${medDesc()}, centre star</li>${p.pendants?'<li>Pendants ×2 on the long axis</li>':''}${p.spandrels?`<li>Spandrels ×4 ${sw(cw.spand)} quarter-medallions</li>`:''}${fillDesc(true)}`;
+ else if(L==='stacked')field=`<li>Medallions ×${p.medCount} ${sw(cw.med)} on the vertical axis: ${medDesc()}, alternating colours</li>${p.spandrels?`<li>Spandrels ×4 ${sw(cw.spand)}</li>`:''}${fillDesc(true)}`;
+ else if(L==='pole')field=`<li>Panel ${sw(cw.med)}: rectangle ${Math.round(p.medSize*100)}% of field width, 1 : ${p.medElong.toFixed(2)}${p.hooks>0?', ivory comb outline':''}, contents: ${OPT.panelFill[p.panelFill].toLowerCase()}</li>${p.pendants?`<li>Poles ×2 → lozenges ×2 (${p.rings*2} concentric rings) → anchors ×2</li>`:''}${p.spandrels?'<li>Canted corners ×4 with chevrons</li>':''}<li>Fill: rows of ${mot}${p.mix>0&&p.fillB!=='none'?` with ${Math.round(p.mix*100)}% ${OPT.fillB[p.fillB].toLowerCase()}s`:''}, ${p.tiles} across, row spacing ${p.tileRatio.toFixed(2)}</li>`;
+ else if(L==='allover')field=`<li>Endless repeat: ${mot}, ${p.tiles} across${p.brick?', half-drop':''}</li>`;
+ else if(L==='prayer')field=`<li>Mihrab: pointed niche, left–right symmetry only</li><li>Spandrels above the arch ${sw(cw.spand)}</li><li>Tree of life in a vase</li>${fillDesc(true)}`;
+ else if(L==='garden')field=`<li>Compartments ${Math.max(2,Math.min(6,Math.round(p.tiles/2)))} across, alternating ${sw(cw.field)}${sw(cw.spand)}</li><li>Water channels between</li><li>Each compartment: one ${mot}</li>`;
+ else field=`<li>Major guls ${Math.max(2,Math.round(p.tiles/2))} across, quartered in two colours</li><li>Minor guls at the intersections</li>`;
+ $('grammar').innerHTML=`<ul class="tree"><li><b>Rug</b> ${rug.W} knots × ${Math.round(rug.H*p.rowRatio)} rows, ${p.style<0.5?'village':'city'} drawing
+ <ul>
+ ${p.fringe?'<li>Ends: kilim band and warp fringe at both ends</li>':''}
+ <li>Border system, outer to inner (${rug.bands.length} stripes)<ul>
+  <li>${strip}</li>
+  <li>Main ${sw(cw.border)}: ${OPT.mainBorder[p.mainBorder].toLowerCase()}, ${rug.mainW} knots wide</li>
+  ${p.guards?`<li>Guards ×${p.guards*2} ${sw(cw.guard)}: ${OPT.guard[p.guard].toLowerCase()}, ${rug.gW} knots</li>`:''}
+  <li>Corners mitred: each side mirrors at its midpoint</li></ul></li>
+ <li>Field ${sw(cw.field)} ${nm(cw.field)} ground: ${OPT.layout[L].toLowerCase()}<ul>${field}</ul></li>
+ <li>Colour: ${p.palette} palette, colourway ${p.colourway}${p.abrash>0.05?', abrash bands':''}<div class="swrow">${PAL[p.palette].c.map((c,i)=>`<span class="sw" title="${PAL[p.palette].n[i]}" style="background:${c}"></span>`).join('')}</div></li>
+ </ul></li></ul>`
+}
+
+// ---------- lexicon ----------
+const LEX=[
+ ['herati','Herati','mahi, "fish"','A rosette in a diamond, flanked by four curved leaves read as fish. Named after Herat; the commonest Persian field repeat and border.'],
+ ['boteh','Boteh','"bud", "shrub"','A bent teardrop read as flame, cone, pear or sprouting seed; the ancestor of Paisley. Rows usually alternate direction.'],
+ ['minakhani','Mina khani','flower lattice','Daisy-like blossoms joined by a diamond lattice, used across many Persian weaving areas.'],
+ ['star','Eight-pointed star','yıldız','Two overlaid squares. In Anatolia it wishes luck and happiness.'],
+ ['eli','Elibelinde','"hands on hips"','A stylised woman, read as the mother goddess: fertility, motherhood, abundance.'],
+ ['ram','Koçboynuzu','"ram\'s horn"','Hooked horns, the male counterpart of elibelinde: strength, heroism, abundance.'],
+ ['gul','Gul','Turkmen emblem','A quartered octagon. Each Turkmen tribe had its own form, so a gul worked like a badge.'],
+ ['palm','Shah Abbasi palmette','court flower','The fan-shaped flower of Safavid court design, found in city-rug fields and borders.'],
+];
+function drawLex(){
+ const host=$('lex'),pal=PAL.Kazak.c.map(hex2rgb),N=26,k=4;
+ for(const[key,name,gloss,text]of LEX){
+  const fig=document.createElement('figure'),cv=document.createElement('canvas');cv.width=N*k;cv.height=N*k;
+  const ctx=cv.getContext('2d'),img=ctx.createImageData(N*k,N*k),D=new Uint8Array(N*N),C=new Uint8Array(N*N);
+  const map=[2,0,1,4,6];
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++){const v=M[key](((x+0.5)/N*2-1)/0.92,((y+0.5)/N*2-1)/0.92);C[y*N+x]=map[v];D[y*N+x]=v?1:0}
+  const C2=C.slice();for(let y=1;y<N-1;y++)for(let x=1;x<N-1;x++){const i=y*N+x;if(!D[i]&&(D[i-1]||D[i+1]||D[i-N]||D[i+N]))C2[i]=6}
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++){const[r,g,b]=pal[C2[y*N+x]],h=hash2(x,y,4)-0.5;
+   for(let py=0;py<k;py++)for(let px=0;px<k;px++){const ex=(px+0.5)/k*2-1,ey=(py+0.5)/k*2-1,sh=1+0.5*(h*0.14-0.2*(ex*ex*0.55+ey*ey));const o=((y*k+py)*N*k+x*k+px)*4;img.data[o]=r*sh;img.data[o+1]=g*sh;img.data[o+2]=b*sh;img.data[o+3]=255}}
+  ctx.putImageData(img,0,0);cv.setAttribute('aria-hidden','true');
+  const cap=document.createElement('figcaption');cap.innerHTML=`<b>${name}</b><i>${gloss}</i>. ${text}`;
+  fig.appendChild(cv);fig.appendChild(cap);host.appendChild(fig)}
+}
+
+// ---------- references ----------
+const PRESETS=[
+ {n:"Bells Corner",q:{layout:'pole',knots:200,size:1.0,rowRatio:2,aspect:1.76,style:0.08,motif:'rosette',tiles:7,tileRatio:0.62,density:0.95,brick:false,fillB:'arrow',mix:0.2,outline:false,
+  medSize:0.6,medElong:1.47,lozSize:0.66,rings:4,hooks:0.6,pendants:true,spandrels:true,panelFill:'hooked',
+  mainBorder:'leaf',guard:'slant',guards:1,borderWidth:0.046,guardRatio:0.72,pearls:true,tooth:true,
+  palette:'Baluch',colourway:6,abrash:0.5,texture:0.85,wear:0.12,fringe:true,seed:7}},
+ {n:'Polstead',q:{layout:'stacked',knots:180,size:1.2,aspect:2.35,rowRatio:1.2,style:0.15,motif:'sprig',fillB:'pinwheel',alternate:true,sideFill:true,tiles:2,tileRatio:0.62,density:1,outline:false,
+  medShape:'octagon',medFill:'octagons',medBlocks:true,medCount:5,medSize:0.62,medElong:1.25,rings:3,spandrels:false,
+  mainBorder:'bracket',guard:'zigzag',guards:1,borderWidth:0.1,guardRatio:0.22,pearls:false,tooth:true,toothStyle:'teeth',
+  palette:'Turquoise',colourway:7,abrash:0.35,texture:0.85,wear:0.05,fringe:true,seed:11}},
+ {n:'Heriz medallion',q:{layout:'medallion',knots:220,size:2.4,aspect:1.35,style:0.12,motif:'palm',tiles:8,density:0.5,medSize:0.62,medElong:1.1,lobes:8,lobeDepth:0.12,rings:3,hooks:0.5,mainBorder:'herati',guard:'dots',guards:2,borderWidth:0.11,palette:'Heriz',colourway:0,abrash:0.3}},
+ {n:'Kazak stacked',q:{layout:'stacked',knots:140,size:1.5,aspect:1.6,style:0,motif:'star',tiles:6,density:0.45,medCount:3,medSize:0.7,medElong:1,lobes:0,rings:3,hooks:0.9,mainBorder:'shook',guard:'reciprocal',guards:1,borderWidth:0.12,palette:'Kazak',colourway:0,abrash:0.55}},
+ {n:'Tekke guls',q:{layout:'guls',knots:300,size:2.0,aspect:1.4,style:0.3,tiles:8,mainBorder:'stars',guard:'chain',guards:1,borderWidth:0.09,palette:'Tekke',colourway:0,abrash:0.25}},
+ {n:'Herati all-over',q:{layout:'allover',knots:360,size:2.0,aspect:1.5,style:0.9,motif:'herati',tiles:7,brick:false,mainBorder:'herati',guard:'vine',guards:2,borderWidth:0.1,palette:'Tabriz',colourway:1,abrash:0.15}},
+ {n:'Anatolian prayer',q:{layout:'prayer',knots:120,size:1.1,aspect:1.45,style:0.1,motif:'eli',tiles:6,density:0.3,mainBorder:'cartouche',guard:'reciprocal',guards:1,borderWidth:0.13,palette:'Lotto',colourway:2,abrash:0.4}},
+ {n:'Garden carpet',q:{layout:'garden',knots:320,size:2.5,aspect:1.45,style:0.85,motif:'palm',tiles:8,mainBorder:'vine',guard:'dots',guards:2,borderWidth:0.1,palette:'Isfahan',colourway:0,abrash:0.2}},
+];
+function drawPresets(){const host=$('presets');host.innerHTML='';
+ PRESETS.forEach((pr,i)=>{const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=pr.n;b.id='preset'+i;
+  b.addEventListener('click',()=>{commit(Object.assign({},DEFAULTS,pr.q));markPreset(i)});host.appendChild(b)})}
+function markPreset(i){PRESETS.forEach((_,k)=>{const b=$('preset'+k);if(b)b.setAttribute('aria-pressed',String(k===i))})}
+
+// ---------- wiring ----------
+$('rand').addEventListener('click',()=>{const q=Object.assign({},p);for(const s of SPECS)if(!locks[s.g])q[s.k]=randomValue(s);commit(q)});
+$('reset').addEventListener('click',()=>commit(Object.assign({},DEFAULTS)));
+$('back').addEventListener('click',()=>{if(!hist.length)return;p=hist.pop();committed=Object.assign({},p);$('back').disabled=!hist.length;syncControls();renderMain();regenVariants()});
+$('reroll').addEventListener('click',regenVariants);
+$('str').addEventListener('change',e=>{strength=parseFloat(e.target.value);regenVariants()});
+const setView=v=>{view=v;for(const[id,k]of[['vRug','rug'],['vCart','cartoon'],['vRoom','room']])$(id).setAttribute('aria-pressed',String(v===k));
+ const room=v==='room';$('room').hidden=!room;$('rug').hidden=room;$('loom').classList.toggle('roommode',room);
+ if(room){const w=$('loom').clientWidth;$('roomGL').style.height=Math.round(Math.min(window.innerHeight*0.74,Math.max(340,w*1.05)))+'px'}else Room.hide();
+ renderMain()};
+$('vRug').addEventListener('click',()=>setView('rug'));$('vCart').addEventListener('click',()=>setView('cartoon'));$('vRoom').addEventListener('click',()=>setView('room'));
+$('copy').addEventListener('click',()=>{const t=$('recipe').value;const done=()=>{$('rmsg').textContent='Copied.'};
+ try{navigator.clipboard.writeText(t).then(done,()=>{$('recipe').select();$('rmsg').textContent='Selected. Press Ctrl+C or ⌘C to copy.'})}catch(e){$('recipe').select();$('rmsg').textContent='Selected. Press Ctrl+C or ⌘C to copy.'}});
+$('apply').addEventListener('click',()=>{try{const o=JSON.parse($('recipe').value);const q=Object.assign({},DEFAULTS);
+ for(const s of SPECS){if(!(s.k in o))continue;const v=o[s.k];if(s.t==='sel'){if(v in OPT[s.k])q[s.k]=v}else if(s.t==='bool')q[s.k]=!!v;else if(typeof v==='number'&&isFinite(v))q[s.k]=snap(s,v)}
+ commit(q);$('rmsg').textContent='Recipe applied.'}catch(e){$('rmsg').textContent='That text is not a valid recipe. Paste the JSON exactly as copied.'}});
+let rz=0;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(renderMain,120)});
+$('str').value=strength;
+p=Object.assign({},DEFAULTS,PRESETS[0].q);committed=Object.assign({},p);
+buildControls();syncControls();drawPresets();markPreset(0);renderMain();regenVariants();drawLex();
+})();
+</script>
+</body></html>

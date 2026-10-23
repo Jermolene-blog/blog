@@ -121,6 +121,17 @@
 		"screenshot": "/screenshots/toys/over-underiser.webp"
 	},
 	{
+		"title": "Toys/rug-addict",
+		"caption": "Rug Addict",
+		"description": "Persian, Anatolian, Caucasian and Turkmen rugs generated knot by knot from the grammar of real carpets: borders, field, medallions and motifs, shown as wool pile, as a weaver's cartoon or on the floor of a room, with randomise and eight-way exploration",
+		"url": "/toys/rug-addict/",
+		"tags": "toy",
+		"text": "",
+		"category": "trifles",
+		"theme-color": "#e8ebe3",
+		"screenshot": "/screenshots/toys/rug-addict.webp"
+	},
+	{
 		"title": "Toys/spotty-sphericle",
 		"caption": "Spotty Sphericle",
 		"description": "Thousands of dots on a spinning sphere, cube, doughnut, water drop or cloud, sized by the light falling on them: flick it, move the light, and breed new variations",
