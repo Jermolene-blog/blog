@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#5fbdea"/>
+<stop offset="1" stop-color="#d6f1ff"/>
+</linearGradient>
+<linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#3fb4e6"/>
+<stop offset="1" stop-color="#1f86c4"/>
+</linearGradient>
+</defs>
+<rect width="512" height="512" fill="url(#sky)"/>
+<circle cx="112" cy="104" r="38" fill="#ffcf3f"/>
+<rect y="300" width="512" height="212" fill="url(#sea)"/>
+<ellipse cx="256" cy="336" rx="196" ry="66" fill="#f4fbff"/>
+<ellipse cx="256" cy="344" rx="178" ry="56" fill="#6aa83a"/>
+<ellipse cx="256" cy="330" rx="178" ry="56" fill="#c5e86c"/>
+<ellipse cx="300" cy="346" rx="54" ry="16" fill="#4cc3ec" stroke="#ffffff" stroke-width="6"/>
+<!-- palm tree -->
+<path d="M352 326c4-48 2-92-16-138" fill="none" stroke="#8a5a2e" stroke-width="14" stroke-linecap="round"/>
+<g fill="#3fbf4f">
+<path d="M336 186c-30-26-72-24-96-4c34-6 62 2 96 4z"/>
+<path d="M336 186c24-34 70-40 98-22c-34 0-64 8-98 22z"/>
+<path d="M336 186c-10 38-34 62-64 70c18-28 36-48 64-70z"/>
+<path d="M336 186c32 12 52 40 54 72c-18-28-34-46-54-72z"/>
+<path d="M336 186c-14-34-6-66 18-86c-8 32-10 56-18 86z"/>
+</g>
+<circle cx="336" cy="190" r="8" fill="#8a5a2e"/>
+<!-- apple tree -->
+<rect x="164" y="262" width="16" height="64" rx="6" fill="#8a5a2e"/>
+<circle cx="150" cy="242" r="38" fill="#4fbf47"/>
+<circle cx="196" cy="236" r="36" fill="#4fbf47"/>
+<circle cx="172" cy="208" r="38" fill="#5fd257"/>
+<circle cx="150" cy="226" r="8" fill="#e8322f"/>
+<circle cx="194" cy="250" r="8" fill="#e8322f"/>
+<circle cx="182" cy="200" r="8" fill="#e8322f"/>
+<!-- foam -->
+<path d="M84 386c20 8 40 8 60 0M368 392c20 8 40 8 60 0" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" opacity="0.7"/>
+</svg>

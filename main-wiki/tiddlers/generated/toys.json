@@ -1,5 +1,16 @@
 [
 	{
+		"title": "Toys/animal-island",
+		"caption": "Animal Island",
+		"description": "A 3D game for toddlers: tap the cow, pig, sheep and friends on a little island to hear their names and noises, shake the trees for apples, or play Where's the pig?",
+		"url": "/toys/animal-island/",
+		"tags": "toy",
+		"text": "",
+		"category": "games",
+		"theme-color": "#5fbdea",
+		"screenshot": "/screenshots/toys/animal-island.webp"
+	},
+	{
 		"title": "Toys/blobbles",
 		"caption": "Blobbles",
 		"description": "Blobs of glass at your command",

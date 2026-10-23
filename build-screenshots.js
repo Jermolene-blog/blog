@@ -96,6 +96,11 @@ const recipes = {
 		await page.click("#game");
 		await page.wait(9000);
 	},
+	"toys/animal-island": async page => {
+		// Press Start so that the island is shown instead of the start screen
+		await page.click("#go");
+		await page.wait(2000);
+	},
 	"toys/marble-flick": async page => {
 		// Start a game so that the board is shown instead of the setup card
 		await page.click("#startBtn");
