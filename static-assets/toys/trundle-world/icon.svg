@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#7cc8ff"/>
+<stop offset="1" stop-color="#d9f1ff"/>
+</linearGradient>
+</defs>
+<rect width="512" height="512" fill="url(#sky)"/>
+<!-- island -->
+<path d="M60 316v26c0 46 88 84 196 84s196-38 196-84v-26z" fill="#6b5232"/>
+<ellipse cx="256" cy="316" rx="196" ry="84" fill="#5fd257"/>
+<ellipse cx="256" cy="308" rx="196" ry="84" fill="#9be35e"/>
+<!-- railway -->
+<ellipse cx="256" cy="308" rx="172" ry="70" fill="none" stroke="#b8855a" stroke-width="14" stroke-dasharray="4 8"/>
+<ellipse cx="256" cy="308" rx="172" ry="70" fill="none" stroke="#7d8597" stroke-width="3"/>
+<!-- road -->
+<ellipse cx="256" cy="312" rx="120" ry="44" fill="none" stroke="#e8433a" stroke-width="34" stroke-dasharray="6 6"/>
+<ellipse cx="256" cy="312" rx="120" ry="44" fill="none" stroke="#4b5170" stroke-width="26"/>
+<ellipse cx="256" cy="312" rx="120" ry="44" fill="none" stroke="#ffffff" stroke-width="3" stroke-dasharray="10 9"/>
+<!-- car -->
+<g transform="translate(232 340)">
+<rect x="0" y="0" width="52" height="22" rx="6" fill="#ffc21a"/>
+<rect x="10" y="-14" width="30" height="18" rx="5" fill="#ffc21a"/>
+<rect x="15" y="-10" width="20" height="10" rx="2" fill="#bfe6ff"/>
+<circle cx="13" cy="23" r="7" fill="#24305e"/>
+<circle cx="40" cy="23" r="7" fill="#24305e"/>
+</g>
+<!-- tree -->
+<path d="M180 290l20-52l20 52z" fill="#2fb35a"/>
+<rect x="196" y="288" width="8" height="12" fill="#8a5a2e"/>
+<!-- house -->
+<rect x="296" y="268" width="40" height="30" fill="#fff4dc"/>
+<path d="M290 270l26-24l26 24z" fill="#a66cf0"/>
+<rect x="310" y="282" width="12" height="16" fill="#e8433a"/>
+<!-- balloon -->
+<path d="M256 76c-36 0-60 26-60 58c0 30 34 54 52 72h16c18-18 52-42 52-72c0-32-24-58-60-58z" fill="#ff6a5c"/>
+<path d="M256 76c-14 0-24 26-24 58c0 30 10 54 16 72h16c6-18 16-42 16-72c0-32-10-58-24-58z" fill="#ffd23f"/>
+<path d="M256 76c-4 0-6 26-6 58c0 30 2 54 6 72c4-18 6-42 6-72c0-32-2-58-6-58z" fill="#3fa9f5"/>
+<path d="M248 206l-4 18M264 206l4 18" stroke="#6b5232" stroke-width="3"/>
+<rect x="242" y="222" width="28" height="18" rx="3" fill="#a0683a"/>
+</svg>

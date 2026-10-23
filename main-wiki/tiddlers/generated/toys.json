@@ -178,6 +178,17 @@
 		"screenshot": "/screenshots/toys/lenticulator.webp"
 	},
 	{
+		"title": "Toys/trundle-world",
+		"caption": "Trundle World",
+		"description": "A little 3D island for small children to poke at: cars and a steam train trundle round, a volcano erupts, dinosaurs graze, parachutists drop from aeroplanes, and everything reacts when tapped, by day or night, in four sizes of town",
+		"url": "/toys/trundle-world/",
+		"tags": "toy",
+		"text": "",
+		"category": "games",
+		"theme-color": "#7cc8ff",
+		"screenshot": "/screenshots/toys/trundle-world.webp"
+	},
+	{
 		"title": "Toys/tunerful",
 		"caption": "Tunerful",
 		"description": "A guitar tuner built like a chart recorder: it listens through the microphone, spots the string you play, and plots its pitch on paper that scrolls up from the pen, with reference tones for eight tunings",
