@@ -22,6 +22,17 @@
 		"screenshot": "/screenshots/toys/blobbles.webp"
 	},
 	{
+		"title": "Toys/bowling-bear",
+		"caption": "Bowling Bear",
+		"description": "Ten-pin bowling in 3D for phones on the same Wi-Fi, with no server: phones join by scanning each other's QR codes, then each bowler swipes up to roll and curves the swipe to hook, on a shared score sheet. Or practise alone",
+		"url": "/toys/bowling-bear/",
+		"tags": "toy",
+		"text": "",
+		"category": "games",
+		"theme-color": "#17120e",
+		"screenshot": "/screenshots/toys/bowling-bear.webp"
+	},
+	{
 		"title": "Toys/catflap",
 		"caption": "Catflap",
 		"description": "A game for small children: let the cat in through the cat flap, then tap to give it dinner, water, treats and fish until it curls up in its basket to sleep",
