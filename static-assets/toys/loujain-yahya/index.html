@@ -1,0 +1,525 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#8fd6f5">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script src="../pwa.js" defer></script>
+</head><body>
+<title>Loujain &amp; Yahya</title>
+<meta name="description" content="Four tap-only games for toddlers starring two grey cats and their friends: hide and seek, bubble popping, guessing silhouettes and counting fish into a bowl">
+<meta name="toy-category" content="games">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap">
+<style>
+/* Layout: one full-bleed SVG stage (1000×700 safe area, scenery bleeds past it); flat, outline-free shapes on saturated grounds */
+:root{
+  --ink:#2b2350;
+  --sky:#8fd6f5;
+  --grass:#9bcf53;
+  --sun:#ffd93b;
+  --coral:#ff6b5b;
+  --paper:#ffffff;
+  --display:'Baloo 2','Arial Rounded MT Bold','Trebuchet MS',system-ui,sans-serif;
+  color-scheme:light;
+}
+html,body{height:100%;overflow:hidden;background:var(--sky);color:var(--ink)}
+body{font-family:var(--display);-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#app{position:fixed;inset:0;overflow:hidden;background:var(--sky);touch-action:manipulation}
+#stage{width:100%;height:100%;display:block;overflow:visible}
+#stage text{font-family:var(--display);font-weight:800;pointer-events:none}
+[data-act]{cursor:pointer}
+[hidden]{display:none!important}
+.btn{position:fixed;z-index:5;width:64px;height:64px;border-radius:50%;border:0;padding:0;background:var(--paper);
+  box-shadow:0 5px 0 rgba(43,35,80,.22);display:grid;place-items:center;cursor:pointer;touch-action:manipulation}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(43,35,80,.22)}
+.btn:focus-visible{outline:4px solid var(--ink);outline-offset:3px}
+.btn svg{width:34px;height:34px}
+#homeBtn{top:calc(14px + env(safe-area-inset-top,0px));left:calc(14px + env(safe-area-inset-left,0px))}
+#muteBtn{top:calc(14px + env(safe-area-inset-top,0px));right:calc(14px + env(safe-area-inset-right,0px))}
+
+.idle{transform-box:fill-box;transform-origin:50% 100%;animation:idle 2.6s ease-in-out infinite;animation-delay:var(--bd,0s)}
+@keyframes idle{50%{transform:scale(1.025,.975)}}
+.eye{transform-box:fill-box;transform-origin:center;animation:blink 4.6s infinite;animation-delay:var(--bd,0s)}
+@keyframes blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+.hopper{transform-box:fill-box;transform-origin:50% 100%}
+.hop{animation:hop .55s ease-out}
+@keyframes hop{0%{transform:scale(1.08,.9)}35%{transform:translateY(-46px) scale(.95,1.06)}70%{transform:translateY(0) scale(1.1,.9)}100%{transform:none}}
+.bigjump{animation:hop .55s ease-out 3}
+.munch{animation:munch .4s ease-out}
+@keyframes munch{30%{transform:scale(1.07,.92)}60%{transform:scale(.97,1.04)}}
+.shake{animation:shake .5s ease-in-out}
+@keyframes shake{20%{transform:translateX(-10px) rotate(-3deg)}40%{transform:translateX(10px) rotate(3deg)}60%{transform:translateX(-7px)}80%{transform:translateX(5px)}}
+.spot{transform-box:fill-box;transform-origin:50% 100%}
+.wobble{animation:wobble .55s ease-out}
+@keyframes wobble{25%{transform:rotate(-5deg) scale(1.03,.96)}55%{transform:rotate(4deg)}80%{transform:rotate(-2deg)}}
+.hider{transition:transform .55s cubic-bezier(.34,1.56,.64,1)}
+.drift{animation:drift 26s ease-in-out infinite alternate}
+@keyframes drift{to{transform:translateX(60px)}}
+.star{transform-box:fill-box;transform-origin:center;animation:starfly 1.1s ease-out forwards}
+@keyframes starfly{0%{transform:scale(.2)}20%{transform:translate(calc(var(--dx)*.4),calc(var(--dy)*.4)) scale(1.15)}100%{transform:translate(var(--dx),var(--dy)) rotate(170deg) scale(.6);opacity:0}}
+.ring{transform-box:fill-box;transform-origin:center;animation:ring .45s ease-out forwards}
+@keyframes ring{to{transform:scale(1.8);opacity:0}}
+.numpop{transform-box:fill-box;transform-origin:center;animation:numpop 1.1s ease-out forwards}
+@keyframes numpop{0%{transform:scale(.3);opacity:0}25%{transform:scale(1.25);opacity:1}45%{transform:scale(1)}80%{opacity:1}100%{transform:translateY(-30px);opacity:0}}
+.tile{transform-box:fill-box;transform-origin:center;transition:transform .15s}
+.tile:active{transform:scale(.95)}
+@media (prefers-reduced-motion:reduce){.idle,.eye,.drift{animation:none}.hider{transition-duration:.2s}}
+</style>
+
+<div id="app">
+  <svg id="stage" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid meet" aria-label="Loujain and Yahya games"></svg>
+  <button id="homeBtn" class="btn" aria-label="Back to games" hidden>
+    <svg viewBox="0 0 40 40"><path d="M6 19 20 7l14 12M10 16v16h20V16" fill="none" stroke="#2b2350" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="17" y="23" width="6" height="9" rx="2" fill="#ff6b5b"/></svg>
+  </button>
+  <button id="muteBtn" class="btn" aria-label="Sound on or off">
+    <svg viewBox="0 0 40 40"><path d="M7 15h6l8-7v24l-8-7H7z" fill="#2b2350" stroke="#2b2350" stroke-width="2" stroke-linejoin="round"/>
+      <g id="waves" fill="none" stroke="#2b2350" stroke-width="3.5" stroke-linecap="round"><path d="M26 14q4 6 0 12"/><path d="M30 10q7 10 0 20"/></g>
+      <path id="cross" d="M26 15l9 10M35 15l-9 10" stroke="#ff6b5b" stroke-width="4" stroke-linecap="round" hidden/></svg>
+  </button>
+</div>
+
+<script>
+const NS='http://www.w3.org/2000/svg';
+const $=s=>document.querySelector(s);
+const stage=$('#stage');
+const rand=(a,b)=>a+Math.random()*(b-a);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function seeded(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+/* ---------- characters ---------- */
+const eye=(x,y,r=8)=>`<g class="eye"><circle cx="${x}" cy="${y}" r="${r}" fill="#1d1a2e"/><circle cx="${x+r*.32}" cy="${y-r*.35}" r="${r*.34}" fill="#fff"/></g>`;
+const cheeks=(x,y,r=8)=>`<circle cx="${-x}" cy="${y}" r="${r}" fill="#ff8fab" opacity=".55"/><circle cx="${x}" cy="${y}" r="${r}" fill="#ff8fab" opacity=".55"/>`;
+
+function cat(o){
+  const {fur,shade,belly,collar,marks='',tailTip=''}=o;
+  return `
+  <path d="M48,-30 C110,-30 120,-96 92,-120" fill="none" stroke="${shade}" stroke-width="18" stroke-linecap="round"/>${tailTip}
+  <rect x="-44" y="-30" width="30" height="30" rx="13" fill="${shade}"/>
+  <rect x="14" y="-30" width="30" height="30" rx="13" fill="${shade}"/>
+  <path d="M-56,-14 C-62,-60 -48,-102 0,-102 C48,-102 62,-60 56,-14 Q54,-4 40,-4 L-40,-4 Q-54,-4 -56,-14Z" fill="${fur}"/>
+  <ellipse cx="0" cy="-42" rx="28" ry="27" fill="${belly}"/>
+  <path d="M-52,-160 L-60,-212 L-14,-186Z" fill="${fur}" stroke="${fur}" stroke-width="14" stroke-linejoin="round"/>
+  <path d="M52,-160 L60,-212 L14,-186Z" fill="${fur}" stroke="${fur}" stroke-width="14" stroke-linejoin="round"/>
+  <path d="M-47,-172 L-52,-200 L-28,-185Z" fill="#ff9db4" stroke="#ff9db4" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M47,-172 L52,-200 L28,-185Z" fill="#ff9db4" stroke="#ff9db4" stroke-width="6" stroke-linejoin="round"/>
+  <ellipse cx="0" cy="-148" rx="66" ry="54" fill="${fur}"/>
+  ${marks}
+  <ellipse cx="0" cy="-127" rx="29" ry="19" fill="${belly}"/>
+  ${cheeks(42,-136,9)}
+  ${eye(-24,-158)}${eye(24,-158)}
+  <path d="M-7,-141 h14 l-7,8z" fill="#ff7f9c" stroke="#ff7f9c" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M-13,-128 Q0,-104 13,-128Z" fill="#8a1f3d"/><ellipse cx="0" cy="-116" rx="6.5" ry="4.5" fill="#ff8fa6"/>
+  <path d="M-36,-133 L-72,-140 M-36,-124 L-72,-120 M36,-133 L72,-140 M36,-124 L72,-120" stroke="${shade}" stroke-width="3" stroke-linecap="round"/>
+  <rect x="-42" y="-104" width="84" height="12" rx="6" fill="${collar}"/><circle cx="0" cy="-90" r="8" fill="#ffd93b"/>`;
+}
+const ART={
+  loujain:cat({fur:'#a3aab7',shade:'#7a8190',belly:'#eef0f4',collar:'#ff5d73',
+    marks:`<path d="M-15,-196 v13 M0,-200 v17 M15,-196 v13" stroke="#7a8190" stroke-width="7" stroke-linecap="round"/>`}),
+  yahya:cat({fur:'#a3aab7',shade:'#7a8190',belly:'#eef0f4',collar:'#17b3a3',
+    marks:`<path d="M-15,-196 v13 M0,-200 v17 M15,-196 v13" stroke="#7a8190" stroke-width="7" stroke-linecap="round"/>`}),
+  duck:`
+  <ellipse cx="-22" cy="-5" rx="18" ry="7" fill="#ff8a1f"/><ellipse cx="22" cy="-5" rx="18" ry="7" fill="#ff8a1f"/>
+  <path d="M46,-82 L84,-104 L66,-58Z" fill="#ffd23f" stroke="#ffd23f" stroke-width="10" stroke-linejoin="round"/>
+  <ellipse cx="0" cy="-58" rx="62" ry="52" fill="#ffd23f"/>
+  <ellipse cx="14" cy="-60" rx="30" ry="19" fill="#f2b300" transform="rotate(-15 14 -60)"/>
+  <circle cx="-14" cy="-132" r="40" fill="#ffd23f"/>
+  <path d="M-46,-126 Q-82,-124 -78,-112 Q-62,-102 -40,-112Z" fill="#ff8a1f"/>
+  <circle cx="-2" cy="-118" r="8" fill="#ff8fab" opacity=".55"/>
+  ${eye(-24,-142,7)}`,
+  frog:`
+  <ellipse cx="-56" cy="-12" rx="28" ry="14" fill="#2f9e4f"/><ellipse cx="56" cy="-12" rx="28" ry="14" fill="#2f9e4f"/>
+  <circle cx="-34" cy="-116" r="27" fill="#4fc36b"/><circle cx="34" cy="-116" r="27" fill="#4fc36b"/>
+  <ellipse cx="0" cy="-62" rx="76" ry="60" fill="#4fc36b"/>
+  <ellipse cx="0" cy="-42" rx="44" ry="32" fill="#c9f27a"/>
+  <g class="eye"><circle cx="-34" cy="-120" r="17" fill="#fff"/><circle cx="-32" cy="-120" r="9" fill="#1d1a2e"/><circle cx="-29" cy="-123" r="3" fill="#fff"/></g>
+  <g class="eye"><circle cx="34" cy="-120" r="17" fill="#fff"/><circle cx="32" cy="-120" r="9" fill="#1d1a2e"/><circle cx="35" cy="-123" r="3" fill="#fff"/></g>
+  <path d="M-40,-86 Q0,-56 40,-86" stroke="#1d6b36" stroke-width="6" fill="none" stroke-linecap="round"/>
+  ${cheeks(54,-84,9)}`,
+  rabbit:`
+  <ellipse cx="-22" cy="-200" rx="16" ry="48" fill="#f6a5c0" transform="rotate(-9 -22 -200)"/>
+  <ellipse cx="22" cy="-200" rx="16" ry="48" fill="#f6a5c0" transform="rotate(9 22 -200)"/>
+  <ellipse cx="-22" cy="-198" rx="7" ry="33" fill="#ffe1ec" transform="rotate(-9 -22 -198)"/>
+  <ellipse cx="22" cy="-198" rx="7" ry="33" fill="#ffe1ec" transform="rotate(9 22 -198)"/>
+  <ellipse cx="-26" cy="-7" rx="22" ry="10" fill="#fff3f7"/><ellipse cx="26" cy="-7" rx="22" ry="10" fill="#fff3f7"/>
+  <ellipse cx="0" cy="-55" rx="52" ry="52" fill="#f6a5c0"/>
+  <ellipse cx="0" cy="-46" rx="30" ry="30" fill="#fff3f7"/>
+  <circle cx="0" cy="-138" r="46" fill="#f6a5c0"/>
+  ${cheeks(30,-126,8)}
+  ${eye(-17,-146,7)}${eye(17,-146,7)}
+  <ellipse cx="0" cy="-129" rx="7" ry="5" fill="#d93a71"/>
+  <rect x="-7" y="-121" width="14" height="12" rx="3" fill="#fff"/><path d="M0,-121v12" stroke="#f6a5c0" stroke-width="2"/>`,
+  owl:`
+  <ellipse cx="-14" cy="-4" rx="10" ry="6" fill="#ffa62b"/><ellipse cx="14" cy="-4" rx="10" ry="6" fill="#ffa62b"/>
+  <ellipse cx="-58" cy="-70" rx="16" ry="38" fill="#6c4fd6"/><ellipse cx="58" cy="-70" rx="16" ry="38" fill="#6c4fd6"/>
+  <path d="M-50,-150 L-58,-190 L-20,-164Z" fill="#8c6cf0" stroke="#8c6cf0" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M50,-150 L58,-190 L20,-164Z" fill="#8c6cf0" stroke="#8c6cf0" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M-60,-10 C-70,-90 -55,-170 0,-170 C55,-170 70,-90 60,-10 Q58,0 45,0 L-45,0 Q-58,0 -60,-10Z" fill="#8c6cf0"/>
+  <ellipse cx="0" cy="-48" rx="36" ry="38" fill="#c9b8ff"/>
+  <path d="M-16,-62 q8,8 16,0 q8,8 16,0 M-24,-40 q8,8 16,0 q8,8 16,0 q8,8 16,0" stroke="#a991f5" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <circle cx="-25" cy="-124" r="25" fill="#fff"/><circle cx="25" cy="-124" r="25" fill="#fff"/>
+  ${eye(-23,-124,12)}${eye(23,-124,12)}
+  <path d="M-9,-106 L9,-106 L0,-90Z" fill="#ffa62b" stroke="#ffa62b" stroke-width="6" stroke-linejoin="round"/>`,
+  mouse:`
+  <path d="M38,-16 C92,-10 104,-62 76,-74" stroke="#e8899f" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <ellipse cx="-20" cy="-5" rx="16" ry="7" fill="#ffb0c4"/><ellipse cx="20" cy="-5" rx="16" ry="7" fill="#ffb0c4"/>
+  <ellipse cx="0" cy="-48" rx="46" ry="46" fill="#e8b56a"/>
+  <ellipse cx="0" cy="-42" rx="26" ry="28" fill="#fff1d6"/>
+  <circle cx="-38" cy="-146" r="27" fill="#e8b56a"/><circle cx="38" cy="-146" r="27" fill="#e8b56a"/>
+  <circle cx="-38" cy="-146" r="16" fill="#ffb0c4"/><circle cx="38" cy="-146" r="16" fill="#ffb0c4"/>
+  <ellipse cx="0" cy="-112" rx="42" ry="37" fill="#e8b56a"/>
+  ${cheeks(26,-104,7)}
+  ${eye(-15,-120,6.5)}${eye(15,-120,6.5)}
+  <circle cx="0" cy="-101" r="6" fill="#d93a71"/>
+  <path d="M-10,-100 L-40,-106 M-10,-96 L-40,-92 M10,-100 L40,-106 M10,-96 L40,-92" stroke="#b5884a" stroke-width="2.5" stroke-linecap="round"/>`,
+  snail:`
+  <path d="M50,-104 L42,-142 M70,-104 L80,-142" stroke="#3fb0a8" stroke-width="7" stroke-linecap="round"/>
+  <rect x="-92" y="-30" width="170" height="30" rx="15" fill="#57c7c0"/>
+  <rect x="36" y="-118" width="46" height="108" rx="23" fill="#57c7c0"/>
+  ${eye(42,-146,8)}${eye(80,-146,8)}
+  <path d="M50,-84 Q60,-74 70,-84" stroke="#1f7a74" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <circle cx="-22" cy="-80" r="58" fill="#ff7a45"/>
+  <circle cx="-22" cy="-80" r="36" fill="none" stroke="#ffb347" stroke-width="10"/>
+  <circle cx="-18" cy="-76" r="14" fill="#ffb347"/>`
+};
+const CAST={
+  loujain:{name:'Loujain',say:'Loujain',cat:true},
+  yahya:{name:'Yahya',say:'Yahya',cat:true},
+  duck:{name:'Duck',say:'a duck'},
+  frog:{name:'Frog',say:'a frog'},
+  rabbit:{name:'Rabbit',say:'a rabbit'},
+  owl:{name:'Owl',say:'an owl'},
+  mouse:{name:'Mouse',say:'a mouse'},
+  snail:{name:'Snail',say:'a snail'}
+};
+const FRIENDS=['duck','frog','rabbit','owl','mouse','snail'];
+const ALL=['loujain','yahya',...FRIENDS];
+
+const inner=id=>`<g class="hopper"><g class="idle" style="--bd:${(-Math.random()*4).toFixed(2)}s">${ART[id]}</g></g>`;
+const critter=(id,x,y,s,attrs='')=>`<g transform="translate(${x},${y}) scale(${s})" ${attrs}>${inner(id)}</g>`;
+const fishArt=(c='#ff8a3d',fin='#ff6a1a')=>`<path d="M22,0 L42,-15 L42,15Z" fill="${fin}" stroke="${fin}" stroke-width="5" stroke-linejoin="round"/><path d="M-32,0 Q-2,-24 28,0 Q-2,24 -32,0Z" fill="${c}"/><path d="M0,-12 q6,12 0,24" stroke="${fin}" stroke-width="4" fill="none"/><circle cx="-18" cy="-4" r="3.5" fill="#1d1a2e"/>`;
+const STAR=(()=>{let d='';for(let i=0;i<10;i++){const r=i%2?10:22,a=-Math.PI/2+i*Math.PI/5;d+=(i?'L':'M')+(r*Math.cos(a)).toFixed(1)+','+(r*Math.sin(a)).toFixed(1)}return d+'Z'})();
+
+/* ---------- scenery ---------- */
+const defs=()=>`<defs><filter id="sil" x="-20%" y="-20%" width="140%" height="140%"><feFlood flood-color="#2b2350"/><feComposite in2="SourceAlpha" operator="in"/></filter></defs>`;
+function backdrop(sky,ground,gy,dash='#7fb43e'){
+  let s=`<rect x="-3000" y="-3000" width="7000" height="${3000+gy}" fill="${sky}"/><rect x="-3000" y="${gy}" width="7000" height="4000" fill="${ground}"/>`;
+  if(dash){const r=seeded(7);let d='';for(let i=0;i<90;i++){const x=-600+r()*2200,y=gy+18+r()*(i<60?150:600);d+=`M${x.toFixed(0)},${y.toFixed(0)}h${(10+r()*10).toFixed(0)}`}
+    s+=`<path d="${d}" stroke="${dash}" stroke-width="5" stroke-linecap="round"/>`}
+  return s;
+}
+const cloud=(x,y,sc=1)=>`<g transform="translate(${x},${y}) scale(${sc})"><g class="drift" fill="#fff"><circle cx="-40" cy="0" r="30"/><circle cx="0" cy="-18" r="40"/><circle cx="42" cy="0" r="28"/><rect x="-70" y="0" width="140" height="28" rx="14"/></g></g>`;
+const sky=()=>`<circle cx="960" cy="40" r="78" fill="#ffe14d"/>${cloud(120,90,.9)}${cloud(640,60,.7)}${cloud(-160,200,.8)}`;
+
+/* ---------- sound & voice ---------- */
+let ac=null,muted=false,unlocked=false,voices=[];
+try{muted=localStorage.getItem('ps-muted')==='1'}catch(e){}
+function audio(){
+  if(!ac){try{ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}
+  if(ac&&ac.state==='suspended')ac.resume();
+  if(!unlocked){unlocked=true;try{speechSynthesis.speak(new SpeechSynthesisUtterance(' '))}catch(e){}}
+  return ac;
+}
+try{const lv=()=>{voices=speechSynthesis.getVoices()};lv();speechSynthesis.onvoiceschanged=lv}catch(e){}
+function say(t,delay=0){
+  if(muted)return;
+  setTimeout(()=>{try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(t);u.rate=.88;u.pitch=1.25;u.lang='en-GB';
+    const v=voices.find(v=>/en[-_]GB/i.test(v.lang))||voices.find(v=>/^en/i.test(v.lang));if(v)u.voice=v;
+    speechSynthesis.speak(u);
+  }catch(e){}},delay);
+}
+function tone(f1,f2,dur,type='sine',vol=.2,when=0){
+  const a=audio();if(!a||muted)return;const t=a.currentTime+when;
+  const o=a.createOscillator(),g=a.createGain();o.type=type;
+  o.frequency.setValueAtTime(f1,t);o.frequency.exponentialRampToValueAtTime(f2,t+dur);
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.015);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g).connect(a.destination);o.start(t);o.stop(t+dur+.05);
+}
+const sfx={
+  pop:()=>{tone(1300,280,.12,'triangle',.28)},
+  boing:()=>{tone(180,540,.18,'sine',.3);tone(540,260,.22,'sine',.2,.17)},
+  boop:()=>{tone(330,210,.25,'sine',.22)},
+  whoosh:()=>{tone(260,900,.28,'sine',.08)},
+  munch:()=>{tone(160,120,.07,'square',.06);tone(170,120,.07,'square',.06,.12)},
+  cheer:()=>{[523,659,784,1047].forEach((f,i)=>tone(f,f*1.01,.24,'triangle',.18,i*.1))},
+  meow:()=>{
+    const a=audio();if(!a||muted)return;const t=a.currentTime,p=rand(.9,1.15);
+    const o=a.createOscillator(),bq=a.createBiquadFilter(),g=a.createGain();
+    o.type='sawtooth';o.frequency.setValueAtTime(470*p,t);o.frequency.linearRampToValueAtTime(820*p,t+.13);o.frequency.linearRampToValueAtTime(540*p,t+.48);
+    bq.type='bandpass';bq.Q.value=2.5;bq.frequency.setValueAtTime(1300,t);bq.frequency.linearRampToValueAtTime(2100,t+.15);bq.frequency.linearRampToValueAtTime(1100,t+.48);
+    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.22,t+.06);g.gain.exponentialRampToValueAtTime(.0001,t+.5);
+    o.connect(bq).connect(g).connect(a.destination);o.start(t);o.stop(t+.55);
+  }
+};
+const voiceFor=id=>CAST[id].cat?sfx.meow():sfx.boing();
+
+/* ---------- engine ---------- */
+let timers=[],tweens=[],loopFn=null,handlers={};
+const later=(fn,ms)=>{const t=setTimeout(fn,ms);timers.push(t);return t};
+const tween=(dur,fn,done)=>tweens.push({t:0,dur,fn,done});
+let last=performance.now();
+(function frame(now){
+  const dt=Math.min(.05,(now-last)/1000);last=now;
+  if(loopFn)loopFn(dt,now/1000);
+  for(const tw of tweens.slice()){tw.t+=dt;const p=Math.min(1,tw.t/tw.dur);tw.fn(p);if(p>=1){tweens.splice(tweens.indexOf(tw),1);tw.done&&tw.done()}}
+  requestAnimationFrame(frame);
+})(last);
+function add(parent,html){const g=document.createElementNS(NS,'g');g.innerHTML=html;parent.appendChild(g);return g}
+function retrigger(el,cls){if(!el)return;el.classList.remove(cls);void el.getBoundingClientRect();el.classList.add(cls)}
+function burst(x,y,n=14){
+  const fx=$('#fx');if(!fx)return;
+  const cols=['#ffd93b','#ff6b5b','#17b3a3','#8c6cf0','#3d8bff','#ff8fb8'];
+  for(let i=0;i<n;i++){
+    const a=i/n*Math.PI*2+rand(-.2,.2),d=rand(110,210);
+    const g=add(fx,`<g transform="translate(${x},${y})"><path class="star" d="${STAR}" fill="${pick(cols)}" stroke-linejoin="round" style="--dx:${(Math.cos(a)*d).toFixed(0)}px;--dy:${(Math.sin(a)*d).toFixed(0)}px;animation-delay:${rand(0,.12).toFixed(2)}s"/></g>`);
+    later(()=>g.remove(),1400);
+  }
+}
+const poke=t=>{const id=t.dataset.id;retrigger(t.querySelector('.hopper'),'hop');voiceFor(id);say(CAST[id].cat?CAST[id].name+'!':CAST[id].name+'!',200)};
+function screen(name,html,h={}){
+  timers.forEach(clearTimeout);timers=[];tweens=[];loopFn=null;
+  try{speechSynthesis.cancel()}catch(e){}
+  stage.innerHTML=defs()+html+'<g id="fx"></g>';
+  handlers={poke,...h};
+  $('#homeBtn').hidden=name==='home';
+}
+stage.addEventListener('pointerdown',e=>{
+  audio();
+  const t=e.target.closest('[data-act]');if(!t)return;
+  e.preventDefault();handlers[t.dataset.act]&&handlers[t.dataset.act](t,e);
+});
+$('#homeBtn').addEventListener('click',()=>{audio();sfx.pop();home()});
+function paintMute(){$('#waves').style.display=muted?'none':'';$('#cross').hidden=!muted}
+$('#muteBtn').addEventListener('click',()=>{muted=!muted;try{localStorage.setItem('ps-muted',muted?'1':'0')}catch(e){};if(muted){try{speechSynthesis.cancel()}catch(e){}}else{audio();sfx.pop()}paintMute()});
+paintMute();
+
+/* ---------- hiding spots ---------- */
+const SPOT={
+  bush:{front:`<rect x="-96" y="-64" width="192" height="64" rx="22" fill="#3fae5a"/><circle cx="-50" cy="-64" r="52" fill="#3fae5a"/><circle cx="50" cy="-64" r="52" fill="#3fae5a"/><circle cx="0" cy="-112" r="60" fill="#4cc266"/>
+    ${[[-40,-104],[28,-134],[56,-72],[-62,-42],[8,-60]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="8" fill="#ff8fb8"/><circle cx="${x}" cy="${y}" r="3" fill="#ffd93b"/>`).join('')}`},
+  hedge:{front:`<rect x="-92" y="-170" width="184" height="170" rx="50" fill="#2f9b52"/>${[[-48,-130],[30,-140],[-20,-80],[52,-70],[-58,-36],[16,-30]].map(([x,y])=>`<ellipse cx="${x}" cy="${y}" rx="18" ry="11" fill="#49b86a" transform="rotate(-25 ${x} ${y})"/>`).join('')}`},
+  pot:{front:`<path d="M-74,-150 L74,-150 L58,0 L-58,0Z" fill="#ef7d4f"/><rect x="-66" y="-102" width="132" height="14" fill="#ffb48f"/><rect x="-88" y="-172" width="176" height="30" rx="12" fill="#d9603a"/>`},
+  crate:{front:`<rect x="-88" y="-168" width="176" height="168" rx="10" fill="#e0a95e"/><path d="M-88,-112 H88 M-88,-56 H88" stroke="#c48a41" stroke-width="6"/><rect x="-78" y="-158" width="156" height="148" rx="6" fill="none" stroke="#c48a41" stroke-width="5"/>`},
+  bucket:{back:`<path d="M-74,-160 Q0,-275 74,-160" fill="none" stroke="#1f5fc4" stroke-width="8"/>`,
+    front:`<path d="M-80,-160 L80,-160 L64,0 L-64,0Z" fill="#3d8bff"/><rect x="-90" y="-172" width="180" height="22" rx="11" fill="#2a6fe0"/><g transform="translate(0,-82) scale(1.4)"><path d="${STAR}" fill="#ffd93b" stroke="#ffd93b" stroke-width="5" stroke-linejoin="round"/></g>`}
+};
+
+/* ---------- home ---------- */
+const GAMES=[
+  {id:'hide',label:'Hide & Seek',col:'#ff6b5b',go:()=>hideSeek()},
+  {id:'bub',label:'Bubbles',col:'#3fb6e8',go:()=>bubbles()},
+  {id:'who',label:"Who's That?",col:'#8c6cf0',go:()=>whosThat()},
+  {id:'fish',label:'Fish Supper',col:'#ffb020',go:()=>fishSupper()}
+];
+function tileIcon(id){
+  if(id==='hide')return `${critter('yahya',100,175,.52)}<g transform="translate(100,205) scale(.62)">${SPOT.bush.front}</g>`;
+  if(id==='bub')return `<circle cx="100" cy="98" r="62" fill="#fff" opacity=".28"/><circle cx="100" cy="98" r="62" fill="none" stroke="#fff" stroke-width="5"/>${critter('duck',100,148,.5)}<path d="M66,62 a40,40 0 0 1 22,-18" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="160" cy="168" r="14" fill="none" stroke="#fff" stroke-width="4"/><circle cx="38" cy="160" r="9" fill="none" stroke="#fff" stroke-width="4"/>`;
+  if(id==='who')return `<rect x="34" y="28" width="132" height="142" rx="18" fill="#fff"/><g transform="translate(100,160) scale(.62)" filter="url(#sil)">${ART.owl}</g>`;
+  return `<g transform="translate(100,130) rotate(-20)">${fishArt()}</g><g transform="translate(100,175)"><ellipse cx="0" cy="-26" rx="58" ry="10" fill="#c94b3c"/><path d="M-58,-26 L58,-26 Q54,10 0,12 Q-54,10 -58,-26Z" fill="#ff6b5b"/></g>`;
+}
+function home(){
+  let t=`<text x="500" y="118" text-anchor="middle" font-size="96" fill="#ff6b5b" stroke="#fff" stroke-width="14" stroke-linejoin="round" paint-order="stroke">Loujain &amp; Yahya</text>`;
+  GAMES.forEach((g,i)=>{
+    const x=55+i*230;
+    t+=`<g transform="translate(${x},165)" data-act="go" data-g="${i}"><g class="tile">
+      <clipPath id="tc${i}"><rect width="200" height="200" rx="38"/></clipPath>
+      <rect y="8" width="200" height="200" rx="38" fill="#000" opacity=".12"/>
+      <rect width="200" height="200" rx="38" fill="${g.col}"/>
+      <g clip-path="url(#tc${i})">${tileIcon(g.id)}</g>
+      <text x="100" y="250" text-anchor="middle" font-size="32" fill="#2b2350">${g.label.replace('&','&amp;')}</text></g></g>`;
+  });
+  screen('home',backdrop('#8fd6f5','#9bcf53',560)+sky()+t+
+    critter('duck',115,668,.48,'data-act="poke" data-id="duck"')+
+    critter('snail',255,676,.38,'data-act="poke" data-id="snail"')+
+    critter('loujain',395,672,.64,'data-act="poke" data-id="loujain"')+
+    critter('yahya',605,672,.64,'data-act="poke" data-id="yahya"')+
+    critter('mouse',755,676,.42,'data-act="poke" data-id="mouse"')+
+    critter('frog',890,668,.48,'data-act="poke" data-id="frog"'),
+    {go:t=>{sfx.pop();GAMES[+t.dataset.g].go()}});
+}
+
+/* ---------- 1. Hide & Seek ---------- */
+function hideSeek(){
+  screen('hide',backdrop('#8fd6f5','#9bcf53',560)+sky()+`<g id="spots"></g>`);
+  const spotsG=$('#spots'),xs=[110,305,500,695,890];
+  let found,cast,busy;
+  function deal(){
+    found=new Set();busy=false;spotsG.innerHTML='';
+    const kinds=shuffle(Object.keys(SPOT));
+    cast=shuffle(['loujain','yahya',...shuffle(FRIENDS).slice(0,3)]);
+    xs.forEach((x,i)=>{
+      const k=SPOT[kinds[i]];
+      add(spotsG,`<g transform="translate(${x},560)" data-act="peek" data-i="${i}">
+        <clipPath id="cp${i}"><rect x="-150" y="-700" width="300" height="700"/></clipPath>
+        ${k.back||''}
+        <g clip-path="url(#cp${i})"><g class="hider" style="transform:translate(0px,160px)"><g transform="scale(.65)">${inner(cast[i])}</g></g></g>
+        <g class="spot">${k.front}</g>
+        <rect x="-100" y="-270" width="200" height="290" fill="transparent"/></g>`);
+    });
+  }
+  function hideAll(){spotsG.querySelectorAll('[data-act]').forEach(s=>{s.querySelector('.hider').style.transform='translate(0px,160px)'})}
+  deal();
+  later(()=>say('Where are Loujain and Yahya?'),500);
+  handlers.peek=t=>{
+    if(busy)return;
+    const i=+t.dataset.i,id=cast[i],c=CAST[id];
+    retrigger(t.querySelector('.spot'),'wobble');
+    if(!t.dataset.open){
+      t.dataset.open='1';t.querySelector('.hider').style.transform='translate(0px,-105px)';
+      sfx.boing();if(c.cat)later(sfx.meow,300);
+      say(c.cat?`Peekaboo! It's ${c.name}!`:`Peekaboo! It's ${c.say}!`,350);
+      if(c.cat){found.add(id);if(found.size===2){busy=true;later(()=>{
+        sfx.cheer();cast.forEach((cid,j)=>{if(CAST[cid].cat)burst(xs[j],330)});
+        say('You found Loujain and Yahya!');
+        spotsG.querySelectorAll('.hopper').forEach(h=>retrigger(h,'bigjump'));
+        later(()=>{hideAll();later(()=>{deal();say('Hide again!')},700)},4200);
+      },1300)}}
+    }else{retrigger(t.querySelector('.hopper'),'hop');voiceFor(id);say(c.name+'!',150)}
+  };
+}
+
+/* ---------- 2. Bubbles ---------- */
+function bubbles(){
+  screen('bub',backdrop('#ffd93b','#9bcf53',590,'#7fb43e')+cloud(150,110,.8)+cloud(780,80,.6)+`<g id="bubs"></g><g id="fall"></g>`);
+  const bubG=$('#bubs'),fallG=$('#fall');
+  let list=[],falls=[],nextSpawn=.2,uid=0,T=0;
+  function spawn(){
+    const r=rand(58,78),id=pick(ALL),s=(r*1.55)/230;
+    const b={id,uid:uid++,x0:rand(90,910),y:rand(760,790),r,s,vy:rand(95,135),ph:rand(0,6),f:rand(.6,1.1)};
+    b.g=add(bubG,`<g data-act="pop" data-u="${b.uid}"><circle r="${r}" fill="#fff" opacity=".3"/>
+      <g transform="translate(0,${(100*s).toFixed(1)}) scale(${s.toFixed(3)})">${inner(id)}</g>
+      <circle r="${r}" fill="none" stroke="#fff" stroke-width="5"/><path d="M${-r*.62},${-r*.25} A${r*.68},${r*.68} 0 0 1 ${-r*.2},${-r*.64}" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round"/></g>`).firstChild;
+    list.push(b);
+  }
+  loopFn=(dt)=>{
+    T+=dt;nextSpawn-=dt;
+    if(nextSpawn<=0&&list.length<7){spawn();nextSpawn=rand(.8,1.5)}
+    for(const b of list.slice()){
+      b.y-=b.vy*dt;b.x=b.x0+Math.sin(T*b.f+b.ph)*24;
+      b.g.setAttribute('transform',`translate(${b.x.toFixed(1)},${b.y.toFixed(1)})`);
+      if(b.y<-b.r-120){b.g.parentNode.remove();list.splice(list.indexOf(b),1)}
+    }
+    for(const f of falls.slice()){
+      f.age+=dt;if(f.s<.5)f.s=Math.min(.5,f.s+dt*1.5);
+      if(!f.rest){f.vy+=1500*dt;f.y+=f.vy*dt;if(f.y>=f.gy){f.y=f.gy;if(f.vy>250){f.vy*=-.38}else{f.rest=true;f.vy=0}}}
+      else{f.restT+=dt;if(f.restT>1.6)f.op-=dt*1.6}
+      f.g.setAttribute('transform',`translate(${f.x.toFixed(1)},${f.y.toFixed(1)}) scale(${f.s.toFixed(3)})`);
+      f.g.setAttribute('opacity',Math.max(0,f.op).toFixed(2));
+      if(f.op<=0){f.g.parentNode.remove();falls.splice(falls.indexOf(f),1)}
+    }
+  };
+  handlers.pop=t=>{
+    const u=+t.dataset.u,b=list.find(b=>b.uid===u);if(!b)return;
+    list.splice(list.indexOf(b),1);t.parentNode.remove();sfx.pop();
+    const ring=add($('#fx'),`<circle class="ring" cx="${b.x}" cy="${b.y}" r="${b.r}" fill="none" stroke="#fff" stroke-width="6"/>`);later(()=>ring.remove(),500);
+    const f={x:b.x,y:b.y+100*b.s,s:b.s,vy:-260,gy:rand(640,680),rest:false,restT:0,op:1,age:0};
+    f.g=add(fallG,`<g>${inner(b.id)}</g>`).firstChild;falls.push(f);
+    later(()=>voiceFor(b.id),120);say(CAST[b.id].name+'!',200);
+  };
+}
+
+/* ---------- 3. Who's That? ---------- */
+function whosThat(){
+  screen('who',backdrop('#ffb3d1','#9bcf53',540,'#7fb43e')+cloud(140,120,.7)+cloud(860,90,.75)+`
+    <path d="M385,380 L350,560 M615,380 L650,560" stroke="#b07a45" stroke-width="16" stroke-linecap="round"/>
+    <rect x="325" y="62" width="350" height="336" rx="30" fill="#fff"/>
+    <rect x="343" y="80" width="314" height="300" rx="20" fill="#fff6d9"/>
+    <g id="mys"></g><g id="choices"></g>`);
+  const mys=$('#mys'),ch=$('#choices');let answer=null,prev=null,locked=true;
+  function round(){
+    answer=pick(ALL.filter(x=>x!==prev));prev=answer;
+    const opts=shuffle([answer,...shuffle(ALL.filter(x=>x!==answer)).slice(0,2)]);
+    mys.innerHTML=`<g transform="translate(500,366) scale(1.12)"><g filter="url(#sil)">${ART[answer]}</g><g id="col" style="opacity:0;transition:opacity .6s">${ART[answer]}</g></g>`;
+    ch.innerHTML=opts.map((id,i)=>`<g transform="translate(${210+i*290},665)" data-act="choose" data-id="${id}" style="transition:opacity .4s">
+      <ellipse cx="0" cy="0" rx="74" ry="13" fill="#000" opacity=".12"/><g transform="scale(.78)">${inner(id)}</g>
+      <rect x="-100" y="-200" width="200" height="215" fill="transparent"/></g>`).join('');
+    locked=false;say("Who's that?",300);
+  }
+  round();
+  handlers.choose=t=>{
+    if(locked)return;const id=t.dataset.id;
+    if(id===answer){
+      locked=true;$('#col').style.opacity='1';
+      retrigger(t.querySelector('.hopper'),'bigjump');
+      ch.querySelectorAll('[data-act]').forEach(g=>{if(g!==t)g.style.opacity='.25'});
+      sfx.cheer();burst(500,210);later(()=>voiceFor(id),400);
+      say(`Yes! It's ${CAST[id].say}!`,450);later(round,3300);
+    }else{
+      retrigger(t.querySelector('.hopper'),'shake');sfx.boop();
+      say(`That's ${CAST[id].say}.`,150);
+    }
+  };
+}
+
+/* ---------- 4. Fish Supper ---------- */
+function fishSupper(){
+  const cats=[{id:'loujain',x:185,bx:345,col:'#ff5d73',n:0,fly:0,busy:false},{id:'yahya',x:815,bx:655,col:'#17b3a3',n:0,fly:0,busy:false}];
+  const words=['','One','Two','Three','Four','Five'];
+  let wall=`<rect x="-3000" y="-3000" width="7000" height="3520" fill="#ffd166"/>
+    <rect x="-3000" y="520" width="7000" height="4000" fill="#f2a65a"/>
+    <rect x="-3000" y="576" width="7000" height="26" fill="#ec9a4c"/><rect x="-3000" y="652" width="7000" height="34" fill="#ec9a4c"/>
+    <rect x="-3000" y="506" width="7000" height="16" fill="#e8894a"/>
+    <g transform="translate(410,70)"><rect width="180" height="160" rx="16" fill="#fff"/><rect x="12" y="12" width="156" height="136" rx="8" fill="#8fd6f5"/>${cloud(70,70,.5)}<circle cx="140" cy="38" r="18" fill="#ffe14d"/><path d="M90,12V148M12,80H168" stroke="#fff" stroke-width="10"/></g>
+    <g transform="translate(150,170) rotate(-4)"><rect x="-62" y="-50" width="124" height="100" rx="10" fill="#8c6cf0"/><rect x="-50" y="-38" width="100" height="76" rx="4" fill="#c9f0ff"/><g transform="scale(.9)">${fishArt()}</g></g>
+    <g transform="translate(850,160) rotate(3)"><rect x="-55" y="-60" width="110" height="120" rx="10" fill="#17b3a3"/><rect x="-43" y="-48" width="86" height="96" rx="4" fill="#fff6d9"/><g transform="translate(0,40) scale(.38)">${ART.duck}</g></g>
+    <g id="walk"></g>`;
+  cats.forEach((c,i)=>{
+    wall+=`<ellipse cx="${c.x}" cy="608" rx="118" ry="22" fill="${i?'#7fd3c8':'#ff9f8f'}"/>
+      ${critter(c.id,c.x,604,.92,`data-act="feed" data-c="${i}" id="cat${i}"`)}
+      <g id="dots${i}"></g>
+      <g transform="translate(${c.bx},628)" data-act="feed" data-c="${i}">
+        <ellipse cx="0" cy="-30" rx="62" ry="11" fill="#8a2f2a"/><g id="pile${i}"></g>
+        <path d="M-62,-30 L62,-30 Q58,10 0,12 Q-58,10 -62,-30Z" fill="${c.col}"/>
+        <text x="0" y="-4" text-anchor="middle" font-size="20" fill="#fff" letter-spacing="1">${CAST[c.id].name.toUpperCase()}</text></g>`;
+  });
+  wall+=`<g transform="translate(500,640)" data-act="feed" data-c="auto">
+    <g transform="translate(-30,-56) rotate(-70)">${fishArt('#ff8a3d')}</g><g transform="translate(4,-64) rotate(-95)">${fishArt('#ffb347','#ff8a3d')}</g><g transform="translate(34,-54) rotate(-115)">${fishArt('#ff6b5b','#e14b3c')}</g>
+    <path d="M-72,-48 L72,-48 L58,20 L-58,20Z" fill="#c98a4b"/><path d="M-66,-20 H66 M-62,4 H62 M-36,-48 L-30,20 M0,-48 V20 M36,-48 L30,20" stroke="#a96d35" stroke-width="5"/>
+    <rect x="-82" y="-62" width="164" height="22" rx="11" fill="#a96d35"/></g>`;
+  screen('fish',wall);
+  const drawDots=i=>{const c=cats[i];$('#dots'+i).innerHTML=[0,1,2,3,4].map(k=>`<circle cx="${c.x-56+k*28}" cy="378" r="10" fill="${k<c.n?c.col:'#fff'}" stroke="#2b2350" stroke-width="3"/>`).join('')};
+  const drawPile=i=>{const c=cats[i],r=seeded(i*9+3);$('#pile'+i).innerHTML=Array.from({length:c.n},(_,k)=>`<g transform="translate(${-34+(k%3)*34},${-34-Math.floor(k/3)*14}) rotate(${(r()*50-25).toFixed(0)}) scale(.75)">${fishArt(k%2?'#ffb347':'#ff8a3d')}</g>`).join('')};
+  cats.forEach((_,i)=>{drawDots(i);drawPile(i)});
+  later(()=>say('Loujain and Yahya are hungry!'),400);
+  handlers.feed=t=>{
+    let i=t.dataset.c;i=i==='auto'?(cats[0].n+cats[0].fly<=cats[1].n+cats[1].fly?0:1):+i;
+    const c=cats[i];
+    if(c.busy||c.n+c.fly>=5){retrigger($('#cat'+i).querySelector('.hopper'),'hop');sfx.meow();return}
+    c.fly++;sfx.whoosh();
+    const f=add($('#fx'),`<g>${fishArt()}</g>`).firstChild;
+    const x0=500,y0=575,x1=c.bx,y1=588,dir=x1>x0?1:-1;
+    tween(.6,p=>{const x=x0+(x1-x0)*p,y=y0+(y1-y0)*p-Math.sin(Math.PI*p)*230;
+      f.setAttribute('transform',`translate(${x.toFixed(1)},${y.toFixed(1)}) rotate(${(dir*p*360).toFixed(0)})`)},()=>{
+      f.parentNode.remove();c.fly--;c.n++;drawPile(i);drawDots(i);
+      retrigger($('#cat'+i).querySelector('.hopper'),'munch');sfx.munch();
+      const np=add($('#fx'),`<text class="numpop" x="${c.x}" y="335" text-anchor="middle" font-size="84" fill="${c.col}" stroke="#fff" stroke-width="10" paint-order="stroke">${c.n}</text>`);later(()=>np.remove(),1200);
+      if(c.n<5){say(words[c.n])}
+      else{
+        c.busy=true;say('Five!');
+        later(()=>{sfx.cheer();sfx.meow();burst(c.x,330);retrigger($('#cat'+i).querySelector('.hopper'),'bigjump');say(`Yum yum! ${CAST[c.id].name} ate five fish!`)},650);
+        later(()=>{c.n=0;drawPile(i);drawDots(i);c.busy=false},4200);
+      }
+    });
+  };
+  // visitors wander across the kitchen
+  const walkG=$('#walk');let walkers=[],nextW=2,T=0;
+  loopFn=dt=>{
+    T+=dt;nextW-=dt;
+    if(nextW<=0&&walkers.length<1){
+      const id=pick(FRIENDS),d=Math.random()<.5?1:-1;
+      const w={id,d,x:d>0?-120:1120,v:rand(95,130)};
+      w.g=add(walkG,`<g data-act="poke" data-id="${id}">${inner(id)}</g>`).firstChild;walkers.push(w);nextW=rand(7,11);
+    }
+    for(const w of walkers.slice()){
+      w.x+=w.d*w.v*dt;const y=528-Math.abs(Math.sin(T*7))*10;
+      w.g.setAttribute('transform',`translate(${w.x.toFixed(1)},${y.toFixed(1)}) scale(${(w.d>0?-.42:.42)},.42)`);
+      if(w.x<-160||w.x>1160){w.g.remove();walkers.splice(walkers.indexOf(w),1)}
+    }
+  };
+}
+
+home();
+</script>
+</body></html>

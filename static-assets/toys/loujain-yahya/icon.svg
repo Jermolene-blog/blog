@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<rect width="512" height="512" fill="#8fd6f5"/>
+<circle cx="420" cy="96" r="44" fill="#ffd93b"/>
+<rect y="372" width="512" height="140" fill="#9bcf53"/>
+<g stroke="#7cb33e" stroke-width="6" stroke-linecap="round"><path d="M60 410v-14M130 440v-14M200 420v-14M300 450v-14M380 418v-14M450 444v-14"/></g>
+<g transform="translate(0 40)"><g transform="translate(152 300)">
+<path d="M-70 -70l-14-78l62 42zM70 -70l14-78l-62 42z" fill="#a3aab7"/>
+<path d="M-68 -86l-8-44l34 26zM68 -86l8-44l-34 26z" fill="#f7a9b8"/>
+<ellipse cx="0" cy="-40" rx="92" ry="80" fill="#a3aab7"/>
+<path d="M-14 -118v22M0 -120v26M14 -118v22" stroke="#7a8190" stroke-width="7" stroke-linecap="round"/>
+<ellipse cx="0" cy="-8" rx="40" ry="28" fill="#eef0f4"/>
+<circle cx="-34" cy="-52" r="12" fill="#1d1b2e"/><circle cx="-30" cy="-56" r="4" fill="#fff"/>
+<circle cx="34" cy="-52" r="12" fill="#1d1b2e"/><circle cx="38" cy="-56" r="4" fill="#fff"/>
+<ellipse cx="-58" cy="-24" rx="14" ry="9" fill="#ff9fb1"/><ellipse cx="58" cy="-24" rx="14" ry="9" fill="#ff9fb1"/>
+<path d="M-8 -30h16l-8 8z" fill="#ff7a93"/>
+<path d="M-22 -14q22 30 44 0z" fill="#5a1e35"/><path d="M-10 -4q10 10 20 0z" fill="#ff7a93"/>
+<path d="M-62 30q62 26 124 0v18q-62 26 -124 0z" fill="#ff5d73"/>
+<circle cx="0" cy="58" r="12" fill="#ffd93b"/>
+</g><g transform="translate(360 300)">
+<path d="M-70 -70l-14-78l62 42zM70 -70l14-78l-62 42z" fill="#a3aab7"/>
+<path d="M-68 -86l-8-44l34 26zM68 -86l8-44l-34 26z" fill="#f7a9b8"/>
+<ellipse cx="0" cy="-40" rx="92" ry="80" fill="#a3aab7"/>
+<path d="M-14 -118v22M0 -120v26M14 -118v22" stroke="#7a8190" stroke-width="7" stroke-linecap="round"/>
+<ellipse cx="0" cy="-8" rx="40" ry="28" fill="#eef0f4"/>
+<circle cx="-34" cy="-52" r="12" fill="#1d1b2e"/><circle cx="-30" cy="-56" r="4" fill="#fff"/>
+<circle cx="34" cy="-52" r="12" fill="#1d1b2e"/><circle cx="38" cy="-56" r="4" fill="#fff"/>
+<ellipse cx="-58" cy="-24" rx="14" ry="9" fill="#ff9fb1"/><ellipse cx="58" cy="-24" rx="14" ry="9" fill="#ff9fb1"/>
+<path d="M-8 -30h16l-8 8z" fill="#ff7a93"/>
+<path d="M-22 -14q22 30 44 0z" fill="#5a1e35"/><path d="M-10 -4q10 10 20 0z" fill="#ff7a93"/>
+<path d="M-62 30q62 26 124 0v18q-62 26 -124 0z" fill="#17b3a3"/>
+<circle cx="0" cy="58" r="12" fill="#ffd93b"/>
+</g></g>
+</svg>
