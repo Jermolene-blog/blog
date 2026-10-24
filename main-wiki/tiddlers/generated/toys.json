@@ -88,6 +88,17 @@
 		"screenshot": "/screenshots/toys/knottery.webp"
 	},
 	{
+		"title": "Toys/loujain-yahya",
+		"caption": "Loujain & Yahya",
+		"description": "Four tap-only games for toddlers starring two grey cats and their friends: hide and seek, bubble popping, guessing silhouettes and counting fish into a bowl",
+		"url": "/toys/loujain-yahya/",
+		"tags": "toy",
+		"text": "",
+		"category": "games",
+		"theme-color": "#8fd6f5",
+		"screenshot": "/screenshots/toys/loujain-yahya.webp"
+	},
+	{
 		"title": "Toys/marble-flick",
 		"caption": "Marble Flick",
 		"description": "Flick marbles into the rings and knock your rivals into the hole, watched over by some very opinionated cats. For up to four players and computer opponents around one screen",
@@ -108,6 +119,17 @@
 		"category": "trifles",
 		"theme-color": "#161310",
 		"screenshot": "/screenshots/toys/marblelous.webp"
+	},
+	{
+		"title": "Toys/meadow-games",
+		"caption": "Meadow Games",
+		"description": "Five tap-only 3D games for toddlers with a herd of cows, horses, foxes and friends: peekaboo, all fall down, bedtime in the barn, find the same and pairs",
+		"url": "/toys/meadow-games/",
+		"tags": "toy",
+		"text": "",
+		"category": "games",
+		"theme-color": "#bfe3f2",
+		"screenshot": "/screenshots/toys/meadow-games.webp"
 	},
 	{
 		"title": "Toys/mimic",

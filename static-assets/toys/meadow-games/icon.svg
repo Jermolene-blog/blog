@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<rect width="512" height="512" fill="#bfe3f2"/>
+<circle cx="400" cy="112" r="40" fill="#ffe08a"/>
+<path d="M0 300q140-70 300-30t212-20v262H0z" fill="#8cc865"/>
+<path d="M0 360q160-50 300-10t212-10v172H0z" fill="#6fb04a"/>
+<!-- barn -->
+<path d="M186 352V244l70-56l70 56v108z" fill="#b8352b"/>
+<path d="M176 250l80-66l80 66" fill="none" stroke="#7d2018" stroke-width="14" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="236" y="214" width="40" height="28" fill="#e8d6b0"/>
+<rect x="222" y="284" width="68" height="68" fill="#2b1a14"/>
+<path d="M222 284l34 34l-34 34M290 284l-34 34l34 34" fill="none" stroke="#f3ece0" stroke-width="5"/>
+<rect x="222" y="284" width="68" height="68" fill="none" stroke="#f3ece0" stroke-width="5"/>
+<!-- low-poly tree -->
+<rect x="104" y="290" width="16" height="60" fill="#7a5233"/>
+<path d="M112 168l52 70l-14 64h-76l-14-64z" fill="#3f8f3a"/>
+<path d="M112 168l52 70l-52 10z" fill="#5aa84f"/>
+<path d="M112 248l38 54h-76z" fill="#2f7a32"/>
+<!-- haystack -->
+<path d="M352 360q8-62 52-62t52 62z" fill="#e8b84a"/>
+<path d="M368 340q36-14 72 0M362 354q42-12 84 0" fill="none" stroke="#c9952f" stroke-width="5" stroke-linecap="round"/>
+<!-- grass tufts -->
+<g fill="#4e9435"><path d="M80 410l8-26l8 26zM170 440l8-26l8 26zM330 420l8-26l8 26zM430 446l8-26l8 26z"/></g>
+</svg>

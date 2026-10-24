@@ -101,6 +101,11 @@ const recipes = {
 		await page.click("#go");
 		await page.wait(2000);
 	},
+	"toys/meadow-games": async page => {
+		// Wait for the models to be decoded and the herd to settle behind the tiles
+		await page.evaluate(`new Promise(resolve => { const check = () => window.__meadow ? resolve(true) : setTimeout(check,200); check(); })`);
+		await page.wait(4000);
+	},
 	"toys/marble-flick": async page => {
 		// Start a game so that the board is shown instead of the setup card
 		await page.click("#startBtn");
