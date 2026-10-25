@@ -57,7 +57,7 @@ td.sum{font:700 15px/35px var(--hand);width:40px;font-variant-numeric:tabular-nu
 #banner{font:700 13px/1 var(--body);letter-spacing:.1em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:8px 14px;border-radius:2px;border-bottom:3px solid var(--red)}
 #hint{font:600 14px/1.35 var(--body);color:#f3ead9;text-align:center;max-width:34em;text-shadow:0 1px 3px #000}
 #toast{position:fixed;inset:0;display:grid;place-items:center;pointer-events:none}
-#toast b{font:400 clamp(48px,15vmin,140px)/1 var(--display);color:#fff6e4;-webkit-text-stroke:3px var(--red);paint-order:stroke;text-shadow:0 6px 0 rgba(0,0,0,.35);transform:rotate(-6deg)}
+#toast b{font:400 clamp(48px,15vmin,140px)/1 var(--display);color:#fff6e4;-webkit-text-stroke:3px var(--red);paint-order:stroke;text-shadow:0 6px 0 rgba(0,0,0,.35);transform:rotate(-6deg);opacity:0}
 #toast.on b{animation:pop 1.4s cubic-bezier(.2,1.6,.4,1) both}
 @keyframes pop{0%{opacity:0;transform:rotate(-6deg) scale(.4)}18%{opacity:1;transform:rotate(-6deg) scale(1.05)}75%{opacity:1}100%{opacity:0;transform:rotate(-6deg) scale(1)}}
 
@@ -106,7 +106,7 @@ details[open]{display:flex;flex-direction:column;gap:8px}
 #scanner .bar{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;gap:10px;
   padding-bottom:calc(env(safe-area-inset-bottom,0px) + 20px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));color:#fff;text-align:center}
 #scanner .btn{background:var(--paper);color:var(--ink);border-color:var(--paper)}
-@media (prefers-reduced-motion:reduce){#toast.on b{animation:none}}
+@media (prefers-reduced-motion:reduce){#toast.on b{animation:none;opacity:1}}
 </style>
 </head>
 <body>
