@@ -8,10 +8,10 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <script src="../pwa.js" defer></script>
 <title>Bowling Bear</title>
-<meta name="description" content="Ten-pin bowling in 3D for phones on the same Wi-Fi, with no server: phones join by scanning each other's QR codes, then each bowler swipes up to roll and curves the swipe to hook, on a shared score sheet. Or practise alone">
+<meta name="description" content="Ten-pin bowling in 3D with a bear that cheers you on. Up to four play round one phone or tablet, against each other or the computer, as the lane swings round to each bowler. Or play on phones on the same Wi-Fi, with no server: they join by scanning each other's QR codes. Swipe to roll and curve the swipe to hook">
 <meta name="toy-category" content="games">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One+SC&family=Barlow:wght@400;600;700&family=Kalam:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One+SC&family=Barlow:wght@400;600;700&family=Barlow+Condensed:wght@500;600;700&family=Kalam:wght@400;700&display=swap">
 <style>
 /* Layout: full-bleed 3D lane; score-sheet paper floats above it (scorecard strip, lobby card). Single deliberate look. */
 :root{
@@ -65,39 +65,39 @@ td.sum{font:700 15px/35px var(--hand);width:40px;font-variant-numeric:tabular-nu
 #lobby{position:fixed;inset:0;display:grid;place-items:center;background:rgba(18,13,10,.66);overflow-y:auto;
   padding-block:calc(env(safe-area-inset-top,0px) + 16px) calc(env(safe-area-inset-bottom,0px) + 16px);
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.sheet{width:100%;max-width:400px;background:var(--paper);color:var(--ink);box-shadow:0 18px 50px rgba(0,0,0,.55);
+:is(#lobby,#scanner) .sheet{width:100%;max-width:400px;background:var(--paper);color:var(--ink);box-shadow:0 18px 50px rgba(0,0,0,.55);
   background-image:repeating-linear-gradient(to bottom,transparent 0 27px,rgba(134,180,156,.4) 27px 28px);background-position:0 54px}
-.sheet-head{background:var(--ink);color:var(--paper);padding:14px 18px 12px;display:grid;grid-template-columns:auto 1fr auto;align-items:end;gap:10px;border-bottom:4px solid var(--red)}
-.sheet-head h1{margin:0;font:400 28px/1 var(--display);text-align:center;letter-spacing:.02em}
-.sheet-head .lane{font:700 10px/1.2 var(--body);letter-spacing:.14em;text-transform:uppercase;opacity:.8}
-section{padding:18px 20px 22px;display:flex;flex-direction:column;gap:12px}
-h2{margin:0;font:400 20px/1.1 var(--display);letter-spacing:.02em}
-.lede{margin:0;font-size:15px}
-label{font:700 11px/1 var(--body);letter-spacing:.12em;text-transform:uppercase}
-input,textarea{width:100%;background:transparent;border:0;border-bottom:2px solid var(--ink);color:var(--ink);font:700 22px/1.3 var(--hand);padding:2px 0;border-radius:0}
-textarea{font:12px/1.3 ui-monospace,Menlo,monospace;height:70px;border:1px solid var(--ink);padding:6px;resize:vertical}
-input:focus-visible,textarea:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--red);outline-offset:2px}
-.stack{display:flex;flex-direction:column;gap:10px}
-.row{display:flex;gap:8px;align-items:end}
-.row input{flex:1;min-width:0;font-size:18px}
-.btn{appearance:none;border:2px solid var(--ink);background:var(--ink);color:var(--paper);font:700 14px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;padding:14px 16px;border-radius:3px;cursor:pointer}
-.btn.alt{background:transparent;color:var(--ink)}
-.btn.ghost{background:transparent;color:var(--ink);border-color:transparent;text-decoration:underline;text-underline-offset:3px}
-.btn.small{padding:10px 12px;font-size:12px}
-.btn:active{transform:translateY(1px)}
-.btn:disabled{opacity:.4;cursor:default}
-.step{margin:0;display:flex;gap:10px;align-items:baseline}
-.step b{flex:none;width:22px;height:22px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;font:700 12px/1 var(--body)}
-.qr{background:#fff;align-self:center;padding:8px;line-height:0}
-.qr canvas{width:min(260px,66vw);height:auto;image-rendering:pixelated}
-details summary{cursor:pointer;font-weight:600;font-size:13px}
-details[open]{display:flex;flex-direction:column;gap:8px}
-.status{margin:0;font:600 13px/1.35 var(--body);min-height:1.35em}
-.status.err{color:var(--red)}
-.roster{margin:0;padding:0 0 0 1.6em;font:700 20px/28px var(--hand)}
-.roster li i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:8px;vertical-align:0}
-.roster li small{font:600 11px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;margin-left:6px;opacity:.7}
-.finals li b{float:right;color:var(--red)}
+:is(#lobby,#scanner) .sheet-head{background:var(--ink);color:var(--paper);padding:14px 18px 12px;display:grid;grid-template-columns:auto 1fr auto;align-items:end;gap:10px;border-bottom:4px solid var(--red)}
+:is(#lobby,#scanner) .sheet-head h1{margin:0;font:400 28px/1 var(--display);text-align:center;letter-spacing:.02em}
+:is(#lobby,#scanner) .sheet-head .lane{font:700 10px/1.2 var(--body);letter-spacing:.14em;text-transform:uppercase;opacity:.8}
+:is(#lobby,#scanner) section{padding:18px 20px 22px;display:flex;flex-direction:column;gap:12px}
+:is(#lobby,#scanner) h2{margin:0;font:400 20px/1.1 var(--display);letter-spacing:.02em}
+:is(#lobby,#scanner) .lede{margin:0;font-size:15px}
+:is(#lobby,#scanner) label{font:700 11px/1 var(--body);letter-spacing:.12em;text-transform:uppercase}
+:is(#lobby,#scanner) input,:is(#lobby,#scanner) textarea{width:100%;background:transparent;border:0;border-bottom:2px solid var(--ink);color:var(--ink);font:700 22px/1.3 var(--hand);padding:2px 0;border-radius:0}
+:is(#lobby,#scanner) textarea{font:12px/1.3 ui-monospace,Menlo,monospace;height:70px;border:1px solid var(--ink);padding:6px;resize:vertical}
+:is(#lobby,#scanner) input:focus-visible,:is(#lobby,#scanner) textarea:focus-visible,:is(#lobby,#scanner) button:focus-visible,:is(#lobby,#scanner) summary:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+:is(#lobby,#scanner) .stack{display:flex;flex-direction:column;gap:10px}
+:is(#lobby,#scanner) .row{display:flex;gap:8px;align-items:end}
+:is(#lobby,#scanner) .row input{flex:1;min-width:0;font-size:18px}
+:is(#lobby,#scanner) .btn{appearance:none;border:2px solid var(--ink);background:var(--ink);color:var(--paper);font:700 14px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;padding:14px 16px;border-radius:3px;cursor:pointer}
+:is(#lobby,#scanner) .btn.alt{background:transparent;color:var(--ink)}
+:is(#lobby,#scanner) .btn.ghost{background:transparent;color:var(--ink);border-color:transparent;text-decoration:underline;text-underline-offset:3px}
+:is(#lobby,#scanner) .btn.small{padding:10px 12px;font-size:12px}
+:is(#lobby,#scanner) .btn:active{transform:translateY(1px)}
+:is(#lobby,#scanner) .btn:disabled{opacity:.4;cursor:default}
+:is(#lobby,#scanner) .step{margin:0;display:flex;gap:10px;align-items:baseline}
+:is(#lobby,#scanner) .step b{flex:none;width:22px;height:22px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;font:700 12px/1 var(--body)}
+:is(#lobby,#scanner) .qr{background:#fff;align-self:center;padding:8px;line-height:0}
+:is(#lobby,#scanner) .qr canvas{width:min(260px,66vw);height:auto;image-rendering:pixelated}
+:is(#lobby,#scanner) details summary{cursor:pointer;font-weight:600;font-size:13px}
+:is(#lobby,#scanner) details[open]{display:flex;flex-direction:column;gap:8px}
+:is(#lobby,#scanner) .status{margin:0;font:600 13px/1.35 var(--body);min-height:1.35em}
+:is(#lobby,#scanner) .status.err{color:var(--red)}
+:is(#lobby,#scanner) .roster{margin:0;padding:0 0 0 1.6em;font:700 20px/28px var(--hand)}
+:is(#lobby,#scanner) .roster li i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:8px;vertical-align:0}
+:is(#lobby,#scanner) .roster li small{font:600 11px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;margin-left:6px;opacity:.7}
+:is(#lobby,#scanner) .finals li b{float:right;color:var(--red)}
 
 /* scanner */
 #scanner{position:fixed;inset:0;background:#000;display:grid;place-items:center}
@@ -107,6 +107,92 @@ details[open]{display:flex;flex-direction:column;gap:8px}
   padding-bottom:calc(env(safe-area-inset-bottom,0px) + 20px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));color:#fff;text-align:center}
 #scanner .btn{background:var(--paper);color:var(--ink);border-color:var(--paper)}
 @media (prefers-reduced-motion:reduce){#toast.on b{animation:none;opacity:1}}
+:is(#lobby) .fine{margin:0;font-size:11px;line-height:1.35;opacity:.7}
+:is(#lobby) .fine a{color:inherit}
+
+/* ---------- round this device: the table game */
+#table{pointer-events:none}
+/* Layout: full-screen top-down lane on a forest floor; HUD cards hug the screen edges, rotated to face each seat */
+#table{
+  --pine:#0f2219; --pine2:#183427; --cream:#f7ecd4; --honey:#f2a93b; --bark:#3a2618; --ink:#0a140f;
+  --display:"Bowlby One SC", "Arial Black", Impact, sans-serif;
+  --ui:"Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  color-scheme: dark;
+}
+#t-vignette{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(4,10,7,.55) 100%)}
+#table .layer{position:fixed;inset:0;pointer-events:none}
+#table .layer > *{pointer-events:auto}
+
+/* score cards */
+#table .card{position:absolute;transform:translate(-50%,-50%) rotate(var(--r,0deg));background:rgba(9,20,14,.82);border:2px solid color-mix(in srgb,var(--pc) 35%,transparent);border-radius:14px;padding:5px 8px 6px;box-sizing:border-box;transition:box-shadow .3s,border-color .3s,opacity .3s;cursor:pointer}
+#table .card.active{border-color:var(--pc);box-shadow:0 0 0 3px color-mix(in srgb,var(--pc) 30%,transparent),0 0 26px color-mix(in srgb,var(--pc) 55%,transparent)}
+#table .card .top{display:flex;align-items:baseline;gap:6px;white-space:nowrap}
+#table .card .nm{font-weight:700;font-size:17px;color:var(--pc);overflow:hidden;text-overflow:ellipsis}
+#table .card .tag{font-size:11px;font-weight:600;letter-spacing:.08em;padding:0 5px;border-radius:5px;background:color-mix(in srgb,var(--pc) 22%,transparent);color:var(--cream)}
+#table .card .tot{margin-left:auto;font-family:var(--display);font-size:24px;line-height:1;font-variant-numeric:tabular-nums}
+#table .card .frames{display:grid;gap:2px;margin-top:4px}
+#table .card .f{background:rgba(247,236,212,.07);border-radius:4px;text-align:center;font-variant-numeric:tabular-nums;min-width:0}
+#table .card .f.cur{background:color-mix(in srgb,var(--pc) 28%,transparent)}
+#table .card .mk{display:flex;justify-content:flex-end;font-size:11px;font-weight:700;line-height:13px;height:13px}
+#table .card .mk i{font-style:normal;width:11px;text-align:center}
+#table .card .mk i.x{color:var(--honey)}
+#table .card .cs{font-size:12px;font-weight:600;line-height:13px;height:13px;color:rgba(247,236,212,.85)}
+#table .card.compact .frames{display:none}
+#table .card.compact .top{flex-direction:column;align-items:flex-start;gap:0}
+#table .card.compact .tot{margin-left:0;font-size:26px}
+#table .card.compact .sub{display:block}
+#table .card .sub{display:none;font-size:13px;font-weight:600;opacity:.8;white-space:nowrap}
+
+/* toast */
+#table .toast{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(var(--r,0deg)) scale(var(--s,1));font-family:var(--display);font-size:clamp(34px,8vmin,74px);color:var(--honey);text-shadow:0 3px 0 var(--bark),0 0 30px rgba(0,0,0,.6);-webkit-text-stroke:2px var(--bark);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .25s, transform .35s cubic-bezier(.2,1.6,.4,1)}
+#table .toast.small{font-size:clamp(20px,4.6vmin,36px);color:var(--cream);-webkit-text-stroke:1px var(--bark)}
+#table .toast.on{opacity:1}
+#table .hint{position:absolute;transform:translate(-50%,-50%) rotate(var(--r,0deg));font-weight:700;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--cream);background:rgba(9,20,14,.75);padding:3px 10px;border-radius:20px;border:1.5px solid var(--pc,var(--honey));pointer-events:none;white-space:nowrap;transition:opacity .3s}
+
+/* buttons */
+#table button{font-family:var(--ui);color:inherit}
+#table .iconbtn{position:absolute;width:44px;height:44px;border-radius:50%;border:2px solid rgba(247,236,212,.35);background:rgba(9,20,14,.75);transform:translate(-50%,-50%);display:grid;place-items:center;cursor:pointer;padding:0}
+#table .iconbtn svg{width:20px;height:20px}
+#table .iconbtn:focus-visible,#table .btn:focus-visible,#table .seat:focus-visible,#table .pill button:focus-visible{outline:3px solid var(--honey);outline-offset:2px}
+
+/* setup */
+#t-setup{background:radial-gradient(ellipse at center,rgba(9,20,14,.35),rgba(9,20,14,.8))}
+#table .panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(var(--r,0deg));width:min(340px,86vw);text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center}
+#table .title{font-family:var(--display);font-size:clamp(40px,9vmin,72px);line-height:.9;color:var(--honey);-webkit-text-stroke:2px var(--bark);text-shadow:0 4px 0 var(--bark)}
+#table .title small{display:block;font-size:.32em;color:var(--cream);-webkit-text-stroke:0;text-shadow:none;letter-spacing:.12em;margin-top:8px;font-family:var(--ui);font-weight:700}
+#table .row{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:14px}
+#table .pill{display:flex;background:rgba(247,236,212,.1);border-radius:999px;padding:3px}
+#table .pill button{border:0;background:transparent;font-size:16px;font-weight:700;padding:6px 14px;border-radius:999px;cursor:pointer}
+#table .pill button[aria-pressed="true"]{background:var(--honey);color:var(--ink)}
+#table .btn{font-family:var(--display);font-size:26px;letter-spacing:.04em;padding:10px 36px 12px;border-radius:999px;border:0;background:var(--honey);color:var(--ink);box-shadow:0 5px 0 var(--bark);cursor:pointer}
+#table .btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--bark)}
+#table .btn.ghost{background:transparent;color:var(--cream);border:2px solid rgba(247,236,212,.4);box-shadow:none;font-size:18px;padding:7px 20px}
+#table .credit{font-size:11px;opacity:.6;max-width:300px;line-height:1.3}
+#table .credit a{color:inherit}
+#table .seat{position:absolute;transform:translate(-50%,-50%) rotate(var(--r,0deg));width:150px;padding:10px 8px;border-radius:18px;border:2.5px dashed rgba(247,236,212,.35);background:rgba(9,20,14,.7);text-align:center;cursor:pointer;color:var(--cream)}
+#table .seat .sn{font-family:var(--display);font-size:22px;color:var(--pc)}
+#table .seat .st{font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:14px;margin-top:2px}
+#table .seat .sh{font-size:11px;opacity:.6;margin-top:2px}
+#table .seat[data-kind="human"],#table .seat[data-kind="cpu"]{border-style:solid;border-color:var(--pc);box-shadow:0 0 20px color-mix(in srgb,var(--pc) 35%,transparent)}
+#table .seat[data-kind="empty"] .sn{opacity:.35}
+
+/* results / sheet / menu */
+#table .sheet{position:absolute;transform:translate(-50%,-50%) rotate(var(--r,0deg));background:rgba(9,20,14,.92);border:2px solid var(--honey);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;align-items:stretch;box-sizing:border-box}
+#table .sheet h2{margin:0;font-family:var(--display);font-weight:400;color:var(--honey);font-size:26px;text-align:center}
+#table .sheet .rk{display:flex;gap:10px;align-items:baseline;font-size:20px;font-weight:700}
+#table .sheet .rk b{font-family:var(--display);font-weight:400;width:40px;color:var(--cream);opacity:.7}
+#table .sheet .rk span{flex:1;color:var(--pc)}
+#table .sheet .rk em{font-style:normal;font-family:var(--display);font-size:24px;font-variant-numeric:tabular-nums}
+#table .sheet .btns{display:flex;gap:10px;justify-content:center;margin-top:6px;flex-wrap:wrap}
+#table .sheet .btns .btn{font-size:20px;padding:8px 22px 10px}
+#table .full{display:grid;gap:2px}
+#table .full .f .mk{font-size:13px;height:15px;line-height:15px}
+#table .full .f .mk i{width:13px}
+#table .full .f .cs{font-size:15px;height:17px;line-height:17px}
+#table .full .f{background:rgba(247,236,212,.08);border-radius:4px;text-align:center}
+#table .full .fh{font-size:10px;opacity:.55;text-align:center;font-weight:700}
+#t-loading{position:fixed;inset:0;display:grid;place-items:center;font-family:var(--display);color:var(--honey);font-size:28px;background:var(--pine)}
+@media (prefers-reduced-motion: reduce){#table .toast{transition:opacity .2s}}
 </style>
 </head>
 <body>
@@ -121,14 +207,17 @@ details[open]{display:flex;flex-direction:column;gap:8px}
   <div class="sheet-head"><span class="lane">Lane 07</span><h1>Bowling Bear</h1><span class="lane">10 frames</span></div>
 
   <section data-screen="home">
-   <p class="lede">Ten-pin bowling for phones on the same Wi-Fi. There is no server: phones connect by scanning each other's QR codes.</p>
+   <p class="lede">Ten-pin bowling for up to four round one phone or tablet, or for phones on the same Wi-Fi. There is no server: phones connect by scanning each other's QR codes.</p>
    <label for="name">Your name</label>
    <input id="name" maxlength="14" autocomplete="off" spellcheck="false">
    <div class="stack">
-    <button id="bHost" class="btn">Host a game</button>
+    <button id="bTable" class="btn">Play round this device</button>
+    <button id="bHost" class="btn alt">Host a game</button>
     <button id="bJoin" class="btn alt">Join a game</button>
     <button id="bSolo" class="btn ghost">Practise alone</button>
    </div>
+   <p id="homeStatus" class="status"></p>
+   <p class="fine">Bear: <a href="https://sketchfab.com/3d-models/realistic-animated-bear-3d-model-bffc3c87d2d148ff8533e1cc8a11c9f1" target="_blank" rel="noopener">“Realistic Animated Bear 3D Model”</a> by <a href="https://sketchfab.com/WildMesh_3D" target="_blank" rel="noopener">WildMesh 3D</a>, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a></p>
   </section>
 
   <section data-screen="host" hidden>
@@ -191,11 +280,29 @@ details[open]{display:flex;flex-direction:column;gap:8px}
  <div class="bar"><span id="scanMsg">Point the camera at the code</span><button id="bScanCancel" class="btn small">Cancel</button></div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<div id="table" hidden>
+ <div id="t-vignette"></div>
+ <div id="t-hud" class="layer"></div>
+ <div id="t-fx" class="layer" style="pointer-events:none"></div>
+ <div id="t-setup" class="layer"></div>
+ <div id="t-over" class="layer" hidden></div>
+ <div id="t-loading" hidden>Waking the bear…</div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
-<script>
-"use strict";
+<script src="bear-model.js" defer></script>
+<script type="importmap">
+{"imports":{
+ "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+ "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+ "cannon-es":"https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 // SIM-START
 // ================= Lane geometry (metres) and pin physics =================
 const LANE_W=1.0541, LANE_HALF=LANE_W/2, GUTTER_X=0.655, HEAD_Z=18.288, PIT_Z=19.4,
@@ -393,6 +500,7 @@ let S=null;     // authoritative state (host only)
 let view=null;  // latest state seen by this device
 const local={sim:null,doneAt:0,waiting:false,by:null,seq:-1,fc:0};
 let lastSnap=null,remoteSnap=null,aimX=0;
+let hold=null; // {until,snap}: the end of a roll stays in view for a moment while the bear reacts to the result
 
 function send(msg){
   if(net.isHost)hostReceive(net.selfId,msg,true);
@@ -504,14 +612,18 @@ function guestReceive(msg){
 function hostLost(){
   $('#lobby').hidden=false;showScreen('join');
   setStatus('#joinStatus','Lost the connection to the host. Ask them to invite you again.',true);
-  $('#card').hidden=true;$('#hud').hidden=true;view=null;local.sim=null;lastSnap=remoteSnap=null;
+  $('#card').hidden=true;$('#hud').hidden=true;view=null;local.sim=null;lastSnap=remoteSnap=hold=null;
 }
 
 // ----- apply a state snapshot to this device
 function applyState(s){
   const fresh=!view||s.seq!==view.seq;view=s;
-  if(fresh){local.sim=null;local.waiting=false;lastSnap=null;remoteSnap=null;showRack(s.pins);
-    if(s.last&&s.phase!=='lobby'){const t={X:'Strike!','/':'Spare!',G:'Gutter'}[s.last.mark];if(t)toast(t);}}
+  if(fresh){
+    const endSnap=lastSnap||remoteSnap;
+    local.sim=null;local.waiting=false;lastSnap=null;remoteSnap=null;showRack(s.pins);hold=null;
+    if(s.last&&s.phase!=='lobby'){const t={X:'Strike!','/':'Spare!',G:'Gutter'}[s.last.mark];if(t)toast(t);
+      if(endSnap){hold={until:performance.now()+1800,snap:endSnap};nbReact(s.last.mark);}}
+    if(!hold&&nb&&nb.chasing){nb.chasing=false;nbHome();}}
   const lb=$('#lobby');
   if(s.phase==='lobby'){lb.hidden=false;showScreen(net.isHost?(currentScreen()==='invite'?'invite':'host'):'wait');renderRoster();}
   else if(s.phase==='over'){lb.hidden=false;showScreen('over');renderFinals();}
@@ -520,7 +632,7 @@ function applyState(s){
   renderCard();renderHud();
 }
 const curPlayer=()=>view&&view.players[view.cur];
-const canThrow=()=>view&&view.phase==='play'&&curPlayer()&&net.myIds.has(curPlayer().id)&&!local.sim&&!local.waiting&&!remoteSnap&&!lastSnap;
+const canThrow=()=>view&&view.phase==='play'&&curPlayer()&&net.myIds.has(curPlayer().id)&&!local.sim&&!local.waiting&&!remoteSnap&&!lastSnap&&!hold;
 
 // ================= UI rendering =================
 function showScreen(name){document.querySelectorAll('#lobby section').forEach(s=>s.hidden=s.dataset.screen!==name);}
@@ -551,7 +663,7 @@ function renderHud(){
   $('#banner').textContent=`${p.name} · frame ${c.frame+1} · ball ${c.ball+1}`;
   $('#banner').style.borderBottomColor=p.color;
   $('#hint').textContent=net.myIds.has(p.id)
-    ?(local.sim||local.waiting?'':'Swipe up to bowl. Where you start sets the line; curve the end of the swipe to hook.')
+    ?(local.sim||local.waiting||hold?'':'Swipe up to bowl. Where you start sets the line; curve the end of the swipe to hook.')
     :`${p.name} is bowling…`;
   setBallColor(p.color);
 }
@@ -559,14 +671,15 @@ let toastT=0;function toast(t){const el=$('#toast');el.querySelector('b').textCo
 const myName=()=>($('#name').value.trim()||'Bowler').slice(0,14);
 
 // ================= Three.js alley =================
+// The alley's colours were chosen under three r128, which treated hex colours as linear
+THREE.ColorManagement.enabled=false;
 const renderer=new THREE.WebGLRenderer({canvas:$('#gl'),antialias:true});
 renderer.setPixelRatio(Math.min(2,devicePixelRatio));
-renderer.outputEncoding=THREE.sRGBEncoding;
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x17120e);scene.fog=new THREE.Fog(0x17120e,24,42);
 const camera=new THREE.PerspectiveCamera(50,1,0.05,80);
 const maxAniso=renderer.capabilities.getMaxAnisotropy();
-function canvasTex(c){const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=maxAniso;return t;}
+function canvasTex(c){const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=maxAniso;return t;}
 
 function laneTexture(dim){
   const W=256,H=2048,L=PIT_Z,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
@@ -627,10 +740,10 @@ mask.position.set(0,1.32,PIT_Z+0.15);mask.rotation.y=Math.PI;scene.add(mask);
 const back=new THREE.Mesh(new THREE.PlaneGeometry(8,3),new THREE.MeshBasicMaterial({color:0x0a0807}));back.position.set(0,1,PIT_Z+1.3);back.rotation.y=Math.PI;scene.add(back);
 
 // lights
-scene.add(new THREE.HemisphereLight(0xfff1dc,0x2a1a10,0.75));
-const sun=new THREE.DirectionalLight(0xfff4e6,0.75);sun.position.set(-1.5,9,6);sun.target.position.set(0,0,10);scene.add(sun.target);
+scene.add(new THREE.HemisphereLight(0xfff1dc,0x2a1a10,0.75*Math.PI));
+const sun=new THREE.DirectionalLight(0xfff4e6,0.75*Math.PI);sun.position.set(-1.5,9,6);sun.target.position.set(0,0,10);scene.add(sun.target);
 sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-12,right:12,top:12,bottom:-12,near:1,far:30});sun.shadow.bias=-0.0006;scene.add(sun);
-const deckLight=new THREE.SpotLight(0xffe2b8,1.3,9,0.6,0.5);deckLight.position.set(0,2.6,PIT_Z-0.6);deckLight.target.position.set(0,0,HEAD_Z+0.3);scene.add(deckLight,deckLight.target);
+const deckLight=new THREE.SpotLight(0xffe2b8,1.3*Math.PI,9,0.6,0.5,1);deckLight.position.set(0,2.6,PIT_Z-0.6);deckLight.target.position.set(0,0,HEAD_Z+0.3);scene.add(deckLight,deckLight.target);
 
 // pins
 const pinGeo=(()=>{
@@ -662,6 +775,97 @@ function ballMat(color){
 }
 const ball=new THREE.Mesh(new THREE.SphereGeometry(BALL_R,40,24),ballMat(COLORS[0]));ball.castShadow=true;scene.add(ball);
 function setBallColor(c){ball.material=ballMat(c);}
+
+// ================= The bear =================
+// "Realistic Animated Bear 3D Model" by WildMesh 3D (CC BY 4.0), slimmed to 12 clips, from bear-model.js.
+// makeBear() parses a fresh copy, scales it to `length` metres nose to tail and returns a steerable mascot
+const turnTo=(a,b,k)=>{const d=((b-a+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;return a+d*Math.min(1,k);};
+const BEAR_GAITS=['Walk','Trot','Run','Sprint'];
+async function makeBear(length,groundY){
+  const bin=Uint8Array.from(atob(window.BOWLING_BEAR_GLB),ch=>ch.charCodeAt(0));
+  const gltf=await new Promise((ok,bad)=>{const l=new GLTFLoader();l.setMeshoptDecoder(MeshoptDecoder);l.parse(bin.buffer,'',ok,bad);});
+  const bear={root:new THREE.Group(),mixer:null,actions:{},cur:null,natural:{},pos:new THREE.Vector3(),vel:new THREE.Vector3(),heading:0,
+    target:null,maxSpeed:3,baseY:groundY(new THREE.Vector3()),idle:'Sitting_Idle_02',face:null,busy:false,hop:null,arrived:true};
+  const model=gltf.scene,wrap=new THREE.Group();wrap.add(model);bear.root.add(wrap);
+  model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;o.frustumCulled=false;if(o.material){o.material.side=THREE.FrontSide;o.material.metalness=0;o.material.roughness=Math.max(0.75,o.material.roughness??0.8);}}});
+  model.updateMatrixWorld(true);
+  let head=null,pelvis=null,rootBone=null;
+  model.traverse(o=>{if(o.isBone){if(/RigHead/.test(o.name))head=o;if(/RigPelvis/.test(o.name))pelvis=o;if(/RigRoot/.test(o.name))rootBone=o;}});
+  // face +z at heading 0, worked out from the head and pelvis rather than trusted from the file
+  const f=head.getWorldPosition(new THREE.Vector3()).sub(pelvis.getWorldPosition(new THREE.Vector3()));wrap.rotation.y=-Math.atan2(f.x,f.z);
+  wrap.updateMatrixWorld(true);
+  let box=new THREE.Box3().setFromObject(model);wrap.scale.setScalar(length/(box.max.z-box.min.z));wrap.updateMatrixWorld(true);
+  box=new THREE.Box3().setFromObject(model);wrap.position.y=-box.min.y;wrap.updateMatrixWorld(true);
+  const rigScale=rootBone.parent.getWorldScale(new THREE.Vector3()),rs=(rigScale.x+rigScale.y+rigScale.z)/3;
+  bear.mixer=new THREE.AnimationMixer(model);
+  for(const clip of gltf.animations){
+    // strip root motion, first measuring it so that each gait plays at the speed the bear really moves
+    const rt=clip.tracks.find(t=>/RigRoot.*\.position$/.test(t.name));
+    if(rt){const v=rt.values,n=v.length;bear.natural[clip.name]=Math.hypot(v[n-3]-v[0],v[n-2]-v[1],v[n-1]-v[2])*rs/clip.duration;clip.tracks=clip.tracks.filter(t=>t!==rt);}
+    bear.actions[clip.name]=bear.mixer.clipAction(clip);
+  }
+  bear.mixer.addEventListener('finished',e=>{if(e.action._onDone){const f=e.action._onDone;e.action._onDone=null;f();}});
+  bear.play=(name,{loop=true,fade=0.3,ts=1}={})=>{
+    const a=bear.actions[name];if(!a)return null;
+    if(bear.cur===a&&loop){a.timeScale=ts;return a;}
+    a.reset();a.setLoop(loop?THREE.LoopRepeat:THREE.LoopOnce,Infinity);a.clampWhenFinished=!loop;a.timeScale=ts;
+    a.enabled=true;a.setEffectiveWeight(1);a.fadeIn(fade).play();
+    if(bear.cur&&bear.cur!==a)bear.cur.fadeOut(fade);
+    bear.cur=a;return a;
+  };
+  // play a one-shot clip, resolving when it finishes; `hop` adds a jump of that many metres
+  bear.react=(name,{ts=1,hop=0,then=null}={})=>new Promise(res=>{
+    bear.busy=true;
+    const a=bear.play(name,{loop:false,fade:0.2,ts}),dur=a.getClip().duration/ts;
+    if(hop)bear.hop={t:0,dur:Math.min(dur,0.9),h:hop};
+    a._onDone=()=>{bear.busy=false;bear.arrived=false;res();if(then)bear.play(then,{fade:0.4});};
+  });
+  // steer towards targetFn(), a point that may move, then settle into `idle` facing face()
+  bear.go=(targetFn,{speed=3.2,idle='Sitting_Idle_02',face=null}={})=>{bear.target=targetFn;bear.maxSpeed=speed;bear.idle=idle;bear.face=face;bear.arrived=false;};
+  bear.update=dt=>{
+    if(bear.target&&!bear.busy){
+      const T=bear.target(),d=new THREE.Vector3(T.x-bear.pos.x,0,T.z-bear.pos.z),dist=d.length();
+      const want=dist>0.04?d.normalize().multiplyScalar(Math.min(bear.maxSpeed,dist*3+0.2)):new THREE.Vector3();
+      bear.vel.lerp(want,1-Math.exp(-7*dt));bear.pos.addScaledVector(bear.vel,dt);
+      const sp=bear.vel.length();
+      if(sp>0.25){
+        bear.heading=turnTo(bear.heading,Math.atan2(bear.vel.x,bear.vel.z),9*dt);
+        let best='Walk',bd=1e9;
+        for(const n of BEAR_GAITS){const dd=Math.abs(Math.log(sp/(bear.natural[n]||1)));if(dd<bd){bd=dd;best=n;}}
+        bear.play(best,{fade:0.25,ts:THREE.MathUtils.clamp(sp/(bear.natural[best]||1),0.5,1.8)});
+        bear.arrived=false;
+      }else if(dist<0.08){
+        if(!bear.arrived){bear.arrived=true;bear.play(bear.idle,{fade:0.45});}
+        if(bear.face!=null)bear.heading=turnTo(bear.heading,bear.face(),4*dt);
+      }
+    }
+    bear.baseY+=(groundY(bear.pos)-bear.baseY)*(1-Math.exp(-14*dt));
+    let y=bear.baseY;
+    if(bear.hop){bear.hop.t+=dt;const k=bear.hop.t/bear.hop.dur;if(k>=1)bear.hop=null;else y+=Math.sin(Math.PI*k)*bear.hop.h;}
+    bear.root.position.set(bear.pos.x,y,bear.pos.z);bear.root.rotation.y=bear.heading;
+    bear.mixer.update(dt);
+  };
+  bear.play('Sitting_Idle_02');
+  return bear;
+}
+
+// In the alley the bear waits beside the approach, on the right of the lane, runs along beside the ball and
+// reacts to the result at the pin end. Every device runs its own bear from the snapshots it sees
+const NB_X=-1.0,NB_HOME=3.4,NB_END=DECK_Z-1.1,NB_FACE_HOME=Math.PI-0.55,NB_FACE_END=Math.PI-0.9;
+let nb=null;
+const nbAt=z=>new THREE.Vector3(NB_X,0,z);
+function nbHome(){if(nb)nb.go(()=>nbAt(NB_HOME),{speed:4,idle:'Sitting_Idle_02',face:()=>NB_FACE_HOME});}
+function nbChase(){if(nb&&!nb.busy&&nb.chasing!==true){nb.chasing=true;nb.go(()=>nbAt(Math.max(NB_HOME,Math.min(NB_END,nbBallZ-0.5))),{speed:9,idle:'Stand_Idle_01',face:()=>NB_FACE_END});}}
+let nbBallZ=0;
+function nbReact(mark){
+  if(!nb)return;nb.chasing=false;
+  const done=()=>{nb.chasing=false;nbHome();};
+  if(mark==='X')nb.react('CanonBall',{ts:0.85,hop:0.45}).then(()=>nb.react('Attack_StandAngry_01_High',{ts:1.2})).then(done);
+  else if(mark==='/')nb.react('Trans_Stand_to_StandHind',{ts:1.6,then:'StandHind_Idle_01'}).then(()=>new Promise(r=>setTimeout(r,500))).then(done);
+  else if(mark==='G')nb.react('Hit_Sitting_F01',{ts:1.1}).then(done);
+  else setTimeout(done,700);
+}
+makeBear(1.0,()=>-0.02).then(b=>{nb=b;nb.pos.copy(nbAt(NB_HOME));nb.heading=NB_FACE_HOME;scene.add(nb.root);nbHome();}).catch(e=>console.error('bear load failed',e));
 
 // snapshot → meshes (sim x is mirrored so screen-right is +x)
 const qTmp=new THREE.Quaternion(),axTmp=new THREE.Vector3();
@@ -696,7 +900,7 @@ addEventListener('resize',resize);resize();
 const trail=$('#trail'),tg=trail.getContext('2d');let drag=null,trailFade=0;
 const mapX=px=>Math.max(-0.42,Math.min(0.42,(px/innerWidth-0.5)*1.1));
 $('#gl').addEventListener('pointerdown',e=>{
-  if(!canThrow())return;
+  if(inTable||!canThrow())return;
   drag={pts:[{x:e.clientX,y:e.clientY,t:performance.now()}]};aimX=mapX(e.clientX);rackCache.b[0]=aimX;
   try{$('#gl').setPointerCapture(e.pointerId);}catch(err){}
 });
@@ -731,6 +935,7 @@ let lastTrail=null;
 // ================= Main loop =================
 let last=performance.now();
 renderer.setAnimationLoop(now=>{
+  if(inTable){last=now;if(table)table.frame(now);return;}
   const dt=Math.min(0.05,(now-last)/1000);last=now;
   if(local.sim){
     const n=Math.ceil(dt*240);for(let k=0;k<n;k++)step(local.sim,dt/n);
@@ -742,12 +947,1089 @@ renderer.setAnimationLoop(now=>{
       send({t:'result',by:local.by,q:local.seq,standing:st});
     }
   }
-  const s=lastSnap||remoteSnap;
-  if(s){applySnap(s);updateCamera(dt,s.b[2],true);}
+  if(hold&&now>hold.until){hold=null;renderHud();}
+  const s=hold?hold.snap:(lastSnap||remoteSnap);
+  if(s){applySnap(s);updateCamera(dt,s.b[2],true);if(!hold){nbBallZ=s.b[2];nbChase();}}
   else{applySnap(rackCache);updateCamera(dt,0,false);}
+  if(nb)nb.update(dt);
   drawTrail(dt);
   renderer.render(scene,camera);
 });
+
+// ================= Round this device: the table game =================
+// Up to four players round one phone or tablet lying flat, at its corners or ends. The lane is a shortened one
+// seen from above, with its own cannon-es physics, and swings round to face whoever is bowling. initTable() is
+// called the first time the table is opened; it builds everything inside this closure and returns enter()/frame()
+async function initTable(renderer, onLeave) {
+  const CANNON = await import('cannon-es');
+  /* ------------------------------------------------------------------ constants */
+  const LANE_HW = 0.525, GUT_W = 0.25, GUT_DROP = 0.075, EDGE = LANE_HW + GUT_W, CAP = 0.12;
+  const BALL_R = 0.108, BALL_M = 6, HOOK = 5;
+  const HEAD_Z = -4.6, ROW = 0.264, PIN_SP = 0.305;
+  const DECK_END = HEAD_Z - 3*ROW - 0.32;
+  const BACK_Z = -6.3, APPROACH_Z = 1.5;
+  const LANE_MID = (BACK_Z + 1.3) / 2;
+  const BALL_START_Z = 0.72;
+  const R_VIEW = 4.0, R_VIEW_ENDS = 3.6;
+  const PIN_COM = 0.13;
+  const GROUND_Y = -0.36;
+  const FOV = 40;
+  const PIN_SPOTS = [];
+  for (let r = 0; r < 4; r++) for (let i = 0; i <= r; i++) PIN_SPOTS.push({ x: (i - r/2) * PIN_SP, z: HEAD_Z - r*ROW });
+
+  const SEATS = [
+    { name: 'Honey',    color: '#f2a93b' },
+    { name: 'Bramble',  color: '#e65b6e' },
+    { name: 'Bilberry', color: '#7096f2' },
+    { name: 'Moss',     color: '#93d070' },
+  ];
+  const KINDS = ['human', 'cpu', 'empty'];
+  const KIND_LABEL = { human: 'Human', cpu: 'Computer', empty: 'Empty' };
+
+  /* ------------------------------------------------------------------ prefs */
+  const prefs = { frames: 5, mode: null, kinds: ['human', 'cpu', 'empty', 'empty'], sound: true };
+  try { Object.assign(prefs, JSON.parse(localStorage.getItem('bowling-bear.table') || '{}')); } catch (e) {}
+  function savePrefs() { try { localStorage.setItem('bowling-bear.table', JSON.stringify(prefs)); } catch (e) {} }
+  const isSmall = () => Math.min(innerWidth, innerHeight) < 600;
+  if (!prefs.mode) prefs.mode = isSmall() ? 'ends' : 'corners';
+
+  /* ------------------------------------------------------------------ renderer / scene */
+  // the alley's renderer and canvas are shared; enter() switches on tone mapping
+  const canvas = renderer.domElement;
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color('#0f2219');
+  const camera = new THREE.PerspectiveCamera(FOV, 1, 0.05, 60);
+  scene.fog = new THREE.Fog('#0f2219', 11, 24);
+  camera.up.set(0, 0, -1);
+
+  scene.add(new THREE.HemisphereLight('#fff3dc', '#20402c', 0.9));
+  const sun = new THREE.DirectionalLight('#fff1d6', 2.1);
+  sun.position.set(2.5, 9, 3.5);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  Object.assign(sun.shadow.camera, { left: -6, right: 6, top: 6, bottom: -6, near: 1, far: 25 });
+  sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.02;
+  scene.add(sun);
+  const fill = new THREE.DirectionalLight('#9fc4ff', 0.35); fill.position.set(-4, 6, -3); scene.add(fill);
+
+  /* pivot rotates the whole lane so its foul line faces the current seat */
+  const pivot = new THREE.Group(); scene.add(pivot);
+  const lane = new THREE.Group(); lane.position.z = -LANE_MID; pivot.add(lane);
+
+  /* ------------------------------------------------------------------ canvas textures */
+  function cnv(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return [c, c.getContext('2d')]; }
+  function rng(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
+  function paw(ctx, x, y, s, rot = 0) {
+    ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.scale(s, s);
+    ctx.beginPath(); ctx.ellipse(0, 0.25, 0.42, 0.34, 0, 0, Math.PI*2); ctx.fill();
+    for (const [tx, ty, r] of [[-0.42, -0.25, 0.15], [-0.15, -0.5, 0.16], [0.15, -0.5, 0.16], [0.42, -0.25, 0.15]]) {
+      ctx.beginPath(); ctx.ellipse(tx, ty, r, r*1.25, tx*0.6, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.restore();
+  }
+  function woodBoards(ctx, w, h, nBoards, rand, light = 0) {
+    const bw = w / nBoards;
+    for (let b = 0; b < nBoards; b++) {
+      let y = 0;
+      while (y < h) {
+        const len = h * (0.15 + rand() * 0.35);
+        const l = 66 + light + rand() * 9, s = 48 + rand() * 14, hu = 30 + rand() * 7;
+        ctx.fillStyle = `hsl(${hu} ${s}% ${l}%)`;
+        ctx.fillRect(b*bw, y, bw + 0.5, len);
+        ctx.fillStyle = 'rgba(80,45,15,.35)'; ctx.fillRect(b*bw, y, bw, 1.2);
+        y += len;
+      }
+      ctx.fillStyle = 'rgba(70,40,10,.28)'; ctx.fillRect(b*bw, 0, 1, h);
+    }
+    ctx.globalAlpha = 0.07;
+    for (let i = 0; i < w * 3; i++) {
+      const x = rand() * w, y = rand() * h;
+      ctx.fillStyle = rand() < 0.5 ? '#5a3410' : '#fff4dd';
+      ctx.fillRect(x, y, 0.8, 8 + rand() * 60);
+    }
+    ctx.globalAlpha = 1;
+  }
+  function laneTexture() {
+    const W = 512, H = 4096, [c, x] = cnv(W, H), rand = rng(7);
+    const cy = z => (z - DECK_END) / (0 - DECK_END) * H;
+    const cx = xm => (xm + LANE_HW) / (2 * LANE_HW) * W;
+    woodBoards(x, W, H, 39, rand);
+    // pin deck lighter
+    x.fillStyle = 'rgba(255,248,230,.16)'; x.fillRect(0, 0, W, cy(HEAD_Z + 0.25));
+    x.fillStyle = 'rgba(60,30,10,.4)'; x.fillRect(0, cy(HEAD_Z + 0.25), W, 3);
+    // oil sheen
+    const g = x.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.55, 'rgba(255,240,210,.0)'); g.addColorStop(1, 'rgba(255,240,210,.12)');
+    x.fillStyle = g; x.fillRect(W*0.12, 0, W*0.76, H);
+    // pin spots
+    x.fillStyle = 'rgba(70,35,15,.55)';
+    for (const p of PIN_SPOTS) { x.beginPath(); x.arc(cx(p.x), cy(p.z), 15, 0, Math.PI*2); x.fill(); }
+    // guide dots
+    x.fillStyle = 'rgba(60,28,10,.75)';
+    for (const b of [3, 5, 8, 11, 14]) for (const sgn of [-1, 1]) {
+      const xm = sgn * (LANE_HW - (b + 0.5) * (2*LANE_HW/39));
+      x.beginPath(); x.arc(cx(xm), cy(-0.55), 6, 0, Math.PI*2); x.fill();
+    }
+    // paw-print target arrows in a V
+    x.fillStyle = 'rgba(70,32,12,.82)';
+    const boards = [5, 10, 15, 20, 25, 30, 35];
+    boards.forEach((b, i) => {
+      const xm = -LANE_HW + (b - 0.5) * (2*LANE_HW/39);
+      const z = -1.25 - (3 - Math.abs(i - 3)) * 0.13;
+      paw(x, cx(xm), cy(z), 26);
+    });
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+  }
+  function approachTexture() {
+    const W = 512, H = 768, [c, x] = cnv(W, H), rand = rng(11);
+    const wid = 2 * (EDGE + CAP), len = APPROACH_Z + 0.9;
+    woodBoards(x, W, H, 42, rand, -6);
+    const cy = z => z / len * H, cx = xm => (xm + wid/2) / wid * W;
+    // foul line
+    x.fillStyle = '#1b120b'; x.fillRect(0, 0, W, 8);
+    x.fillStyle = '#c7372f'; x.fillRect(0, 8, W, 3);
+    // approach dots
+    x.fillStyle = 'rgba(55,25,8,.7)';
+    for (const zz of [0.45, 1.25]) for (let k = -3; k <= 3; k++) { if (!k) continue; x.beginPath(); x.arc(cx(k*0.11), cy(zz), 5, 0, Math.PI*2); x.fill(); }
+    x.beginPath(); x.arc(cx(0), cy(0.45), 7, 0, Math.PI*2); x.fill();
+    // emblem
+    x.fillStyle = 'rgba(80,40,12,.22)'; paw(x, cx(0), cy(1.75), 120);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+  }
+  function groundTexture() {
+    const S = 1024, [c, x] = cnv(S, S), rand = rng(3);
+    x.fillStyle = '#1a3324'; x.fillRect(0, 0, S, S);
+    for (let i = 0; i < 260; i++) {
+      const r = 20 + rand() * 90; const g = x.createRadialGradient(0, 0, 0, 0, 0, r);
+      const col = rand() < 0.5 ? '40,72,44' : (rand() < 0.5 ? '22,44,30' : '62,58,32');
+      g.addColorStop(0, `rgba(${col},.35)`); g.addColorStop(1, `rgba(${col},0)`);
+      x.save(); x.translate(rand() * S, rand() * S); x.fillStyle = g; x.fillRect(-r, -r, 2*r, 2*r); x.restore();
+    }
+    // pine needles
+    x.lineCap = 'round';
+    for (let i = 0; i < 5200; i++) {
+      const px = rand() * S, py = rand() * S, a = rand() * Math.PI, l = 6 + rand() * 16;
+      const k = rand();
+      x.strokeStyle = k < 0.45 ? `rgba(120,78,38,${0.25 + rand()*0.4})` : k < 0.8 ? `rgba(70,110,60,${0.2 + rand()*0.35})` : `rgba(175,130,70,${0.2 + rand()*0.3})`;
+      x.lineWidth = 0.8 + rand() * 0.9;
+      x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.cos(a)*l, py + Math.sin(a)*l); x.stroke();
+    }
+    // fallen leaves & cones
+    for (let i = 0; i < 70; i++) {
+      x.save(); x.translate(rand()*S, rand()*S); x.rotate(rand()*6.28);
+      if (rand() < 0.6) {
+        x.fillStyle = ['#b5702a', '#d39a3c', '#8c3f22', '#a58a3a'][Math.floor(rand()*4)];
+        x.globalAlpha = 0.75; x.beginPath(); x.ellipse(0, 0, 10 + rand()*6, 5 + rand()*3, 0, 0, 6.28); x.fill();
+        x.strokeStyle = 'rgba(60,30,10,.5)'; x.lineWidth = 1; x.beginPath(); x.moveTo(-12, 0); x.lineTo(12, 0); x.stroke();
+      } else {
+        x.fillStyle = '#5a3a20'; x.globalAlpha = 0.9; x.beginPath(); x.ellipse(0, 0, 11, 6, 0, 0, 6.28); x.fill();
+        x.fillStyle = '#7a5230'; for (let k = -2; k <= 2; k++) { x.beginPath(); x.ellipse(k*3.6, 0, 2.2, 4.5, 0, 0, 6.28); x.fill(); }
+      }
+      x.restore();
+    }
+    x.globalAlpha = 1;
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(5, 5); t.anisotropy = 8; return t;
+  }
+  function signTexture() {
+    const [c, x] = cnv(1024, 344);
+    x.fillStyle = '#4a2c17'; x.fillRect(0, 0, 1024, 344);
+    for (let i = 0; i < 9; i++) { x.fillStyle = i % 2 ? 'rgba(255,220,170,.05)' : 'rgba(0,0,0,.08)'; x.fillRect(0, i*38, 1024, 38); }
+    x.strokeStyle = '#f2a93b'; x.lineWidth = 10; x.strokeRect(18, 18, 988, 308);
+    x.fillStyle = '#f2a93b'; x.font = '150px "Bowlby One SC", Impact, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    const label = 'BOWLING BEAR'; let fs = 150; do { x.font = `${fs}px "Bowlby One SC", Impact, sans-serif`; fs -= 4; } while (x.measureText(label).width > 720 && fs > 40);
+    x.fillText(label, 512, 182);
+    x.fillStyle = 'rgba(242,169,59,.9)'; paw(x, 70, 172, 46, -0.3); paw(x, 954, 172, 46, 0.3);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+  }
+  function ballTexture(color) {
+    const [c, x] = cnv(512, 256), rand = rng(color.length * 977 + color.charCodeAt(1));
+    const base = new THREE.Color(color);
+    x.fillStyle = color; x.fillRect(0, 0, 512, 256);
+    for (let i = 0; i < 40; i++) {
+      const k = rand(); const col = base.clone().offsetHSL(0, 0, (k - 0.5) * 0.35);
+      x.strokeStyle = `#${col.getHexString()}`; x.globalAlpha = 0.5; x.lineWidth = 4 + rand() * 14;
+      x.beginPath(); const sx = rand() * 512, sy = rand() * 256;
+      x.moveTo(sx, sy); x.bezierCurveTo(sx + rand()*200 - 100, sy + rand()*120 - 60, sx + rand()*200 - 100, sy + rand()*120 - 60, sx + rand()*260 - 130, sy + rand()*140 - 70); x.stroke();
+    }
+    x.globalAlpha = 1;
+    x.fillStyle = 'rgba(20,10,5,.85)';
+    x.save(); x.translate(256, 70); x.scale(1, 0.75); paw(x, 0, 0, 70); x.restore();
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+  }
+
+  /* ------------------------------------------------------------------ physics world */
+  const world = new CANNON.World({ gravity: new CANNON.Vec3(0, -9.82, 0) });
+  world.allowSleep = true;
+  world.solver.iterations = 14;
+  world.defaultContactMaterial.friction = 0.2;
+  const matBall = new CANNON.Material('ball'), matPin = new CANNON.Material('pin'), matLane = new CANNON.Material('lane'), matWall = new CANNON.Material('wall');
+  world.addContactMaterial(new CANNON.ContactMaterial(matBall, matLane, { friction: 0.05, restitution: 0.05 }));
+  world.addContactMaterial(new CANNON.ContactMaterial(matPin, matLane, { friction: 0.25, restitution: 0.15 }));
+  world.addContactMaterial(new CANNON.ContactMaterial(matBall, matPin, { friction: 0.08, restitution: 0.4 }));
+  world.addContactMaterial(new CANNON.ContactMaterial(matPin, matPin, { friction: 0.15, restitution: 0.45 }));
+  world.addContactMaterial(new CANNON.ContactMaterial(matPin, matWall, { friction: 0.2, restitution: 0.35 }));
+  world.addContactMaterial(new CANNON.ContactMaterial(matBall, matWall, { friction: 0.1, restitution: 0.2 }));
+
+  function visBox(x0, x1, y0, y1, z0, z1, mat) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, y1 - y0, Math.abs(z1 - z0)), mat);
+    m.position.set((x0 + x1)/2, (y0 + y1)/2, (z0 + z1)/2); m.receiveShadow = true; lane.add(m); return m;
+  }
+  function staticBox(x0, x1, y0, y1, z0, z1, mat, mesh) {
+    const hx = (x1 - x0)/2, hy = (y1 - y0)/2, hz = Math.abs(z1 - z0)/2;
+    const b = new CANNON.Body({ mass: 0, material: mat, shape: new CANNON.Box(new CANNON.Vec3(hx, hy, hz)) });
+    b.position.set((x0 + x1)/2, (y0 + y1)/2, (z0 + z1)/2);
+    world.addBody(b);
+    if (mesh) {
+      const vy0 = Math.min(y0, GROUND_Y), vh = y1 - vy0;
+      const m = new THREE.Mesh(new THREE.BoxGeometry(2*hx, vh, 2*hz), mesh);
+      m.position.set(b.position.x, vy0 + vh/2, b.position.z); m.receiveShadow = true; m.castShadow = true; lane.add(m);
+      return m;
+    }
+  }
+
+  /* ------------------------------------------------------------------ lane construction */
+  const darkWood = new THREE.MeshStandardMaterial({ color: '#4b2e1a', roughness: 0.7 });
+  const honeyWood = new THREE.MeshStandardMaterial({ color: '#b3742e', roughness: 0.55 });
+  const gutterMat = new THREE.MeshStandardMaterial({ color: '#7b827d', roughness: 0.32, metalness: 0.45, side: THREE.DoubleSide });
+  const pitMat = new THREE.MeshStandardMaterial({ color: '#0d0f0d', roughness: 1 });
+  function buildLane() {
+    // ground
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshStandardMaterial({ map: groundTexture(), roughness: 1 }));
+    ground.rotation.x = -Math.PI/2; ground.position.y = GROUND_Y; ground.receiveShadow = true; scene.add(ground);
+    // lane bed (physics + textured top)
+    staticBox(-LANE_HW, LANE_HW, -0.3, 0, DECK_END, 0, matLane, null);
+    const bedTop = new THREE.Mesh(new THREE.PlaneGeometry(2*LANE_HW, -DECK_END), new THREE.MeshPhysicalMaterial({ map: laneTexture(), roughness: 0.28, clearcoat: 0.8, clearcoatRoughness: 0.15 }));
+    bedTop.rotation.x = -Math.PI/2; bedTop.position.set(0, 0, DECK_END/2); bedTop.receiveShadow = true; lane.add(bedTop);
+    // approach
+    const aw = 2*(EDGE + CAP), al = APPROACH_Z + 0.9;
+    staticBox(-EDGE - CAP, EDGE + CAP, -0.3, 0, 0, al, matLane, null);
+    const appTop = new THREE.Mesh(new THREE.PlaneGeometry(aw, al), new THREE.MeshPhysicalMaterial({ map: approachTexture(), roughness: 0.4, clearcoat: 0.5 }));
+    appTop.rotation.x = -Math.PI/2; appTop.position.set(0, 0.0005, al/2); appTop.receiveShadow = true; lane.add(appTop);
+    // visual base blocks under the playing surfaces
+    visBox(-LANE_HW, LANE_HW, GROUND_Y, -0.002, DECK_END, 0, darkWood);
+    visBox(-EDGE - CAP, EDGE + CAP, GROUND_Y, -0.002, 0, al, darkWood);
+    for (const s of [-1, 1]) visBox(s > 0 ? LANE_HW : -EDGE, s > 0 ? EDGE : -LANE_HW, GROUND_Y, -GUT_DROP - 0.004, DECK_END, 0, darkWood);
+    visBox(-EDGE, EDGE, GROUND_Y, -0.3, BACK_Z, DECK_END, pitMat);
+    // gutters
+    for (const s of [-1, 1]) {
+      const x0 = s > 0 ? LANE_HW : -EDGE, x1 = s > 0 ? EDGE : -LANE_HW;
+      staticBox(x0, x1, -0.3, -GUT_DROP, DECK_END, 0, matLane, null);
+      const len = -DECK_END;
+      const g = new THREE.CylinderGeometry(GUT_W/2, GUT_W/2, len, 18, 1, true, -Math.PI/2, Math.PI);
+      g.rotateX(Math.PI/2);
+      const m = new THREE.Mesh(g, gutterMat);
+      m.scale.y = GUT_DROP / (GUT_W/2);
+      m.position.set(s * (LANE_HW + GUT_W/2), 0, DECK_END/2); m.receiveShadow = true; lane.add(m);
+      // capping / low wall
+      const kickStart = HEAD_Z + 0.55;
+      staticBox(s > 0 ? EDGE : -EDGE - CAP, s > 0 ? EDGE + CAP : -EDGE, -0.3, 0.035, kickStart, 0, matWall, darkWood);
+      // kickbacks
+      staticBox(s > 0 ? EDGE : -EDGE - CAP, s > 0 ? EDGE + CAP : -EDGE, -0.3, 0.42, BACK_Z - 0.55, kickStart, matWall, honeyWood);
+    }
+    // pit
+    staticBox(-EDGE, EDGE, -0.6, -0.3, BACK_Z, DECK_END, matLane, null);
+    // deck end face (dark)
+    const face = new THREE.Mesh(new THREE.PlaneGeometry(2*EDGE, 0.3), pitMat); face.position.set(0, -0.15, DECK_END - 0.001); face.rotation.y = Math.PI; lane.add(face);
+    // back cushion
+    staticBox(-EDGE, EDGE, -0.3, 0.4, BACK_Z - 0.1, BACK_Z, matWall, new THREE.MeshStandardMaterial({ color: '#1c1a17', roughness: 1 }));
+    // sign / hood over the pit back
+    const hoodD = 0.55, hw = EDGE + CAP;
+    const hood = new THREE.Mesh(new THREE.BoxGeometry(2*hw, 0.06, hoodD), darkWood); hood.position.set(0, 0.52, BACK_Z - 0.25); hood.castShadow = true; lane.add(hood);
+    const sign = new THREE.Mesh(new THREE.PlaneGeometry(2*hw - 0.04, hoodD - 0.04), new THREE.MeshStandardMaterial({ map: signTexture(), roughness: 0.6 }));
+    sign.rotation.x = -Math.PI/2; sign.position.set(0, 0.551, BACK_Z - 0.25); lane.add(sign);
+  }
+
+  /* ------------------------------------------------------------------ pins */
+  function pinGeometry() {
+    const prof = [[0,0],[0.026,0],[0.034,0.02],[0.046,0.06],[0.057,0.095],[0.0605,0.115],[0.058,0.14],[0.05,0.18],[0.036,0.22],[0.025,0.25],[0.0225,0.268],[0.026,0.29],[0.031,0.315],[0.0325,0.335],[0.029,0.358],[0.019,0.374],[0,0.381]];
+    const g = new THREE.LatheGeometry(prof.map(([r, y]) => new THREE.Vector2(r, y)), 22);
+    const pos = g.attributes.position, col = new Float32Array(pos.count * 3);
+    for (let i = 0; i < pos.count; i++) {
+      const y = pos.getY(i);
+      const red = (y > 0.235 && y < 0.252) || (y > 0.276 && y < 0.293);
+      const c = red ? [0.75, 0.1, 0.12] : [0.97, 0.96, 0.93];
+      col.set(c, i*3);
+    }
+    g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    return g;
+  }
+  const pinMat = new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.25, clearcoat: 1, clearcoatRoughness: 0.1 });
+  const earMat = new THREE.MeshStandardMaterial({ color: '#f4efe6', roughness: 0.4 });
+  const noseMat = new THREE.MeshStandardMaterial({ color: '#1a1410', roughness: 0.3 });
+  const pins = [];
+  function buildPins() {
+    const geo = pinGeometry(), earG = new THREE.SphereGeometry(0.012, 10, 8), noseG = new THREE.SphereGeometry(0.0065, 8, 6);
+    for (let i = 0; i < 10; i++) {
+      const body = new CANNON.Body({ mass: 1.5, material: matPin, allowSleep: true, sleepSpeedLimit: 0.06, sleepTimeLimit: 0.35, linearDamping: 0.05, angularDamping: 0.1 });
+      body.addShape(new CANNON.Cylinder(0.058, 0.03, 0.2, 10), new CANNON.Vec3(0, 0.1 - PIN_COM, 0));
+      body.addShape(new CANNON.Cylinder(0.026, 0.045, 0.18, 10), new CANNON.Vec3(0, 0.29 - PIN_COM, 0));
+      const g = new THREE.Group();
+      const m = new THREE.Mesh(geo, pinMat); m.position.y = -PIN_COM; m.castShadow = true; m.receiveShadow = true; g.add(m);
+      for (const s of [-1, 1]) { const e = new THREE.Mesh(earG, earMat); e.position.set(s*0.022, 0.362 - PIN_COM, -0.004); e.castShadow = true; g.add(e); }
+      const n = new THREE.Mesh(noseG, noseMat); n.position.set(0, 0.33 - PIN_COM, 0.03); g.add(n);
+      for (const s of [-1, 1]) { const e = new THREE.Mesh(noseG, noseMat); e.scale.setScalar(0.6); e.position.set(s*0.012, 0.348 - PIN_COM, 0.025); g.add(e); }
+      lane.add(g);
+      const pin = { body, mesh: g, active: false, spot: PIN_SPOTS[i], shrink: 0 };
+      body.addEventListener('collide', e => { const v = Math.abs(e.contact.getImpactVelocityAlongNormal()); if (v > 0.35) sfx.clack(v, e.body && e.body.material === matBall); });
+      pins.push(pin);
+    }
+  }
+  function setPinUpright(p, x, z) {
+    const b = p.body;
+    b.position.set(x, PIN_COM + 0.0005, z); b.quaternion.set(0, 0, 0, 1);
+    b.velocity.setZero(); b.angularVelocity.setZero(); b.force.setZero(); b.torque.setZero();
+    if (!p.active) { world.addBody(b); p.active = true; }
+    p.mesh.visible = true; p.mesh.scale.setScalar(1); p.shrink = 0;
+    b.sleep();
+  }
+  function deactivatePin(p) { if (p.active) { world.removeBody(p.body); p.active = false; } }
+  function rackFull() { for (const p of pins) setPinUpright(p, p.spot.x, p.spot.z); }
+  function pinIsDown(p) {
+    if (!p.active) return true;
+    const b = p.body, q = b.quaternion;
+    const upY = 1 - 2 * (q.x*q.x + q.z*q.z);
+    return upY < 0.8 || b.position.y < PIN_COM - 0.06 || Math.abs(b.position.x) > LANE_HW + 0.01 || b.position.z < DECK_END + 0.02;
+  }
+  const standingPins = () => pins.filter(p => p.active && !pinIsDown(p));
+
+  /* ------------------------------------------------------------------ ball */
+  const ball = { body: null, mesh: null, inWorld: false, spin: 0, gutter: false };
+  const ballMats = {};
+  function buildBall() {
+    ball.body = new CANNON.Body({ mass: BALL_M, material: matBall, shape: new CANNON.Sphere(BALL_R), allowSleep: false, linearDamping: 0.01, angularDamping: 0.01 });
+    ball.mesh = new THREE.Mesh(new THREE.SphereGeometry(BALL_R, 40, 24), new THREE.MeshPhysicalMaterial({ roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.08 }));
+    ball.mesh.castShadow = true; lane.add(ball.mesh);
+    ball.body.addEventListener('collide', e => { if (e.body && e.body.material === matPin) ball.hitPins = true; });
+  }
+  function ballMaterialFor(color) {
+    if (!ballMats[color]) ballMats[color] = ballTexture(color);
+    ball.mesh.material.map = ballMats[color]; ball.mesh.material.needsUpdate = true;
+  }
+  function placeBall(x, z) {
+    if (ball.inWorld) { world.removeBody(ball.body); ball.inWorld = false; }
+    ball.mesh.position.set(x, BALL_R, z);
+    ball.mesh.visible = true;
+  }
+  function launchBall(x, z, vx, vz, spin) {
+    const b = ball.body;
+    b.position.set(x, BALL_R + 0.001, z); b.velocity.set(vx, 0, vz);
+    b.angularVelocity.set(vz / BALL_R, 0, -vx / BALL_R);
+    b.quaternion.copy(ball.mesh.quaternion);
+    b.force.setZero(); b.torque.setZero();
+    if (!ball.inWorld) { world.addBody(b); ball.inWorld = true; }
+    ball.spin = spin; ball.gutter = false; ball.hitPins = false;
+    for (const p of pins) if (p.active) p.body.wakeUp();
+    sfx.release();
+  }
+  world.addEventListener('preStep', () => {
+    if (!ball.inWorld) return;
+    const b = ball.body, p = b.position;
+    if (Math.abs(p.x) > LANE_HW + 0.02 && p.z < 0 && p.z > DECK_END) ball.gutter = true;
+    if (b.velocity.y > 0.6) b.velocity.y = 0.6;
+    if (!ball.gutter && p.z < -0.3 && p.z > HEAD_Z + 0.15 && p.y > BALL_R - 0.02) {
+      const prog = Math.min(1, (-p.z - 0.3) / (-HEAD_Z - 0.3));
+      const sp = Math.hypot(b.velocity.x, b.velocity.z);
+      if (sp > 1) b.applyForce(new CANNON.Vec3(ball.spin * HOOK * BALL_M * prog * prog, 0, 0), p);
+    }
+  });
+
+  /* ------------------------------------------------------------------ bear */
+  let bear = null; // made in boot()
+  const _v = new THREE.Vector3(), _v2 = new THREE.Vector3();
+  // the bear climbs up onto the lane platform when it crosses it
+  function bearGround(pos) {
+    lane.updateMatrixWorld(true);
+    const lp = lane.worldToLocal(_v2.copy(pos));
+    return Math.abs(lp.x) < EDGE + CAP + 0.12 && lp.z > BACK_Z - 0.4 && lp.z < APPROACH_Z + 1.0 ? 0.04 : GROUND_Y;
+  }
+  function laneToWorld(x, z, y = 0) { lane.updateMatrixWorld(true); return lane.localToWorld(_v.set(x, y, z)).clone(); }
+  function laneForwardHeading() { const a = pivot.rotation.y; return Math.atan2(-Math.sin(a), -Math.cos(a)); }
+
+  /* ------------------------------------------------------------------ audio */
+  const sfx = (() => {
+    let ctx = null, master = null, rollGain = null, noiseBuf = null, lastClack = 0;
+    function init() {
+      if (ctx) { if (ctx.state === 'suspended') ctx.resume(); return; }
+      try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
+      master = ctx.createGain(); master.gain.value = prefs.sound ? 0.8 : 0; master.connect(ctx.destination);
+      noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+      const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      const src = ctx.createBufferSource(); src.buffer = noiseBuf; src.loop = true;
+      const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 260;
+      rollGain = ctx.createGain(); rollGain.gain.value = 0;
+      src.connect(lp); lp.connect(rollGain); rollGain.connect(master); src.start();
+    }
+    function noiseBurst(t, dur, freq, q, vol) {
+      const s = ctx.createBufferSource(); s.buffer = noiseBuf; s.playbackRate.value = 1;
+      const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = q;
+      const g = ctx.createGain(); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      s.connect(f); f.connect(g); g.connect(master); s.start(t, Math.random()); s.stop(t + dur + 0.05);
+    }
+    function tone(t, f0, f1, dur, vol, type = 'sine') {
+      const o = ctx.createOscillator(); o.type = type; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+      const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.05);
+    }
+    return {
+      init,
+      setOn(on) { prefs.sound = on; savePrefs(); if (master) master.gain.value = on ? 0.8 : 0; },
+      roll(speed) { if (rollGain) rollGain.gain.setTargetAtTime(Math.min(1, speed / 7) * 0.5, ctx.currentTime, 0.05); },
+      release() { if (!ctx) return; noiseBurst(ctx.currentTime, 0.12, 180, 1, 0.5); },
+      clack(v, isBall) {
+        if (!ctx) return; const now = ctx.currentTime; if (now - lastClack < 0.018) return; lastClack = now;
+        const vol = Math.min(1, v / 4) * (isBall ? 0.9 : 0.6);
+        tone(now, 1300 + Math.random() * 900, 700, 0.07, vol * 0.35, 'triangle');
+        noiseBurst(now, 0.09, 2600 + Math.random() * 1500, 2.5, vol * 0.7);
+      },
+      roar() {
+        if (!ctx) return; const t = ctx.currentTime;
+        const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(95, t); o.frequency.linearRampToValueAtTime(140, t + 0.35); o.frequency.linearRampToValueAtTime(70, t + 1.1);
+        const lfo = ctx.createOscillator(); lfo.frequency.value = 23; const lg = ctx.createGain(); lg.gain.value = 18; lfo.connect(lg); lg.connect(o.frequency);
+        const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 520; f.Q.value = 1.2;
+        const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.5, t + 0.12); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.15);
+        o.connect(f); f.connect(g); g.connect(master); o.start(t); lfo.start(t); o.stop(t + 1.2); lfo.stop(t + 1.2);
+        noiseBurst(t, 1.0, 700, 0.8, 0.25);
+      },
+      cheer() { if (!ctx) return; const t = ctx.currentTime; for (let i = 0; i < 4; i++) tone(t + i*0.09, 520 * Math.pow(1.26, i), 560 * Math.pow(1.26, i), 0.22, 0.18, 'square'); },
+      womp() { if (!ctx) return; const t = ctx.currentTime; tone(t, 330, 160, 0.35, 0.25, 'triangle'); tone(t + 0.32, 250, 110, 0.6, 0.25, 'triangle'); },
+      tick() { if (!ctx) return; tone(ctx.currentTime, 900, 900, 0.05, 0.12, 'square'); },
+    };
+  })();
+
+  /* ------------------------------------------------------------------ clock, waits */
+  let gameTime = 0, paused = false;
+  const waiters = [];
+  const wait = s => new Promise(r => waiters.push({ at: gameTime + s, r }));
+  const until = (fn, max = 1e9) => new Promise(r => waiters.push({ fn, at: gameTime + max, r }));
+  function tickWaiters() {
+    for (let i = waiters.length - 1; i >= 0; i--) { const w = waiters[i]; if (gameTime >= w.at || (w.fn && w.fn())) { waiters.splice(i, 1); w.r(); } }
+  }
+  let session = 0;
+  function guard(id) { if (id !== session) throw 'abort'; }
+
+  /* ------------------------------------------------------------------ layout */
+  const L = { W: 1, H: 1, Ww: 1, Hw: 1, ppm: 1 };
+  function seatPoints() {
+    const { W, H } = L;
+    if (prefs.mode === 'corners') return [[0, H], [0, 0], [W, 0], [W, H]];
+    return H >= W ? [[W/2, H], [W/2, 0]] : [[0, H/2], [W, H/2]];
+  }
+  function seatGeom(i) {
+    const pts = seatPoints(); const [sx, sy] = pts[i];
+    const dx = L.W/2 - sx, dy = L.H/2 - sy, len = Math.hypot(dx, dy) || 1, ux = dx/len, uy = dy/len;
+    return { sx, sy, ux, uy, rot: Math.atan2(ux, -uy), theta: Math.atan2(-ux, -uy) };
+  }
+  const seatCount = () => prefs.mode === 'corners' ? 4 : 2;
+  function layout() {
+    L.W = innerWidth; L.H = innerHeight;
+    renderer.setSize(L.W, L.H, false);
+    const a = L.W / L.H;
+    camera.aspect = a;
+    const Hw = prefs.mode === 'corners' ? 2*R_VIEW / Math.sqrt(1 + a*a) : 2*R_VIEW_ENDS / Math.max(a, 1);
+    const h = Hw / 2 / Math.tan(THREE.MathUtils.degToRad(FOV/2));
+    camera.position.set(0, h, 0); camera.up.set(0, 0, -1); camera.lookAt(0, 0, 0);
+    scene.fog.near = h + 4; scene.fog.far = h + 18;
+    camera.updateProjectionMatrix();
+    L.Hw = Hw; L.Ww = Hw * a; L.ppm = L.H / Hw;
+    placeCards(); placeSetup(); placeMenuBtn(); placeOverlays();
+    if (game && game.seat != null && !swing) pivot.rotation.y = seatGeom(game.seat).theta;
+  }
+  addEventListener('resize', () => { if (active) layout(); });
+
+  /* ------------------------------------------------------------------ HUD */
+  const hud = document.getElementById('t-hud'), fx = document.getElementById('t-fx'), setupEl = document.getElementById('t-setup'), overEl = document.getElementById('t-over');
+  const toastEl = document.createElement('div'); toastEl.className = 'toast'; fx.appendChild(toastEl);
+  const hintEl = document.createElement('div'); hintEl.className = 'hint'; hintEl.style.opacity = 0; fx.appendChild(hintEl);
+  let toastTimer = 0;
+  function toast(text, { small = false, dur = 1.4, seat = null } = {}) {
+    toastEl.textContent = text; toastEl.classList.toggle('small', small);
+    const r = seat != null ? seatGeom(seat).rot : 0;
+    toastEl.style.setProperty('--r', r + 'rad'); toastEl.style.setProperty('--s', 0.6);
+    toastEl.classList.add('on'); requestAnimationFrame(() => toastEl.style.setProperty('--s', 1));
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => toastEl.classList.remove('on'), dur * 1000);
+  }
+  function mark(v) { return v === 0 ? '–' : String(v); }
+  function scoreFrames(rolls, N) {
+    const out = []; let i = 0, cum = 0, blocked = false;
+    for (let f = 0; f < N; f++) {
+      const last = f === N - 1, a = rolls[i], b = rolls[i+1], c = rolls[i+2];
+      let marks, score = null;
+      if (!last) {
+        if (a === undefined) { out.push({ marks: ['', ''], score: null, rolled: false }); continue; }
+        if (a === 10) { marks = ['', 'X']; if (b !== undefined && c !== undefined) { cum += 10 + b + c; score = cum; } i += 1; }
+        else {
+          marks = [mark(a), b === undefined ? '' : (a + b === 10 ? '/' : mark(b))];
+          if (b !== undefined) { if (a + b === 10) { if (c !== undefined) { cum += 10 + c; score = cum; } } else { cum += a + b; score = cum; } }
+          i += 2;
+        }
+      } else {
+        marks = ['', '', ''];
+        if (a === undefined) { out.push({ marks, score: null, rolled: false }); continue; }
+        marks[0] = a === 10 ? 'X' : mark(a);
+        if (b !== undefined) marks[1] = a === 10 ? (b === 10 ? 'X' : mark(b)) : (a + b === 10 ? '/' : mark(b));
+        if (c !== undefined) marks[2] = (a === 10 && b !== 10) ? (b + c === 10 ? '/' : mark(c)) : (c === 10 ? 'X' : mark(c));
+        const need = (a === 10 || (b !== undefined && a + b === 10)) ? 3 : 2;
+        const got = [a, b, c].slice(0, need);
+        if (got.every(v => v !== undefined)) { cum += got.reduce((s, v) => s + v, 0); score = cum; }
+      }
+      if (score === null) blocked = true;
+      out.push({ marks, score: blocked ? null : score, rolled: true });
+    }
+    return out;
+  }
+  function runningTotal(rolls, N) { const fr = scoreFrames(rolls, N); let t = 0; for (const f of fr) if (f.score != null) t = f.score; return t; }
+  function finalTotal(p) { const fr = scoreFrames(p.rolls, game.N); return fr[fr.length - 1].score ?? runningTotal(p.rolls, game.N); }
+
+  function framesHTML(p, N, cur) {
+    const fr = scoreFrames(p.rolls, N);
+    return fr.map((f, i) => `<div class="f${i === cur ? ' cur' : ''}"><div class="mk">${f.marks.map(m => `<i class="${m === 'X' || m === '/' ? 'x' : ''}">${m}</i>`).join('')}</div><div class="cs">${f.score ?? ''}</div></div>`).join('');
+  }
+  let cards = [];
+  function buildCards() {
+    hud.innerHTML = ''; cards = [];
+    if (!game) return;
+    for (const p of game.players) {
+      const el = document.createElement('div'); el.className = 'card'; el.style.setProperty('--pc', SEATS[p.seat].color);
+      el.innerHTML = `<div class="top"><span class="nm">${p.name}</span>${p.kind === 'cpu' ? '<span class="tag">CPU</span>' : ''}<span class="tot">0</span></div><div class="sub"></div><div class="frames"></div>`;
+      el.addEventListener('pointerdown', e => { e.stopPropagation(); showSheet(p); });
+      hud.appendChild(el); cards.push({ p, el });
+    }
+    hud.appendChild(menuBtn);
+    placeCards(); updateCards();
+  }
+  function updateCards() {
+    if (!game) return;
+    for (const { p, el } of cards) {
+      el.classList.toggle('active', game.current === p && !game.over);
+      el.querySelector('.tot').textContent = runningTotal(p.rolls, game.N);
+      const fr = el.querySelector('.frames');
+      fr.style.gridTemplateColumns = `repeat(${game.N - 1}, 1fr) 1.45fr`;
+      fr.innerHTML = framesHTML(p, game.N, game.current === p ? game.frame : -1);
+      el.querySelector('.sub').textContent = game.over ? 'Final' : `Frame ${Math.min(game.frame + 1, game.N)}/${game.N}`;
+    }
+  }
+  function placeCards() {
+    if (!cards.length) return;
+    const { W, H } = L, long = Math.max(W, H), gap = 8;
+    for (const { p, el } of cards) {
+      let cx, cy, rot, cw, compact = false;
+      if (prefs.mode === 'corners') {
+        cw = Math.round(THREE.MathUtils.clamp(long * (W >= H ? 0.27 : 0.24), 170, 300)); const ch = 76;
+        const lowSide = p.seat === 0 || p.seat === 3, leftSide = p.seat === 0 || p.seat === 1;
+        if (W >= H) { cx = leftSide ? W/2 - gap - cw/2 : W/2 + gap + cw/2; cy = lowSide ? H - ch/2 - 8 : ch/2 + 8; rot = lowSide ? 0 : Math.PI; }
+        else { cx = leftSide ? ch/2 + 8 : W - ch/2 - 8; cy = lowSide ? H/2 + gap + cw/2 : H/2 - gap - cw/2; rot = leftSide ? Math.PI/2 : -Math.PI/2; }
+      } else {
+        const g = seatGeom(p.seat), laneHalf = (EDGE + CAP) * L.ppm, short = Math.min(W, H);
+        cw = Math.min(280, short/2 - laneHalf - 14); compact = cw < 190; const ch = compact ? 70 : 76;
+        rot = g.rot; const lx = -Math.cos(rot), ly = -Math.sin(rot);
+        const off = laneHalf + 8 + cw/2;
+        cx = g.sx + g.ux * (ch/2 + 10) + lx * off; cy = g.sy + g.uy * (ch/2 + 10) + ly * off;
+      }
+      el.classList.toggle('compact', compact);
+      const ch = el.offsetHeight || 76, sideways = Math.abs(Math.sin(rot)) > 0.7;
+      [cx, cy] = clampSafe(cx, cy, sideways ? ch : cw, sideways ? cw : ch);
+      el.style.width = cw + 'px'; el.style.left = cx + 'px'; el.style.top = cy + 'px'; el.style.setProperty('--r', rot + 'rad');
+    }
+  }
+
+  function insets() {
+    const cs = getComputedStyle(document.documentElement), n = k => parseFloat(cs.getPropertyValue(k)) || 0;
+    return { t: n('--sat'), b: n('--sab'), l: n('--sal'), r: n('--sar') };
+  }
+  function clampSafe(cx, cy, bw, bh) {
+    const s = insets(), m = 6;
+    cx = Math.min(Math.max(cx, s.l + m + bw/2), L.W - s.r - m - bw/2);
+    cy = Math.min(Math.max(cy, s.t + m + bh/2), L.H - s.b - m - bh/2);
+    return [cx, cy];
+  }
+  /* menu button */
+  const menuBtn = document.createElement('button'); menuBtn.className = 'iconbtn'; menuBtn.setAttribute('aria-label', 'Menu');
+  menuBtn.innerHTML = '<svg viewBox="0 0 20 20" fill="none" stroke="#f7ecd4" stroke-width="2.4" stroke-linecap="round"><path d="M7 4v12M13 4v12"/></svg>';
+  menuBtn.addEventListener('pointerdown', e => { e.stopPropagation(); openMenu(); });
+  function placeMenuBtn() {
+    const { W, H } = L; let x, y;
+    const landscape = W >= H;
+    if (prefs.mode === 'corners') { if (landscape) { x = 30; y = H/2; } else { x = W/2; y = 30; } }
+    else { if (landscape) { x = W/2; y = 30; } else { x = 30; y = H/2; } }
+    [x, y] = clampSafe(x, y, 44, 44);
+    menuBtn.style.left = x + 'px'; menuBtn.style.top = y + 'px';
+  }
+
+  /* ------------------------------------------------------------------ overlays: sheet, results, menu */
+  let overlayKind = null, overlayData = null;
+  function closeOverlay() { overEl.hidden = true; overEl.innerHTML = ''; overlayKind = null; if (game && !game.over) paused = false; }
+  function placeOverlays() {
+    if (!overlayKind) return;
+    if (overlayKind === 'sheet') return showSheet(overlayData);
+    if (overlayKind === 'results') return showResults();
+    if (overlayKind === 'menu') return openMenu();
+  }
+  function panelPos(k, n) {
+    // position panel k of n
+    const { W, H } = L;
+    if (n === 1) return [W/2, H/2];
+    const landscape = W >= H;
+    if (prefs.mode === 'ends') { return landscape ? [k === 0 ? W*0.27 : W*0.73, H/2] : [W/2, k === 0 ? H*0.73 : H*0.27]; }
+    return landscape ? [W/2, k === 0 ? H*0.73 : H*0.27] : [k === 0 ? W*0.27 : W*0.73, H/2];
+  }
+  function panelRot(k) {
+    const { W, H } = L, landscape = W >= H;
+    if (prefs.mode === 'ends') return seatGeom(k).rot;
+    return landscape ? (k === 0 ? 0 : Math.PI) : (k === 0 ? Math.PI/2 : -Math.PI/2);
+  }
+  function showSheet(p) {
+    if (!game) return;
+    overlayKind = 'sheet'; overlayData = p; paused = true;
+    overEl.hidden = false; overEl.innerHTML = '';
+    const shield = document.createElement('div'); shield.style.cssText = 'position:absolute;inset:0;background:rgba(5,12,8,.55)'; overEl.appendChild(shield);
+    shield.addEventListener('pointerdown', closeOverlay);
+    const { W, H } = L, maxW = Math.min(560, Math.max(W, H) * 0.9, (prefs.mode === 'corners' ? Math.max(W, H) : Math.min(W, H)) - 30);
+    const el = document.createElement('div'); el.className = 'sheet'; el.style.setProperty('--pc', SEATS[p.seat].color);
+    el.style.width = Math.min(maxW, Math.min(W, H) * (prefs.mode === 'corners' ? 1.25 : 0.95)) + 'px';
+    const g = seatGeom(p.seat); let rot;
+    if (prefs.mode === 'corners') { const landscape = W >= H; const low = p.seat === 0 || p.seat === 3, left = p.seat <= 1; rot = landscape ? (low ? 0 : Math.PI) : (left ? Math.PI/2 : -Math.PI/2); }
+    else rot = g.rot;
+    el.style.setProperty('--r', rot + 'rad'); el.style.left = W/2 + 'px'; el.style.top = H/2 + 'px';
+    el.innerHTML = `<h2 style="color:var(--pc)">${p.name}</h2><div class="full" style="grid-template-columns:repeat(${game.N - 1},1fr) 1.45fr">${Array.from({ length: game.N }, (_, i) => `<div class="fh">${i + 1}</div>`).join('')}${framesHTML(p, game.N, -1)}</div><div class="btns"><button class="btn ghost">Close</button></div>`;
+    el.querySelector('button').addEventListener('click', closeOverlay);
+    overEl.appendChild(el);
+  }
+  function openMenu() {
+    if (!game) return;
+    overlayKind = 'menu'; paused = true; overEl.hidden = false; overEl.innerHTML = '';
+    const shield = document.createElement('div'); shield.style.cssText = 'position:absolute;inset:0;background:rgba(5,12,8,.6)'; overEl.appendChild(shield);
+    for (let k = 0; k < 2; k++) {
+      const [x, y] = panelPos(k, 2);
+      const el = document.createElement('div'); el.className = 'sheet'; el.style.left = x + 'px'; el.style.top = y + 'px'; el.style.setProperty('--r', panelRot(k) + 'rad'); el.style.width = '260px';
+      el.innerHTML = `<h2>Paused</h2><div class="btns" style="flex-direction:column;align-items:stretch">
+        <button class="btn" data-a="resume">Resume</button>
+        <button class="btn ghost" data-a="sound">Sound: ${prefs.sound ? 'On' : 'Off'}</button>
+        <button class="btn ghost" data-a="restart">Restart game</button>
+        <button class="btn ghost" data-a="seats">Change seats</button>
+        <button class="btn ghost" data-a="leave">Leave the table</button></div>`;
+      el.addEventListener('click', e => {
+        const a = e.target.closest('button')?.dataset.a; if (!a) return;
+        if (a === 'resume') closeOverlay();
+        if (a === 'sound') { sfx.setOn(!prefs.sound); openMenu(); }
+        if (a === 'restart') { closeOverlay(); startGame(); }
+        if (a === 'seats') { closeOverlay(); toSetup(); }
+        if (a === 'leave') { closeOverlay(); leave(); }
+      });
+      overEl.appendChild(el);
+    }
+  }
+  function showResults() {
+    overlayKind = 'results'; overEl.hidden = false; overEl.innerHTML = '';
+    const ranked = [...game.players].sort((a, b) => finalTotal(b) - finalTotal(a));
+    const ord = ['1st', '2nd', '3rd', '4th'];
+    for (let k = 0; k < 2; k++) {
+      const [x, y] = panelPos(k, 2);
+      const el = document.createElement('div'); el.className = 'sheet'; el.style.left = x + 'px'; el.style.top = y + 'px'; el.style.setProperty('--r', panelRot(k) + 'rad'); el.style.width = '280px';
+      let rank = 0, prev = null;
+      const tie = ranked.length > 1 && finalTotal(ranked[0]) === finalTotal(ranked[1]);
+      el.innerHTML = `<h2>${ranked.length === 1 ? 'Game over' : tie ? 'Tie game!' : ranked[0].name + ' wins!'}</h2>` +
+        ranked.map((p, i) => { const t = finalTotal(p); if (t !== prev) rank = i; prev = t; return `<div class="rk" style="--pc:${SEATS[p.seat].color}"><b>${ord[rank]}</b><span>${p.name}</span><em>${t}</em></div>`; }).join('') +
+        `<div class="btns"><button class="btn" data-a="again">Rematch</button><button class="btn ghost" data-a="seats">Seats</button></div>`;
+      el.addEventListener('click', e => { const a = e.target.closest('button')?.dataset.a; if (a === 'again') { closeOverlay(); startGame(); } if (a === 'seats') { closeOverlay(); toSetup(); } });
+      overEl.appendChild(el);
+    }
+  }
+
+  /* ------------------------------------------------------------------ setup screen */
+  function buildSetup() {
+    setupEl.innerHTML = '';
+    const n = seatCount();
+    for (let i = 0; i < n; i++) {
+      const b = document.createElement('button'); b.className = 'seat'; b.dataset.i = i;
+      b.style.setProperty('--pc', SEATS[i].color);
+      b.addEventListener('click', () => {
+        const k = prefs.kinds[i]; prefs.kinds[i] = KINDS[(KINDS.indexOf(k) + 1) % KINDS.length]; savePrefs(); sfx.init(); sfx.tick(); refreshSetup();
+      });
+      setupEl.appendChild(b);
+    }
+    const panel = document.createElement('div'); panel.className = 'panel';
+    panel.innerHTML = `
+      <div class="title">Bowling Bear<small>Ten-pin for up to ${n} players round one screen</small></div>
+      <div class="row">Frames <div class="pill" id="pf">${[3, 5, 10].map(v => `<button data-v="${v}" aria-pressed="${prefs.frames === v}">${v}</button>`).join('')}</div></div>
+      <div class="row">Table <div class="pill" id="pm"><button data-v="corners" aria-pressed="${prefs.mode === 'corners'}">4 corners</button><button data-v="ends" aria-pressed="${prefs.mode === 'ends'}">2 ends</button></div></div>
+      <button class="btn" id="go">Bowl!</button>
+      <button class="btn ghost" id="back">Back</button>
+      <div class="credit" id="note"></div>
+      <div class="credit">Bear: “Realistic Animated Bear 3D Model” by <a href="https://sketchfab.com/WildMesh_3D" target="_blank" rel="noopener">WildMesh 3D</a>, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a></div>`;
+    panel.querySelector('#pf').addEventListener('click', e => { const v = +e.target.dataset.v; if (!v) return; prefs.frames = v; savePrefs(); buildSetup(); });
+    panel.querySelector('#pm').addEventListener('click', e => { const v = e.target.dataset.v; if (!v) return; prefs.mode = v; savePrefs(); layout(); buildSetup(); });
+    panel.querySelector('#back').addEventListener('click', () => leave());
+    panel.querySelector('#go').addEventListener('click', () => { sfx.init(); startGame(); });
+    setupEl.appendChild(panel);
+    placeSetup(); refreshSetup();
+  }
+  function refreshSetup() {
+    const n = seatCount();
+    setupEl.querySelectorAll('.seat').forEach(b => {
+      const i = +b.dataset.i, k = prefs.kinds[i];
+      b.dataset.kind = k;
+      b.innerHTML = `<div class="sn">${SEATS[i].name}</div><div class="st">${KIND_LABEL[k]}</div><div class="sh">tap to change</div>`;
+      b.setAttribute('aria-label', `${SEATS[i].name}: ${KIND_LABEL[k]}. Tap to change`);
+    });
+    const active = prefs.kinds.slice(0, n).filter(k => k !== 'empty').length;
+    const go = setupEl.querySelector('#go'); if (go) go.disabled = !active, go.style.opacity = active ? 1 : 0.4;
+    const note = setupEl.querySelector('#note');
+    if (note) note.textContent = active ? (prefs.kinds.slice(0, n).every(k => k !== 'human') ? 'All computers: sit back and watch the bears play.' : 'Swipe towards the pins to bowl. Where the swipe starts sets the line; curve its end to hook.') : 'Fill at least one seat.';
+  }
+  function placeSetup() {
+    const seats = setupEl.querySelectorAll('.seat'); if (!seats.length) return;
+    const corners = prefs.mode === 'corners';
+    seats.forEach(b => {
+      const g = seatGeom(+b.dataset.i);
+      const inset = corners ? Math.min(150, Math.min(L.W, L.H) * 0.22) : 70;
+      b.style.left = (g.sx + g.ux * inset) + 'px'; b.style.top = (g.sy + g.uy * inset) + 'px';
+      b.style.setProperty('--r', g.rot + 'rad');
+    });
+  }
+
+  /* ------------------------------------------------------------------ aiming / input */
+  const ring = new THREE.Mesh(new THREE.RingGeometry(BALL_R * 1.35, BALL_R * 1.65, 40), new THREE.MeshBasicMaterial({ color: '#f2a93b', transparent: true, opacity: 0.85, depthWrite: false }));
+  ring.rotation.x = -Math.PI/2; ring.visible = false; ring.renderOrder = 2;
+  let aim = null; // {resolve, color}
+  let drag = null;
+  const raycaster = new THREE.Raycaster(), plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -BALL_R);
+  function screenToLane(cx, cy) {
+    const ndc = new THREE.Vector2(cx / L.W * 2 - 1, -(cy / L.H) * 2 + 1);
+    raycaster.setFromCamera(ndc, camera);
+    const p = new THREE.Vector3(); if (!raycaster.ray.intersectPlane(plane, p)) return null;
+    lane.updateMatrixWorld(true); return lane.worldToLocal(p);
+  }
+  // A swipe can start anywhere on the bowler's half of the lane. Where it starts across the lane sets the line,
+  // its speed over the last 90 ms sets the pace, its overall slant nudges the aim and curving its end hooks
+  canvas.addEventListener('pointerdown', e => {
+    if (!active) return;
+    sfx.init();
+    if (!aim || drag || paused) return;
+    const p = screenToLane(e.clientX, e.clientY); if (!p) return;
+    if (Math.abs(p.x) > EDGE + 0.6 || p.z < HEAD_Z / 2 || p.z > APPROACH_Z + 1.2) return;
+    ball.mesh.position.x = THREE.MathUtils.clamp(p.x, -LANE_HW + BALL_R + 0.02, LANE_HW - BALL_R - 0.02);
+    drag = { id: e.pointerId, pts: [{ t: e.timeStamp || performance.now(), x: p.x, z: p.z, sx: e.clientX, sy: e.clientY }] };
+    try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+    hintEl.style.opacity = 0;
+  });
+  canvas.addEventListener('pointermove', e => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+    for (const ev of (evs.length ? evs : [e])) {
+      const p = screenToLane(ev.clientX, ev.clientY); if (!p) continue;
+      drag.pts.push({ t: ev.timeStamp || performance.now(), x: p.x, z: p.z, sx: ev.clientX, sy: ev.clientY });
+    }
+  });
+  canvas.addEventListener('pointerup', e => { if (drag && e.pointerId === drag.id) release(); });
+  canvas.addEventListener('pointercancel', e => { if (drag && e.pointerId === drag.id) { swipeLast = drag.pts; swipeFade = 1; drag = null; } });
+  function release() {
+    const pts = drag.pts; drag = null; swipeLast = pts; swipeFade = 1;
+    if (pts.length < 3) return;
+    const a = pts[0], z = pts[pts.length - 1];
+    const fwd = a.z - z.z, side = z.x - a.x; // lane metres: forward is towards the pins (-z) and +x is the bowler's right
+    if (fwd * L.ppm < 50) return;
+    let k = pts.length - 1; while (k > 0 && z.t - pts[k].t < 90) k--;
+    const v = (pts[k].z - z.z) / Math.max(0.016, (z.t - pts[k].t) / 1000);
+    const speed = THREE.MathUtils.clamp(1.8 + v * 0.5, 2.4, 8.5);
+    const m = pts[Math.floor(pts.length * 0.65)], chord = Math.atan2(side, fwd), tail = Math.atan2(z.x - m.x, m.z - z.z);
+    let spin = THREE.MathUtils.clamp((tail - chord) * 2.2, -1, 1); if (Math.abs(spin) < 0.08) spin = 0;
+    const ang = THREE.MathUtils.clamp(side / fwd * 0.2, -0.14, 0.14);
+    const r = aim; aim = null; ring.visible = false;
+    r.resolve({ x: ball.mesh.position.x, z: ball.mesh.position.z, vx: speed * Math.sin(ang), vz: -speed * Math.cos(ang), spin });
+  }
+  // the finger's trail, drawn on the alley's overlay canvas in the bowler's colour
+  const trailCv = document.getElementById('trail'), tg = trailCv.getContext('2d');
+  let swipeLast = null, swipeFade = 0, swipeColor = SEATS[0].color;
+  function drawSwipe(dt) {
+    tg.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0); tg.clearRect(0, 0, innerWidth, innerHeight);
+    const pts = drag ? drag.pts : swipeLast; if (!pts || pts.length < 2) return;
+    if (!drag) { swipeFade -= dt * 2; if (swipeFade <= 0) { swipeLast = null; return; } }
+    tg.globalAlpha = (drag ? 1 : Math.max(0, swipeFade)) * 0.85; tg.strokeStyle = swipeColor; tg.lineWidth = 10; tg.lineCap = tg.lineJoin = 'round';
+    tg.beginPath(); tg.moveTo(pts[0].sx, pts[0].sy); for (const q of pts) tg.lineTo(q.sx, q.sy); tg.stroke(); tg.globalAlpha = 1;
+  }
+
+  /* ------------------------------------------------------------------ AI */
+  function gauss() { let u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  function aiPlan() {
+    const st = standingPins();
+    let x0 = THREE.MathUtils.randFloat(-0.12, 0.22), tx, tz, spin = gauss() * 0.12;
+    if (st.length === 10 || !st.length) { tx = 0.07 * (Math.random() < 0.8 ? 1 : -1); tz = HEAD_Z; }
+    else {
+      const front = Math.max(...st.map(p => p.body.position.z));
+      const near = st.filter(p => p.body.position.z > front - 0.4);
+      tx = (near.reduce((s, p) => s + p.body.position.x, 0) / near.length) * 0.6 + (st.reduce((s, p) => s + p.body.position.x, 0) / st.length) * 0.4;
+      tz = front;
+      if (Math.abs(tx) > 0.3) x0 = -Math.sign(tx) * 0.15;
+    }
+    let ang = Math.atan2(tx - x0, -(tz - BALL_START_Z)) + gauss() * 0.013;
+    if (Math.random() < 0.07) ang += gauss() * 0.045;
+    const speed = 6 + Math.random() * 1.4;
+    return { x0, ang, speed, spin };
+  }
+  async function aiThrow(id) {
+    const plan = aiPlan();
+    await wait(0.5); guard(id);
+    // slide across to the chosen line, then bowl
+    const sx = ball.mesh.position.x, t0 = gameTime;
+    await until(() => { const k = Math.min(1, (gameTime - t0) / 0.6), e = k * k * (3 - 2 * k); ball.mesh.position.x = sx + (plan.x0 - sx) * e; return k >= 1; }); guard(id);
+    await wait(0.35); guard(id);
+    ring.visible = false;
+    return { x: ball.mesh.position.x, z: ball.mesh.position.z, vx: plan.speed * Math.sin(plan.ang), vz: -plan.speed * Math.cos(plan.ang), spin: plan.spin };
+  }
+
+  /* ------------------------------------------------------------------ swing */
+  let swing = null;
+  function swingTo(theta, dur = 1.2) {
+    const from = pivot.rotation.y;
+    let d = ((theta - from + Math.PI) % (2*Math.PI) + 2*Math.PI) % (2*Math.PI) - Math.PI;
+    if (Math.abs(d) < 1e-3) { pivot.rotation.y = theta; return Promise.resolve(); }
+    return new Promise(res => { swing = { from, d, t: 0, dur, res }; });
+  }
+
+  /* ------------------------------------------------------------------ bear choreography */
+  function bearSide(seat) {
+    // pick the side of the lane with more room near this seat's foul line
+    const th = seatGeom(seat).theta, saved = pivot.rotation.y; pivot.rotation.y = th;
+    let best = 1, bestScore = -1e9;
+    for (const s of [-1, 1]) {
+      const w = laneToWorld(s * 1.3, 0.5);
+      const m = Math.min(L.Ww/2 - Math.abs(w.x), L.Hw/2 - Math.abs(w.z));
+      if (m > bestScore) { bestScore = m; best = s; }
+    }
+    pivot.rotation.y = saved; return best;
+  }
+  function bearHome(seat) {
+    const side = bearSide(seat);
+    bear.go(() => laneToWorld(side * 1.25, -0.25, 0), { speed: 3.6, idle: 'Sitting_Idle_02', face: () => laneForwardHeading() + side * 0.5 });
+    return side;
+  }
+
+  /* ------------------------------------------------------------------ game flow */
+  let game = null;
+  function toSetup() {
+    session++; game = null; waiters.length = 0; aim = null; drag = null; paused = false;
+    hud.innerHTML = ''; cards = [];
+    setupEl.hidden = false; buildSetup();
+    ring.visible = false; swipeLast = null; hintEl.style.opacity = 0;
+    rackFull(); placeBall(0, BALL_START_Z); ball.mesh.visible = false;
+    pivot.rotation.y = seatGeom(0).theta;
+    bear.go(() => laneToWorld(-1.25, -2.0, 0), { speed: 2.5, idle: 'Sitting_Idle_02', face: () => laneForwardHeading() + Math.PI/2 });
+  }
+  function startGame() {
+    session++; const id = session; waiters.length = 0; aim = null; drag = null; paused = false;
+    setupEl.hidden = true; setupEl.innerHTML = '';
+    const n = seatCount();
+    const players = [];
+    for (let i = 0; i < n; i++) if (prefs.kinds[i] !== 'empty') players.push({ seat: i, kind: prefs.kinds[i], name: SEATS[i].name, rolls: [], hinted: false });
+    if (!players.length) { toSetup(); return; }
+    game = { N: prefs.frames, players, frame: 0, current: null, over: false, seat: null };
+    try { navigator.wakeLock?.request('screen').catch(() => {}); } catch (e) {}
+    buildCards();
+    run(id).catch(e => { if (e !== 'abort') console.error(e); });
+  }
+  async function run(id) {
+    for (let f = 0; f < game.N; f++) {
+      game.frame = f;
+      for (const p of game.players) { await playFrame(p, id); guard(id); }
+    }
+    game.over = true; game.current = null; updateCards();
+    const ranked = [...game.players].sort((a, b) => finalTotal(b) - finalTotal(a));
+    const w = ranked[0];
+    await turnTo_(w, id, true);
+    const tie = ranked.length > 1 && finalTotal(ranked[0]) === finalTotal(ranked[1]);
+    toast(ranked.length === 1 ? `${finalTotal(w)} points` : tie ? 'Tie game!' : `${w.name} wins!`, { seat: w.seat, dur: 2.2 });
+    sfx.roar();
+    await bear.react('Trans_Stand_to_StandHind', { then: 'StandHind_Idle_01' }); guard(id);
+    await wait(0.8); guard(id);
+    showResults();
+  }
+  async function turnTo_(p, id, quiet = false) {
+    game.current = p; updateCards();
+    const g = seatGeom(p.seat);
+    if (game.seat !== p.seat) {
+      game.seat = p.seat;
+      bearHome(p.seat);
+      await swingTo(g.theta); guard(id);
+    } else bearHome(p.seat);
+  }
+  async function playFrame(p, id) {
+    await turnTo_(p, id); guard(id);
+    const last = game.frame === game.N - 1;
+    rackFull();
+    if (!(game.players.length === 1 && game.frame === 0)) toast(`${p.name}`, { small: true, seat: p.seat, dur: 1.0 });
+    const balls = [];
+    let ballNo = 0, fresh = true;
+    while (true) {
+      const before = standingPins().length;
+      const knocked = await bowlOne(p, id); guard(id);
+      balls.push(knocked); p.rolls.push(knocked); updateCards();
+      const res = knocked === before && fresh ? 'strike' : knocked === before ? 'spare' : knocked === 0 ? (ball.gutter ? 'gutter' : 'miss') : 'open';
+      await react(res, knocked, p, id); guard(id);
+      if (!last) {
+        if (ballNo === 0 && knocked === 10) break;
+        if (ballNo === 1) break;
+        ballNo = 1; fresh = false; await sweep(id); continue;
+      }
+      const [a, b] = balls;
+      if (ballNo === 0) { ballNo = 1; if (a === 10) { rackFull(); fresh = true; } else { fresh = false; await sweep(id); } continue; }
+      if (ballNo === 1 && (a === 10 || a + b === 10)) {
+        ballNo = 2;
+        if ((a === 10 && b === 10) || (a !== 10 && a + b === 10)) { rackFull(); fresh = true; } else { fresh = false; await sweep(id); }
+        continue;
+      }
+      break;
+    }
+    await sweep(id, true);
+  }
+  async function bowlOne(p, id) {
+    ballMaterialFor(SEATS[p.seat].color);
+    placeBall(0, BALL_START_Z); ball.mesh.quaternion.identity();
+    ball.mesh.scale.setScalar(0.01);
+    const t0 = gameTime; await until(() => { const k = Math.min(1, (gameTime - t0) / 0.3); ball.mesh.scale.setScalar(0.01 + 0.99 * k); return k >= 1; }); guard(id);
+    ring.material.color.set(SEATS[p.seat].color); swipeColor = SEATS[p.seat].color;
+    ring.visible = true;
+    let shot;
+    if (p.kind === 'human') {
+      if (!p.hinted) { hintEl.textContent = 'Swipe towards the pins'; hintEl.style.setProperty('--pc', SEATS[p.seat].color); hintEl.dataset.on = '1'; hintEl.style.opacity = 1; p.hinted = true; }
+      shot = await new Promise(resolve => { aim = { resolve }; }); guard(id);
+      hintEl.style.opacity = 0; hintEl.dataset.on = '';
+    } else shot = await aiThrow(id);
+    guard(id);
+    const beforeCount = standingPins().length;
+    launchBall(shot.x, shot.z, shot.vx, shot.vz, shot.spin);
+    // bear chases alongside
+    const side = bearSide(p.seat);
+    bear.go(() => { const bz = ball.inWorld ? ball.body.position.z : HEAD_Z; return laneToWorld(side * 1.22, Math.max(bz + 0.9, HEAD_Z + 0.75), 0); }, { speed: 5.5, idle: 'Stand_Idle_01', face: () => laneForwardHeading() - side * 0.9 });
+    const tStart = gameTime; let doneAt = null, slowSince = null;
+    await until(() => {
+      const b = ball.body, sp = b.velocity.length();
+      if (!doneAt && (b.position.y < -0.15 || b.position.z < DECK_END - 0.1)) doneAt = gameTime;
+      if (sp < 0.25) { slowSince ??= gameTime; } else slowSince = null;
+      return (doneAt && gameTime - doneAt > 0.25) || (slowSince && gameTime - slowSince > 0.8) || gameTime - tStart > 7;
+    }); guard(id);
+    const tSettle = gameTime;
+    await until(() => gameTime - tSettle > 0.7 && pins.every(p => !p.active || p.body.sleepState === CANNON.Body.SLEEPING || (p.body.velocity.length() < 0.04 && p.body.angularVelocity.length() < 0.15)), 2.8); guard(id);
+    const knocked = beforeCount - standingPins().length;
+    await wait(0.4); guard(id);
+    if (ball.inWorld) { world.removeBody(ball.body); ball.inWorld = false; }
+    ball.mesh.visible = false; sfx.roll(0);
+    return knocked;
+  }
+  async function react(res, knocked, p, id) {
+    const side = bearSide(p.seat);
+    if (res === 'strike') {
+      toast('STRIKE!', { seat: p.seat, dur: 1.6 }); sfx.cheer(); sfx.roar();
+      await bear.react('CanonBall', { ts: 0.85, hop: 0.45 }); guard(id);
+      await bear.react('Attack_StandAngry_01_High', { ts: 1.2 }); guard(id);
+    } else if (res === 'spare') {
+      toast('SPARE!', { seat: p.seat, dur: 1.5 }); sfx.cheer();
+      await bear.react('Trans_Stand_to_StandHind', { ts: 1.6 }); guard(id);
+      await wait(0.2);
+    } else if (res === 'gutter') {
+      toast('Gutter ball', { small: true, seat: p.seat, dur: 1.4 }); sfx.womp();
+      await bear.react('Hit_Sitting_F01', { ts: 1.1 }); guard(id);
+    } else if (res === 'miss') {
+      toast('Missed!', { small: true, seat: p.seat, dur: 1.2 }); sfx.womp(); await wait(0.9);
+    } else {
+      toast(`${knocked} pin${knocked === 1 ? '' : 's'}`, { small: true, seat: p.seat, dur: 1.1 }); await wait(0.9);
+    }
+    guard(id);
+    bearHome(p.seat);
+  }
+  async function sweep(id, all = false) {
+    const down = pins.filter(p => p.active && (all || pinIsDown(p)));
+    const t0 = gameTime;
+    for (const p of down) p.shrink = 1;
+    await until(() => gameTime - t0 > 0.35); guard(id);
+    for (const p of down) { deactivatePin(p); p.mesh.visible = false; }
+    if (!all) for (const p of pins) if (p.active) {
+      const b = p.body; setPinUpright(p, THREE.MathUtils.clamp(b.position.x, -LANE_HW + 0.07, LANE_HW - 0.07), Math.max(DECK_END + 0.08, Math.min(b.position.z, HEAD_Z + 0.05)));
+    }
+  }
+
+  /* ------------------------------------------------------------------ main loop */
+  let lastT = performance.now();
+  const proj = new THREE.Vector3();
+  function frame(t) {
+    const dt = Math.min(0.05, (t - lastT) / 1000); lastT = t;
+    if (!paused) {
+      gameTime += dt;
+      world.step(1/150, dt, 8);
+      tickWaiters();
+    }
+    if (swing) {
+      swing.t += dt; const k = Math.min(1, swing.t / swing.dur), e = k < 0.5 ? 4*k*k*k : 1 - Math.pow(-2*k + 2, 3)/2;
+      pivot.rotation.y = swing.from + swing.d * e;
+      if (k >= 1) { const r = swing.res; swing = null; r(); }
+    }
+    // sync
+    for (const p of pins) {
+      if (!p.active && !p.shrink) continue;
+      if (p.active) { p.mesh.position.copy(p.body.position); p.mesh.quaternion.copy(p.body.quaternion); }
+      if (p.shrink) { p.shrink = Math.max(0.001, p.shrink - dt * 3); p.mesh.scale.setScalar(p.shrink); if (p.shrink <= 0.001) p.shrink = 0; }
+    }
+    if (ball.inWorld) {
+      ball.mesh.position.copy(ball.body.position); ball.mesh.quaternion.copy(ball.body.quaternion);
+      const onLane = ball.body.position.y > 0 && ball.body.position.y < BALL_R + 0.03 && ball.body.position.z > DECK_END;
+      sfx.roll(onLane ? Math.hypot(ball.body.velocity.x, ball.body.velocity.z) : 0);
+    }
+    if (ring.visible) { ring.position.set(ball.mesh.position.x, 0.004, ball.mesh.position.z); const s = 1 + 0.12 * Math.sin(t / 180); ring.scale.setScalar(s); }
+    drawSwipe(dt);
+    bear.update(paused ? 0 : dt);
+    if (hintEl.dataset.on && game && game.current) {
+      lane.updateMatrixWorld(true);
+      proj.copy(ball.mesh.position); lane.localToWorld(proj); proj.project(camera);
+      const g = seatGeom(game.current.seat);
+      const x = (proj.x + 1) / 2 * L.W + g.ux * 58, y = (1 - proj.y) / 2 * L.H + g.uy * 58;
+      hintEl.style.left = x + 'px'; hintEl.style.top = y + 'px'; hintEl.style.setProperty('--r', g.rot + 'rad');
+    }
+    renderer.render(scene, camera);
+  }
+
+  /* ------------------------------------------------------------------ boot, enter and leave */
+  let active = false;
+  function enter() {
+    active = true; lastT = performance.now();
+    renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+    layout(); toSetup();
+  }
+  function leave() {
+    session++; game = null; waiters.length = 0; aim = null; drag = null; paused = false; active = false;
+    hud.innerHTML = ''; cards = []; setupEl.innerHTML = ''; closeOverlay(); hintEl.style.opacity = 0; swipeLast = null;
+    if (ball.inWorld) { world.removeBody(ball.body); ball.inWorld = false; }
+    sfx.roll(0);
+    onLeave();
+  }
+  try { await Promise.race([document.fonts.load('40px "Bowlby One SC"'), new Promise(r => setTimeout(r, 2500))]); } catch (e) {}
+  buildLane(); buildPins(); buildBall();
+  lane.add(ring);
+  try { bear = await makeBear(0.95, bearGround); } catch (e) {
+    console.error('bear load failed', e);
+    bear = { root: new THREE.Group(), pos: new THREE.Vector3(), go() {}, react: () => Promise.resolve(), update() {}, play() {} };
+  }
+  scene.add(bear.root);
+  bear.pos.copy(laneToWorld(-1.25, -2.0, 0));
+  window.__bbTable = { get game() { return game; }, pins, ball, bear, standingPins, scoreFrames, launchBall, get aim() { return aim; }, prefs, startGame, toSetup, layout, seatGeom, L, pivot, laneToWorld, camera, lane, screenToLane };
+  return { enter, frame };
+}
+
+let table=null,tableInit=null,inTable=false;
+// the alley's colours assume colour management off (see above); the table's were chosen with it on
+async function openTable(){
+  inTable=true;THREE.ColorManagement.enabled=true;
+  $('#lobby').hidden=true;$('#table').hidden=false;
+  if(!table){
+    $('#t-loading').hidden=false;
+    try{table=await(tableInit||=initTable(renderer,closeTable));}
+    catch(e){console.error(e);tableInit=null;closeTable();setStatus('#homeStatus','The table game failed to load. Check the connection and try again.',true);return;}
+    $('#t-loading').hidden=true;
+  }
+  table.enter();
+}
+function closeTable(){
+  inTable=false;THREE.ColorManagement.enabled=false;renderer.toneMapping=THREE.NoToneMapping;
+  $('#table').hidden=true;$('#t-loading').hidden=true;$('#lobby').hidden=false;showScreen('home');resize();
+}
 
 // ================= Lobby wiring =================
 try{$('#name').value=localStorage.getItem('bowling-bear.name')||'';}catch(e){}
@@ -758,6 +2040,7 @@ function becomeHost(){
 }
 $('#bHost').onclick=()=>{becomeHost();pushState();showScreen('host');};
 $('#bSolo').onclick=()=>{becomeHost();startGame();};
+$('#bTable').onclick=()=>{setStatus('#homeStatus','');openTable();};
 $('#bJoin').onclick=()=>{showScreen('join');setStatus('#joinStatus','');};
 $('#bJoinBack').onclick=()=>showScreen('home');
 $('#bInvite').onclick=()=>invite().catch(err=>setStatus('#inviteStatus',err.message,true));
