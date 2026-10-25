@@ -11,6 +11,17 @@
 		"screenshot": "/screenshots/toys/animal-island.webp"
 	},
 	{
+		"title": "Toys/bear-beat",
+		"caption": "Bear Beat",
+		"description": "Animated bears dance on a light-up disco floor to the beat of whatever they hear: the microphone, a song file, a built-in groove or tapped tempo. Ten routines from the Moonwalk to the Macarena, for one to four bears",
+		"url": "/toys/bear-beat/",
+		"tags": "toy",
+		"text": "",
+		"category": "trifles",
+		"theme-color": "#0d0a13",
+		"screenshot": "/screenshots/toys/bear-beat.webp"
+	},
+	{
 		"title": "Toys/blobbles",
 		"caption": "Blobbles",
 		"description": "Blobs of glass at your command",
