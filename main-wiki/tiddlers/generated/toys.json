@@ -176,6 +176,17 @@
 		"screenshot": "/screenshots/toys/over-underiser.webp"
 	},
 	{
+		"title": "Toys/quizbuzz",
+		"caption": "Quizbuzz",
+		"description": "A family quiz show for Christmas: a 1960s TV studio on the big screen, a buzzer on everyone's phone, joined by QR code over the same Wi-Fi, and a toddler button with real power",
+		"url": "/toys/quizbuzz/",
+		"tags": "toy",
+		"text": "",
+		"category": "games",
+		"theme-color": "#1d1411",
+		"screenshot": "/screenshots/toys/quizbuzz.webp"
+	},
+	{
 		"title": "Toys/rug-addict",
 		"caption": "Rug Addict",
 		"description": "Persian, Anatolian, Caucasian and Turkmen rugs generated knot by knot from the grammar of real carpets: borders, field, medallions and motifs, shown as wool pile, as a weaver's cartoon or on the floor of a room, with randomise and eight-way exploration",
