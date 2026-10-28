@@ -404,9 +404,13 @@ body.solo{background:var(--teak)}
 .jcard.live img{width:236px;height:236px;margin:4px auto 8px;transition:opacity .3s}
 .camrow{display:flex;align-items:center;gap:10px;text-align:left}
 .camslot{flex:none;width:96px;height:72px;border-radius:10px;overflow:hidden;background:#1d1411;box-shadow:inset 0 0 0 2px var(--wood)}
-.campv{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.campv{width:100%;height:100%;object-fit:cover}
+.campv.front{transform:scaleX(-1)}
 .camrow .jproto{font-size:14px;text-align:left}
-.joinov{position:absolute;right:40px;top:120px;z-index:7;transform:scale(1.1);transform-origin:top right}
+.joinov{position:absolute;right:24px;top:16px;z-index:7}
+.joinov .jcard.live{box-sizing:border-box;width:560px;padding:12px 22px 14px}
+.joinov .jcard.live img{width:516px;height:516px;margin:2px auto 8px}
+.camflip{flex:none;margin-left:auto;border:2px solid var(--wood);border-radius:999px;background:none;padding:8px 14px;font:400 11px var(--f-label);letter-spacing:1px;text-transform:uppercase;color:var(--wood)}
 .pad.replyv{background:#fff;color:#111}
 .pad.replyv .top{display:none}
 .pad .rqr{display:block;width:100%;max-width:320px;margin:auto auto 0;image-rendering:pixelated}
@@ -601,11 +605,11 @@ function makeRtcHost(onHostMsg){
   api.seen=pid=>last.get(pid)||0;
   return api;
 }
-/* the host's front camera reads reply codes held up to the iPad */
-function startReplyCamera(video,onCode){
+/* the host's camera (front or back) reads reply codes held up to the iPad */
+function startReplyCamera(video,onCode,facing){
   let alive=true,stream=null,det=null;
   (async()=>{
-    try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false})}catch(e){onCode(null,'The camera isn’t available. Allow camera access for this page.');return}
+    try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:facing},audio:false})}catch(e){onCode(null,'The camera isn’t available. Allow camera access for this page.');return}
     video.srcObject=stream;video.muted=true;video.playsInline=true;try{await video.play()}catch(e){}
     try{if('BarcodeDetector' in window&&(await BarcodeDetector.getSupportedFormats()).includes('qr_code'))det=new BarcodeDetector({formats:['qr_code']})}catch(e){}
     const cv=document.createElement('canvas'),g=cv.getContext('2d',{willReadFrequently:true});
@@ -916,7 +920,7 @@ function flagQuestion(){
   banner('Question flagged for review',1400);renderHost();
 }
 function togglePause(){Clock.paused=!Clock.paused;$('#pausedOv').hidden=!Clock.paused;renderHost()}
-function abandon(){if($('#joinOv'))$('#joinOv').hidden=true;Clock.ev.forEach(e=>e.dead=true);Clock.ev=[];H.cracker=null;setPhase('lobby');H.ri=-1;H.q=null;
+function abandon(){Join.ov=false;Clock.ev.forEach(e=>e.dead=true);Clock.ev=[];H.cracker=null;setPhase('lobby');H.ri=-1;H.q=null;
   H.players.forEach(p=>Object.assign(p,{score:0,shown:0,ans:null,ok:null,ready:false,out:false,hearts:0,bet:0,fx:null,perm:null}));
   Clock.paused=false;$('#pausedOv').hidden=true;sync()}
 
@@ -1016,6 +1020,7 @@ function renderStage(deltas){
   if(deltas)H.players.forEach(p=>{if(p.delta){const d=pods.querySelector(`[data-delta="${p.id}"]`);d.textContent=(p.delta>0?'+':'')+p.delta;d.classList.add('go')}});
   scr.className='screen'+(['reveal','crackwrong','steal','stolen','pass'].includes(ph)?' reveal':'');
   let pane='';
+  syncJoinCard();
   if(ph==='lobby'){
     if($('#join')){joinFoot();return renderBanner()}
     pane=joinShell();
@@ -1141,7 +1146,7 @@ const JOIN_STEPS=[
   {t:'Next, please',d:'The code changes every time someone joins, so the next person scans the new one.',
    art:`<div class="mph jcam"><div class="vf"><img src="${QR.reply2}" alt=""><i class="scan"></i></div><div class="pill ok">Sam is in! New code ready</div></div>`}
 ];
-const Join={i:0,t0:0,dur:6500};
+const Join={i:0,t0:0,dur:6500,ov:false};
 function joinShell(){
   return `<div class="pane jn" id="join"><div class="jgrid">
     <div class="jl"><div class="tk">How to join</div><div class="jt">Join the show</div>
@@ -1153,28 +1158,42 @@ const LAN=()=>MODE==='host'&&net.rtc;
 function joinCardHTML(){
   if(MODE==='studio')return `<div class="jcard"><div class="jk">Practice studio</div><div class="jproto">Play on the pads below, with robots to make up the numbers.</div><button type="button" class="jhost" onclick="event.stopPropagation();location.hash='host';location.reload()">Host a real game</button><div class="jproto">Put this on the big screen and everyone joins with their phone.</div></div>`;
   if(!LAN())return `<div class="jcard"><div class="jk">Scan to join</div><img src="${QR.join}" alt="Join code"><div class="jproto">Phones need the page on HTTPS. Meanwhile, open buzzer windows with #pad.</div></div>`;
-  return `<div class="jcard live"><div class="jk">Scan to join</div><img class="joinqr" src="${net.rtc.joinURL?qrDataURL(net.rtc.joinURL):QR.join}" alt="Join code"${net.rtc.joinURL?'':' style="opacity:.15"'}><div class="camrow"><div class="camslot"></div><div class="jproto" id="rtcStatus">${esc(net.rtc.status||'Then hold your phone up to the iPad camera.')}</div></div></div>`;
+  return '<div></div>';
+}
+/* in host mode the join card is big enough to scan from the sofa, so it sits on the stage beside the screen: all through the lobby, and during a game when the host asks for it */
+function liveCardHTML(title){
+  return `<div class="jcard live"><div class="jk">${title}</div><img class="joinqr" src="" alt="Join code"><div class="camrow"><div class="camslot"></div><div class="jproto" id="rtcStatus"></div><button type="button" class="camflip" onclick="event.stopPropagation();flipCamera()">${cam.facing==='user'?'Use back camera':'Use front camera'}</button></div></div>`;
+}
+function syncJoinCard(){
+  const ov=$('#joinOv');if(!ov)return;
+  const show=!!LAN()&&(H.phase==='lobby'||Join.ov),title=H.phase==='lobby'?'Scan to join':'Join or rejoin';
+  if(show&&(ov.hidden||ov.dataset.title!==title)){ov.innerHTML=liveCardHTML(title);ov.dataset.title=title;refreshJoinQR()}
+  ov.hidden=!show;placeCamera();
+}
+function flipCamera(){
+  cam.facing=cam.facing==='user'?'environment':'user';store.set('qb.cam',cam.facing);
+  if(cam.stop)cam.stop();if(cam.video)cam.video.remove();cam.video=null;
+  $('#joinOv').hidden=true;syncJoinCard();
 }
 /* the camera preview element survives re-renders and is moved into whichever slot is showing */
-const cam={video:null,stop:null};
+const cam={video:null,stop:null,facing:store.get('qb.cam','user')};
 function placeCamera(){
   if(!LAN())return;
-  if(!cam.video){cam.video=document.createElement('video');cam.video.className='campv';cam.video.setAttribute('playsinline','');cam.video.muted=true;
-    cam.stop=startReplyCamera(cam.video,(code,err)=>{if(err){net.rtc.status=err;net.rtc.onChange();return}net.rtc.acceptReply(code)})}
-  const slot=document.querySelector('#joinOv:not([hidden]) .camslot')||document.querySelector('#join .camslot');
+  if(!cam.video){cam.video=document.createElement('video');cam.video.className='campv'+(cam.facing==='user'?' front':'');cam.video.setAttribute('playsinline','');cam.video.muted=true;
+    cam.stop=startReplyCamera(cam.video,(code,err)=>{if(err){net.rtc.status=err;net.rtc.onChange();return}net.rtc.acceptReply(code)},cam.facing)}
+  const slot=document.querySelector('#joinOv:not([hidden]) .camslot');
   if(slot&&cam.video.parentNode!==slot)slot.appendChild(cam.video);
 }
 function refreshJoinQR(){
   if(!LAN())return;
   const url=net.rtc.joinURL,src=url?qrDataURL(url):QR.join;
   document.querySelectorAll('img.joinqr').forEach(im=>{im.src=src;im.style.opacity=url?1:.15});
-  document.querySelectorAll('#rtcStatus,#rtcStatus2').forEach(e=>e.textContent=net.rtc.status||'Then hold your phone up to the iPad camera.');
+  document.querySelectorAll('#rtcStatus').forEach(e=>e.textContent=net.rtc.status||'Then hold your phone up to the iPad camera.');
 }
 function toggleJoinOverlay(show){
-  const ov=$('#joinOv');if(!ov||!LAN())return;
-  ov.hidden=show===undefined?!ov.hidden:!show;
-  if(!ov.hidden){ov.innerHTML=`<div class="jcard live"><div class="jk">Join or rejoin</div><img class="joinqr" src="" alt="Join code"><div class="camrow"><div class="camslot"></div><div class="jproto" id="rtcStatus2"></div></div></div>`;refreshJoinQR()}
-  placeCamera();renderHost();
+  if(!LAN())return;
+  Join.ov=show===undefined?!Join.ov:!!show;
+  syncJoinCard();renderHost();
 }
 function joinShow(){
   const art=$('#jart');if(!art)return;
@@ -1228,7 +1247,7 @@ function renderHost(){
   const btn=(id,t,cls='',dis=false)=>`<button type="button" class="hb ${cls}" id="${id}" ${dis?'disabled':''}>${t}</button>`;
   $('#hostbar').innerHTML=lobby
     ?btn('bStart','Start game','primary',H.players.length<2)
-    :[btn('bNext','Next',!!H.next?'primary':'',!H.next),btn('bPause',Clock.paused?'Resume':'Pause'),btn('bSkip','Skip question','',ph!=='q'),LAN()?btn('bJoinCode',$('#joinOv')&&!$('#joinOv').hidden?'Hide join code':'Join code'):'',qm?btn('bFlag','Flag question','',!H.q||ph==='lobby'):'',btn('bQuit',ph==='final'?'New game':'End game')].join('');
+    :[btn('bNext','Next',!!H.next?'primary':'',!H.next),btn('bPause',Clock.paused?'Resume':'Pause'),btn('bSkip','Skip question','',ph!=='q'),LAN()?btn('bJoinCode',Join.ov?'Hide join code':'Join code'):'',qm?btn('bFlag','Flag question','',!H.q||ph==='lobby'):'',btn('bQuit',ph==='final'?'New game':'End game')].join('');
   $('#settings').hidden=!lobby;
   if(lobby)$('#settings').innerHTML=
     seg('Host','role',[['play','Playing'],['host','Quizmaster']])+
