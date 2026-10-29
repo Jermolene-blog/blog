@@ -56,6 +56,7 @@ td.sum{font:700 15px/35px var(--hand);width:40px;font-variant-numeric:tabular-nu
   padding-bottom:calc(env(safe-area-inset-bottom,0px) + 14px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 #banner{font:700 13px/1 var(--body);letter-spacing:.1em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:8px 14px;border-radius:2px;border-bottom:3px solid var(--red)}
 #hint{font:600 14px/1.35 var(--body);color:#f3ead9;text-align:center;max-width:34em;text-shadow:0 1px 3px #000}
+#netNote{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 104px);max-width:calc(100% - 32px);text-align:center;transform:translateX(-50%);background:var(--paper);color:var(--ink);padding:8px 16px;border-radius:999px;font:600 15px/1.2 var(--body);box-shadow:0 4px 14px rgba(0,0,0,.4);z-index:50;pointer-events:none}
 #toast{position:fixed;inset:0;display:grid;place-items:center;pointer-events:none}
 #toast b{font:400 clamp(48px,15vmin,140px)/1 var(--display);color:#fff6e4;-webkit-text-stroke:3px var(--red);paint-order:stroke;text-shadow:0 6px 0 rgba(0,0,0,.35);transform:rotate(-6deg);opacity:0}
 #toast.on b{animation:pop 1.4s cubic-bezier(.2,1.6,.4,1) both}
@@ -201,6 +202,7 @@ td.sum{font:700 15px/35px var(--hand);width:40px;font-variant-numeric:tabular-nu
 <div id="card" hidden></div>
 <div id="hud" hidden><div id="banner"></div><div id="hint"></div></div>
 <div id="toast"><b></b></div>
+<div id="netNote" role="status" hidden></div>
 
 <div id="lobby">
  <div class="sheet">
@@ -537,7 +539,7 @@ function scanQR(prefix){
 // ================= Game state & networking =================
 const $=s=>document.querySelector(s);
 const COLORS=['#c0281b','#1d5fa6','#2f8a4c','#d79a00','#7b3fa1','#d0612a','#0f8b8d','#59616b'];
-const net={isHost:false,peers:new Map(),hostDc:null,hostPc:null,myIds:new Set(),selfId:null,pending:null,guestN:0,localN:0};
+const net={isHost:false,peers:new Map(),hostDc:null,hostPc:null,myIds:new Set(),selfId:null,pending:null,guestN:0,localN:0,spares:new Map(),spareN:0,grace:new Map()};
 let S=null;     // authoritative state (host only)
 let view=null;  // latest state seen by this device
 const local={sim:null,doneAt:0,waiting:false,by:null,seq:-1,fc:0};
@@ -557,6 +559,7 @@ function hostReceive(from,msg,isLocal){
     case 'hello':{
       if(isLocal)return;
       if(S.phase==='lobby'&&!S.players.some(p=>p.id===from)){addPlayer(from,msg.name);}
+      const pl=S.players.find(q=>q.id===from);if(pl&&msg.pid&&!pl.pid)pl.pid=String(msg.pid).slice(0,24);
       const p=net.peers.get(from);if(p)p.dc.send(JSON.stringify({t:'welcome',id:from}));
       if(net.pending&&net.pending.id===from){net.pending=null;showScreen('host');}
       pushState();break;}
@@ -598,12 +601,69 @@ function startGame(){
   pushState();
 }
 function peerGone(id){
-  net.peers.delete(id);
+  net.peers.delete(id);for(const sp of net.spares.get(id)||[])try{sp.pc.close();}catch(e){}net.spares.delete(id);
   const i=S.players.findIndex(p=>p.id===id);if(i<0)return;
   if(S.phase==='lobby'){S.players.splice(i,1);}
   else{S.players[i].gone=true;if(S.phase==='play'&&S.cur===i){advance();S.pins=rack();S.last=null;S.seq++;}}
   pushState();
 }
+
+// ----- spare lines
+// A dropped WebRTC link can't be revived from storage: every connection needs both sides to swap fresh keys and addresses,
+// and here the only way to swap them is the QR codes. So while a guest is connected, the host sets up a few spare links
+// with it over the live one, keeping the addresses back so the spares sit idle. When the live link dies (a phone locks,
+// someone answers a message) the guest feeds the host's addresses into a spare; the host learns the guest's address from
+// its first check and the spare opens. If the host is the one away, each attempt eventually fails, so the guest works
+// through the pool, one spare every 20 s. The host keeps a lost guest's place for GRACE before skipping them.
+const SPARES=4,GRACE=120000,TRY_MS=20000;
+const noCands=sdp=>sdp.split(/\r?\n/).filter(l=>l&&!/^a=(candidate|end-of-candidates)/.test(l)).join('\r\n')+'\r\n';
+function keepAwake(){ // the screen stays on while this device is in a game
+  if(keepAwake.on||!('wakeLock' in navigator))return;keepAwake.on=true;let lock=null;
+  const ask=()=>{if(lock||document.visibilityState!=='visible')return;navigator.wakeLock.request('screen').then(l=>{lock=l;l.addEventListener('release',()=>{lock=null;});}).catch(()=>{});};
+  document.addEventListener('visibilitychange',ask);addEventListener('pointerdown',ask);ask();
+}
+function netNote(t){const el=$('#netNote');el.textContent=t||'';el.hidden=!t;}
+const nameOf=id=>{const p=S&&S.players.find(q=>q.id===id);return p?p.name:'A bowler';};
+
+// ----- host: a guest's lines
+function wirePeer(entry){
+  entry.dc.onmessage=e=>{let m;try{m=JSON.parse(e.data);}catch(err){return;}
+    if(m.t==='ping'){try{entry.dc.send('{"t":"pong"}');}catch(err){}return;}
+    if(m.t==='spare'){const s=(net.spares.get(entry.id)||[]).find(x=>x.n===m.n);if(s)s.pc.setRemoteDescription({type:'answer',sdp:m.sdp}).catch(()=>{});return;}
+    if(m.t==='hello')rekey(entry,m.pid);
+    try{hostReceive(entry.id,m,false);}catch(err){console.warn(err);}
+    if(m.t==='hello')makeSpares(entry);};
+  entry.dc.onclose=()=>{if(net.peers.get(entry.id)===entry)peerLost(entry.id);};
+}
+function rekey(entry,pid){ // a guest whose page reloaded comes back through a fresh invite: give them their own place back
+  if(!pid)return;entry.pid=String(pid).slice(0,24);
+  const p=S.players.find(q=>q.pid===entry.pid);
+  if(p&&p.id!==entry.id){net.peers.delete(entry.id);entry.id=p.id;bringBack(entry);}
+}
+function bringBack(entry){
+  const id=entry.id,old=net.peers.get(id);
+  if(old&&old!==entry){try{old.pc.close();}catch(e){}}
+  net.peers.set(id,entry);clearTimeout(net.grace.get(id));
+  if(net.grace.delete(id))hostNote();
+  const p=S.players.find(q=>q.id===id);if(p&&p.gone){p.gone=false;pushState();}
+}
+async function makeSpares(via){
+  const id=via.id;for(const s of net.spares.get(id)||[])try{s.pc.close();}catch(e){}
+  const list=[];net.spares.set(id,list);
+  for(let k=0;k<SPARES;k++){
+    const pc=new RTCPeerConnection({iceServers:[]}),dc=pc.createDataChannel('bowling-bear',{ordered:true});
+    const sp={id,pc,dc,n:++net.spareN};list.push(sp);wirePeer(sp);
+    dc.onopen=()=>{const l=net.spares.get(sp.id)||[];l.splice(l.indexOf(sp)>>>0,1);bringBack(sp);};
+    await pc.setLocalDescription(await pc.createOffer());await waitIce(pc);
+    if(net.spares.get(id)!==list||via.dc.readyState!=='open')return;
+    try{via.dc.send(JSON.stringify({t:'spare',n:sp.n,sdp:pc.localDescription.sdp}));}catch(e){}
+  }
+}
+function peerLost(id){ // keep their place for a while: they may be back over a spare line
+  net.peers.delete(id);if(net.grace.has(id)||!S.players.some(p=>p.id===id))return;
+  net.grace.set(id,setTimeout(()=>{net.grace.delete(id);hostNote();if(!net.peers.has(id))peerGone(id);},GRACE));hostNote();
+}
+function hostNote(){const n=[...net.grace.keys()].map(nameOf);netNote(n.length?n.join(' and ')+(n.length>1?' have':' has')+' lost the connection. Keeping '+(n.length>1?'their places':'their place')+'…':'');}
 
 // ----- host: invite a phone
 async function invite(){
@@ -611,12 +671,10 @@ async function invite(){
   const g=$('#qrOffer').getContext('2d');g.clearRect(0,0,9999,9999);
   if(net.pending){try{net.pending.pc.close();}catch(e){}net.pending=null;}
   await primeCamera();
-  const id='g'+(++net.guestN),pc=new RTCPeerConnection({iceServers:[]}),dc=pc.createDataChannel('bowling-bear',{ordered:true});
-  const entry={id,pc,dc};net.pending=entry;
-  dc.onopen=()=>{net.peers.set(id,entry);setStatus('#inviteStatus','Connected. Waiting for their name…');};
-  dc.onmessage=e=>{try{hostReceive(id,JSON.parse(e.data),false);}catch(err){console.warn(err);}};
-  dc.onclose=()=>{if(net.peers.has(id))peerGone(id);};
-  pc.onconnectionstatechange=()=>{if(pc.connectionState==='failed'){setStatus('#inviteStatus',FAIL_MSG,true);if(net.peers.has(id))peerGone(id);}};
+  const pc=new RTCPeerConnection({iceServers:[]}),dc=pc.createDataChannel('bowling-bear',{ordered:true});
+  const entry={id:'g'+(++net.guestN),pc,dc};net.pending=entry;wirePeer(entry);
+  dc.onopen=()=>{net.peers.set(entry.id,entry);setStatus('#inviteStatus','Connected. Waiting for their name…');};
+  pc.onconnectionstatechange=()=>{if(pc.connectionState==='failed'){setStatus('#inviteStatus',FAIL_MSG,true);if(net.peers.get(entry.id)===entry)peerLost(entry.id);}};
   await pc.setLocalDescription(await pc.createOffer());await waitIce(pc);
   entry.code=await pack('O',pc.localDescription.sdp);
   drawQR($('#qrOffer'),entry.code);setStatus('#inviteStatus','');
@@ -629,20 +687,62 @@ async function acceptAnswer(code){
   catch(err){setStatus('#inviteStatus',err.message,true);}
 }
 
-// ----- guest: join
+// ----- guest: join, and the lines to the host
+const G={live:null,spares:[],heard:0,rescuing:false,ping:0,tryT:0,opens:0};
+function guestPid(){let id=null;try{id=localStorage.getItem('bowling-bear.pid');}catch(e){}
+  if(!id){id='p'+Math.random().toString(36).slice(2,10);try{localStorage.setItem('bowling-bear.pid',id);}catch(e){}}return id;}
+function guestSend(m){const dc=G.live&&G.live.dc;if(dc&&dc.readyState==='open')try{dc.send(JSON.stringify(m));}catch(e){}}
+function wireHost(line){
+  line.pc.ondatachannel=e=>{const dc=line.dc=e.channel;
+    dc.onopen=()=>{
+      if(G.live&&G.live!==line){try{G.live.pc.close();}catch(x){}}
+      for(const s of G.spares)if(s!==line)try{s.pc.close();}catch(x){}
+      G.live=line;G.spares=[];G.opens++;net.hostPc=line.pc;net.hostDc=dc;G.heard=Date.now();
+      clearTimeout(G.tryT);if(G.rescuing){G.rescuing=false;netNote('');}
+      dc.send(JSON.stringify({t:'hello',name:myName(),pid:guestPid()}));
+      if(!G.ping){keepAwake();
+        G.ping=setInterval(()=>{if(!G.live)return;guestSend({t:'ping'});if(Date.now()-G.heard>6000)rescue();},2000);
+        document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible'||!G.live)return;
+          if(G.rescuing){clearTimeout(G.tryT);tryNext(true);return;}
+          const t=Date.now();guestSend({t:'ping'});setTimeout(()=>{if(G.heard<t)rescue();},1500);});}};
+    dc.onmessage=ev=>{if(G.live!==line)return;G.heard=Date.now();let m;try{m=JSON.parse(ev.data);}catch(err){return;}
+      if(m.t==='pong')return;if(m.t==='spare'){prepareSpare(m);return;}
+      try{guestReceive(m);}catch(err){console.warn(err);}};
+    dc.onclose=()=>{if(G.live===line)rescue();};};
+  line.pc.onconnectionstatechange=()=>{const st=line.pc.connectionState;
+    if(G.live===line&&st==='failed')rescue();
+    if(G.live===line&&st==='disconnected')setTimeout(()=>{if(G.live===line&&line.pc.connectionState!=='connected')rescue();},2500);
+    if(line.trying&&st==='failed'&&G.live!==line&&G.rescuing){clearTimeout(G.tryT);tryNext();}
+    if(line.first&&!G.live&&st==='failed')setStatus('#replyStatus',FAIL_MSG,true);};
+}
+async function prepareSpare(m){ // the host's spare offer, minus its addresses until it's needed
+  const line={pc:new RTCPeerConnection({iceServers:[]}),cands:m.sdp.split(/\r?\n/).filter(l=>l.startsWith('a=candidate:')).map(l=>l.slice(2)),mid:(/^a=mid:(\S+)/m.exec(m.sdp)||[])[1]||'0'};
+  G.spares.push(line);wireHost(line);
+  try{await line.pc.setRemoteDescription({type:'offer',sdp:noCands(m.sdp)});await line.pc.setLocalDescription(await line.pc.createAnswer());
+    guestSend({t:'spare',n:m.n,sdp:noCands(line.pc.localDescription.sdp)});}
+  catch(err){G.spares=G.spares.filter(s=>s!==line);}
+}
+function rescue(){
+  if(G.rescuing)return;
+  if(!G.spares.length){G.live=null;hostLost();return;}
+  G.rescuing=true;netNote('Lost the host. Reconnecting…');tryNext();
+}
+function tryNext(again){ // again: the page is back in view, so the line being tried gets a fresh go
+  let line=again&&G.spares.find(s=>s.trying&&s.pc.connectionState!=='failed');
+  if(!line){for(const s of G.spares)if(s.trying)try{s.pc.close();}catch(x){}
+    G.spares=G.spares.filter(s=>!s.trying);line=G.spares[0];}
+  if(!line){G.rescuing=false;netNote('');G.live=null;hostLost();return;}
+  if(!line.trying){line.trying=true;line.cands.forEach(c=>line.pc.addIceCandidate({candidate:c,sdpMid:line.mid}).catch(()=>{}));}
+  G.tryT=setTimeout(()=>{if(G.live!==line)tryNext();},TRY_MS);
+}
 async function joinWith(code){
   try{
     const{kind,sdp}=await unpack(code);if(kind!=='O')throw new Error('That is a reply code. Scan the code on the host\'s screen.');
     setStatus('#joinStatus','Making a reply…');
-    const pc=new RTCPeerConnection({iceServers:[]});net.hostPc=pc;
-    pc.ondatachannel=e=>{const dc=e.channel;net.hostDc=dc;
-      dc.onopen=()=>{dc.send(JSON.stringify({t:'hello',name:myName()}));};
-      dc.onmessage=ev=>{try{guestReceive(JSON.parse(ev.data));}catch(err){console.warn(err);}};
-      dc.onclose=()=>{hostLost();};};
-    pc.onconnectionstatechange=()=>{if(pc.connectionState==='failed'){setStatus('#replyStatus',FAIL_MSG,true);}};
-    await pc.setRemoteDescription({type:'offer',sdp});
-    await pc.setLocalDescription(await pc.createAnswer());await waitIce(pc);
-    const reply=await pack('A',pc.localDescription.sdp);net.replyCode=reply;
+    const line={pc:new RTCPeerConnection({iceServers:[]}),first:true};wireHost(line);
+    await line.pc.setRemoteDescription({type:'offer',sdp});
+    await line.pc.setLocalDescription(await line.pc.createAnswer());await waitIce(line.pc);
+    const reply=await pack('A',line.pc.localDescription.sdp);net.replyCode=reply;
     drawQR($('#qrAnswer'),reply);showScreen('reply');setStatus('#replyStatus','Waiting for the host to scan…');
   }catch(err){setStatus('#joinStatus',err.message,true);}
 }
@@ -652,8 +752,8 @@ function guestReceive(msg){
   else if(msg.t==='f'){if(view&&msg.q===view.seq)remoteSnap=msg.s;}
 }
 function hostLost(){
-  $('#lobby').hidden=false;showScreen('join');
-  setStatus('#joinStatus','Lost the connection to the host. Ask them to invite you again.',true);
+  netNote('');$('#lobby').hidden=false;showScreen('join');
+  setStatus('#joinStatus','Lost the connection to the host. Ask them to invite you again: you’ll get your place back.',true);
   $('#card').hidden=true;$('#hud').hidden=true;view=null;local.sim=null;lastSnap=remoteSnap=hold=null;
 }
 
@@ -2343,7 +2443,7 @@ function closeTable(){
 try{$('#name').value=localStorage.getItem('bowling-bear.name')||'';}catch(e){}
 $('#name').addEventListener('change',()=>{try{localStorage.setItem('bowling-bear.name',myName());}catch(e){}});
 function becomeHost(){
-  net.isHost=true;net.selfId='h';net.myIds=new Set(['h']);
+  keepAwake();net.isHost=true;net.selfId='h';net.myIds=new Set(['h']);
   S={phase:'lobby',players:[],cur:0,pins:rack(),seq:0,last:null};addPlayer('h',myName());
 }
 $('#bHost').onclick=()=>{becomeHost();pushState();showScreen('host');};

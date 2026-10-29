@@ -574,19 +574,40 @@ async function primeCamera(){ // Safari only offers LAN ICE candidates after cam
 }
 const RTC_FAIL='Couldn’t connect. The phone and the iPad must be on the same Wi-Fi, and some guest networks block devices from talking to each other.';
 
+/* ---- spare lines ----
+   A dropped connection can't be revived from storage: every WebRTC link needs both sides to swap fresh keys and addresses.
+   So while a phone is connected, the host sets up a spare link with it over the live one, but keeps its own addresses back,
+   so the spare sits idle. If the live link dies (phone locked, a quick switch to another app), the phone feeds in the host's
+   addresses, the host learns the phone's address from its first check, and the spare opens without anyone scanning anything. */
+const noCands=sdp=>sdp.split(/\r?\n/).filter(l=>l&&!/^a=(candidate|end-of-candidates)/.test(l)).join('\r\n')+'\r\n';
+
 /* ---- host side ---- */
 function makeRtcHost(onHostMsg){
-  const peers=new Map(),last=new Map(),api={pending:null,joinURL:'',status:'',onChange:()=>{}};
+  const peers=new Map(),spares=new Map(),last=new Map(),api={pending:null,joinURL:'',status:'',onChange:()=>{}};
   let n=0,lastCode='';
+  function wire(e){
+    e.dc.onmessage=ev=>{let m;try{m=JSON.parse(ev.data)}catch(err){return}
+      if(!e.pid){if(m.t!=='hello')return;e.pid=String(m.pid||('r'+e.n)).slice(0,24)}
+      if(m.t==='hello'){const old=peers.get(e.pid);if(old&&old!==e){try{old.pc.close()}catch(x){}}peers.set(e.pid,e);if(spares.get(e.pid)===e)spares.delete(e.pid);spare(e)}
+      last.set(e.pid,Date.now());
+      if(m.t==='ping'){try{e.dc.send('{"s":"pong"}')}catch(err){}return}
+      if(m.t==='spare'){const s=spares.get(e.pid);if(s&&s.n===m.n)s.pc.setRemoteDescription({type:'answer',sdp:m.sdp}).catch(()=>{});return}
+      onHostMsg(e.pid,m)};
+    e.dc.onclose=()=>{if(e.pid&&peers.get(e.pid)===e)peers.delete(e.pid)};
+  }
+  async function spare(via){
+    const pid=via.pid,old=spares.get(pid);if(old){try{old.pc.close()}catch(x){}}
+    const pc=new RTCPeerConnection({iceServers:[]}),dc=pc.createDataChannel('buzzers',{ordered:true});
+    const e={pc,dc,pid,n:++n};spares.set(pid,e);wire(e);
+    await pc.setLocalDescription(await pc.createOffer());await waitIce(pc);
+    if(spares.get(pid)!==e||via.dc.readyState!=='open')return;
+    try{via.dc.send(JSON.stringify({s:'spare',n:e.n,sdp:pc.localDescription.sdp}))}catch(err){}
+  }
   async function invite(){
     if(api.pending){try{api.pending.pc.close()}catch(e){}}
     const pc=new RTCPeerConnection({iceServers:[]}),dc=pc.createDataChannel('buzzers',{ordered:true});
-    const e={pc,dc,pid:null,n:++n};api.pending=e;api.joinURL='';api.status='';api.onChange();
-    dc.onopen=()=>{if(api.pending===e){api.pending=null;invite()}};
-    dc.onmessage=ev=>{let m;try{m=JSON.parse(ev.data)}catch(err){return}
-      if(!e.pid){if(m.t!=='hello')return;e.pid=String(m.pid||('r'+e.n)).slice(0,24);const old=peers.get(e.pid);if(old&&old!==e){try{old.pc.close()}catch(x){}}peers.set(e.pid,e)}
-      last.set(e.pid,Date.now());if(m.t!=='ping')onHostMsg(e.pid,m)};
-    dc.onclose=()=>{if(e.pid&&peers.get(e.pid)===e)peers.delete(e.pid)};
+    const e={pc,dc,pid:null,n:++n};api.pending=e;api.joinURL='';api.status='';api.onChange();wire(e);
+    dc.addEventListener('open',()=>{if(api.pending===e){api.pending=null;invite()}});
     pc.onconnectionstatechange=()=>{if(pc.connectionState==='failed'&&api.pending===e){api.status=RTC_FAIL;invite()}};
     await pc.setLocalDescription(await pc.createOffer());await waitIce(pc);
     if(api.pending!==e)return;
@@ -631,26 +652,62 @@ function makeMultiHost(onHostMsg){
 }
 
 /* ---- guest side ---- */
+/* keep the phone's screen on while it's a buzzer, so it doesn't lock mid-question */
+function keepAwake(){
+  if(!('wakeLock' in navigator))return;
+  let lock=null;
+  const ask=()=>{if(lock||document.visibilityState!=='visible')return;navigator.wakeLock.request('screen').then(l=>{lock=l;l.addEventListener('release',()=>{lock=null})}).catch(()=>{})};
+  document.addEventListener('visibilitychange',ask);addEventListener('pointerdown',ask);ask();
+}
 function makeRtcGuest(pid,offerCode,onMsg){
-  let dc=null,pc=null,ping=null;
-  const link={send(m){if(dc&&dc.readyState==='open')try{dc.send(JSON.stringify(m))}catch(e){}}};
+  let live=null,spare=null,ping=null,heard=0,rescuing=null,opens=0;
+  const link={send(m){const dc=live&&live.dc;if(dc&&dc.readyState==='open')try{dc.send(JSON.stringify(m))}catch(e){}}};
+  const lost=()=>{if(!rescuing)onMsg({s:'lost'})};
+  function wire(line){
+    line.pc.ondatachannel=e=>{const dc=line.dc=e.channel;
+      dc.onopen=()=>{
+        if(live&&live!==line){try{live.pc.close()}catch(x){}}
+        live=line;opens++;if(spare===line)spare=null;clearTimeout(rescuing);rescuing=null;heard=Date.now();
+        dc.send(JSON.stringify({t:'hello',pid}));
+        if(!ping){ping=setInterval(()=>{link.send({t:'ping'});if(Date.now()-heard>6000)rescue()},2000);keepAwake();
+          document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')check()})}};
+      dc.onmessage=ev=>{if(live!==line)return;heard=Date.now();let m;try{m=JSON.parse(ev.data)}catch(err){return}
+        if(m.s==='pong')return;if(m.s==='spare'){prepare(m);return}onMsg(m)};
+      dc.onclose=()=>{if(live===line)rescue()}};
+    line.pc.onconnectionstatechange=()=>{const st=line.pc.connectionState;
+      if(live===line&&st==='failed')rescue();
+      if(live===line&&st==='disconnected')setTimeout(()=>{if(live===line&&line.pc.connectionState!=='connected')rescue()},2500);
+      if(!live&&line.first&&st==='failed')onMsg({s:'msg',h:'No luck',p:RTC_FAIL+' Scan the code on the big screen to try again.'})};
+  }
+  /* on coming back to the page: a quick ping, and the spare if nothing answers */
+  function check(){const t=Date.now();link.send({t:'ping'});setTimeout(()=>{if(heard<t)rescue()},1500)}
+  async function prepare(m){ // the host's spare offer, minus its addresses for now
+    if(spare){try{spare.pc.close()}catch(x){}}
+    const line={pc:new RTCPeerConnection({iceServers:[]}),cands:m.sdp.split(/\r?\n/).filter(l=>l.startsWith('a=candidate:')).map(l=>l.slice(2)),mid:(/^a=mid:(\S+)/m.exec(m.sdp)||[])[1]||'0'};
+    spare=line;wire(line);
+    try{await line.pc.setRemoteDescription({type:'offer',sdp:noCands(m.sdp)});await line.pc.setLocalDescription(await line.pc.createAnswer());
+      if(spare===line)link.send({t:'spare',n:m.n,sdp:noCands(line.pc.localDescription.sdp)})}catch(err){if(spare===line)spare=null}
+  }
+  function rescue(){
+    if(rescuing)return;
+    const line=spare;if(!line){lost();return}
+    rescuing=setTimeout(()=>{rescuing=null;if(live!==line){spare=null;try{line.pc.close()}catch(x){}lost()}},12000);
+    onMsg({s:'msg',h:'Back in a moment',p:'Finding the studio again…'});
+    line.cands.forEach(c=>line.pc.addIceCandidate({candidate:c,sdpMid:line.mid}).catch(()=>{}));
+  }
   link.connect=async()=>{
     onMsg({s:'msg',h:'One moment',p:'Making your reply code…'});
     try{
       await primeCamera();
       const {kind,sdp}=await unpackSDP(offerCode);if(kind!=='o')throw new Error('Scan the code on the big screen.');
-      pc=new RTCPeerConnection({iceServers:[]});
-      pc.ondatachannel=e=>{dc=e.channel;
-        dc.onopen=()=>{dc.send(JSON.stringify({t:'hello',pid}));clearInterval(ping);ping=setInterval(()=>link.send({t:'ping'}),2000)};
-        dc.onmessage=ev=>{try{onMsg(JSON.parse(ev.data))}catch(err){}};
-        dc.onclose=()=>{clearInterval(ping);onMsg({s:'lost'})}};
-      pc.onconnectionstatechange=()=>{if(pc.connectionState==='failed')onMsg({s:'msg',h:'No luck',p:RTC_FAIL+' Scan the code on the big screen to try again.'})};
-      await pc.setRemoteDescription({type:'offer',sdp});
-      await pc.setLocalDescription(await pc.createAnswer());await waitIce(pc);
-      const reply=await packSDP('a',pc.localDescription.sdp);link.reply=reply;
+      const line={pc:new RTCPeerConnection({iceServers:[]}),first:true};wire(line);
+      await line.pc.setRemoteDescription({type:'offer',sdp});
+      await line.pc.setLocalDescription(await line.pc.createAnswer());await waitIce(line.pc);
+      const reply=await packSDP('a',line.pc.localDescription.sdp);link.reply=reply;
       onMsg({s:'reply',qr:qrDataURL(reply,520)});
     }catch(err){onMsg({s:'msg',h:'No luck',p:err.message})}
   };
+  link.debug=()=>({opens,live:live&&live.pc.connectionState,spare:!!spare,spareReady:!!(spare&&spare.pc.localDescription),kill(){live.pc.close()},mute(){live.dc.onmessage=null}});
   return link;
 }
 
