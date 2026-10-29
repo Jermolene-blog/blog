@@ -664,7 +664,7 @@ function applyState(s){
     const endSnap=lastSnap||remoteSnap;
     local.sim=null;local.waiting=false;lastSnap=null;remoteSnap=null;showRack(s.pins);hold=null;
     if(s.last&&s.phase!=='lobby'){const t={X:'Strike!','/':'Spare!',G:'Gutter'}[s.last.mark];if(t)toast(t);
-      if(endSnap){hold={until:performance.now()+1800,snap:endSnap};nbReact(s.last.mark);}}
+      if(endSnap){hold={until:performance.now()+1800,snap:endSnap};nbReact(s.last.mark,s.last.down);}}
     if(!hold&&nb&&nb.chasing){nb.chasing=false;nbHome();}}
   const lb=$('#lobby');
   if(s.phase==='lobby'){lb.hidden=false;showScreen(net.isHost?(currentScreen()==='invite'?'invite':'host'):'wait');renderRoster();}
@@ -818,6 +818,215 @@ function ballMat(color){
 const ball=new THREE.Mesh(new THREE.SphereGeometry(BALL_R,40,24),ballMat(COLORS[0]));ball.castShadow=true;scene.add(ball);
 function setBallColor(c){ball.material=ballMat(c);}
 
+// ================= Bear dancing =================
+// The pose overlay from Bear Beat, cut down. After the mixer has posed the skeleton from a base clip, rotations
+// in the bear's own body frame are layered on top. A pose is {R, L (front-leg "arm" directions), head:[pitch,yaw,roll],
+// spine, pelvis, tail:[yaw,pitch], hips:[side,hop] (metres, for a 2.1 m bear), leg:[R,L] (hind-leg kicks), paw, jaw,
+// ears, turn (radians added to the heading)}; angles in degrees. A routine maps beats to poses.
+const BearDance=(()=>{
+  const UP=new THREE.Vector3(0,1,0),D2R=Math.PI/180;
+  const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),smooth=x=>{x=clamp(x,0,1);return x*x*(3-2*x);},bump=x=>Math.sin(Math.PI*clamp(x,0,1)),frac=x=>x-Math.floor(x);
+  const _a=new THREE.Vector3(),_b=new THREE.Vector3(),_c=new THREE.Vector3(),_t=new THREE.Vector3(),_tg=new THREE.Vector3();
+  const _q=new THREE.Quaternion(),_q2=new THREE.Quaternion(),_pq=new THREE.Quaternion(),_pqi=new THREE.Quaternion();
+  const _qa=new THREE.Quaternion(),_qb=new THREE.Quaternion(),_qc=new THREE.Quaternion();
+  const frame={f:new THREE.Vector3(),r:new THREE.Vector3()},dU=new THREE.Vector3(),dL=new THREE.Vector3();
+  function setFrame(h){frame.f.set(Math.sin(h),0,Math.cos(h));frame.r.crossVectors(frame.f,UP).normalize();}
+  function bodyDir(v,out){return out.set(0,0,0).addScaledVector(frame.r,v[0]).addScaledVector(UP,v[1]).addScaledVector(frame.f,v[2]).normalize();}
+  function worldRot(bone,q){bone.parent.getWorldQuaternion(_pq);_pqi.copy(_pq).invert();bone.quaternion.premultiply(_pqi.multiply(q).multiply(_pq));bone.updateMatrixWorld(true);}
+  function rotAxis(bone,axis,ang){if(Math.abs(ang)<1e-4)return;worldRot(bone,_q.setFromAxisAngle(axis,ang));}
+  function aim(bone,child,target,w){
+    if(w<0.002)return;
+    bone.getWorldPosition(_a);child.getWorldPosition(_b);_c.subVectors(_b,_a).normalize();
+    if(_c.dot(target)<-0.95)target=_tg.copy(target).addScaledVector(frame.f,0.3).normalize();
+    _t.copy(_c).lerp(target,w).normalize();worldRot(bone,_q2.setFromUnitVectors(_c,_t));
+  }
+  function pyr(bones,p,y,r){for(const[bone,k]of bones){rotAxis(bone,UP,y*k);rotAxis(bone,frame.r,p*k);rotAxis(bone,frame.f,r*k);}}
+  // The chest skin tears when an upper arm leaves its natural hang, so upper arms stay in a cone pointing down and
+  // the forearm, elbow and paw do the expressive work; a forearm flung far outward drags the armpit, so fold it forward
+  function safeUpper(x,y,z,sgn){const n=Math.hypot(x,y,z)||1;x/=n;z/=n;x=sgn*clamp(sgn*x,-0.3,0.3);z=clamp(z,-0.3,0.7);return[x,-Math.max(0.7,Math.sqrt(Math.max(0,1-x*x-z*z))),z];}
+  function safeLower(x,y,z,sgn){const n=Math.hypot(x,y,z)||1;x/=n;y/=n;z/=n;const o=sgn*x;if(o>0.45){z+=o-0.45;x=sgn*0.45;}return[x,y,z];}
+  const NS=35;
+  function flatten(p,out,cur){
+    for(const[s,o]of[['R',0],['L',8]]){
+      const a=p&&p[s];
+      if(a){out.set(a.u,o);out.set(a.l,o+3);out[o+6]=a.tw||0;out[o+7]=1;}
+      else{for(let i=0;i<7;i++)out[o+i]=cur[o+i];out[o+7]=0;}
+    }
+    const h=p?.head||[0,0,0],sp=p?.spine||[0,0,0],hp=p?.hips||[0,0],lg=p?.leg||[0,0],pv=p?.pelvis||[0,0,0],tl=p?.tail||[0,0],er=p?.ears||[0,0];
+    out[16]=h[0];out[17]=h[1];out[18]=h[2];out[19]=sp[0];out[20]=sp[1];out[21]=sp[2];
+    out[22]=hp[0];out[23]=hp[1];out[24]=lg[0];out[25]=lg[1];out[26]=p?.paw||0;
+    out[27]=pv[0];out[28]=pv[1];out[29]=pv[2];out[30]=tl[0];out[31]=tl[1];out[32]=p?.jaw||0;out[33]=er[0];out[34]=er[1];
+  }
+  const F=(B,s)=>({up:B[`Rig${s}FLeg1_0${s==='L'?15:30}`],lo:B[`Rig${s}FLeg2_0${s==='L'?16:31}`],paw:B[`Rig${s}FLegAnkle_0${s==='L'?17:32}`],tip:B[`Rig${s}FLegDigit11_0${s==='L'?18:33}`]});
+  const H=(B,s)=>({up:B[`Rig${s}BLeg1_0${s==='L'?3:7}`],lo:B[`Rig${s}BLeg2_0${s==='L'?4:8}`],paw:B[`Rig${s}BLegAnkle_0${s==='L'?5:9}`]});
+  // rig(model, mixer, actions): bones, and which of the model's limbs are on the bear's right, found by posing it
+  // up on its hind legs. The bear must face +z at heading 0
+  function rig(model,mixer,actions){
+    const B={};model.traverse(o=>{if(o.isBone)B[o.name]=o;});
+    const a=actions.StandHind_Idle_01;a.reset().play();mixer.update(0);model.updateMatrixWorld(true);setFrame(0);
+    const side=n=>B[n].getWorldPosition(new THREE.Vector3()).sub(B.RigChest_013.getWorldPosition(new THREE.Vector3())).dot(frame.r);
+    const lr=side('RigLFLeg1_015')>0;a.stop();
+    const R={B,arms:lr?{R:F(B,'L'),L:F(B,'R')}:{R:F(B,'R'),L:F(B,'L')},legs:lr?{R:H(B,'L'),L:H(B,'R')}:{R:H(B,'R'),L:H(B,'L')},
+      ears:lr?[B.RigRigLEar1_027,B.RigRigREar1_028]:[B.RigRigREar1_028,B.RigRigLEar1_027],
+      rest:[],S:new Float32Array(NS),T:new Float32Array(NS),w:0};
+    model.traverse(o=>{if(o.isBone)R.rest.push([o,o.quaternion.clone(),o.position.clone()]);});
+    return R;
+  }
+  // The mixer only writes a bone when its sampled value changes, so put back the pose it last produced before it
+  // updates, and take a fresh copy afterwards, before overlaying
+  function restore(R){for(const[b,q,p]of R.rest){b.quaternion.copy(q);b.position.copy(p);}}
+  function capture(R){for(const[b,q,p]of R.rest){q.copy(b.quaternion);p.copy(b.position);}}
+  function ease(R,pose,dt){
+    flatten(pose,R.T,R.S);const k=1-Math.exp(-dt/0.035);
+    for(let i=0;i<NS;i++)R.S[i]+=(R.T[i]-R.S[i])*k;
+    R.w+=((pose?1:0)-R.w)*(1-Math.exp(-dt/0.12));
+  }
+  function apply(R,heading){
+    const w=R.w,S=R.S;if(w<0.002)return;
+    const{B,arms,legs}=R;setFrame(heading);
+    const pp=S[27]*D2R*w,py=S[28]*D2R*w,pr=S[29]*D2R*w;
+    if(Math.abs(pp)+Math.abs(py)+Math.abs(pr)>1e-4){ // pelvis isolation: rotate the pelvis and counter-rotate the spine
+      _qa.setFromAxisAngle(UP,py);_qb.setFromAxisAngle(frame.r,pp);_qc.setFromAxisAngle(frame.f,pr);
+      const q=_qc.clone().multiply(_qb).multiply(_qa);worldRot(B.RigPelvis_02,q);worldRot(B.RigSpine1_011,q.clone().invert());
+    }
+    rotAxis(B.RigTail1_034,UP,S[30]*D2R*w);rotAxis(B.RigTail1_034,frame.r,S[31]*D2R*w);
+    const ks=1.5*D2R*w,kh=1.3*D2R*w;
+    pyr([[B.RigSpine1_011,0.45],[B.RigSpine2_012,0.35],[B.RigChest_013,0.2]],S[19]*ks,S[20]*ks,S[21]*ks);
+    pyr([[B.RigNeck2_020,0.4],[B.RigHead_021,0.6]],S[16]*kh,S[17]*kh,S[18]*kh);
+    rotAxis(B.RigJaw_022,frame.r,S[32]*D2R*w);
+    R.ears.forEach((e,i)=>rotAxis(e,frame.f,(i?-1:1)*S[33+i]*D2R*w));
+    for(const[side,o]of[['R',0],['L',8]]){
+      const A=arms[side],wa=w*S[o+7];if(wa<0.002)continue;const sg=side==='R'?1:-1;
+      bodyDir(safeUpper(S[o],S[o+1],S[o+2],sg),dU);bodyDir(safeLower(S[o+3],S[o+4],S[o+5],sg),dL);
+      aim(A.up,A.lo,dU,wa);aim(A.lo,A.paw,dL,wa);rotAxis(A.paw,dL,S[o+6]*D2R*wa);rotAxis(A.tip,frame.r,-S[26]*D2R*wa);
+    }
+    for(const[side,i]of[['R',24],['L',25]]){
+      const L=legs[side],a=S[i]*D2R*w;if(Math.abs(a)<1e-3)continue;
+      rotAxis(L.up,frame.r,a);rotAxis(L.lo,frame.r,-1.8*a);rotAxis(L.paw,frame.r,0.8*a);
+    }
+  }
+
+  // ---- poses: arm directions in the body frame for the bear's RIGHT arm (x = its right, y = up, z = forward)
+  const ARM={
+    up:{u:[0.15,-0.9,0.4],l:[0.15,1,0.2]},
+    Y:{u:[0.3,-0.85,0.35],l:[0.45,0.85,0.3]}, M:{u:[0.3,-0.85,0.4],l:[-0.45,0.8,-0.2]}, A:{u:[0.25,-0.85,0.45],l:[-0.55,0.8,0.3]},
+    Cr:{u:[0.05,-0.85,0.5],l:[-0.7,0.65,0.3]}, Cl:{u:[-0.45,-0.85,0.3],l:[-0.85,-0.25,0.5]},
+    hip:{u:[0.6,-0.8,-0.05],l:[-0.55,-0.5,0.4]}, ptUp:{u:[0.45,-0.8,0.4],l:[0.55,0.82,0.2]}, ptDown:{u:[-0.1,-0.9,0.4],l:[-0.7,-0.6,0.4]},
+    clapIn:{u:[0.1,-0.8,0.6],l:[-0.75,0.25,0.6]}, clapOut:{u:[0.35,-0.8,0.5],l:[0.6,0.3,0.7]},
+    butt:{u:[0.3,-0.92,-0.25],l:[0.05,-0.5,-0.85]}, reins:{u:[0.05,-0.8,0.6],l:[-0.7,0.1,0.7]}, zombie:{u:[0.1,-0.72,0.7],l:[0.05,-0.25,1]},
+    clawHi:{u:[0.25,-0.8,0.5],l:[0.35,0.85,0.4]}, clawLo:{u:[0.05,-0.8,0.6],l:[0.55,0.75,0.35]},
+    dabOut:{u:[0.45,-0.8,0.35],l:[0.75,0.6,0.25]}, dabIn:{u:[-0.1,-0.8,0.6],l:[0.6,0.75,0.3]},
+    wing:{u:[0.55,-0.83,-0.05],l:[0.85,-0.15,0.2]},
+    strum:{u:[0.1,-0.85,0.5],l:[-0.55,-0.15,0.75]}, neck:{u:[0.35,-0.8,0.45],l:[0.8,0.45,0.4]}, face:{u:[0.1,-0.85,0.55],l:[-0.35,0.8,0.45]},
+  };
+  const mir=a=>a&&{u:[-a.u[0],a.u[1],a.u[2]],l:[-a.l[0],a.l[1],a.l[2]],tw:-(a.tw||0)};
+  const lerpA=(p,q,t)=>p.map((v,i)=>v+(q[i]-v)*t),lerpArm=(a,b,t)=>({u:lerpA(a.u,b.u,t),l:lerpA(a.l,b.l,t)});
+  function lerpPose(a,b,t){
+    const o={};
+    for(const s of['R','L']){
+      if(a[s]&&b[s])o[s]={u:lerpA(a[s].u,b[s].u,t),l:lerpA(a[s].l,b[s].l,t),tw:(a[s].tw||0)+((b[s].tw||0)-(a[s].tw||0))*t};
+      else o[s]=a[s]||b[s]||null;
+    }
+    for(const k of['head','spine','hips','leg','pelvis','tail','ears'])o[k]=lerpA(a[k]||[0,0,0],b[k]||[0,0,0],t);
+    for(const k of['paw','jaw','turn'])o[k]=(a[k]||0)+((b[k]||0)-(a[k]||0))*t;
+    return o;
+  }
+  // keyframes [[beat, pose], …] looping every `len` beats; each move lands at `snap` of the gap, then holds: crisp, on the beat
+  function keys(list,len,snap=0.42){
+    return sb=>{
+      const x=((sb%len)+len)%len;let i=list.length-1;while(i>0&&list[i][0]>x)i--;
+      const[b0,p0]=list[i],[b1raw,p1]=list[(i+1)%list.length],b1=i+1<list.length?b1raw:len+list[0][0];
+      const gap=b1-b0,start=gap*(1-snap),local=x-b0;
+      return local<start?p0:lerpPose(p0,p1,smooth((local-start)/(gap*snap)));
+    };
+  }
+  const add=(p,extra)=>{const o={...p};for(const k in extra)o[k]=Array.isArray(extra[k])?extra[k].map((v,i)=>(p[k]||[0,0,0])[i]+v):(p[k]||0)+extra[k];return o;};
+  const hop=(sb,h=0.04)=>h*Math.pow(bump(frac(sb)),2);
+  const clap=keys([[0,{R:ARM.clapIn,L:mir(ARM.clapIn)}],[0.5,{R:ARM.clapOut,L:mir(ARM.clapOut)}]],1,0.5);
+
+  // ---- routines. hind: up on the hind legs (otherwise on all fours); away: rump to the audience; stiff: no bounce
+  const R={
+    disco:{hind:true,pose:(()=>{
+      const up={R:ARM.ptUp,L:mir(ARM.hip),head:[18,-16,8],spine:[2,-8,-12],hips:[0.07,0],jaw:25},dn={R:ARM.ptDown,L:mir(ARM.hip),head:[-14,10,-4],spine:[-6,10,8],hips:[-0.07,0]};
+      const k=keys([[0,up],[1,dn]],2);return sb=>add(k(sb),{hips:[0,hop(sb,0.03)]});})()},
+    ymca:{hind:true,pose:(()=>{const k=keys([
+        [0,{R:ARM.Y,L:mir(ARM.Y),head:[16,0,0],spine:[6,0,0],jaw:30}],[2,{R:ARM.M,L:mir(ARM.M),head:[-10,0,0],spine:[-4,0,0],jaw:30}],
+        [4,{R:ARM.Cr,L:ARM.Cl,spine:[0,6,-16],head:[0,12,-12],hips:[0.06,0],jaw:30}],[6,{R:ARM.A,L:mir(ARM.A),head:[14,0,0],spine:[4,0,0],jaw:30}]],8,0.35);
+      return sb=>add(k(sb),{hips:[0,hop(sb,0.05)],jaw:-30*smooth(frac(sb/2)*2-1)});})()},
+    floss:{hind:true,pose:sb=>{
+      if(sb%8>=6)return{R:ARM.dabOut,L:ARM.dabIn,head:[-30,26,-12],spine:[-8,12,6]};
+      const e=sb*2,k=Math.floor(e),x=smooth(frac(e)/0.55);
+      const P=k=>{const s=k%2?-1:1,z=(Math.floor(k/2)%2?1:-1)*0.5*s;
+        return{R:{u:[0.45*s+0.15,-0.88,z],l:[0.5*s+0.15,-0.85,z]},L:{u:[0.45*s-0.15,-0.88,-z],l:[0.5*s-0.15,-0.85,-z]},hips:[-0.08*s,0],spine:[0,-4*s,8*s],head:[0,-8*s,-5*s],tail:[30*s,0]};};
+      return lerpPose(P(k),P(k+1),x);}},
+    gangnam:{hind:true,pose:sb=>{
+      const e=sb*2,f=frac(e),lead=Math.floor(e/2)%2,lift=32*bump(f);
+      const arms=sb%8<4?{R:{...ARM.reins,l:[ARM.reins.l[0],ARM.reins.l[1]+0.22*Math.sin(2*Math.PI*e),ARM.reins.l[2]]},L:mir(ARM.reins)}
+        :{R:{u:[0.25,-0.85,0.45],l:[0.55*Math.cos(2*Math.PI*sb),0.8,0.55*Math.sin(2*Math.PI*sb)+0.15]},L:mir(ARM.reins),jaw:30};
+      return{...arms,leg:lead?[0,lift]:[lift,0],hips:[lead?0.045:-0.045,0.06*bump(f)],head:[-10*bump(f),0,lead?-6:6],spine:[-5*bump(f),0,lead?-6:6]};}},
+    robot:{hind:true,stiff:true,pose:(()=>{
+      const opts=[{u:[0.15,-0.85,0.45],l:[0.05,0,1]},{u:[0.15,-0.9,0.4],l:[0.1,1,0.15]},{u:[0.3,-0.85,0.3],l:[0.6,0,0.8]},{u:[0.15,-0.9,0.35],l:[-0.95,0,0.35]},{u:[0.25,-0.95,-0.05],l:[0.1,-1,0.2]},{u:[0.5,-0.85,0.15],l:[0.3,1,0.1]}];
+      const rnd=(n,s)=>{const h=Math.sin(n*91.7+s*17.3)*43758.5453;return h-Math.floor(h);};
+      const P=b=>({R:opts[Math.floor(rnd(b,1)*6)],L:mir(opts[Math.floor(rnd(b,2)*6)]),head:[0,[-35,0,35][Math.floor(rnd(b,3)*3)],0],spine:[0,[-18,0,18][Math.floor(rnd(b,4)*3)],0],jaw:rnd(b,5)>0.6?25:0});
+      return sb=>{const b=Math.floor(sb),f=frac(sb),p=lerpPose(P(b-1),P(b),smooth(f/0.12));if(f>0.5)p.head=lerpA(p.head,[p.head[0],p.head[1]*-0.5,0],smooth((f-0.5)/0.08));return p;};})()},
+    thriller:{hind:true,pose:sb=>{
+      const side=Math.floor(sb/4)%2?-1:1,b=Math.floor(sb),jerk=Math.exp(-frac(sb)*8);
+      const p=side>0?{R:ARM.clawHi,L:ARM.clawLo}:{R:mir(ARM.clawLo),L:mir(ARM.clawHi)};
+      return{...p,paw:50,jaw:35,head:[-6,14*side,(b%2?1:-1)*16*(0.5+0.5*jerk)],spine:[-10*jerk,8*side,-6*side],hips:[0.04*side,0.03*jerk]};}},
+    booty:{hind:true,pose:sb=>{ // paws in the back pockets, hip circles, then a jump
+      const x=sb%4,a=2*Math.PI*x,p={R:ARM.butt,L:mir(ARM.butt),head:[6,0,8*Math.sin(a)],jaw:20};
+      if(x<3)return add(p,{hips:[0.1*Math.sin(a),0],spine:[6*Math.cos(a),0,-12*Math.sin(a)],pelvis:[0,14*Math.sin(a),0],tail:[40*Math.sin(2*a),0]});
+      return add({...p,R:ARM.up,L:mir(ARM.up)},{hips:[0,0.18*bump(x-3)],leg:[30*bump(x-3),30*bump(x-3)],head:[14,0,0],jaw:20});}},
+    airguitar:{hind:true,pose:sb=>{ // strum on the eighths, headbang on the beat, scream between
+      const hb=Math.exp(-frac(sb)*5),s=Math.sin(2*Math.PI*sb);
+      return{R:{...ARM.strum,l:[ARM.strum.l[0],ARM.strum.l[1]+0.4*s,ARM.strum.l[2]]},L:mir(ARM.neck),paw:-20,
+        head:[20-50*hb,0,6*Math.sin(Math.PI*sb)],spine:[-14*hb,0,0],hips:[0,0.03*hb],jaw:40*(1-hb),ears:[-30*hb,-30*hb],leg:Math.floor(sb)%4===3?[30*bump(frac(sb)),0]:[0,0]};}},
+    cancan:{hind:true,pose:sb=>{
+      const right=Math.floor(sb)%2===0,k=bump(Math.min(1,frac(sb)*1.6)),s=right?1:-1;
+      return{R:ARM.hip,L:mir(ARM.hip),leg:right?[42*k,0]:[0,42*k],hips:[-0.05*s,0.04*k],head:[10,20*s,-10*s],spine:[0,0,8*s],tail:[40*Math.sin(2*Math.PI*sb),20],jaw:25*k};}},
+    chicken:{hind:true,pose:sb=>{ // flap, peck, shake the tail feathers, clap
+      const x=sb%8;
+      if(x<4){const out=bump(frac(sb*2)),peck=Math.exp(-frac(sb*2)*6);
+        return{R:lerpArm(ARM.hip,ARM.wing,out),L:mir(lerpArm(ARM.hip,ARM.wing,out)),head:[-30*peck+8,0,0],spine:[-10*peck,0,0],jaw:35*peck,hips:[0,hop(sb*2,0.02)]};}
+      if(x<6){const a=2*Math.PI*sb*2;
+        return{R:ARM.wing,L:mir(ARM.wing),pelvis:[-8,26*Math.sin(a),0],tail:[50*Math.sin(a),20],hips:[0.03*Math.sin(a),-0.03],head:[10,0,0],spine:[-12,0,0],ears:[20,20]};}
+      return add(clap(sb),{hips:[0,hop(sb,0.05)],head:[-8*bump(frac(sb)),0,8*Math.sin(Math.PI*sb)],jaw:30});}},
+    spin:{hind:true,pose:sb=>{ // a pirouette, then ta-da
+      const x=sb%4;
+      if(x<2)return{R:ARM.up,L:mir(ARM.up),turn:2*Math.PI*smooth(x/2),head:[15,0,0],hips:[0,0.08*bump(x/2)],tail:[30,0]};
+      return{R:ARM.Y,L:mir(ARM.Y),head:[22,0,0],jaw:35,spine:[8,0,0],hips:[0,hop(sb,0.05)],ears:[25,25]};}},
+    cheer:{hind:true,pose:sb=>{const f=frac(sb),b=Math.floor(sb);
+      return add(clap(sb),{hips:[0.05*Math.sin(Math.PI*sb),hop(sb,0.06)],head:[-10*bump(f),0,7*Math.sin(Math.PI*sb)],jaw:30*bump(f),leg:b%2?[0,22*bump(f)]:[22*bump(f),0]});}},
+    facepalm:{hind:true,stiff:true,pose:sb=>({R:ARM.face,L:mir(ARM.hip),paw:-40,head:[-28,22*Math.sin(2*Math.PI*sb),0],spine:[-14,0,0],hips:[0,-0.02],ears:[-35,-35]})},
+    twerk:{away:true,pose:sb=>{ // back to the audience, rump popping on the sixteenths, looking back over the shoulder
+      const s16=sb*4,pop=Math.pow(bump(frac(s16)),1.4)*(Math.floor(s16)%4===0?1.4:0.85),side=Math.floor(sb/2)%2?(Math.floor(sb*2)%2?1:-1):0;
+      return{pelvis:[-18*pop,12*side*(0.5+0.5*pop),6*side],spine:[-10,0,3*side],hips:[0.03*side,-0.035*pop+0.02],head:[6,55,-12],tail:[45*Math.sin(Math.PI*s16),25*pop],leg:[6*pop,6*pop],jaw:20};}},
+    bop:{pose:sb=>{const f=frac(sb),hb=Math.exp(-f*5); // on all fours: nod along, wag, waggle
+      return{head:[14-36*hb,0,8*Math.sin(Math.PI*sb)],tail:[40*Math.sin(2*Math.PI*sb),15],pelvis:[0,14*Math.sin(Math.PI*sb),0],hips:[0,0.05*bump(f)],jaw:25*(1-hb),ears:[15*hb,15*hb]};}},
+    nono:{pose:sb=>({head:[-22,32*Math.sin(2*Math.PI*sb),0],spine:[-6,0,0],tail:[0,-20],hips:[0,-0.02],ears:[-35,-35]})},
+    groove:{pose:sb=>({head:[10*bump(frac(sb))-4,0,7*Math.sin(Math.PI*sb)],tail:[35*Math.sin(2*Math.PI*sb),0],ears:[10*bump(frac(sb)),10*bump(frac(sb))]})},
+  };
+  // every routine on its hind legs gets a bounce and a sway, and the last beat of a dance is a big tucked jump
+  function poseAt(name,sb,beats){
+    const r=R[name];let p=r.pose(sb);
+    if(r.hind&&!r.stiff)p=add(p,{spine:[5*bump(frac(sb)),0,6*Math.sin(Math.PI*sb/2)],head:[0,0,5*Math.sin(Math.PI*sb/2)]});
+    if(r.hind&&beats>=4&&sb>=beats-1){const j=bump(sb-beats+1);p=add(p,{hips:[0,0.2*j],leg:[34*j,34*j],head:[14*j,0,0],spine:[8*j,0,0],jaw:20*j});}
+    return p;
+  }
+  const BIG=['disco','ymca','floss','gangnam','robot','thriller','booty','airguitar','cancan','chicken','spin'];
+  const pick=a=>a[Math.floor(Math.random()*a.length)];
+  // a dance for a bowling result: a list of [routine, beats]
+  function forResult(res,knocked){
+    if(res==='strike'){const a=pick(BIG),b=pick(BIG.filter(x=>x!==a));return[[a,8],[b,4]];}
+    if(res==='spare')return[[pick(['disco','ymca','airguitar','spin','cheer','cancan','chicken','booty']),6]];
+    if(res==='gutter')return Math.random()<0.5?[['twerk',6]]:[['facepalm',4]];
+    if(res==='miss')return[['nono',3]];
+    if(res==='end')return[[pick(BIG),8],[pick(BIG),8],['spin',4]];
+    return knocked>=7?[['cheer',4]]:knocked>=4?[['bop',3]]:[['nono',2]];
+  }
+  return{rig,restore,capture,ease,apply,poseAt,forResult,R,K_HIPS:[1.4,1.8]};
+})();
+
 // ================= The bear =================
 // "Realistic Animated Bear 3D Model" by WildMesh 3D (CC BY 4.0), slimmed to 12 clips, from bear-model.js.
 // makeBear() parses a fresh copy, scales it to `length` metres nose to tail and returns a steerable mascot
@@ -847,26 +1056,46 @@ async function makeBear(length,groundY){
     bear.actions[clip.name]=bear.mixer.clipAction(clip);
   }
   bear.mixer.addEventListener('finished',e=>{if(e.action._onDone){const f=e.action._onDone;e.action._onDone=null;f();}});
-  bear.play=(name,{loop=true,fade=0.3,ts=1}={})=>{
+  bear.play=(name,{loop=true,fade=0.3,ts=1,rev=false}={})=>{
     const a=bear.actions[name];if(!a)return null;
     if(bear.cur===a&&loop){a.timeScale=ts;return a;}
-    a.reset();a.setLoop(loop?THREE.LoopRepeat:THREE.LoopOnce,Infinity);a.clampWhenFinished=!loop;a.timeScale=ts;
+    a.reset();a.setLoop(loop?THREE.LoopRepeat:THREE.LoopOnce,Infinity);a.clampWhenFinished=!loop;a.timeScale=rev?-ts:ts;if(rev)a.time=a.getClip().duration;
     a.enabled=true;a.setEffectiveWeight(1);a.fadeIn(fade).play();
     if(bear.cur&&bear.cur!==a)bear.cur.fadeOut(fade);
     bear.cur=a;return a;
   };
-  // play a one-shot clip, resolving when it finishes; `hop` adds a jump of that many metres
-  bear.react=(name,{ts=1,hop=0,then=null}={})=>new Promise(res=>{
+  // play a one-shot clip, resolving when it finishes; `hop` adds a jump of that many metres; `rev` plays it backwards
+  bear.react=(name,{ts=1,hop=0,then=null,rev=false}={})=>new Promise(res=>{
     bear.busy=true;
-    const a=bear.play(name,{loop:false,fade:0.2,ts}),dur=a.getClip().duration/ts;
+    const a=bear.play(name,{loop:false,fade:0.2,ts,rev}),dur=a.getClip().duration/ts;
     if(hop)bear.hop={t:0,dur:Math.min(dur,0.9),h:hop};
     a._onDone=()=>{bear.busy=false;bear.arrived=false;res();if(then)bear.play(then,{fade:0.4});};
   });
   // steer towards targetFn(), a point that may move, then settle into `idle` facing face()
   bear.go=(targetFn,{speed=3.2,idle='Sitting_Idle_02',face=null}={})=>{bear.target=targetFn;bear.maxSpeed=speed;bear.idle=idle;bear.face=face;bear.arrived=false;};
+  // dance a list of [routine, beats] at `bpm` where it stands, turning to face(away) first; resolves when done.
+  // cancel() stops a dance or reaction at once, leaving its promise unresolved
+  const rig=BearDance.rig(model,bear.mixer,bear.actions),hipK=length/2.1;
+  Object.assign(bear,{dancing:null,hind:false,epoch:0,groove:true,idleT:0,fit:null});
+  bear.dance=async(list,{bpm=128,face=null,music=null}={})=>{
+    const ep=bear.epoch,live=()=>ep===bear.epoch;
+    for(const[name,beats]of list){
+      const r=BearDance.R[name];
+      if(r.hind&&!bear.hind){await bear.react('Trans_Stand_to_StandHind',{ts:1.7});if(!live())return;bear.hind=true;}
+      else if(!r.hind&&bear.hind){await bear.react('Trans_Stand_to_StandHind',{ts:1.7,rev:true});if(!live())return;bear.hind=false;}
+      bear.busy=true;bear.play(r.hind?'StandHind_Idle_01':'Stand_Idle_01',{fade:0.25});
+      if(music)music(beats,bpm);
+      await new Promise(res=>{bear.dancing={name,t:0,bpm,beats,res,h0:face?face(!!r.away):bear.heading,h:bear.heading};});
+      if(!live())return;
+    }
+    if(bear.hind){await bear.react('Trans_Stand_to_StandHind',{ts:1.7,rev:true});if(!live())return;bear.hind=false;}
+    bear.busy=false;bear.arrived=false;
+  };
+  bear.arrival=()=>new Promise(res=>{bear.arrived=false;bear.onArrive=res;});
+  bear.cancel=()=>{bear.epoch++;bear.onArrive=null;bear.dancing=null;bear.busy=false;bear.arrived=false;bear.hind=false;for(const a of Object.values(bear.actions))a._onDone=null;};
   bear.update=dt=>{
     if(bear.target&&!bear.busy){
-      const T=bear.target(),d=new THREE.Vector3(T.x-bear.pos.x,0,T.z-bear.pos.z),dist=d.length();
+      const T=bear.fit?bear.fit(bear.target().clone()):bear.target(),d=new THREE.Vector3(T.x-bear.pos.x,0,T.z-bear.pos.z),dist=d.length();
       const want=dist>0.04?d.normalize().multiplyScalar(Math.min(bear.maxSpeed,dist*3+0.2)):new THREE.Vector3();
       bear.vel.lerp(want,1-Math.exp(-7*dt));bear.pos.addScaledVector(bear.vel,dt);
       const sp=bear.vel.length();
@@ -877,37 +1106,57 @@ async function makeBear(length,groundY){
         bear.play(best,{fade:0.25,ts:THREE.MathUtils.clamp(sp/(bear.natural[best]||1),0.5,1.8)});
         bear.arrived=false;
       }else if(dist<0.08){
-        if(!bear.arrived){bear.arrived=true;bear.play(bear.idle,{fade:0.45});}
+        if(!bear.arrived){bear.arrived=true;bear.play(bear.idle,{fade:0.45});if(bear.onArrive){const f=bear.onArrive;bear.onArrive=null;f();}}
         if(bear.face!=null)bear.heading=turnTo(bear.heading,bear.face(),4*dt);
       }
     }
+    // never leave the screen: the owner's fit() moves a point to the nearest place the camera can see
+    if(bear.fit){const F=bear.fit(bear.pos.clone());bear.pos.x=F.x;bear.pos.z=F.z;}
+    let pose=null;
+    if(bear.dancing){
+      const D=bear.dancing;D.t+=dt;const sb=D.t*D.bpm/60;
+      pose=BearDance.poseAt(D.name,Math.min(sb,D.beats-1e-3),D.beats);
+      D.h=turnTo(D.h,D.h0,10*dt);bear.heading=D.h+(pose.turn||0);
+      if(sb>=D.beats){bear.dancing=null;D.res();}
+    }else if(bear.groove&&!bear.busy&&bear.arrived&&bear.cur===bear.actions.Sitting_Idle_02){bear.idleT+=dt;pose=BearDance.R.groove.pose(bear.idleT*1.8);}
     bear.baseY+=(groundY(bear.pos)-bear.baseY)*(1-Math.exp(-14*dt));
     let y=bear.baseY;
     if(bear.hop){bear.hop.t+=dt;const k=bear.hop.t/bear.hop.dur;if(k>=1)bear.hop=null;else y+=Math.sin(Math.PI*k)*bear.hop.h;}
-    bear.root.position.set(bear.pos.x,y,bear.pos.z);bear.root.rotation.y=bear.heading;
-    bear.mixer.update(dt);
+    BearDance.restore(rig);bear.mixer.update(dt);BearDance.capture(rig);BearDance.ease(rig,pose,dt);
+    const S=rig.S,side=S[22]*BearDance.K_HIPS[0]*hipK*rig.w,up=Math.max(-0.03,S[23]*BearDance.K_HIPS[1])*hipK*rig.w;
+    bear.root.position.set(bear.pos.x-Math.cos(bear.heading)*side,y+up,bear.pos.z+Math.sin(bear.heading)*side);bear.root.rotation.y=bear.heading;
+    bear.root.updateMatrixWorld(true);BearDance.apply(rig,bear.heading);
   };
   bear.play('Sitting_Idle_02');
   return bear;
 }
 
 // In the alley the bear waits beside the approach, on the right of the lane, runs along beside the ball and
-// reacts to the result at the pin end. Every device runs its own bear from the snapshots it sees
+// dances to the result at the pin end. Every device runs its own bear from the snapshots it sees
 const NB_X=-1.0,NB_HOME=3.4,NB_END=DECK_Z-1.1,NB_FACE_HOME=Math.PI-0.55,NB_FACE_END=Math.PI-0.9;
 let nb=null;
 const nbAt=z=>new THREE.Vector3(NB_X,0,z);
-function nbHome(){if(nb)nb.go(()=>nbAt(NB_HOME),{speed:4,idle:'Sitting_Idle_02',face:()=>NB_FACE_HOME});}
-function nbChase(){if(nb&&!nb.busy&&nb.chasing!==true){nb.chasing=true;nb.go(()=>nbAt(Math.max(NB_HOME,Math.min(NB_END,nbBallZ-0.5))),{speed:9,idle:'Stand_Idle_01',face:()=>NB_FACE_END});}}
+function nbHome(speed=4){if(nb)nb.go(()=>nbAt(NB_HOME),{speed,idle:'Sitting_Idle_02',face:()=>NB_FACE_HOME});}
+function nbChase(){if(nb&&nb.chasing!==true){if(nb.busy)nb.cancel();nb.chasing=true;nb.go(()=>nbAt(Math.max(NB_HOME,Math.min(NB_END,nbBallZ-0.5))),{speed:9,idle:'Stand_Idle_01',face:()=>NB_FACE_END});}}
 let nbBallZ=0;
-function nbReact(mark){
+function nbReact(mark,down){
   if(!nb)return;nb.chasing=false;
-  const done=()=>{nb.chasing=false;nbHome();};
-  if(mark==='X')nb.react('CanonBall',{ts:0.85,hop:0.45}).then(()=>nb.react('Attack_StandAngry_01_High',{ts:1.2})).then(done);
-  else if(mark==='/')nb.react('Trans_Stand_to_StandHind',{ts:1.6,then:'StandHind_Idle_01'}).then(()=>new Promise(r=>setTimeout(r,500))).then(done);
-  else if(mark==='G')nb.react('Hit_Sitting_F01',{ts:1.1}).then(done);
-  else setTimeout(done,700);
+  const ep=nb.epoch,res=mark==='X'?'strike':mark==='/'?'spare':mark==='G'?'gutter':down?'open':'miss';
+  const first=res==='strike'?nb.react('CanonBall',{ts:0.85,hop:0.45}):res==='gutter'?nb.react('Hit_Sitting_F01',{ts:1.1}):Promise.resolve();
+  // the jump or the pratfall happens at the pins while the camera lingers there; the dance, back home in front of the bowler
+  // (home only counts once the camera is back too, since until then keeping in view holds the bear near the pins)
+  const back=()=>new Promise(r=>{const f=()=>!hold&&camZ<0?r():requestAnimationFrame(f);f();});
+  first.then(()=>{if(ep!==nb.epoch)return false;nbHome(9);return back().then(()=>ep===nb.epoch&&nb.arrival());})
+    .then(ok=>ok!==false&&ep===nb.epoch&&nb.dance(BearDance.forResult(res,down),{bpm:res==='strike'||res==='spare'?136:150,face:away=>away?0:Math.PI}));
 }
-makeBear(1.0,()=>-0.02).then(b=>{nb=b;nb.pos.copy(nbAt(NB_HOME));nb.heading=NB_FACE_HOME;scene.add(nb.root);nbHome();}).catch(e=>console.error('bear load failed',e));
+// Keep the alley bear where the camera can see it: far enough ahead of the camera for its distance from the lane
+// centre, coming in to the capping beside the gutter when the screen is narrow
+function nbFit(P){
+  const k=Math.tan(camera.fov*Math.PI/360)*camera.aspect*0.85,cz=camera.position.z;
+  let d=Math.max(P.z-cz,3.0);const ax=Math.min(-NB_X,Math.max(0.85,k*d-0.3));
+  d=Math.max(d,(ax+0.3)/k);P.x=-ax;P.z=Math.min(cz+d,PIT_Z-0.3);return P;
+}
+makeBear(1.0,P=>Math.abs(P.x)<0.95?0.075:-0.02).then(b=>{nb=b;nb.fit=nbFit;nb.pos.copy(nbAt(NB_HOME));nb.heading=NB_FACE_HOME;scene.add(nb.root);nbHome();}).catch(e=>console.error('bear load failed',e));
 
 // snapshot → meshes (sim x is mirrored so screen-right is +x)
 const qTmp=new THREE.Quaternion(),axTmp=new THREE.Vector3();
@@ -1435,6 +1684,13 @@ async function initTable(renderer, onLeave) {
       cheer() { if (!ctx) return; const t = ctx.currentTime; for (let i = 0; i < 4; i++) tone(t + i*0.09, 520 * Math.pow(1.26, i), 560 * Math.pow(1.26, i), 0.22, 0.18, 'square'); },
       womp() { if (!ctx) return; const t = ctx.currentTime; tone(t, 330, 160, 0.35, 0.25, 'triangle'); tone(t + 0.32, 250, 110, 0.6, 0.25, 'triangle'); },
       tick() { if (!ctx) return; tone(ctx.currentTime, 900, 900, 0.05, 0.12, 'square'); },
+      groove(beats, bpm) { // kick, off-beat hat and a walking bass under the bear's dancing
+        if (!ctx) return; const t = ctx.currentTime + 0.03, b = 60 / bpm, bass = [110, 110, 131, 147, 165, 147, 131, 98];
+        for (let i = 0; i < beats; i++) {
+          tone(t + i*b, 140, 45, 0.2, 0.55); noiseBurst(t + (i + 0.5)*b, 0.05, 8000, 1.2, 0.18);
+          tone(t + i*b, bass[i % 8], bass[i % 8], b*0.42, 0.09, 'square'); tone(t + (i + 0.5)*b, bass[i % 8]*2, bass[i % 8]*2, b*0.3, 0.05, 'square');
+        }
+      },
     };
   })();
 
@@ -1840,6 +2096,20 @@ async function initTable(renderer, onLeave) {
     }
     pivot.rotation.y = saved; return best;
   }
+  // a dance for a result, facing the bowler (or mooning them), with a beat under it when it's a big one
+  function bearDance(res, knocked = 0) {
+    const big = res === 'strike' || res === 'spare' || res === 'end';
+    return bear.dance(BearDance.forResult(res, knocked), { bpm: big ? 136 : 150, face: away => laneForwardHeading() + (away ? 0 : Math.PI), music: big ? (n, bpm) => sfx.groove(n, bpm) : null });
+  }
+  // keep a point on the ground where the overhead camera can see it, clear of the screen edges
+  const _fitV = new THREE.Vector3(), _fitRay = new THREE.Raycaster(), _fitPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+  function tableFit(P) {
+    const q = _fitV.copy(P).project(camera), m = 0.8;
+    if (Math.abs(q.x) <= m && Math.abs(q.y) <= m) return P;
+    _fitRay.setFromCamera({ x: THREE.MathUtils.clamp(q.x, -m, m), y: THREE.MathUtils.clamp(q.y, -m, m) }, camera);
+    _fitPlane.constant = -P.y; const y = P.y; if (_fitRay.ray.intersectPlane(_fitPlane, P)) P.y = y;
+    return P;
+  }
   function bearHome(seat) {
     const side = bearSide(seat);
     bear.go(() => laneToWorld(side * 1.25, -0.25, 0), { speed: 3.6, idle: 'Sitting_Idle_02', face: () => laneForwardHeading() + side * 0.5 });
@@ -1881,8 +2151,7 @@ async function initTable(renderer, onLeave) {
     const tie = ranked.length > 1 && finalTotal(ranked[0]) === finalTotal(ranked[1]);
     toast(ranked.length === 1 ? `${finalTotal(w)} points` : tie ? 'Tie game!' : `${w.name} wins!`, { seat: w.seat, dur: 2.2 });
     sfx.roar();
-    await bear.react('Trans_Stand_to_StandHind', { then: 'StandHind_Idle_01' }); guard(id);
-    await wait(0.8); guard(id);
+    await bearDance('end'); guard(id);
     showResults();
   }
   async function turnTo_(p, id, quiet = false) {
@@ -1962,20 +2231,17 @@ async function initTable(renderer, onLeave) {
     if (res === 'strike') {
       toast('STRIKE!', { seat: p.seat, dur: 1.6 }); sfx.cheer(); sfx.roar();
       await bear.react('CanonBall', { ts: 0.85, hop: 0.45 }); guard(id);
-      await bear.react('Attack_StandAngry_01_High', { ts: 1.2 }); guard(id);
     } else if (res === 'spare') {
       toast('SPARE!', { seat: p.seat, dur: 1.5 }); sfx.cheer();
-      await bear.react('Trans_Stand_to_StandHind', { ts: 1.6 }); guard(id);
-      await wait(0.2);
     } else if (res === 'gutter') {
       toast('Gutter ball', { small: true, seat: p.seat, dur: 1.4 }); sfx.womp();
       await bear.react('Hit_Sitting_F01', { ts: 1.1 }); guard(id);
     } else if (res === 'miss') {
-      toast('Missed!', { small: true, seat: p.seat, dur: 1.2 }); sfx.womp(); await wait(0.9);
+      toast('Missed!', { small: true, seat: p.seat, dur: 1.2 }); sfx.womp();
     } else {
-      toast(`${knocked} pin${knocked === 1 ? '' : 's'}`, { small: true, seat: p.seat, dur: 1.1 }); await wait(0.9);
+      toast(`${knocked} pin${knocked === 1 ? '' : 's'}`, { small: true, seat: p.seat, dur: 1.1 });
     }
-    guard(id);
+    await bearDance(res, knocked); guard(id);
     bearHome(p.seat);
   }
   async function sweep(id, all = false) {
@@ -2047,9 +2313,9 @@ async function initTable(renderer, onLeave) {
   lane.add(ring);
   try { bear = await makeBear(0.95, bearGround); } catch (e) {
     console.error('bear load failed', e);
-    bear = { root: new THREE.Group(), pos: new THREE.Vector3(), go() {}, react: () => Promise.resolve(), update() {}, play() {} };
+    bear = { root: new THREE.Group(), pos: new THREE.Vector3(), go() {}, react: () => Promise.resolve(), dance: () => Promise.resolve(), update() {}, play() {} };
   }
-  scene.add(bear.root);
+  scene.add(bear.root); bear.fit = tableFit;
   bear.pos.copy(laneToWorld(-1.25, -2.0, 0));
   window.__bbTable = { get game() { return game; }, pins, ball, bear, standingPins, scoreFrames, launchBall, get aim() { return aim; }, prefs, startGame, toSetup, layout, seatGeom, L, pivot, laneToWorld, camera, lane, screenToLane };
   return { enter, frame };
