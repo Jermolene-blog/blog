@@ -509,9 +509,9 @@ setInterval(()=>{const n=performance.now(),dt=Math.min(n-Clock.last,250);Clock.l
    toddler : the toddler's phone
    Messages up:   {t:'hello'|'join'|'ans'|'bet'|'choose'|'ready'|'chaos'|'ping', ...}
    Messages down: a complete view of that player's screen (see padView), so a rejoin just resends it. */
-const HASH=location.hash.slice(1),JOIN_CODE=HASH.startsWith('j=')?HASH.slice(2):null;
+const HASH=location.hash.slice(1),JOIN_CODE=/^(j=)?QB\d/i.test(HASH)?HASH:null;
 const MODE=JOIN_CODE?'pad':['host','pad','toddler'].includes(HASH)?HASH:'studio';
-addEventListener('hashchange',()=>{if(location.hash.startsWith('#j='))location.reload()}); // a fresh scan in the same tab
+addEventListener('hashchange',()=>{if(/^#(j=)?QB\d/i.test(location.hash))location.reload()}); // a fresh scan in the same tab
 function makeLoopback(onHostMsg){
   const guests=new Map(),LAT=()=>rnd(5,25);
   return {
@@ -536,34 +536,79 @@ function makeChannelGuest(pid,onMsg){
 }
 
 /* ============ LAN transport: WebRTC with QR signalling (adapted from Bowling Bear) ============
-   One invite at a time. The projector shows a QR of the game URL with the host's offer in the fragment (#j=QB1o…).
+   One invite at a time. The projector shows a QR of the game URL with the host's offer in the fragment (#QB2O…*, see packSDP).
    A phone opens it, makes an answer and shows it as a QR; the iPad's front camera reads it; the data channel opens.
    As soon as one phone connects, a fresh invite replaces the code on screen.
    The phone then says hello with its persistent id, so a reconnecting phone gets its own podium back. */
 const RTC_OK=typeof RTCPeerConnection!=='undefined'&&window.isSecureContext;
-const b64u=bytes=>{let s='';for(let i=0;i<bytes.length;i++)s+=String.fromCharCode(bytes[i]);return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')};
-const unb64u=str=>{str=str.replace(/-/g,'+').replace(/_/g,'/');while(str.length%4)str+='=';const s=atob(str),o=new Uint8Array(s.length);for(let i=0;i<s.length;i++)o[i]=s.charCodeAt(i);return o};
-async function streamBytes(bytes,ts){return new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(ts)).arrayBuffer())}
-async function packSDP(kind,sdp){
-  const text=sdp.split(/\r?\n/).filter(l=>l&&!/^a=(extmap-allow-mixed|msid-semantic)/.test(l)).join('\n');
-  const raw=new TextEncoder().encode(text);
-  if(typeof CompressionStream!=='undefined')return 'QB1'+kind+'z'+b64u(await streamBytes(raw,new CompressionStream('deflate-raw')));
-  return 'QB1'+kind+'r'+b64u(raw);
+const B41='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ+-./:',SETUPS=['actpass','active','passive'];
+const ICE64='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+const b41=bytes=>{let s='';for(let i=0;i<bytes.length;i+=2){
+  if(i+1<bytes.length){const n=bytes[i]*256+bytes[i+1];s+=B41[n%41]+B41[(n/41|0)%41]+B41[n/1681|0];}
+  else s+=B41[bytes[i]%41]+B41[bytes[i]/41|0];}return s;};
+const unb41=s=>{const o=[],v=[...s].map(c=>{const k=B41.indexOf(c);if(k<0)throw 0;return k;});
+  for(let i=0;i<v.length;i+=3){
+    if(i+2<v.length){const n=v[i]+v[i+1]*41+v[i+2]*1681;if(n>65535)throw 0;o.push(n>>8,n&255);}
+    else if(i+1<v.length){const n=v[i]+v[i+1]*41;if(n>255)throw 0;o.push(n);}else throw 0;}
+  return new Uint8Array(o);};
+const ice6=s=>{const o=[s.length];let acc=0,bits=0;for(const ch of s){const k=ICE64.indexOf(ch);if(k<0)throw new Error('Unexpected connection details (ice).');
+  acc=acc<<6|k;bits+=6;if(bits>=8){bits-=8;o.push(acc>>bits&255);}}if(bits)o.push(acc<<(8-bits)&255);return o;};
+function ip6Bytes(a){const[h,t]=a.split('::'),w=s=>s?s.split(':'):[],hw=w(h),tw=t===undefined?[]:w(t);
+  const all=[...hw,...Array(8-hw.length-tw.length).fill('0'),...tw],o=[];for(const x of all){const n=parseInt(x,16);o.push(n>>8,n&255);}return o;}
+const ip6Text=b=>Array.from({length:8},(_,i)=>(b[2*i]*256+b[2*i+1]).toString(16)).join(':');
+const UUID_LOCAL=/^([0-9a-f]{8})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{12})\.local$/i;
+async function packSDP(kind,sdp){ // kind 'O' offer, 'A' answer
+  const get=k=>{const m=new RegExp('^a='+k+':(.*)$','m').exec(sdp);if(!m)throw new Error('Unexpected connection details ('+k+').');return m[1].trim();};
+  const fp=get('fingerprint').split(' ');if(fp[0].toLowerCase()!=='sha-256')throw new Error('Unexpected connection details (fingerprint).');
+  const cands=[];
+  for(const m of sdp.matchAll(/^a=candidate:\S+ 1 udp \d+ (\S+) (\d+) typ host/gim)){
+    const[,addr,port]=m;let c;
+    if(/^\d+\.\d+\.\d+\.\d+$/.test(addr))c=[4,...addr.split('.').map(Number)];
+    else if(UUID_LOCAL.test(addr))c=[16,...addr.slice(0,36).replace(/-/g,'').match(/../g).map(h=>parseInt(h,16))];
+    else if(addr.includes(':'))c=[6,...ip6Bytes(addr)];
+    else continue;
+    c.push(+port>>8,+port&255);if(!cands.some(x=>x.join()===c.join()))cands.push(c);
+  }
+  // plain addresses first, then mDNS names; IPv6 only when there is nothing else (it makes the code bigger and rarely helps on home Wi-Fi)
+  let use=[...cands.filter(c=>c[0]===4),...cands.filter(c=>c[0]===16)];if(!use.length)use=cands;use=use.slice(0,3);
+  const mid=get('mid'),str=s=>[s.length,...[...s].map(ch=>ch.charCodeAt(0))];
+  const bytes=[SETUPS.indexOf(get('setup'))|(mid==='0'?0:4),...(mid==='0'?[]:str(mid)),...ice6(get('ice-ufrag')),...ice6(get('ice-pwd')),
+    ...fp[1].split(':').map(h=>parseInt(h,16)),use.length,...use.flat()];
+  return 'QB2'+kind+b41(new Uint8Array(bytes))+'*';
 }
+const codeOf=text=>(text||'').trim().replace(/^.*#/,'').toUpperCase();
 async function unpackSDP(code){
-  const m=/^QB1([oa])([zr])([A-Za-z0-9_-]+)$/.exec((code||'').trim());
-  if(!m)throw new Error('That isn’t a Quizbuzz code.');
-  let bytes=unb64u(m[3]);
-  if(m[2]==='z')bytes=await streamBytes(bytes,new DecompressionStream('deflate-raw'));
-  return {kind:m[1],sdp:new TextDecoder().decode(bytes).split('\n').join('\r\n')+'\r\n'};
+  code=codeOf(code);
+  if(/^(J=)?QB1/.test(code))throw new Error('That code is from an older Quizbuzz. Reload the page on the big screen.');
+  const m=/^QB2([OA])(.*)\*$/.exec(code),bad=()=>new Error('That isn’t a Quizbuzz code.');
+  if(!m)throw bad();
+  let b;try{b=unb41(m[2]);}catch(e){throw bad();}
+  let i=0;const str=()=>{const n=b[i++];return String.fromCharCode(...b.slice(i,i+=n));};
+  const ice=()=>{const n=b[i++];let s='',acc=0,bits=0;while(s.length<n){if(bits<6){acc=(acc<<8|b[i++])&0xffff;bits+=8;}bits-=6;s+=ICE64[acc>>bits&63];}return s;};
+  const f=b[i++],setup=SETUPS[f&3],mid=f&4?str():'0',ufrag=ice(),pwd=ice();
+  const hex=Array.from(b.slice(i,i+=32),x=>x.toString(16).padStart(2,'0').toUpperCase()).join(':');
+  const L=['v=0','o=- '+Math.floor(Math.random()*1e15)+' 2 IN IP4 127.0.0.1','s=-','t=0 0','a=group:BUNDLE '+mid,'a=msid-semantic: WMS',
+    'm=application 9 UDP/DTLS/SCTP webrtc-datachannel','c=IN IP4 0.0.0.0'];
+  for(let n=b[i++],k=0;k<n;k++){
+    const t=b[i++],a=b.slice(i,i+=t===4?4:16);let addr;
+    if(t===4)addr=a.join('.');
+    else if(t===6)addr=ip6Text(a);
+    else{const h=Array.from(a,x=>x.toString(16).padStart(2,'0')).join('');addr=[h.slice(0,8),h.slice(8,12),h.slice(12,16),h.slice(16,20),h.slice(20)].join('-')+'.local';}
+    const port=b[i]*256+b[i+1];i+=2;
+    L.push('a=candidate:'+(k+1)+' 1 udp '+(2122260223-k)+' '+addr+' '+port+' typ host generation 0');
+  }
+  if(!setup||i!==b.length||hex.length!==95)throw bad();
+  L.push('a=end-of-candidates','a=ice-ufrag:'+ufrag,'a=ice-pwd:'+pwd,'a=fingerprint:sha-256 '+hex,'a=setup:'+setup,'a=mid:'+mid,'a=sctp-port:5000','a=max-message-size:262144');
+  return{kind:m[1],sdp:L.join('\r\n')+'\r\n'};
 }
 function waitIce(pc){return new Promise(res=>{
   if(pc.iceGatheringState==='complete')return res();
   const t=setTimeout(res,3000);
   pc.addEventListener('icegatheringstatechange',()=>{if(pc.iceGatheringState==='complete'){clearTimeout(t);res()}});
 })}
-function qrDataURL(text,px=560){
-  const q=qrcode(0,'L');q.addData(text,'Byte');q.make();
+function qrDataURL(text,px=560){ // a link: its address as bytes, the code after # in alphanumeric mode
+  const q=qrcode(0,'L'),k=text.lastIndexOf('#');
+  if(k>=0)q.addData(text.slice(0,k+1),'Byte');q.addData(text.slice(k+1),'Alphanumeric');q.make();
   const n=q.getModuleCount(),quiet=3,s=Math.max(2,Math.floor(px/(n+quiet*2))),c=document.createElement('canvas');
   c.width=c.height=(n+quiet*2)*s;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.fillStyle='#000';
   for(let r=0;r<n;r++)for(let k=0;k<n;k++)if(q.isDark(r,k))g.fillRect((k+quiet)*s,(r+quiet)*s,s,s);
@@ -611,14 +656,14 @@ function makeRtcHost(onHostMsg){
     pc.onconnectionstatechange=()=>{if(pc.connectionState==='failed'&&api.pending===e){api.status=RTC_FAIL;invite()}};
     await pc.setLocalDescription(await pc.createOffer());await waitIce(pc);
     if(api.pending!==e)return;
-    const code=await packSDP('o',pc.localDescription.sdp);
-    api.joinURL=location.origin+location.pathname+'#j='+code;api.onChange();
+    const code=await packSDP('O',pc.localDescription.sdp);
+    api.joinURL=location.origin+location.pathname+'#'+code;api.onChange();
   }
   api.start=async()=>{await primeCamera();invite()};
   api.acceptReply=async code=>{
     if(code===lastCode)return;lastCode=code;
     const e=api.pending;if(!e)return;
-    try{const {kind,sdp}=await unpackSDP(code);if(kind!=='a')return;await e.pc.setRemoteDescription({type:'answer',sdp});api.status='Connecting…';api.onChange()}
+    try{const {kind,sdp}=await unpackSDP(code);if(kind!=='A')return;await e.pc.setRemoteDescription({type:'answer',sdp});api.status='Connecting…';api.onChange()}
     catch(err){api.status=err.message;api.onChange();invite()}
   };
   api.has=pid=>{const e=peers.get(pid);return !!e&&e.dc.readyState==='open'};
@@ -639,7 +684,7 @@ function startReplyCamera(video,onCode,facing){
       if(video.readyState>=2){let txt=null;
         try{if(det){const r=await det.detect(video);if(r[0])txt=r[0].rawValue}
           else{const w=Math.min(640,video.videoWidth),h=Math.round(video.videoHeight*w/video.videoWidth);cv.width=w;cv.height=h;g.drawImage(video,0,0,w,h);const r=jsQR(g.getImageData(0,0,w,h).data,w,h,{inversionAttempts:'dontInvert'});if(r)txt=r.data}}catch(e){}
-        if(txt&&txt.startsWith('QB1a'))onCode(txt)}
+        if(txt&&codeOf(txt).startsWith('QB2A'))onCode(txt)}
       setTimeout(tick,200);
     };tick();
   })();
@@ -699,11 +744,11 @@ function makeRtcGuest(pid,offerCode,onMsg){
     onMsg({s:'msg',h:'One moment',p:'Making your reply code…'});
     try{
       await primeCamera();
-      const {kind,sdp}=await unpackSDP(offerCode);if(kind!=='o')throw new Error('Scan the code on the big screen.');
+      const {kind,sdp}=await unpackSDP(offerCode);if(kind!=='O')throw new Error('Scan the code on the big screen.');
       const line={pc:new RTCPeerConnection({iceServers:[]}),first:true};wire(line);
       await line.pc.setRemoteDescription({type:'offer',sdp});
       await line.pc.setLocalDescription(await line.pc.createAnswer());await waitIce(line.pc);
-      const reply=await packSDP('a',line.pc.localDescription.sdp);link.reply=reply;
+      const reply=await packSDP('A',line.pc.localDescription.sdp);link.reply=reply;
       onMsg({s:'reply',qr:qrDataURL(reply,520)});
     }catch(err){onMsg({s:'msg',h:'No luck',p:err.message})}
   };

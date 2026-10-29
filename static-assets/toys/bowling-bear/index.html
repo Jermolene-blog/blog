@@ -234,7 +234,7 @@ td.sum{font:700 15px/35px var(--hand);width:40px;font-variant-numeric:tabular-nu
 
   <section data-screen="invite" hidden>
    <h2>Invite a phone</h2>
-   <p class="step"><b>1</b><span>On their phone, open this page, tap <em>Join a game</em>, and scan this code.</span></p>
+   <p class="step"><b>1</b><span>They scan this code with their phone’s camera, or with <em>Join a game</em> on this page.</span></p>
    <div class="qr"><canvas id="qrOffer"></canvas></div>
    <button id="bCopyOffer" class="btn ghost small">Copy code as text</button>
    <p class="step"><b>2</b><span>Their phone then shows a reply code. Scan it here.</span></p>
@@ -242,6 +242,15 @@ td.sum{font:700 15px/35px var(--hand);width:40px;font-variant-numeric:tabular-nu
    <details><summary>Paste the reply instead</summary><textarea id="answerText" aria-label="Reply code"></textarea><button id="bUseAnswer" class="btn alt small">Connect</button></details>
    <p id="inviteStatus" class="status"></p>
    <button id="bInviteBack" class="btn ghost small">Back to bowlers</button>
+  </section>
+
+  <section data-screen="invited" hidden>
+   <h2>Join the game</h2>
+   <label for="name2">Your name</label>
+   <input id="name2" maxlength="14" autocomplete="off" spellcheck="false">
+   <button id="bJoinLink" class="btn">Join</button>
+   <p id="invitedStatus" class="status"></p>
+   <button id="bInvitedBack" class="btn ghost small">Other ways to play</button>
   </section>
 
   <section data-screen="join" hidden>
@@ -431,19 +440,25 @@ const totalOf=rolls=>{const f=frameMarks(rolls);let t=0;for(const x of f)if(x.t!
 
 // ================= Signalling: SDP <-> compact QR text =================
 // A code carries only what the other side can't guess: ICE ufrag and password, the DTLS fingerprint, the
-// setup role, the mid and the host candidates as raw addresses. The rest of the SDP is rebuilt from a
-// template. The bytes are Base45 (RFC 9285) so the QR can use alphanumeric mode, giving a small, sparse code.
-// Layout: setup(0 actpass,1 active,2 passive) | mid | ufrag | pwd (each length-prefixed) | 32-byte sha-256 | n | n × candidate
+// setup role and the host candidates as raw addresses. The rest of the SDP is rebuilt from a template.
+// The host's code is a web link (…/bowling-bear/#BB3O…*), so a phone's own camera app opens the game straight
+// at the join step. The part after # uses only characters that are both safe in a link and in the QR's
+// alphanumeric mode (41 of them, three per two bytes), so the code stays small and sparse.
+// Layout: flags (setup 0 actpass, 1 active, 2 passive; +4 if a mid other than 0 follows) | [mid] | ufrag | pwd
+//   (each a length then 6 bits a character) | 32-byte sha-256 | n | n × candidate
 // candidate: kind(4 IPv4, 6 IPv6, 16 mDNS uuid) | address | port(2)
-const B45='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:',SETUPS=['actpass','active','passive'];
-const b45=bytes=>{let s='';for(let i=0;i<bytes.length;i+=2){
-  if(i+1<bytes.length){const n=bytes[i]*256+bytes[i+1];s+=B45[n%45]+B45[(n/45|0)%45]+B45[n/2025|0];}
-  else s+=B45[bytes[i]%45]+B45[bytes[i]/45|0];}return s;};
-const unb45=s=>{const o=[],v=[...s].map(c=>{const k=B45.indexOf(c);if(k<0)throw 0;return k;});
+const B41='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ+-./:',SETUPS=['actpass','active','passive'];
+const ICE64='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+const b41=bytes=>{let s='';for(let i=0;i<bytes.length;i+=2){
+  if(i+1<bytes.length){const n=bytes[i]*256+bytes[i+1];s+=B41[n%41]+B41[(n/41|0)%41]+B41[n/1681|0];}
+  else s+=B41[bytes[i]%41]+B41[bytes[i]/41|0];}return s;};
+const unb41=s=>{const o=[],v=[...s].map(c=>{const k=B41.indexOf(c);if(k<0)throw 0;return k;});
   for(let i=0;i<v.length;i+=3){
-    if(i+2<v.length){const n=v[i]+v[i+1]*45+v[i+2]*2025;if(n>65535)throw 0;o.push(n>>8,n&255);}
-    else if(i+1<v.length){const n=v[i]+v[i+1]*45;if(n>255)throw 0;o.push(n);}else throw 0;}
+    if(i+2<v.length){const n=v[i]+v[i+1]*41+v[i+2]*1681;if(n>65535)throw 0;o.push(n>>8,n&255);}
+    else if(i+1<v.length){const n=v[i]+v[i+1]*41;if(n>255)throw 0;o.push(n);}else throw 0;}
   return new Uint8Array(o);};
+const ice6=s=>{const o=[s.length];let acc=0,bits=0;for(const ch of s){const k=ICE64.indexOf(ch);if(k<0)throw new Error('Unexpected connection details (ice).');
+  acc=acc<<6|k;bits+=6;if(bits>=8){bits-=8;o.push(acc>>bits&255);}}if(bits)o.push(acc<<(8-bits)&255);return o;};
 function ip6Bytes(a){const[h,t]=a.split('::'),w=s=>s?s.split(':'):[],hw=w(h),tw=t===undefined?[]:w(t);
   const all=[...hw,...Array(8-hw.length-tw.length).fill('0'),...tw],o=[];for(const x of all){const n=parseInt(x,16);o.push(n>>8,n&255);}return o;}
 const ip6Text=b=>Array.from({length:8},(_,i)=>(b[2*i]*256+b[2*i+1]).toString(16)).join(':');
@@ -460,20 +475,24 @@ async function pack(kind,sdp){ // kind 'O' offer, 'A' answer
     else continue;
     c.push(+port>>8,+port&255);if(!cands.some(x=>x.join()===c.join()))cands.push(c);
   }
-  // IPv6 only when there is nothing else: it makes the code bigger and rarely helps on home Wi-Fi
-  let use=cands.filter(c=>c[0]!==6);if(!use.length)use=cands;use=use.slice(0,4);
-  const str=s=>[s.length,...[...s].map(ch=>ch.charCodeAt(0))];
-  const bytes=[SETUPS.indexOf(get('setup')),...str(get('mid')),...str(get('ice-ufrag')),...str(get('ice-pwd')),
+  // plain addresses first, then mDNS names; IPv6 only when there is nothing else (it makes the code bigger and rarely helps on home Wi-Fi)
+  let use=[...cands.filter(c=>c[0]===4),...cands.filter(c=>c[0]===16)];if(!use.length)use=cands;use=use.slice(0,3);
+  const mid=get('mid'),str=s=>[s.length,...[...s].map(ch=>ch.charCodeAt(0))];
+  const bytes=[SETUPS.indexOf(get('setup'))|(mid==='0'?0:4),...(mid==='0'?[]:str(mid)),...ice6(get('ice-ufrag')),...ice6(get('ice-pwd')),
     ...fp[1].split(':').map(h=>parseInt(h,16)),use.length,...use.flat()];
-  return 'BB2'+kind+b45(new Uint8Array(bytes))+'*';
+  return 'BB3'+kind+b41(new Uint8Array(bytes))+'*';
 }
+const joinLink=code=>location.origin+location.pathname+'#'+code;
+const codeOf=text=>(text||'').trim().replace(/^.*#/,'').toUpperCase();
 async function unpack(code){
-  code=(code||'').trim().toUpperCase();
-  const m=/^BB2([OA])(.*)\*$/.exec(code),bad=()=>new Error('That isn\'t a Bowling Bear code.');
+  code=codeOf(code);
+  if(/^BB[12]/.test(code))throw new Error('That code is from an older Bowling Bear. Reload the page on the other device.');
+  const m=/^BB3([OA])(.*)\*$/.exec(code),bad=()=>new Error('That isn\'t a Bowling Bear code.');
   if(!m)throw bad();
-  let b;try{b=unb45(m[2]);}catch(e){throw bad();}
+  let b;try{b=unb41(m[2]);}catch(e){throw bad();}
   let i=0;const str=()=>{const n=b[i++];return String.fromCharCode(...b.slice(i,i+=n));};
-  const setup=SETUPS[b[i++]],mid=str(),ufrag=str(),pwd=str();
+  const ice=()=>{const n=b[i++];let s='',acc=0,bits=0;while(s.length<n){if(bits<6){acc=(acc<<8|b[i++])&0xffff;bits+=8;}bits-=6;s+=ICE64[acc>>bits&63];}return s;};
+  const f=b[i++],setup=SETUPS[f&3],mid=f&4?str():'0',ufrag=ice(),pwd=ice();
   const hex=Array.from(b.slice(i,i+=32),x=>x.toString(16).padStart(2,'0').toUpperCase()).join(':');
   const L=['v=0','o=- '+Math.floor(Math.random()*1e15)+' 2 IN IP4 127.0.0.1','s=-','t=0 0','a=group:BUNDLE '+mid,'a=msid-semantic: WMS',
     'm=application 9 UDP/DTLS/SCTP webrtc-datachannel','c=IN IP4 0.0.0.0'];
@@ -494,8 +513,9 @@ function waitIce(pc){return new Promise(res=>{
   const t=setTimeout(res,3000);
   pc.addEventListener('icegatheringstatechange',()=>{if(pc.iceGatheringState==='complete'){clearTimeout(t);res();}});
 });}
-function drawQR(canvas,text){
-  const q=qrcode(0,'M');q.addData(text,'Alphanumeric');q.make();
+function drawQR(canvas,text){ // a link: its address as bytes, the code after # in alphanumeric mode
+  const q=qrcode(0,'L'),k=text.lastIndexOf('#');
+  if(k>=0)q.addData(text.slice(0,k+1),'Byte');q.addData(text.slice(k+1),'Alphanumeric');q.make();
   const n=q.getModuleCount(),quiet=4,s=Math.max(3,Math.floor(560/(n+quiet*2)));
   canvas.width=canvas.height=(n+quiet*2)*s;
   const g=canvas.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,canvas.width,canvas.height);g.fillStyle='#000';
@@ -528,7 +548,7 @@ function scanQR(prefix){
           else{const w=Math.min(720,video.videoWidth),h=Math.round(video.videoHeight*w/video.videoWidth);cv.width=w;cv.height=h;g.drawImage(video,0,0,w,h);
             const r=jsQR(g.getImageData(0,0,w,h).data,w,h,{inversionAttempts:'dontInvert'});if(r)txt=r.data;}
         }catch(e){}
-        if(txt){if(txt.startsWith(prefix)){stop();return resolve(txt);}$('#scanMsg').textContent=/^BB1/.test(txt)?'That device has an older Bowling Bear. Reload the page on it.':'That code is from the wrong step. Look for the other phone\'s code.';}
+        if(txt){const c=codeOf(txt);if(c.startsWith(prefix)){stop();return resolve(txt);}$('#scanMsg').textContent=/^BB[12]/.test(c)?'That device has an older Bowling Bear. Reload the page on it.':'That code is from the wrong step. Look for the other phone\'s code.';}
       }
       requestAnimationFrame(tick);
     };
@@ -676,7 +696,7 @@ async function invite(){
   dc.onopen=()=>{net.peers.set(entry.id,entry);setStatus('#inviteStatus','Connected. Waiting for their name…');};
   pc.onconnectionstatechange=()=>{if(pc.connectionState==='failed'){setStatus('#inviteStatus',FAIL_MSG,true);if(net.peers.get(entry.id)===entry)peerLost(entry.id);}};
   await pc.setLocalDescription(await pc.createOffer());await waitIce(pc);
-  entry.code=await pack('O',pc.localDescription.sdp);
+  entry.code=joinLink(await pack('O',pc.localDescription.sdp));
   drawQR($('#qrOffer'),entry.code);setStatus('#inviteStatus','');
 }
 const FAIL_MSG='Couldn\'t connect. Both devices need to be on the same Wi-Fi, and some guest or office networks block device-to-device traffic.';
@@ -2460,12 +2480,19 @@ $('#bAgain').onclick=()=>{if(net.isHost)startGame();};
 const copy=async(text,btn)=>{const old=btn.textContent;try{await navigator.clipboard.writeText(text);btn.textContent='Copied';}catch(e){btn.textContent='Copy failed: use the text box';}setTimeout(()=>btn.textContent=old,1600);};
 $('#bCopyOffer').onclick=e=>net.pending&&net.pending.code&&copy(net.pending.code,e.currentTarget);
 $('#bCopyAnswer').onclick=e=>net.replyCode&&copy(net.replyCode,e.currentTarget);
-$('#bScanAnswer').onclick=()=>scanQR('BB2A').then(acceptAnswer).catch(err=>{if(err.message!=='cancelled')setStatus('#inviteStatus',err.message,true);});
+$('#bScanAnswer').onclick=()=>scanQR('BB3A').then(acceptAnswer).catch(err=>{if(err.message!=='cancelled')setStatus('#inviteStatus',err.message,true);});
 $('#bUseAnswer').onclick=()=>acceptAnswer($('#answerText').value);
-$('#bScanOffer').onclick=()=>scanQR('BB2O').then(joinWith).catch(err=>{if(err.message!=='cancelled')setStatus('#joinStatus',err.message,true);});
+$('#bScanOffer').onclick=()=>scanQR('BB3O').then(joinWith).catch(err=>{if(err.message!=='cancelled')setStatus('#joinStatus',err.message,true);});
 $('#bUseOffer').onclick=()=>joinWith($('#offerText').value);
 $('#bScanCancel').onclick=()=>scanAbort&&scanAbort();
 if(!window.RTCPeerConnection){$('#bHost').disabled=$('#bJoin').disabled=true;}
+// opened from the host's QR code with the phone's own camera: straight to the join step
+{const code=codeOf(location.hash);if(/^BB\d/.test(code)){
+  try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}
+  $('#name2').value=$('#name').value;showScreen('invited');if(!$('#name2').value)$('#name2').focus();
+  $('#bInvitedBack').onclick=()=>showScreen('home');
+  $('#bJoinLink').onclick=()=>{$('#name').value=$('#name2').value;try{localStorage.setItem('bowling-bear.name',myName());}catch(e){}
+    setStatus('#invitedStatus','');joinWith(code).then(()=>{if(currentScreen()!=='reply')setStatus('#invitedStatus',$('#joinStatus').textContent,true);});};}}
 </script>
 </body>
 </html>
