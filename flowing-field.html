@@ -189,7 +189,7 @@ layout(location=0) in vec2 a;void main(){gl_Position=vec4(a,0.,1.);}`;
 const FS_FIELD=`#version 300 es
 precision highp float;
 uniform vec2 uSize,uView,uPan;uniform float uZoom,uScale,uGain,uCrease,uCurl,uWarp,uT,uSeedOff;uniform int uOct;
-uniform sampler2D uGroom;uniform int uGroomOn,uEnc;
+uniform sampler2D uGroom,uFsc;uniform int uGroomOn,uEnc,uPass;
 out vec4 o;
 ${NOISE}
 float F(vec2 p){
@@ -199,17 +199,19 @@ float F(vec2 p){
   for(int k=0;k<4;k++){if(k>=uOct)break;float nz=snoise(vec3(w*fr,uT+uSeedOff+float(k)*17.));s+=a*mix(nz,.5-abs(nz)*(k==0?1.:1.2),uCrease);n+=a;a*=uGain;fr*=2.07;w=mat2(.8,-.6,.6,.8)*w;}
   return s/n;
 }
+float rf(ivec2 c){ivec2 mx=ivec2(uSize)-1;return dot(texelFetch(uFsc,clamp(c,ivec2(0),mx),0).xy,vec2(1.,1./255.));}
 void main(){
-  vec2 uv=gl_FragCoord.xy/uSize;float m=min(uView.x,uView.y);
-  vec2 p=(uv-.5)*uView/m*2./uZoom+uPan;
-  float e=uView.x/uSize.x*2./m/uZoom;
-  vec2 g=vec2(F(p+vec2(e,0.))-F(p-vec2(e,0.)),F(p+vec2(0.,e))-F(p-vec2(0.,e)));
+  vec2 uv=gl_FragCoord.xy/uSize;
+  if(uPass==0){float m=min(uView.x,uView.y);vec2 p=(uv-.5)*uView/m*2./uZoom+uPan;
+    float f=clamp(F(p)*.5+.5,0.,.9999)*255.;o=vec4(floor(f)/255.,fract(f),0.,1.);return;}
+  ivec2 ci=ivec2(gl_FragCoord.xy);
+  vec2 g=vec2(rf(ci+ivec2(1,0))-rf(ci-ivec2(1,0)),rf(ci+ivec2(0,1))-rf(ci-ivec2(0,1)));
   float L=length(g);vec2 v=L>1e-8?g/L:vec2(1.,0.);
   float c=cos(uCurl),s=sin(uCurl);v=vec2(c*v.x-s*v.y,s*v.x+c*v.y);
   float gm=0.;
   if(uGroomOn==1){vec4 t=texture(uGroom,uv);vec2 gv=uEnc==1?t.xy*2.-1.:t.xy;gm=length(gv);
     if(gm>.02){float w=smoothstep(.02,.7,gm);vec2 b=mix(v,gv/gm,w);float bl=length(b);v=bl>1e-4?b/bl:gv/gm;}}
-  o=vec4(v*.5+.5,clamp(F(p)*.5+.5,0.,1.),clamp(gm,0.,1.));
+  o=vec4(v*.5+.5,rf(ci),clamp(gm,0.,1.));
 }`;
 // Groom: persistent hand-combed direction field, carried with pan/zoom, slowly relaxing.
 const FS_GROOM=`#version 300 es
@@ -247,7 +249,7 @@ void main(){
   o=vec4(q+dm*uH,dn);
 }`;
 const STROKE_COMMON=`
-uniform sampler2D uField;uniform vec2 uView,uFS;uniform float uH,uS,uWidth,uTaper,uPx;
+uniform sampler2D uField;uniform vec2 uView,uFS;uniform float uH,uS,uNMax,uWidth,uTaper,uPx;
 out float vSide,vArc,vCov,vKeyF,vGm;out vec4 vRnd;out vec2 vDir;
 vec4 fld(vec2 q){return textureLod(uField,clamp(q/uView,0.,1.)*uFS,0.);}
 vec2 dirAt(vec2 q){vec2 d=fld(q).xy*2.-1.;float l=length(d);return l>1e-4?d/l:vec2(1.,0.);}
@@ -261,13 +263,13 @@ void emit(vec2 q,vec2 d,float fi,float n,float gm,float side){
   gl_Position=vec4(pos/uView*2.-1.,0.,1.);
   vSide=side;vArc=fi*uH/uPx;vRnd=aRnd;vDir=d;vKeyF=fld(q).z;vGm=gm;
 }
-float lenSteps(float gm){return max(2.,floor(uS*(.45+.55*aRnd.x)*(1.+.5*gm)/1.5));}
+float lenSteps(float gm){return clamp(floor(uS*(.45+.55*aRnd.x)*(1.+.5*gm)/1.5),2.,uNMax);}
 `;
 const VS_FAST=`#version 300 es
 layout(location=2) in vec4 aRnd;
-uniform highp sampler2D uT0,uT1;uniform int uR,uWt;
+uniform highp sampler2D uT0,uT1;uniform int uR,uWt,uBase;
 ${STROKE_COMMON}
-vec4 tr(int b){ivec2 tc=ivec2(gl_InstanceID%uWt,b*uR+gl_InstanceID/uWt);return (b%2==0)?texelFetch(uT0,tc,0):texelFetch(uT1,tc,0);}
+vec4 tr(int b){int id=gl_InstanceID+uBase;ivec2 tc=ivec2(id%uWt,b*uR+id/uWt);return (b%2==0)?texelFetch(uT0,tc,0):texelFetch(uT1,tc,0);}
 void main(){
   int i=gl_VertexID/2;float side=float(gl_VertexID%2)*2.-1.;
   float gm=fld(tr(0).xy).w;float n=lenSteps(gm);float fi=min(float(i),n);
@@ -353,13 +355,16 @@ let aTex=null,aFbo=null,aW=0,aH=0,aScale=1,tpf=2,tileCursor=0,fdt=.016;const til
 function ensureAtlas(){aScale=Math.min(scale,1);const w=Math.max(8,Math.round(cssW*aScale)),h=Math.max(8,Math.round(cssH*aScale));if(w===aW&&h===aH)return;
   del([aTex],[aFbo]);aW=w;aH=h;aTex=mkTex(gl.RGBA8,w,h,gl.RGBA,gl.UNSIGNED_BYTE,gl.LINEAR);aFbo=mkFbo(aTex);
   gl.bindFramebuffer(gl.FRAMEBUFFER,aFbo);gl.disable(gl.SCISSOR_TEST);gl.clearColor(.05,.045,.06,1);gl.clear(gl.COLOR_BUFFER_BIT);gl.bindFramebuffer(gl.FRAMEBUFFER,null);tileDirty.fill(true)}
-function allocField(w,h){if(w===texW&&h===texH)return;del([ftex],[fbo]);texW=w;texH=h;ftex=mkTex(gl.RGBA8,w,h,gl.RGBA,gl.UNSIGNED_BYTE,gl.LINEAR);fbo=mkFbo(ftex)}
+let fsTex=null,fsFbo=null;
+function allocField(w,h){if(w===texW&&h===texH)return;del([ftex,fsTex],[fbo,fsFbo]);texW=w;texH=h;
+  ftex=FAST?mkTex(gl.RGBA16F,w,h,gl.RGBA,gl.HALF_FLOAT,gl.LINEAR):mkTex(gl.RGBA8,w,h,gl.RGBA,gl.UNSIGNED_BYTE,gl.LINEAR);fbo=mkFbo(ftex);
+  fsTex=mkTex(gl.RGBA8,w,h,gl.RGBA,gl.UNSIGNED_BYTE,gl.NEAREST);fsFbo=mkFbo(fsTex)}
 // groom ping-pong
 let gTex=[],gFbo=[],gW=0,gH=0,gCur=0;const GDIV=4;
 function allocGroom(w,h){if(w===gW&&h===gH)return;del(gTex,gFbo);gW=w;gH=h;
   gTex=[0,1].map(()=>FAST?mkTex(gl.RGBA16F,w,h,gl.RGBA,gl.HALF_FLOAT,gl.LINEAR):mkTex(gl.RGBA8,w,h,gl.RGBA,gl.UNSIGNED_BYTE,gl.LINEAR));
   gFbo=gTex.map(mkFbo);clearGroom()}
-function clearGroom(){const c=ENC?.5:0;gl.clearColor(c,c,0,1);gFbo.forEach(f=>{gl.bindFramebuffer(gl.FRAMEBUFFER,f);gl.clear(gl.COLOR_BUFFER_BIT)});gl.bindFramebuffer(gl.FRAMEBUFFER,null)}
+function clearGroom(){lastStrokeT=-1e9;const c=ENC?.5:0;gl.clearColor(c,c,0,1);gFbo.forEach(f=>{gl.bindFramebuffer(gl.FRAMEBUFFER,f);gl.clear(gl.COLOR_BUFFER_BIT)});gl.bindFramebuffer(gl.FRAMEBUFFER,null)}
 // trace textures
 const Wt=Math.min(4096,MAXTEX);let R=1,seedTex=null,tTex=[],tFbo=[],tS=0,tR=0;
 function allocTrace(S){if(S===tS&&R===tR)return;del(tTex,tFbo);tS=S;tR=R;
@@ -371,7 +376,8 @@ let paused=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let exploring=false,mut=.35,dirty=true;
 let tiles=[];
 const main={P,T:0,F:0,ph:0};
-let scale=Math.min(devicePixelRatio||1,2),W=0,H=0,cssW=0,cssH=0,nSeeds=0,seedKey='';
+let buckets=[],groomActive=false;
+const MAXS=Math.min(devicePixelRatio||1,2);let scale=MAXS,W=0,H=0,cssW=0,cssH=0,nSeeds=0,seedKey='';
 const FDIV=1.5;
 
 function resize(){cssW=innerWidth;cssH=innerHeight;const w=Math.round(cssW*scale),h=Math.round(cssH*scale);
@@ -384,14 +390,17 @@ function seeds(){
   const n=Math.min(90000,cols*rows);const idx=new Uint32Array(cols*rows);for(let i=0;i<idx.length;i++)idx[i]=i;
   for(let i=idx.length-1;i>0;i--){const j=Math.floor(Rn()*(i+1));const t=idx[i];idx[i]=idx[j];idx[j]=t}
   const d=new Float32Array(n*6);
-  for(let k=0;k<n;k++){const i=idx[k],cx=i%cols,cy=(i/cols)|0;d.set([(cx+Rn())/cols,(cy+Rn())/rows,Rn(),Rn(),Rn(),Rn()],k*6)}
+  // hair length factor (rnd.x) rises with index, so length buckets are contiguous instance ranges
+  for(let k=0;k<n;k++){const i=idx[k],cx=i%cols,cy=(i/cols)|0;d.set([(cx+Rn())/cols,(cy+Rn())/rows,(Rn(),(k+.5)/n),Rn(),Rn(),Rn()],k*6)}
+  buckets=[0,1,2,3,4,5].map(b=>{const a=Math.floor(n*b/6),e=Math.floor(n*(b+1)/6);return{base:a,cnt:e-a,xmax:e/n}});
   gl.bindBuffer(gl.ARRAY_BUFFER,sb);gl.bufferData(gl.ARRAY_BUFFER,d,gl.STATIC_DRAW);nSeeds=n;
   if(FAST){R=Math.ceil(n/Wt);const st=new Float32Array(Wt*R*4);for(let k=0;k<n;k++){st[k*4]=d[k*6];st[k*4+1]=d[k*6+1]}
     del([seedTex],[]);seedTex=mkTex(gl.RGBA32F,Wt,R,gl.RGBA,gl.FLOAT,gl.NEAREST,st)}
   dirty=true}
 addEventListener('resize',resize);
 
-function stepsFor(P,k=1){const base=Math.max(3,Math.round(P.len*k/2.5));let S=Math.min(200,Math.round(base*1.5));if(FAST)S=Math.min(S,Math.floor(MAXTEX/R)-1);return S}
+const STEP=3.5;
+function stepsFor(P,k=1){const base=Math.max(3,Math.round(P.len*k/STEP));let S=Math.min(200,Math.round(base*1.5));if(FAST)S=Math.min(S,Math.floor(MAXTEX/R)-1);return S}
 
 // k: miniature factor (1 = full view); out: target framebuffer; px: device pixels per css pixel of the target
 function draw(st,ox,oy,w,h,count,groomOn,k=1,out=null,px=scale){
@@ -399,14 +408,16 @@ function draw(st,ox,oy,w,h,count,groomOn,k=1,out=null,px=scale){
   const fw=Math.max(8,Math.min(texW,Math.ceil(w/px/FDIV))),fh=Math.max(8,Math.min(texH,Math.ceil(h/px/FDIV)));
   gl.disable(gl.BLEND);gl.disable(gl.SCISSOR_TEST);
   // 1. field
-  gl.bindFramebuffer(gl.FRAMEBUFFER,fbo);gl.viewport(0,0,fw,fh);
-  gl.useProgram(pF.p);let u=pF.u;
+  gl.activeTexture(gl.TEXTURE6);gl.bindTexture(gl.TEXTURE_2D,null);
+  gl.bindFramebuffer(gl.FRAMEBUFFER,fsFbo);gl.viewport(0,0,fw,fh);
+  gl.useProgram(pF.p);let u=pF.u;gl.uniform1i(u.uFsc,6);
   gl.uniform2f(u.uSize,fw,fh);gl.uniform2f(u.uView,w,h);gl.uniform2f(u.uPan,view.x,view.y);gl.uniform1f(u.uZoom,view.z);
   gl.uniform1f(u.uScale,P.scale);gl.uniform1f(u.uGain,P.gain);gl.uniform1f(u.uCrease,P.crease);gl.uniform1f(u.uCurl,P.curl*Math.PI/180);
   gl.uniform1f(u.uWarp,P.warp);gl.uniform1f(u.uT,st.T);gl.uniform1f(u.uSeedOff,(P.seed%997)*.731);gl.uniform1i(u.uOct,P.oct);
   gl.activeTexture(gl.TEXTURE3);gl.bindTexture(gl.TEXTURE_2D,gTex[gCur]);gl.uniform1i(u.uGroom,3);gl.uniform1i(u.uGroomOn,groomOn?1:0);gl.uniform1i(u.uEnc,ENC);
-  gl.bindVertexArray(triVAO);gl.drawArrays(gl.TRIANGLES,0,3);
-  const S=stepsFor(P,k),hh=2.5*px;
+  gl.bindVertexArray(triVAO);gl.uniform1i(u.uPass,0);gl.drawArrays(gl.TRIANGLES,0,3);
+  gl.bindFramebuffer(gl.FRAMEBUFFER,fbo);gl.activeTexture(gl.TEXTURE6);gl.bindTexture(gl.TEXTURE_2D,fsTex);gl.uniform1i(u.uPass,1);gl.drawArrays(gl.TRIANGLES,0,3);
+  const S=stepsFor(P,k),hh=STEP*px,gmax=groomOn&&groomActive?1:0,passes=Math.min(S,Math.ceil(S*(1+.5*gmax)/1.5));
   gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,ftex);
   // 2. trace hairs (fast path)
   if(FAST){
@@ -414,7 +425,7 @@ function draw(st,ox,oy,w,h,count,groomOn,k=1,out=null,px=scale){
     gl.uniform1i(u.uField,0);gl.uniform1i(u.uPrevT,1);gl.uniform1i(u.uSeeds,2);
     gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,seedTex);
     gl.uniform2f(u.uView,w,h);gl.uniform2f(u.uFS,fw/texW,fh/texH);gl.uniform1f(u.uH,hh);gl.uniform1i(u.uR,R);gl.uniform1i(u.uWt,Wt);gl.uniform1i(u.uN,count);
-    for(let k=0;k<=S;k++){gl.bindFramebuffer(gl.FRAMEBUFFER,tFbo[k&1]);gl.viewport(0,k*R,Wt,R);
+    for(let k=0;k<=passes;k++){gl.bindFramebuffer(gl.FRAMEBUFFER,tFbo[k&1]);gl.viewport(0,k*R,Wt,R);
       gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,tTex[(k+1)&1]);gl.uniform1i(u.uBand,k);gl.drawArrays(gl.TRIANGLES,0,3)}
   }
   // 3. paper
@@ -428,12 +439,16 @@ function draw(st,ox,oy,w,h,count,groomOn,k=1,out=null,px=scale){
   gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,ftex);gl.uniform1i(u.uField,0);
   if(FAST){gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,tTex[0]);gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,tTex[1]);
     gl.uniform1i(u.uT0,1);gl.uniform1i(u.uT1,2);gl.uniform1i(u.uR,R);gl.uniform1i(u.uWt,Wt)}
-  gl.uniform2f(u.uView,w,h);gl.uniform2f(u.uFS,fw/texW,fh/texH);gl.uniform1f(u.uH,hh);gl.uniform1f(u.uS,S);
+  gl.uniform2f(u.uView,w,h);gl.uniform2f(u.uFS,fw/texW,fh/texH);gl.uniform1f(u.uH,hh);gl.uniform1f(u.uS,S);gl.uniform1f(u.uNMax,passes);
   gl.uniform1f(u.uWidth,P.width);gl.uniform1f(u.uTaper,P.taper);gl.uniform1f(u.uPx,px*k);
   gl.uniform1f(u.uInk,add?P.ink*.7:P.ink);gl.uniform1f(u.uDash,P.dash);gl.uniform1f(u.uDashLen,P.dashLen);gl.uniform1f(u.uFlowPh,st.F);
   gl.uniform1f(u.uHue,P.hue);gl.uniform1f(u.uHueSpread,P.hueSpread);gl.uniform1f(u.uSat,P.sat);gl.uniform1f(u.uPhase,st.ph);
   gl.uniform1i(u.uMode,P.mode);gl.uniform1i(u.uKey,P.key);gl.uniform1i(u.uAdd,add?1:0);
-  gl.bindVertexArray(sVAO);gl.drawArraysInstanced(gl.TRIANGLE_STRIP,0,2*(S+1),count);
+  gl.bindVertexArray(sVAO);gl.bindBuffer(gl.ARRAY_BUFFER,sb);
+  for(const b of buckets){if(!b.cnt)continue;
+    const nmax=Math.min(passes,Math.ceil(S*(.45+.55*b.xmax)*(1+.5*gmax)/1.5));
+    gl.vertexAttribPointer(1,2,gl.FLOAT,false,24,b.base*24);gl.vertexAttribPointer(2,4,gl.FLOAT,false,24,b.base*24+8);
+    gl.uniform1i(u.uBase,b.base);gl.drawArraysInstanced(gl.TRIANGLE_STRIP,0,2*(nmax+1),b.cnt)}
   gl.bindVertexArray(null);
 }
 
@@ -486,12 +501,13 @@ function updatePurr(dt){
 }
 
 // ---------- loop ----------
-let last=performance.now(),frameN=0,lastStrokeT=-1e9;
+let last=performance.now(),frameN=0,perfAcc=0,perfN=0,goodWin=0;var lastStrokeT=-1e9;
 function step(st,dt){if(!paused){st.T+=dt*st.P.drift;st.F+=dt*st.P.flow;st.ph+=dt*st.P.cycle}}
 function frame(now){
   const dt=Math.min(.05,(now-last)/1000);last=now;
   step(main,dt);if(exploring)tiles.forEach((t,i)=>{if(i!==4)step(t,dt)});
   const active=handDown||now-lastStrokeT<Math.min(P.memory,40)*4000||view.x!==gView.x||view.y!==gView.y||view.z!==gView.z;
+  groomActive=lastStrokeT>0&&(P.memory>=120||now-lastStrokeT<P.memory*5000);
   if(!exploring&&(active||!paused))updateGroom(dt);
   if(!paused||dirty||active){
     if(exploring){
@@ -506,7 +522,11 @@ function frame(now){
       gl.bindVertexArray(triVAO);gl.drawArrays(gl.TRIANGLES,0,3);gl.bindVertexArray(null);
       dirty=tileDirty.some(Boolean);
       fdt=fdt*.9+dt*.1;if(frameN%15===0){if(fdt>.03&&tpf>1)tpf--;else if(fdt<.02&&tpf<9)tpf++}
-    }else{draw(main,0,0,W,H,nSeeds,true);dirty=false}
+    }else{draw(main,0,0,W,H,nSeeds,true);dirty=false;
+      // adaptive resolution: drop pixel density under load, recover slowly
+      perfAcc+=dt;if(++perfN>=30){const a=perfAcc/perfN;perfAcc=perfN=0;
+        if(a>.021&&scale>1){scale=Math.max(1,scale*.85);goodWin=0;resize()}
+        else if(a<.0175){if(++goodWin>=4&&scale<MAXS){scale=Math.min(MAXS,scale*1.12);goodWin=0;resize()}}else goodWin=0}}
     if(snapCb){const c=snapCb;snapCb=null;c(cv.toDataURL('image/png'))}
   }
   updatePurr(dt);
