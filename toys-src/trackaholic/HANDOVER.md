@@ -54,7 +54,17 @@ Trackaholic isn't meant to be projected: the players gather round, each looking 
 - Auto-reset when flipped or lost.
 - Manual reset: the R key, or the “Back on track” button.
 - Simulation runs at 120 Hz.
-- Phone controls: throttle is automatic, the left thumb steers, and the right thumb brakes (which reverses when stopped).
+- Phone controls: throttle is automatic; see Tilt, drift and nitro below for steering, braking and the nitro.
+
+## Tilt, drift and nitro (2026-10-30)
+
+- **Tilt steering** is the default wherever it's available (`TILT_ABLE`: a touch screen and `DeviceMotionEvent`). `onMotion` keeps the angle of gravity in the plane of the screen, `atan2(g.x, g.y)` from `accelerationIncludingGravity`; `tiltSteer` measures it from `tilt.zero`, taken when the countdown starts and again at Go. Turning the device like a wheel is a rotation about the screen's normal, so this works in portrait or landscape and however far the device leans back, and iOS and Android reporting gravity with opposite signs (a half turn) cancels out. Full lock at 28°, a 1.5° dead zone, smoothed. Below 2.5 m/s² in the screen's plane (lying nearly flat) the last angle is kept.
+- iOS needs permission: `askTilt()` calls `DeviceMotionEvent.requestPermission()` from the taps that start or join a race (Race, Join, the host's Start) and from the Steering pill. Refused, it falls back to drag. The pad only switches to tilt (`#pad.tilt`) once a reading has arrived (`tilt.ok`), so a device without the sensor keeps the drag controls.
+- The "Steering: Tilt / Drag" pill sits beside Sound on touch devices; the choice is stored as `trackaholic.steer`.
+- **Controls with tilt:** holding the left half of the screen (`#tiltL`) brakes, and in a bend at speed drifts; holding the right half (`#tiltR`) fires the nitro. With drag steering, the brake button drifts too, and a Nitro button sits above it. Keyboard: Space drifts, Shift or N for nitro.
+- **Drift** (`inp.drift`, sent only when braking while steering more than a quarter lock above 9 m/s): the brake drops to a quarter, the throttle stays on and the rear tyres' grip falls to 0.62 of the fronts', so the back steps out; the existing skid smoke and squeal follow. Holding it when stopped still reverses.
+- **Nitro** (`inp.nitro`): `c.nitro` is a tank from 0 to 1, full at the start, drained in 2.6 s while boosting and refilled in 9 s, faster (an extra 1 per 2.5 s) while drifting. Boosting gives 75% more power and 35% more maximum drive force, widens the chase camera by 10° and adds wind noise. The meter (`#hNitro`) is under the lap counter.
+- Bots never send `drift` or `nitro`, so they drive as before. Neither is in the network packet: other devices see a drifting or boosting car only through how it moves.
 
 ## Network
 

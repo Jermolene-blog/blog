@@ -57,6 +57,18 @@ body{-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:trans
 .pbtn{position:absolute;border:0;pointer-events:auto;touch-action:none;font:700 16px/1 var(--ui);letter-spacing:.12em;text-transform:uppercase}
 #bBrake{right:max(16px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 18px);width:clamp(96px,26vw,140px);height:clamp(96px,26vw,140px);border-radius:50%;background:rgba(255,122,200,.88);color:var(--ink);box-shadow:0 0 0 3px rgba(246,243,255,.5)}
 #bBrake.on{background:var(--snow);transform:scale(.96)}
+#bNitro{right:max(16px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 30px + clamp(96px,26vw,140px));width:clamp(72px,19vw,100px);height:clamp(72px,19vw,100px);border-radius:50%;background:rgba(111,244,255,.88);color:var(--ink);box-shadow:0 0 0 3px rgba(246,243,255,.5)}
+#bNitro.on{background:var(--snow);transform:scale(.96)}
+/* tilt steering: the left half brakes (and drifts in a bend), the right half fires the nitro */
+.tzone{position:absolute;top:0;bottom:0;width:50%;pointer-events:auto;touch-action:none;display:none}
+#tiltL{left:0}#tiltR{right:0}
+.tzone span{position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);font:700 13px/1.3 var(--ui);letter-spacing:.12em;text-transform:uppercase;opacity:.7;text-shadow:0 1px 4px var(--ink)}
+#tiltL span{left:max(16px,env(safe-area-inset-left,0px))}#tiltR span{right:max(16px,env(safe-area-inset-right,0px));text-align:right}
+.tzone.on{background:radial-gradient(circle at 50% 80%,rgba(246,243,255,.12),transparent 60%)}
+#pad.tilt .tzone{display:block}#pad.tilt #steerZone,#pad.tilt #bBrake,#pad.tilt #bNitro{display:none}
+#hNitro{width:96px;height:6px;border-radius:3px;background:rgba(246,243,255,.2);overflow:hidden;margin-top:4px}
+#hNitro i{display:block;height:100%;width:100%;background:var(--glow);transform-origin:left;box-shadow:0 0 8px var(--glow)}
+#hNitro.on i{background:var(--snow)}
 #bBrake small{display:block;font-size:10px;letter-spacing:.08em;margin-top:5px;opacity:.75}
 #bReset{left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 12px);padding:8px 12px;background:var(--ink2);color:var(--snow);border:1px solid var(--mist);font-size:11px}
 /* screens */
@@ -127,8 +139,10 @@ body.hostdrive #tvBar .btn{white-space:nowrap}
 #scanner video{width:min(92vw,520px);max-height:62vh;object-fit:cover;border:3px solid var(--snow)}
 #scanMsg{font:700 16px/1.3 var(--ui);margin:0;text-align:center}
 #netNote{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);transform:translateX(-50%);background:var(--rose);color:var(--ink);font:700 15px/1.3 var(--ui);padding:10px 14px;border-radius:8px;max-width:calc(100% - 32px);z-index:9}
-#mute{position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);left:50%;transform:translateX(-50%);font:700 11px/1 var(--ui);letter-spacing:.14em;text-transform:uppercase;background:var(--ink2);color:var(--snow);border:1px solid var(--mist);border-radius:999px;padding:7px 11px;cursor:pointer}
-body.racing #mute{display:none}
+#pills{position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);left:50%;transform:translateX(-50%);display:flex;gap:8px}
+#pills button{font:700 11px/1 var(--ui);letter-spacing:.14em;text-transform:uppercase;background:var(--ink2);color:var(--snow);border:1px solid var(--mist);border-radius:999px;padding:7px 11px;cursor:pointer}
+body.racing #pills{display:none}
+#steerMode[hidden]{display:none}
 .touchonly{display:none}
 @media (pointer:coarse){.touchonly{display:contents}.deskonly{display:none}}
 </style>
@@ -138,7 +152,7 @@ body.racing #mute{display:none}
 <div id="ui">
   <div id="hud" hidden>
     <div class="c tl"><div id="hPos" class="big">1<sup>st</sup></div><div class="lbl" id="hOf">of 1</div></div>
-    <div class="c tr"><div id="hTime" class="mid num">0:00.00</div><div class="lbl" id="hLap">Lap 1 / 3</div></div>
+    <div class="c tr"><div id="hTime" class="mid num">0:00.00</div><div class="lbl" id="hLap">Lap 1 / 3</div><div id="hNitro" title="Nitro"><i></i></div></div>
     <div class="c br deskonly"><div id="hSpd">0</div><div class="lbl">km/h</div></div>
     <div id="hWrong" hidden>Wrong way</div>
     <div id="call"></div>
@@ -147,7 +161,10 @@ body.racing #mute{display:none}
   <canvas id="mini" hidden></canvas>
   <div id="pad" hidden>
     <div id="steerZone"><div id="stick"><i></i></div><div id="stickHint">Drag here to steer. The car accelerates by itself.</div></div>
-    <button class="pbtn" id="bBrake" type="button">Brake<small>hold to reverse</small></button>
+    <button class="pbtn" id="bBrake" type="button">Brake<small>drift in a bend</small></button>
+    <button class="pbtn" id="bNitro" type="button">Nitro</button>
+    <div class="tzone" id="tiltL"><span>Hold to brake<br>or drift</span></div>
+    <div class="tzone" id="tiltR"><span>Hold for<br>nitro</span></div>
     <button class="pbtn" id="bReset" type="button">Back on track</button>
   </div>
   <div id="tv" hidden>
@@ -166,11 +183,14 @@ body.racing #mute{display:none}
         <dl class="keys deskonly">
           <dt>↑ ↓</dt><dd>Accelerate, brake. Hold ↓ when stopped to reverse.</dd>
           <dt>← →</dt><dd>Steer</dd>
+          <dt>Space</dt><dd>Drift: brake into a bend at speed and the back steps out</dd>
+          <dt>Shift</dt><dd>Nitro, while the meter lasts. Drifting refills it faster.</dd>
           <dt>R</dt><dd>Back on track</dd>
         </dl>
         <dl class="keys touchonly">
-          <dt>Left thumb</dt><dd>Drag sideways to steer</dd>
-          <dt>Right thumb</dt><dd>Brake. The car accelerates by itself. Hold Brake when stopped to reverse.</dd>
+          <dt>Tilt</dt><dd>Turn the device like a steering wheel. The car accelerates by itself. (Or drag to steer: see the Steering button.)</dd>
+          <dt>Left side</dt><dd>Hold to brake. In a bend at speed, it drifts. Hold when stopped to reverse.</dd>
+          <dt>Right side</dt><dd>Hold for nitro, while the meter lasts. Drifting refills it faster.</dd>
         </dl>
       </div>
       <div class="row">
@@ -241,7 +261,7 @@ body.racing #mute{display:none}
 
   <div id="scanner" hidden><video id="video" playsinline muted></video><p id="scanMsg"></p><button class="btn" id="scanCancel" type="button">Cancel</button></div>
   <div id="netNote" hidden></div>
-  <button id="mute" type="button">Sound on</button>
+  <div id="pills"><button id="steerMode" type="button" hidden>Steering: Tilt</button><button id="mute" type="button">Sound on</button></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
@@ -392,7 +412,7 @@ function setWheelGeometry(list){ // list of {name, x, z} in model coordinates (m
 setWheelGeometry([{name:'WheelFrontL',x:0.976,z:1.485},{name:'WheelFrontR',x:-0.976,z:1.485},{name:'WheelRearL',x:0.983,z:-1.314},{name:'WheelRearR',x:-0.983,z:-1.314}]);
 function newCar(id,name,color,kind){
   return{id,name,color,kind,local:false,p:new THREE.Vector3(),q:new THREE.Quaternion(),v:new THREE.Vector3(),w:new THREE.Vector3(),
-    steer:0,thr:0,brk:0,rev:false,revT:0,wc:[0,0,0,0],wcPrev:[0,0,0,0],spin:[0,0,0,0],skid:[0,0,0,0],contact:[false,false,false,false],
+    steer:0,thr:0,brk:0,rev:false,revT:0,nitro:1,boost:false,wc:[0,0,0,0],wcPrev:[0,0,0,0],spin:[0,0,0,0],skid:[0,0,0,0],contact:[false,false,false,false],
     idx:0,lap:0,cp:true,prog:0,done:false,time:0,lapStart:0,best:0,flipT:0,offT:0,wrongT:0,grass:false,hint:-1,slipMax:0,
     buf:[],rs:null,model:null,ai:{lane:0,lt:0,skill:1,prevE:0},bumped:0};
 }
@@ -423,6 +443,10 @@ function stepCar(c,inp,h){
   if(brk>0.5&&vf<0.8&&thr<0.1){c.revT+=h;if(c.revT>0.25)c.rev=true}else c.revT=0;
   if(thr>0.1||brk<0.1)c.rev=c.rev&&brk>0.1&&thr<0.1;
   let drive=thr,brakeIn=brk;if(c.rev){drive=-brk*0.6;brakeIn=0}
+  // a drift is a light brake with the rear tyres letting go; nitro adds power from a tank that drifting refills faster
+  const drifting=!!inp.drift&&vf>9&&!c.rev&&!c.done;if(drifting)brakeIn*=0.25;
+  c.boost=!!inp.nitro&&c.nitro>0&&!c.rev&&!c.done;
+  if(c.boost){c.nitro=Math.max(0,c.nitro-h/2.6);drive=1}else c.nitro=Math.min(1,c.nitro+h/9+(drifting?h/2.5:0));
   if(c.done){drive=0;brakeIn=Math.max(brakeIn,0.25)}
   const maxSt=0.6/(1+Math.max(0,vf)/16);
   c.steer+=clamp(clamp(inp.steer,-1,1)*maxSt-c.steer,-2.4*h,2.4*h);
@@ -442,7 +466,7 @@ function stepCar(c,inp,h){
   c.grass=anyGrass;
   // pass 2: forces
   const vmag=Math.max(Math.abs(vf),4);
-  const driveTotal=drive>=0?drive*Math.min(CAR.fmax,CAR.power/vmag):drive*4500*(vf<-9?0:1);
+  const nb=c.boost?1:0,driveTotal=drive>=0?drive*Math.min(CAR.fmax*(1+0.35*nb),CAR.power*(1+0.75*nb)/vmag):drive*4500*(vf<-9?0:1);
   let slipMax=0;
   for(let k=0;k<4;k++){const wh=W[k];c.wcPrev[k]=c.wc[k];
     if(!c.contact[k]){c.wc[k]=lerp(c.wc[k],0,0.2);c.skid[k]=0;continue}
@@ -457,7 +481,7 @@ function stepCar(c,inp,h){
     _r.subVectors(C,c.p);_vc.crossVectors(c.w,_r).add(c.v);
     const vl=_vc.dot(_wf),vs=_vc.dot(_ws);
     const Fz=Fs*Math.max(0.2,_up.dot(n)),grass=GQ.dist>HALF_W+1;
-    const mu=(grass?CAR.muGrass:CAR.mu)*(wh.front?1:1.07);
+    const mu=(grass?CAR.muGrass:CAR.mu)*(wh.front?1:drifting?0.62:1.07);
     const alpha=Math.atan2(vs,Math.max(Math.abs(vl),2.5));
     let Fy=-mu*Fz*Math.sin(1.55*Math.atan(9*alpha));
     let Fx=driveTotal*(wh.front?0.2:0.3);
@@ -801,34 +825,69 @@ function updateAudio(c){if(!eng||!c)return;const v=Math.abs(c.v.dot(_v1.set(0,0,
   let g=1;while(g<6&&v>GEARS[g])g++;const lo=GEARS[g-1],hi=GEARS[g],rpm=1100+6200*clamp((v-lo*0.6)/(hi-lo*0.6),0,1);
   const f=rpm/60*2,t=ac.currentTime;eng.o1.frequency.setTargetAtTime(f,t,0.03);eng.o2.frequency.setTargetAtTime(f/2,t,0.03);eng.f.frequency.setTargetAtTime(500+rpm*0.25+c.thr*600,t,0.05);
   eng.g.gain.setTargetAtTime(c.done?0.04:0.06+0.08*Math.abs(c.thr),t,0.05);
-  squealG.gain.setTargetAtTime(Math.min(0.25,Math.max(0,c.slipMax-2.5)*0.03),t,0.05);windG.gain.setTargetAtTime(Math.min(0.3,(v/55)**2*0.3),t,0.1)}
+  squealG.gain.setTargetAtTime(Math.min(0.25,Math.max(0,c.slipMax-2.5)*0.03),t,0.05);windG.gain.setTargetAtTime(Math.min(0.3,(v/55)**2*0.3)+(c.boost?0.18:0),t,0.1)}
 const muteBtn=$('#mute');function paintMute(){muteBtn.textContent=muted?'Sound off':'Sound on';if(master)master.gain.value=muted?0:0.5}
 muteBtn.onclick=()=>{muted=!muted;store.set('trackaholic.muted',muted?'1':'0');initAudio();paintMute()};paintMute();
 addEventListener('pointerdown',()=>{if(ac&&ac.state==='suspended')ac.resume()},{passive:true});
 
 /* ================= input ================= */
-const keys={L:0,R:0,U:0,D:0};
-const KMAP={ArrowLeft:'L',KeyA:'L',ArrowRight:'R',KeyD:'R',ArrowUp:'U',KeyW:'U',ArrowDown:'D',KeyS:'D'};
+const keys={L:0,R:0,U:0,D:0,N:0,S:0};
+const KMAP={ArrowLeft:'L',KeyA:'L',ArrowRight:'R',KeyD:'R',ArrowUp:'U',KeyW:'U',ArrowDown:'D',KeyS:'D',ShiftLeft:'N',ShiftRight:'N',KeyN:'N',Space:'S'};
 let kSteer=0;
 addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(KMAP[e.code]){keys[KMAP[e.code]]=1;if(G.phase==='race'||G.phase==='count')e.preventDefault()}
   if(e.code==='KeyR'&&G.me&&G.me.local&&G.phase==='race')resetCar(G.me)});
 addEventListener('keyup',e=>{if(KMAP[e.code])keys[KMAP[e.code]]=0});
-const touch={id:null,x0:0,steer:0,brake:false};
+const touch={id:null,x0:0,steer:0,brake:false,drift:false,nitro:false};
 const zone=$('#steerZone'),stick=$('#stick'),knob=stick.firstElementChild;
 zone.addEventListener('pointerdown',e=>{if(touch.id!==null)return;touch.id=e.pointerId;touch.x0=e.clientX;zone.setPointerCapture(e.pointerId);
   stick.style.left=e.clientX+'px';stick.style.top=e.clientY+'px';stick.classList.add('on');knob.style.transform='';$('#stickHint').hidden=true});
 zone.addEventListener('pointermove',e=>{if(e.pointerId!==touch.id)return;const dx=clamp(e.clientX-touch.x0,-70,70);touch.steer=Math.sign(dx)*Math.pow(Math.abs(dx)/70,1.3);knob.style.transform='translateX('+dx+'px)'});
 const tUp=e=>{if(e.pointerId!==touch.id)return;touch.id=null;touch.steer=0;stick.classList.remove('on')};
 zone.addEventListener('pointerup',tUp);zone.addEventListener('pointercancel',tUp);
-{const el=$('#bBrake');el.addEventListener('pointerdown',e=>{e.preventDefault();touch.brake=true;el.classList.add('on');try{el.setPointerCapture(e.pointerId)}catch(x){}});
-  ['pointerup','pointercancel','lostpointercapture'].forEach(t=>el.addEventListener(t,()=>{touch.brake=false;el.classList.remove('on')}))}
+// hold-to-act touch areas: the nitro button, and the two halves of the screen when steering by tilt
+function holdArea(el,on,off){el.addEventListener('pointerdown',e=>{e.preventDefault();on();el.classList.add('on');try{el.setPointerCapture(e.pointerId)}catch(x){}});
+  ['pointerup','pointercancel','lostpointercapture'].forEach(t=>el.addEventListener(t,()=>{off();el.classList.remove('on')}))}
+holdArea($('#bBrake'),()=>{touch.brake=touch.drift=true},()=>{touch.brake=touch.drift=false});
+holdArea($('#bNitro'),()=>{touch.nitro=true},()=>{touch.nitro=false});
+holdArea($('#tiltL'),()=>{touch.brake=touch.drift=true},()=>{touch.brake=touch.drift=false});
+holdArea($('#tiltR'),()=>{touch.nitro=true},()=>{touch.nitro=false});
 $('#bReset').onclick=()=>{if(G.me&&G.me.local&&G.phase==='race')resetCar(G.me)};
-addEventListener('blur',()=>{keys.L=keys.R=keys.U=keys.D=0;touch.steer=0;touch.brake=false});
+addEventListener('blur',()=>{keys.L=keys.R=keys.U=keys.D=keys.N=keys.S=0;touch.steer=0;touch.brake=touch.drift=touch.nitro=false});
+
+/* ----- tilt steering: turn the device like a steering wheel. The angle of gravity in the plane of the screen,
+   measured from where it was when the race started, so it works however the device is held, and iOS and
+   Android reporting gravity with opposite signs makes no difference. iOS asks permission, so askTilt() is
+   called from the taps that start or join a race */
+const TILT_ABLE=IS_TOUCH&&'DeviceMotionEvent' in window;
+const tilt={pref:store.get('trackaholic.steer')||(TILT_ABLE?'tilt':'drag'),ok:false,on:false,raw:0,zero:null,steer:0};
+function onMotion(e){const g=e.accelerationIncludingGravity;if(!g||g.x==null)return;
+  if(Math.hypot(g.x,g.y)>2.5)tilt.raw=Math.atan2(g.x,g.y); // too flat to tell otherwise: keep the last angle
+  if(tilt.zero===null)tilt.zero=tilt.raw;
+  if(!tilt.ok){tilt.ok=true;paintPad()}}
+function listenTilt(){if(!tilt.on){tilt.on=true;addEventListener('devicemotion',onMotion)}}
+function askTilt(){
+  if(!TILT_ABLE||tilt.pref!=='tilt')return;
+  const D=window.DeviceMotionEvent;
+  if(D&&typeof D.requestPermission==='function')D.requestPermission().then(r=>{if(r==='granted')listenTilt();else{tilt.pref='drag';paintSteer()}}).catch(()=>{});
+  else listenTilt()}
+function tiltZero(){tilt.zero=tilt.raw;tilt.steer=0}
+function tiltSteer(dt){
+  let d=tilt.raw-tilt.zero;d=Math.atan2(Math.sin(d),Math.cos(d));
+  const deg=-d*180/Math.PI,a=Math.abs(deg),s=a<1.5?0:Math.sign(deg)*Math.pow(Math.min(1,(a-1.5)/26.5),1.15);
+  tilt.steer+=(s-tilt.steer)*Math.min(1,dt*18);return tilt.steer}
+const tiltMode=()=>tilt.pref==='tilt'&&tilt.ok;
+function paintPad(){$('#pad').classList.toggle('tilt',tiltMode())}
+function paintSteer(){const b=$('#steerMode');b.hidden=!TILT_ABLE;b.textContent='Steering: '+(tilt.pref==='tilt'?'Tilt':'Drag');paintPad()}
+$('#steerMode').onclick=()=>{tilt.pref=tilt.pref==='tilt'?'drag':'tilt';store.set('trackaholic.steer',tilt.pref);askTilt();paintSteer()};
+paintSteer();if(TILT_ABLE&&tilt.pref==='tilt'&&!(window.DeviceMotionEvent&&typeof DeviceMotionEvent.requestPermission==='function'))listenTilt();
 function playerInput(dt){
   const k=keys.R-keys.L;kSteer+=clamp(k-kSteer,-4*dt,4*dt);if(!k&&Math.abs(kSteer)<0.06)kSteer=0;
-  const autoGas=IS_TOUCH; // on a phone the car accelerates by itself; the right thumb only brakes
-  const brk=keys.D||touch.brake?1:0;
-  return{steer:clamp(kSteer+touch.steer,-1,1),thr:brk?0:(keys.U||autoGas?1:0),brk};
+  const autoGas=IS_TOUCH; // on a phone the car accelerates by itself; the thumbs brake, drift and fire the nitro
+  const me=G.me,fast=me&&me.v.dot(_v1.set(0,0,1).applyQuaternion(me.q))>9;
+  const steer=clamp(kSteer+(tiltMode()?tiltSteer(dt):touch.steer),-1,1);
+  // braking while turning at speed drifts; braking in a straight line just brakes
+  const drift=(keys.S||touch.drift)&&fast&&Math.abs(steer)>0.25,brk=keys.D||keys.S||touch.brake?1:0;
+  return{steer,thr:brk&&!drift?0:(keys.U||autoGas?1:0),brk,drift,nitro:!!(keys.N||touch.nitro)};
 }
 
 /* ================= game state ================= */
@@ -849,7 +908,7 @@ async function setupRace(spec){ // spec: {seed, raceId, entrants:[{id,name,color
     return c});
   G.me=G.cars.find(c=>c.id===spec.meId)||null;
   if(G.me&&AUTO)G.me.ai.skill=1.02;
-  G.t0=now()+spec.cd*1000/SPEED;G.phase='count';G.lastCount=99;camSnap=true;
+  G.t0=now()+spec.cd*1000/SPEED;G.phase='count';G.lastCount=99;camSnap=true;tiltZero();
 }
 // network state: position, orientation, velocity, steering, flags, suspension, lap progress
 const pack=c=>{const r=x=>Math.round(x*1000)/1000;return[r(c.p.x),r(c.p.y),r(c.p.z),r(c.q.x),r(c.q.y),r(c.q.z),r(c.q.w),r(c.v.x),r(c.v.y),r(c.v.z),r(c.steer),(c.brk>0.05?1:0)|(c.rev?2:0)|(c.done?8:0),...c.wc.map(r),Math.round(c.prog*10)/10,r(c.thr)]};
@@ -897,7 +956,7 @@ function showResults(rows){
 
 /* ================= screens ================= */
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.hidden=s.id!==id)}
-function showHUD(on){const host=G.mode==='host',watching=host&&!G.me;document.body.classList.toggle('racing',!!on);document.body.classList.toggle('hostdrive',!!on&&host&&!!G.me);$('#hud').hidden=!on||!G.me;$('#pad').hidden=!on||!IS_TOUCH||!G.me;$('#tv').hidden=!(on&&watching);$('#tvBar').hidden=!(on&&host);$('#mini').hidden=!on}
+function showHUD(on){const host=G.mode==='host',watching=host&&!G.me;document.body.classList.toggle('racing',!!on);document.body.classList.toggle('hostdrive',!!on&&host&&!!G.me);$('#hud').hidden=!on||!G.me;$('#pad').hidden=!on||!IS_TOUCH||!G.me;$('#tv').hidden=!(on&&watching);$('#tvBar').hidden=!(on&&host);$('#mini').hidden=!on;paintPad()}
 let soloBots=+(store.get('trackaholic.bots')||5);
 function newSeed(){G.seed=1000+Math.floor(Math.random()*9000)}
 function showTitle(){G.mode='solo';G.phase='title';showHUD(false);showScreen('sTitle');$('#soloBots').textContent=soloBots;$('#soloLaps').textContent=G.laps;
@@ -906,7 +965,7 @@ function showTitle(){G.mode='solo';G.phase='title';showHUD(false);showScreen('sT
 async function startSolo(){initAudio();G.mode='solo';
   const ents=[{id:'me',name:'You',color:COLORS[0],kind:'human'}];for(let i=0;i<soloBots;i++)ents.push({id:'b'+i,name:BOT_NAMES[i],color:COLORS[i+1],kind:'bot'});
   showScreen('none');await setupRace({seed:G.seed,raceId:++G.raceId,entrants:ents,meId:'me',cd:3.5,laps:G.laps});showHUD(true)}
-$('#bSolo').onclick=startSolo;
+$('#bSolo').onclick=()=>{askTilt();startSolo()};
 $('#soloBotsM').onclick=()=>{soloBots=Math.max(0,soloBots-1);store.set('trackaholic.bots',soloBots);$('#soloBots').textContent=soloBots};
 $('#soloBotsP').onclick=()=>{soloBots=Math.min(7,soloBots+1);store.set('trackaholic.bots',soloBots);$('#soloBots').textContent=soloBots};
 $('#soloLapsM').onclick=()=>{G.laps=Math.max(1,G.laps-1);store.set('trackaholic.laps',G.laps);showTitle()};
@@ -944,7 +1003,7 @@ function chaseCam(c,dt,dist,height,snap){
   _l.set(st.p.x+cam.dir.x*5,st.p.y+0.7,st.p.z+cam.dir.z*5);
   const k=snap?1:1-Math.exp(-dt*9);cam.pos.lerp(_t,k);cam.look.lerp(_l,snap?1:1-Math.exp(-dt*12));
   camera.position.copy(cam.pos);camera.lookAt(cam.look);
-  camera.fov=lerp(camera.fov,clamp(60+sp*0.42,60,84)+(port?12:0),1-Math.exp(-dt*3));camera.updateProjectionMatrix();
+  camera.fov=lerp(camera.fov,clamp(60+sp*0.42,60,84)+(port?12:0)+(c.boost?10:0),1-Math.exp(-dt*3));camera.updateProjectionMatrix();
 }
 // the watching view (a host that isn't driving, or a phone that joined mid-race): follows one car at a time, cutting between chase, high chase and trackside shots
 const TV={focus:null,t:99,mode:0,side:new THREE.Vector3(),
@@ -972,7 +1031,7 @@ function frame(){
     const rc=raceClock();
     if(G.phase==='count'){const n=Math.ceil(-rc);
       if(n!==G.lastCount&&n>=0&&n<=3){G.lastCount=n;$('#count').textContent=n>0?n:'Go';sfx.beep(n===0)}
-      if(rc>=0){G.phase='race';for(const c of G.cars)c.lapStart=0;setTimeout(()=>{if($('#count').textContent==='Go')$('#count').textContent=''},700)}}
+      if(rc>=0){G.phase='race';tiltZero();for(const c of G.cars)c.lapStart=0;setTimeout(()=>{if($('#count').textContent==='Go')$('#count').textContent=''},700)}}
     const pin=G.me&&G.me.local&&!AUTO?playerInput(dt):null;
     acc+=dt;let steps=0;const h=1/HZ;
     while(acc>=h&&steps<10){acc-=h;steps++;
@@ -1013,6 +1072,7 @@ function updateHud(){
   $('#hLap').textContent=me.done?'Finished':'Lap '+clamp(me.lap,1,G.laps)+' / '+G.laps;
   $('#hSpd').textContent=Math.round(me.v.length()*3.6);
   $('#hWrong').hidden=!(me.wrongT>1.2);
+  const nm=$('#hNitro');nm.hidden=!me.local;nm.firstElementChild.style.transform='scaleX('+(me.nitro||0).toFixed(3)+')';nm.classList.toggle('on',!!me.boost);
 }
 
 /* ================= QR + WebRTC transport (adapted from Bowling Bear) ================= */
@@ -1105,7 +1165,7 @@ const HOST={peers:new Map(),pending:null,guestN:0,spares:new Map(),spareN:0,grac
     $('#lapsP').onclick=()=>{G.laps=Math.min(9,G.laps+1);store.set('trackaholic.laps',G.laps);this.lobbyUpdate()};
     $('#hostDrive').onclick=()=>{this.drive=!this.drive;store.set('trackaholic.hostdrive',this.drive?'1':'0');this.lobbyUpdate()};
     $('#hostName').value=store.get('trackaholic.name')||'';$('#hostName').oninput=()=>{store.set('trackaholic.name',$('#hostName').value.trim());this.lobbyUpdate()};
-    $('#bStart').onclick=()=>this.start();
+    $('#bStart').onclick=()=>{askTilt();this.start()};
     $('#tvEnd').onclick=()=>this.results(resultRows());
     $('#tvJoin').onclick=()=>{const c=$('#tvJoinCard');c.hidden=!c.hidden};
     $('#pasteGo').onclick=()=>{const v=$('#pasteIn').value;$('#pasteIn').value='';this.accept(v)};
@@ -1212,7 +1272,7 @@ const GU={live:null,spares:[],heard:0,rescuing:false,ping:0,tryT:0,id:null,lobby
     G.mode='guest';G.phase='join';NET.send=m=>this.send(m);showScreen('sJoin');
     $('#nameIn').value=store.get('trackaholic.name')||'';
     if(!window.RTCPeerConnection){setStatus('#joinStatus','This browser can’t join. Try Safari or Chrome.',true);return}
-    $('#bJoin').onclick=()=>{initAudio();const nm=$('#nameIn').value.trim()||'Driver';store.set('trackaholic.name',nm);this.join(code)};
+    $('#bJoin').onclick=()=>{initAudio();askTilt();const nm=$('#nameIn').value.trim()||'Driver';store.set('trackaholic.name',nm);this.join(code)};
   },
   async join(code){
     try{$('#bJoin').disabled=true;setStatus('#joinStatus','Making a reply…');
