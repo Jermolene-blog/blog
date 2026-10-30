@@ -1,14 +1,14 @@
-# Loujain & Yahya: handover
+# Lala & Yala: handover
 
-**2026-10-24: integrated into jermolene.com.** The game is now `static-assets/toys/loujain-yahya/index.html`: the fragment wrapped in the usual toy skeleton, with PWA links, a description, `toy-category` games and theme colour `#8fd6f5`, plus `icon.svg` and rendered icons. Edit that file directly. The PWA/offline wrapper suggested below is therefore done.
+**2026-10-24: integrated into jermolene.com.** The game is now `static-assets/toys/lala-yala/index.html`: the fragment wrapped in the usual toy skeleton, with PWA links, a description, `toy-category` games and theme colour `#8fd6f5`, plus `icon.svg` and rendered icons. Edit that file directly. The PWA/offline wrapper suggested below is therefore done.
 
-`loujain-yahya.html` is a single-file collection of 2D tap-only games for toddlers. It belongs to Jeremy's series of toddler single-page apps; Animal Island and Trundle World are siblings, but those two are 3D. It has no build step and no dependencies apart from the Google Fonts stylesheet for Baloo 2, which falls back to rounded system fonts. Open the file in a browser to run it.
+`lala-yala.html` is a single-file collection of 2D tap-only games for toddlers. It belongs to Jeremy's series of toddler single-page apps; Animal Island and Trundle World are siblings, but those two are 3D. It has no build step and no dependencies apart from the Google Fonts stylesheet for Baloo 2, which falls back to rounded system fonts. Open the file in a browser to run it.
 
 ## Brief and art direction
 
 - The visual style is borrowed from the *look* of Hey Duggee (Studio AKA). That means flat, outline-free vector shapes, saturated plain backgrounds (sky blue, sunny yellow, pink), a green ground band with short darker-green dashes for grass, puffy white clouds, and a big flat sun. Characters are built from simple round shapes, with black dot eyes and a white glint, big open happy mouths with pink tongues, and pink cheek blushes.
 - **Do not copy the show's characters, its badges, the woggle/scarf, or its multicoloured logo lettering.** Every character here is original.
-- The main characters are two grey cats, **Loujain** and **Yahya**. Both have **the same grey fur** (`#a3aab7`, shade `#7a8190`, belly `#eef0f4`), plus forehead stripes and a collar with a yellow tag. The only thing that tells them apart is the collar colour: **Loujain is pink `#ff5d73` and Yahya is teal `#17b3a3`**. Jeremy explicitly asked for them to be the same colour, so keep it that way.
+- The main characters are two grey cats, **Lala** and **Yala**. Both have **the same grey fur** (`#a3aab7`, shade `#7a8190`, belly `#eef0f4`), plus forehead stripes and a collar with a yellow tag. The only thing that tells them apart is the collar colour: **Lala is pink `#ff5d73` and Yala is teal `#17b3a3`**. Jeremy explicitly asked for them to be the same colour, so keep it that way.
 - Six friends also appear: duck, frog, rabbit, owl, mouse and snail.
 - The audience is toddlers. Everything is tap-only, with no dragging, no reading needed, no fail states and no timers that punish. Wrong answers get a gentle response.
 
@@ -34,7 +34,7 @@ The home screen has four big tiles, and the cats and friends standing on the gra
 
 ## Known gaps / ideas
 
-- **Speech has not been tested on a real iPad.** The en-GB voice may mispronounce "Loujain"; if so, give `CAST.loujain.say` (and the hard-coded sentences) a phonetic spelling while leaving `name` as it is.
-- The original artifact was published as "Pebble & Smudge" and then renamed in place. The internal ids in this copy are already `loujain` and `yahya`.
+- **Speech has not been tested on a real iPad.** If the en-GB voice mispronounces a name, give its `CAST.<id>.say` (and the hard-coded sentences) a phonetic spelling while leaving `name` as it is.
+- The original artifact was published as "Pebble & Smudge" and then renamed in place. On 2026-10-30 the game and its cats were renamed Lala & Yala (folder `lala-yala`); the internal ids are `lala` and `yala`.
 - Possible additions: more games (for example rain clouds that grow flowers, a dress-up with hats, or a simple music game where tapping animals plays notes), a parental lock on the home button, and a PWA/offline wrapper for iPad.
 - Wherever this one-file app is deployed, it needs no server code.

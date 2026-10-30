@@ -74,7 +74,7 @@ This repository contains the following top level folders:
 2. Install TiddlyWiki from its master branch, as the CI build does: clone https://github.com/TiddlyWiki/TiddlyWiki5 alongside this repository and run `npm install -g ./TiddlyWiki5` (or `npm link` inside it). `./bld.sh` then builds the site and `./preview.sh` serves it
 3. For screenshots, install Google Chrome. For icons, `brew install librsvg`. For the cat sprites, ImageMagick and cwebp (`brew install imagemagick webp`) and the Xcode command line tools
 4. For the toys' tests: `cd toys-src && npm install && npx playwright install chromium`
-5. Copy the private originals into `local/` from their backup (only needed to rebuild the cat sprites)
+5. Export the original cat photos from Apple Photos into `local/cats/` (only needed to rebuild the cat sprites)
 
 ## Batch Scripts
 

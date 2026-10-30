@@ -110,15 +110,15 @@
 		"screenshot": "/screenshots/toys/knottery.webp"
 	},
 	{
-		"title": "Toys/loujain-yahya",
-		"caption": "Loujain & Yahya",
+		"title": "Toys/lala-yala",
+		"caption": "Lala & Yala",
 		"description": "Four tap-only games for toddlers starring two grey cats and their friends: hide and seek, bubble popping, guessing silhouettes and counting fish into a bowl",
-		"url": "/toys/loujain-yahya/",
+		"url": "/toys/lala-yala/",
 		"tags": "toy",
 		"text": "",
 		"category": "games",
 		"theme-color": "#8fd6f5",
-		"screenshot": "/screenshots/toys/loujain-yahya.webp"
+		"screenshot": "/screenshots/toys/lala-yala.webp"
 	},
 	{
 		"title": "Toys/marble-flick",

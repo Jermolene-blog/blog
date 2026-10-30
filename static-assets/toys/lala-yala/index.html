@@ -4,7 +4,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <script src="../pwa.js" defer></script>
 </head><body>
-<title>Loujain &amp; Yahya</title>
+<title>Lala &amp; Yala</title>
 <meta name="description" content="Four tap-only games for toddlers starring two grey cats and their friends: hide and seek, bubble popping, guessing silhouettes and counting fish into a bowl">
 <meta name="toy-category" content="games">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -67,7 +67,7 @@ body{font-family:var(--display);-webkit-user-select:none;user-select:none;-webki
 </style>
 
 <div id="app">
-  <svg id="stage" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid meet" aria-label="Loujain and Yahya games"></svg>
+  <svg id="stage" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid meet" aria-label="Lala and Yala games"></svg>
   <button id="homeBtn" class="btn" aria-label="Back to games" hidden>
     <svg viewBox="0 0 40 40"><path d="M6 19 20 7l14 12M10 16v16h20V16" fill="none" stroke="#2b2350" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="17" y="23" width="6" height="9" rx="2" fill="#ff6b5b"/></svg>
   </button>
@@ -114,9 +114,9 @@ function cat(o){
   <rect x="-42" y="-104" width="84" height="12" rx="6" fill="${collar}"/><circle cx="0" cy="-90" r="8" fill="#ffd93b"/>`;
 }
 const ART={
-  loujain:cat({fur:'#a3aab7',shade:'#7a8190',belly:'#eef0f4',collar:'#ff5d73',
+  lala:cat({fur:'#a3aab7',shade:'#7a8190',belly:'#eef0f4',collar:'#ff5d73',
     marks:`<path d="M-15,-196 v13 M0,-200 v17 M15,-196 v13" stroke="#7a8190" stroke-width="7" stroke-linecap="round"/>`}),
-  yahya:cat({fur:'#a3aab7',shade:'#7a8190',belly:'#eef0f4',collar:'#17b3a3',
+  yala:cat({fur:'#a3aab7',shade:'#7a8190',belly:'#eef0f4',collar:'#17b3a3',
     marks:`<path d="M-15,-196 v13 M0,-200 v17 M15,-196 v13" stroke="#7a8190" stroke-width="7" stroke-linecap="round"/>`}),
   duck:`
   <ellipse cx="-22" cy="-5" rx="18" ry="7" fill="#ff8a1f"/><ellipse cx="22" cy="-5" rx="18" ry="7" fill="#ff8a1f"/>
@@ -183,8 +183,8 @@ const ART={
   <circle cx="-18" cy="-76" r="14" fill="#ffb347"/>`
 };
 const CAST={
-  loujain:{name:'Loujain',say:'Loujain',cat:true},
-  yahya:{name:'Yahya',say:'Yahya',cat:true},
+  lala:{name:'Lala',say:'Lala',cat:true},
+  yala:{name:'Yala',say:'Yala',cat:true},
   duck:{name:'Duck',say:'a duck'},
   frog:{name:'Frog',say:'a frog'},
   rabbit:{name:'Rabbit',say:'a rabbit'},
@@ -193,7 +193,7 @@ const CAST={
   snail:{name:'Snail',say:'a snail'}
 };
 const FRIENDS=['duck','frog','rabbit','owl','mouse','snail'];
-const ALL=['loujain','yahya',...FRIENDS];
+const ALL=['lala','yala',...FRIENDS];
 
 const inner=id=>`<g class="hopper"><g class="idle" style="--bd:${(-Math.random()*4).toFixed(2)}s">${ART[id]}</g></g>`;
 const critter=(id,x,y,s,attrs='')=>`<g transform="translate(${x},${y}) scale(${s})" ${attrs}>${inner(id)}</g>`;
@@ -314,13 +314,13 @@ const GAMES=[
   {id:'fish',label:'Fish Supper',col:'#ffb020',go:()=>fishSupper()}
 ];
 function tileIcon(id){
-  if(id==='hide')return `${critter('yahya',100,175,.52)}<g transform="translate(100,205) scale(.62)">${SPOT.bush.front}</g>`;
+  if(id==='hide')return `${critter('yala',100,175,.52)}<g transform="translate(100,205) scale(.62)">${SPOT.bush.front}</g>`;
   if(id==='bub')return `<circle cx="100" cy="98" r="62" fill="#fff" opacity=".28"/><circle cx="100" cy="98" r="62" fill="none" stroke="#fff" stroke-width="5"/>${critter('duck',100,148,.5)}<path d="M66,62 a40,40 0 0 1 22,-18" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="160" cy="168" r="14" fill="none" stroke="#fff" stroke-width="4"/><circle cx="38" cy="160" r="9" fill="none" stroke="#fff" stroke-width="4"/>`;
   if(id==='who')return `<rect x="34" y="28" width="132" height="142" rx="18" fill="#fff"/><g transform="translate(100,160) scale(.62)" filter="url(#sil)">${ART.owl}</g>`;
   return `<g transform="translate(100,130) rotate(-20)">${fishArt()}</g><g transform="translate(100,175)"><ellipse cx="0" cy="-26" rx="58" ry="10" fill="#c94b3c"/><path d="M-58,-26 L58,-26 Q54,10 0,12 Q-54,10 -58,-26Z" fill="#ff6b5b"/></g>`;
 }
 function home(){
-  let t=`<text x="500" y="118" text-anchor="middle" font-size="96" fill="#ff6b5b" stroke="#fff" stroke-width="14" stroke-linejoin="round" paint-order="stroke">Loujain &amp; Yahya</text>`;
+  let t=`<text x="500" y="118" text-anchor="middle" font-size="96" fill="#ff6b5b" stroke="#fff" stroke-width="14" stroke-linejoin="round" paint-order="stroke">Lala &amp; Yala</text>`;
   GAMES.forEach((g,i)=>{
     const x=55+i*230;
     t+=`<g transform="translate(${x},165)" data-act="go" data-g="${i}"><g class="tile">
@@ -333,8 +333,8 @@ function home(){
   screen('home',backdrop('#8fd6f5','#9bcf53',560)+sky()+t+
     critter('duck',115,668,.48,'data-act="poke" data-id="duck"')+
     critter('snail',255,676,.38,'data-act="poke" data-id="snail"')+
-    critter('loujain',395,672,.64,'data-act="poke" data-id="loujain"')+
-    critter('yahya',605,672,.64,'data-act="poke" data-id="yahya"')+
+    critter('lala',395,672,.64,'data-act="poke" data-id="lala"')+
+    critter('yala',605,672,.64,'data-act="poke" data-id="yala"')+
     critter('mouse',755,676,.42,'data-act="poke" data-id="mouse"')+
     critter('frog',890,668,.48,'data-act="poke" data-id="frog"'),
     {go:t=>{sfx.pop();GAMES[+t.dataset.g].go()}});
@@ -348,7 +348,7 @@ function hideSeek(){
   function deal(){
     found=new Set();busy=false;spotsG.innerHTML='';
     const kinds=shuffle(Object.keys(SPOT));
-    cast=shuffle(['loujain','yahya',...shuffle(FRIENDS).slice(0,3)]);
+    cast=shuffle(['lala','yala',...shuffle(FRIENDS).slice(0,3)]);
     xs.forEach((x,i)=>{
       const k=SPOT[kinds[i]];
       add(spotsG,`<g transform="translate(${x},560)" data-act="peek" data-i="${i}">
@@ -361,7 +361,7 @@ function hideSeek(){
   }
   function hideAll(){spotsG.querySelectorAll('[data-act]').forEach(s=>{s.querySelector('.hider').style.transform='translate(0px,160px)'})}
   deal();
-  later(()=>say('Where are Loujain and Yahya?'),500);
+  later(()=>say('Where are Lala and Yala?'),500);
   handlers.peek=t=>{
     if(busy)return;
     const i=+t.dataset.i,id=cast[i],c=CAST[id];
@@ -372,7 +372,7 @@ function hideSeek(){
       say(c.cat?`Peekaboo! It's ${c.name}!`:`Peekaboo! It's ${c.say}!`,350);
       if(c.cat){found.add(id);if(found.size===2){busy=true;later(()=>{
         sfx.cheer();cast.forEach((cid,j)=>{if(CAST[cid].cat)burst(xs[j],330)});
-        say('You found Loujain and Yahya!');
+        say('You found Lala and Yala!');
         spotsG.querySelectorAll('.hopper').forEach(h=>retrigger(h,'bigjump'));
         later(()=>{hideAll();later(()=>{deal();say('Hide again!')},700)},4200);
       },1300)}}
@@ -455,7 +455,7 @@ function whosThat(){
 
 /* ---------- 4. Fish Supper ---------- */
 function fishSupper(){
-  const cats=[{id:'loujain',x:185,bx:345,col:'#ff5d73',n:0,fly:0,busy:false},{id:'yahya',x:815,bx:655,col:'#17b3a3',n:0,fly:0,busy:false}];
+  const cats=[{id:'lala',x:185,bx:345,col:'#ff5d73',n:0,fly:0,busy:false},{id:'yala',x:815,bx:655,col:'#17b3a3',n:0,fly:0,busy:false}];
   const words=['','One','Two','Three','Four','Five'];
   let wall=`<rect x="-3000" y="-3000" width="7000" height="3520" fill="#ffd166"/>
     <rect x="-3000" y="520" width="7000" height="4000" fill="#f2a65a"/>
@@ -482,7 +482,7 @@ function fishSupper(){
   const drawDots=i=>{const c=cats[i];$('#dots'+i).innerHTML=[0,1,2,3,4].map(k=>`<circle cx="${c.x-56+k*28}" cy="378" r="10" fill="${k<c.n?c.col:'#fff'}" stroke="#2b2350" stroke-width="3"/>`).join('')};
   const drawPile=i=>{const c=cats[i],r=seeded(i*9+3);$('#pile'+i).innerHTML=Array.from({length:c.n},(_,k)=>`<g transform="translate(${-34+(k%3)*34},${-34-Math.floor(k/3)*14}) rotate(${(r()*50-25).toFixed(0)}) scale(.75)">${fishArt(k%2?'#ffb347':'#ff8a3d')}</g>`).join('')};
   cats.forEach((_,i)=>{drawDots(i);drawPile(i)});
-  later(()=>say('Loujain and Yahya are hungry!'),400);
+  later(()=>say('Lala and Yala are hungry!'),400);
   handlers.feed=t=>{
     let i=t.dataset.c;i=i==='auto'?(cats[0].n+cats[0].fly<=cats[1].n+cats[1].fly?0:1):+i;
     const c=cats[i];
