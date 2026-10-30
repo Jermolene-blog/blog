@@ -1,0 +1,17 @@
+// A GitHub Codespace for writing the blog from a browser, such as on an iPad.
+// It serves the editable main wiki with serve.sh on port 8080, which Codespaces
+// forwards privately over HTTPS. See "Writing in a Codespace" in README.md
+{
+	"name": "jermolene.com",
+	"image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+	// Install the prerelease TiddlyWiki from the master branch, as the CI build does
+	"postCreateCommand": "git clone --depth 1 https://github.com/TiddlyWiki/TiddlyWiki5.git ~/TiddlyWiki5 && npm install -g ~/TiddlyWiki5",
+	"postStartCommand": "nohup ./serve.sh > /tmp/serve.log 2>&1 &",
+	"forwardPorts": [8080],
+	"portsAttributes": {
+		"8080": {
+			"label": "TiddlyWiki",
+			"onAutoForward": "openBrowser"
+		}
+	}
+}

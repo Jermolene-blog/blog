@@ -73,7 +73,7 @@ This repository contains the following top level folders:
 * **artwork**: artwork for favicons, animated gifs etc
 * **main-wiki**: the content of the main wiki comprising the blog
 * **social**: the close-ups that the social media cards are drawn from
-* **main-wiki-server**: an indirected version of the main wiki suitable for using in the client-server configuration
+* **main-wiki-server**: an indirected version of the main wiki suitable for using in the client-server configuration. Its `$:/config/FileSystemPaths` files the tiddlers it saves into `main-wiki/tiddlers`: posts in `posts`, pages in `pages`, images in `images`, system tiddlers in `system` and anything else at the top level, while drafts and the story list go in `new`, which is not committed
 * **static-assets**: static assets to be copied unchanged to the output
 * **toys-src**: source, build scripts, tests and working notes for the toys that need more than their published files
 * **local** (not committed): private material that must never be published, such as the original cat photographs read by `build-cat-sprites.sh`. Back it up separately
@@ -87,6 +87,17 @@ This repository contains the following top level folders:
 3. For screenshots, install Google Chrome. For icons, `brew install librsvg`. For the cat sprites, ImageMagick and cwebp (`brew install imagemagick webp`) and the Xcode command line tools
 4. For the toys' tests: `cd toys-src && npm install && npx playwright install chromium`
 5. Export the original cat photos from Apple Photos into `local/cats/` (only needed to rebuild the cat sprites)
+
+## Writing in a Codespace
+
+Posts can be written from any browser, such as on an iPad, in a GitHub Codespace defined by `.devcontainer/devcontainer.json`:
+
+1. On https://github.com/Jermolene/blog choose Code, then Codespaces, then open a codespace on `master` (the first one takes a few minutes to set up; after that, reopen the same one from the same menu)
+2. The codespace runs `serve.sh` and forwards its port. Open the editable wiki from the globe icon beside port 8080 in the Ports panel (if the browser blocks the tab that opens automatically). The address is private to your GitHub account, and can be added to the iPad's Home Screen
+3. Write the post as usual, tagged `post` and with a `description`. Pictures can be imported from Photos with the import button in the sidebar's Tools tab
+4. Commit and push from the Source Control panel. The push triggers the CI build and deploy as usual
+
+The CI build draws the social media card of a new post, but as it is not committed it is redrawn by every build until the next time the site is built on a Mac and the card committed. Codespaces stop when they have been idle for a while, keeping uncommitted work, and can be deleted once everything has been pushed.
 
 ## Batch Scripts
 

@@ -1,6 +1,6 @@
 output/
 .DS_Store
-main-wiki/tiddlers/new/$__StoryList.tid
+main-wiki/tiddlers/new/
 /site/
 # Local files that are never committed, such as the original photographs of the cats
 /local/

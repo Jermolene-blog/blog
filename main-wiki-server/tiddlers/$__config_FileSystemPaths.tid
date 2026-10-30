@@ -1,0 +1,8 @@
+title: $:/config/FileSystemPaths
+
+[has[draft.of]search-replace:g[/],[_]addprefix[new/]]
+[field:title[$:/StoryList]search-replace:g[/],[_]addprefix[new/]]
+[is[system]search-replace:g[/],[_]addprefix[system/]]
+[is[image]search-replace:g[/],[_]addprefix[images/]]
+[tag[post]search-replace:g[/],[_]addprefix[posts/]]
+[tag[page]search-replace:g[/],[_]addprefix[pages/]]

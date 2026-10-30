@@ -11,6 +11,6 @@
 		"../main-wiki"
 	],
 	"config": {
-		"default-tiddler-location": "../main-wiki/tiddlers/new"
+		"default-tiddler-location": "../main-wiki/tiddlers"
 	}
 }
