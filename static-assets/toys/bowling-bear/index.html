@@ -1282,7 +1282,9 @@ function nbFit(P){
   let d=Math.max(P.z-cz,3.0);const ax=Math.min(-NB_X,Math.max(0.85,k*d-0.3));
   d=Math.max(d,(ax+0.3)/k);P.x=-ax;P.z=Math.min(cz+d,PIT_Z-0.3);return P;
 }
-makeBear(1.0,P=>Math.abs(P.x)<0.95?0.075:-0.02).then(b=>{nb=b;nb.fit=nbFit;nb.pos.copy(nbAt(NB_HOME));nb.heading=NB_FACE_HOME;scene.add(nb.root);nbHome();}).catch(e=>console.error('bear load failed',e));
+// the bear walks and sits on the divider between this lane and the next, two cappings side by side whose tops are at
+// 0.075 and which span 0.767-1.083 from the lane's centre; the floor beyond is lower
+makeBear(1.0,P=>Math.abs(P.x)<1.1?0.075:-0.02).then(b=>{nb=b;nb.fit=nbFit;nb.pos.copy(nbAt(NB_HOME));nb.heading=NB_FACE_HOME;scene.add(nb.root);nbHome();}).catch(e=>console.error('bear load failed',e));
 
 // snapshot → meshes (sim x is mirrored so screen-right is +x)
 const qTmp=new THREE.Quaternion(),axTmp=new THREE.Vector3();

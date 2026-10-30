@@ -183,3 +183,7 @@ The alley (host and join, practise alone) had no sound at all; only the table di
 - On/off is `sfx.on`/`sfx.setOn()`, stored under `bowling-bear.sound` (seeded from the table's old `sound` pref). The table menu's Sound button sets it; the alley has no switch of its own.
 - `alleySound()` derives the alley's sounds from the snapshots every device draws, so the screen and all the phones hear every roll whoever bowls: the release when the first snapshot of a roll arrives, the rumble from the ball's speed between snapshots, a clack as a pin goes from standing to falling (louder for the first) and a softer one as it lands. `applyState()` adds the cheer and roar for a strike, the cheer for a spare and the womp for a gutter or a miss, beside the toasts, and a roar at the end of the game; the bear's strike and spare dances get `sfx.groove`.
 - Checked headlessly with two Chromium processes (host and a guest who joins by link), counting the sounds started through a patched `AudioContext`: the watching device hears the roll as well as the bowler. Not yet listened to on real devices.
+
+## The alley bear on the divider (2026-10-30)
+
+The alley bear walks and sits on the divider between the lane and its neighbour: two cappings side by side, tops at y = 0.075, spanning 0.767–1.083 from the lane's centre. Its ground function said 0.075 only within 0.95, so at home (`NB_X` = −1.0) and running alongside it was set 9.5 cm low and sank into the divider; it now says 0.075 within 1.1.
