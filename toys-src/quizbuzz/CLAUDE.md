@@ -47,7 +47,7 @@ Test hook: `?speed=6` runs the game clock and robots six times faster.
 
 ## LAN transport (done, adapted from Bowling Bear)
 
-Bowling Bear's signalling (`Jermolene-blog/blog`, `static-assets/toys/bowling-bear/index.html`): compact SDP in a QR (`packSDP`/`unpackSDP`, the same codec as Bowling Bear's `pack`/`unpack`, prefix `QB2`), one invite at a time, the host scans the phone's answer QR. Differences here:
+Bowling Bear's signalling (`Jermolene/blog`, `static-assets/toys/bowling-bear/index.html`): compact SDP in a QR (`packSDP`/`unpackSDP`, the same codec as Bowling Bear's `pack`/`unpack`, prefix `QB2`), one invite at a time, the host scans the phone's answer QR. Differences here:
 - The projector QR is a URL (`…/quizbuzz/#QB2O…*`), so phones scan it with the normal camera app and land straight in the game.
 - **Compact codes (2026-10-29, `QB2`)**: only ufrag and password (6 bits a character), the sha-256 fingerprint, setup role and up to 3 host candidates (IPv4, then mDNS, IPv6 only if nothing else) as bytes; the rest of the SDP is rebuilt from a template. Encoded in a 41-character alphabet (`0-9A-Z+-./:`, three characters per two bytes) that is safe in a URL fragment and fits QR alphanumeric mode; `qrDataURL` puts the address part in a byte segment and the code in an alphanumeric one, error correction L. Join QR 81×81 → 41×41 modules, reply 33×33. Old `#j=QB1…` links get "from an older Quizbuzz".
 - In `#host` mode the join card sits on the stage beside the screen (`#joinOv`, `syncJoinCard`), not inside it, with a 516px QR so it scans from 6–8 feet: throughout the lobby, and in a game when the host taps **Join code** (it then covers the right of the screen). The practice studio has no live card.
