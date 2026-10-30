@@ -2,7 +2,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;800&family=Zen+Kaku+Gothic+New:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: full-bleed live fur/flow canvas; floating lacquer toolbar bottom, collapsible control panel right (bottom sheet on phones). Single dark UI look by choice. */
+/* Layout: full-bleed live ink flow canvas; floating lacquer toolbar bottom, collapsible control panel right (bottom sheet on phones). Single dark UI look by choice. */
 :root{
   --ink:#0c0b10;
   --lacquer:rgba(14,12,19,.84);
@@ -79,9 +79,9 @@ input[type=range]:focus-visible::-webkit-slider-thumb{background:var(--accent)}
 .hideui .mark,.hideui .bar,.hideui .panel,.hideui .xbar,.hideui .hint{display:none}
 </style>
 
-<canvas id="c" aria-label="Animated field of fine ink hairs and hand-drawn patterns. Drag to stroke the fur."></canvas>
+<canvas id="c" aria-label="Animated field of feathered ink strokes and hand-drawn patterns. Drag to draw through it."></canvas>
 <div class="mark"><h1>Flowing Field</h1><span>流</span></div>
-<div class="hint" id="hint">Stroke the fur</div>
+<div class="hint" id="hint">Drag to draw through the ink</div>
 <div class="dbg" id="dbg" hidden><pre id="dbgt"></pre><canvas id="dbgc" width="320" height="72" aria-label="Frame time graph"></canvas></div>
 
 <div class="grid" id="grid" hidden></div>
@@ -98,7 +98,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb{background:var(--accent)}
   <button id="bExp" type="button" aria-pressed="false">Explore <kbd>E</kbd></button>
   <button id="bPause" type="button" aria-pressed="false">Pause <kbd>␣</kbd></button>
   <button id="bReset" type="button">Reset</button>
-  <button id="bPurr" type="button" aria-pressed="true">Purr</button>
+  <button id="bPurr" type="button" aria-pressed="true">Nib sound</button>
   <button id="bPanel" type="button" aria-pressed="true">Controls</button>
 </nav>
 
@@ -106,11 +106,11 @@ input[type=range]:focus-visible::-webkit-slider-thumb{background:var(--accent)}
 (()=>{
 // ---------- parameters ----------
 const SPEC=[
- {g:'Hand',jp:'手',items:[
-  {k:'hand',l:'Hand size (px)',min:20,max:240,step:1,d:90,keep:1},
-  {k:'press',l:'Pressure',min:.1,max:1,step:.01,d:.75,keep:1},
-  {k:'memory',l:'Fur memory (s)',min:1,max:120,step:1,d:12,keep:1},
-  {k:'purr',l:'Purr volume',min:0,max:1,step:.01,d:.6,keep:1},
+ {g:'Pen',jp:'筆',items:[
+  {k:'hand',l:'Nib width (px)',min:20,max:240,step:1,d:90,keep:1},
+  {k:'press',l:'Pen pressure',min:.1,max:1,step:.01,d:.75,keep:1},
+  {k:'memory',l:'Mark persistence (s)',min:1,max:120,step:1,d:12,keep:1},
+  {k:'purr',l:'Nib sound volume',min:0,max:1,step:.01,d:.6,keep:1},
  ]},
  {g:'Field',jp:'場',items:[
   {k:'scale',l:'Frequency',min:.3,max:5,step:.01,d:1.1},
@@ -122,29 +122,29 @@ const SPEC=[
   {k:'drift',l:'Drift speed',min:0,max:1,step:.005,d:.08},
  ]},
  {g:'Tangle',jp:'紋',items:[
-  {k:'tAmt',l:'Tangled sections',min:0,max:1,step:.01,d:.6},
+  {k:'tAmt',l:'Patterned sections',min:0,max:1,step:.01,d:.6},
   {k:'tCell',l:'Section size',min:.2,max:2,step:.01,d:.6},
   {k:'tVar',l:'Pattern variety',min:1,max:9,step:1,d:9},
   {k:'tSp',l:'Line spacing (px)',min:4,max:40,step:.5,d:10},
   {k:'tW',l:'Line weight',min:.3,max:4,step:.05,d:1.2},
-  {k:'tWob',l:'Hand wobble',min:0,max:1,step:.01,d:.45},
+  {k:'tWob',l:'Freehand wobble',min:0,max:1,step:.01,d:.45},
   {k:'tFill',l:'Black fills',min:0,max:1,step:.01,d:.3},
-  {k:'tStr',l:'Section outline (px)',min:0,max:6,step:.1,d:2.2},
+  {k:'tStr',l:'String weight (px)',min:0,max:6,step:.1,d:2.2},
   {k:'tMove',l:'Line drift',min:-1,max:1,step:.01,d:.12},
  ]},
- {g:'Hair',jp:'毛',items:[
-  {k:'spacing',l:'Hair spacing (px)',min:3,max:24,step:.5,d:7.5,keep:1},
-  {k:'len',l:'Hair length (px)',min:10,max:300,step:1,d:170},
-  {k:'width',l:'Hair weight',min:.3,max:5,step:.05,d:1.1},
+ {g:'Feathering',jp:'線',items:[
+  {k:'spacing',l:'Stroke spacing (px)',min:3,max:24,step:.5,d:7.5,keep:1},
+  {k:'len',l:'Stroke length (px)',min:10,max:300,step:1,d:170},
+  {k:'width',l:'Line weight',min:.3,max:5,step:.05,d:1.1},
   {k:'taper',l:'Taper',min:0,max:1,step:.01,d:.7},
-  {k:'ink',l:'Ink density',min:.05,max:1,step:.01,d:.55},
-  {k:'dash',l:'Broken hairs',min:0,max:.8,step:.01,d:.08},
+  {k:'ink',l:'Ink load',min:.05,max:1,step:.01,d:.55},
+  {k:'dash',l:'Dry-brush breaks',min:0,max:.8,step:.01,d:.08},
   {k:'dashLen',l:'Break length (px)',min:3,max:40,step:.5,d:14},
-  {k:'flow',l:'Flow along hairs',min:-3,max:3,step:.05,d:.6},
+  {k:'flow',l:'Ink travel',min:-3,max:3,step:.05,d:.6},
  ]},
  {g:'Colour',jp:'色',items:[
-  {k:'mode',l:'Palette',type:'seg',opts:['Sumi','Spectrum','Acid','Duotone'],d:0},
-  {k:'key',l:'Colour by',type:'seg',opts:['Direction','Field','Hair'],d:0},
+  {k:'mode',l:'Palette',type:'seg',opts:['Ink','Spectrum','Acid','Duotone'],d:0},
+  {k:'key',l:'Colour by',type:'seg',opts:['Direction','Field','Stroke'],d:0},
   {k:'hue',l:'Hue',min:0,max:1,step:.005,d:.6},
   {k:'hueSpread',l:'Hue range',min:0,max:3,step:.01,d:1},
   {k:'sat',l:'Saturation',min:0,max:1,step:.01,d:.05},
@@ -198,7 +198,7 @@ float snoise(vec3 v){
 }
 vec3 hsl(float h,float s,float l){vec3 c=clamp(abs(mod(h*6.+vec3(0.,4.,2.),6.)-3.)-1.,0.,1.);return l+s*(c-.5)*(1.-abs(2.*l-1.));}
 `;
-// Zentangle-style sections: wobbly Voronoi 'string' divides the plane; each section is fur or a hand-drawn line pattern.
+// Zentangle-style sections: wobbly Voronoi 'string' divides the plane; each section is feathering or a hand-drawn line pattern.
 const TANGLE=`
 uniform float uTAmt,uTCell,uTVar,uTPer,uTWob,uTKOff;
 vec3 h33(vec3 p){p=fract(p*vec3(.1031,.1030,.0973));p+=dot(p,p.yxz+33.33);return fract((p.xxy+p.yxx)*p.zyx);}
@@ -566,32 +566,28 @@ function updateGroom(dt){
   gCur=tgt;segs=[];
 }
 
-// ---------- purr ----------
+// ---------- nib sound ----------
 let ac=null,purrGain=null,purrOn=true,handSpeed=0,handDown=false;
 try{purrOn=localStorage.getItem(LS+'-purr')!=='0'}catch(e){}
 function initAudio(){
   if(ac){if(ac.state==='suspended')ac.resume().catch(()=>{});return}
   try{ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){ac=null;return}
-  const sr=ac.sampleRate,len=sr*3,buf=ac.createBuffer(1,len,sr),d=buf.getChannelData(0);let b=0;
-  for(let i=0;i<len;i++){b=(b+.02*(Math.random()*2-1))/1.02;d[i]=b*3.5}
+  // nib on paper: white noise with a fibrous grain, band-passed; volume and brightness follow pen speed
+  const sr=ac.sampleRate,len=sr*2,buf=ac.createBuffer(1,len,sr),d=buf.getChannelData(0);let g=1;
+  for(let i=0;i<len;i++){if(i%Math.floor(sr/900)===0)g=.35+Math.random()*.9;d[i]=(Math.random()*2-1)*g}
   const src=ac.createBufferSource();src.buffer=buf;src.loop=true;
-  const lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=380;
-  const pk=ac.createBiquadFilter();pk.type='peaking';pk.frequency.value=95;pk.Q.value=1.2;pk.gain.value=10;
-  const am=ac.createGain();am.gain.value=0;
-  const lfo=ac.createOscillator();lfo.frequency.value=25;
-  const shp=ac.createWaveShaper();const cu=new Float32Array(1024);for(let i=0;i<1024;i++){const x=i/511.5-1;cu[i]=Math.pow(Math.max(0,x),2.2)*1.6}shp.curve=cu;
-  lfo.connect(shp).connect(am.gain);
-  const br=ac.createOscillator();br.frequency.value=.42;const brg=ac.createGain();brg.gain.value=2.2;br.connect(brg).connect(lfo.frequency);
-  const brA=ac.createGain();brA.gain.value=.75;const brAm=ac.createGain();brAm.gain.value=.25;br.connect(brAm).connect(brA.gain);
+  scratchBp=ac.createBiquadFilter();scratchBp.type='bandpass';scratchBp.frequency.value=2600;scratchBp.Q.value=.9;
+  const hp=ac.createBiquadFilter();hp.type='highpass';hp.frequency.value=700;
   purrGain=ac.createGain();purrGain.gain.value=0;
-  src.connect(lp).connect(pk).connect(am).connect(brA).connect(purrGain).connect(ac.destination);
-  src.start();lfo.start();br.start();
+  src.connect(hp).connect(scratchBp).connect(purrGain).connect(ac.destination);src.start();
 }
+let scratchBp=null;
 function updatePurr(dt){
-  handSpeed*=Math.exp(-dt/.9);
+  handSpeed*=Math.exp(-dt/.08);
   if(!ac||!purrGain)return;
-  const lvl=Math.max(handDown?.35:0,Math.min(1,Math.pow(handSpeed/700,.6)));
-  purrGain.gain.setTargetAtTime(purrOn?lvl*P.purr*.9:0,ac.currentTime,.18);
+  const v=handDown?Math.min(1,handSpeed/1400):0;
+  purrGain.gain.setTargetAtTime(purrOn?Math.pow(v,.7)*P.purr*.5:0,ac.currentTime,.03);
+  scratchBp.frequency.setTargetAtTime(1800+v*3200,ac.currentTime,.05);
 }
 
 // ---------- loop ----------
@@ -653,7 +649,7 @@ scale ${scale.toFixed(2)}× of ${MAXS}×   ${W}×${H}  rescales ${rescales}
 lost  ${ctxLost}
 hairs ${fmtK(nSeeds)}   verts ${fmtK(ST.verts)}
 trace ${ST.passes} passes  draws ${ST.draws}
-${exploring?`tiles ${ST.tiles}/frame (${tpf} max)`:`groom ${groomActive?'active':'idle'}  ${paused?'paused':'live'}`}
+${exploring?`tiles ${ST.tiles}/frame (${tpf} max)`:`marks ${groomActive?'active':'idle'}  ${paused?'paused':'live'}`}
 path  ${FAST?'GPU trace (float)':'per-vertex (fallback)'}
 ${gpuName}`;
   cpuAcc=cpuN=0;
@@ -689,8 +685,8 @@ SPEC.forEach(g=>{
 const misc=document.createElement('section');misc.className='grp';
 misc.innerHTML=`<h2>View<small>見</small></h2>
 <div class="btns">Seed <span id="seedv"></span><button type="button" id="newseed">New seed</button></div>
-<div class="btns"><button type="button" id="ruffle">Ruffle the fur</button><button type="button" id="recentre">Recentre</button><button type="button" id="dbgb" aria-pressed="false">Debug panel</button></div>
-<p class="foot">Drag to stroke the fur, or smear the lines in patterned sections; it settles back into chaos over the fur memory time (120 keeps it combed). Two-finger drag, right-drag or Shift-drag pans; pinch or scroll zooms. <kbd>H</kbd> hides the interface, <kbd>D</kbd> toggles the debug panel.</p>`;
+<div class="btns"><button type="button" id="ruffle">Clear pen marks</button><button type="button" id="recentre">Recentre</button><button type="button" id="dbgb" aria-pressed="false">Debug panel</button></div>
+<p class="foot">Drag to rake the feathering into line, or smear the ink in patterned sections. Marks relax over the persistence time; 120 keeps them permanently. Two-finger drag, right-drag or Shift-drag pans; pinch or scroll zooms. <kbd>H</kbd> hides the interface, <kbd>D</kbd> toggles the debug panel.</p>`;
 panel.appendChild(misc);
 const fmt=(s,v)=>s.step>=1?String(v):v.toFixed(s.step<.01?3:2);
 function sync(){
@@ -734,7 +730,7 @@ if(innerWidth<620)setPanel(false);
 addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'&&e.key!==' ')return;const k=e.key.toLowerCase();
   if(k==='r')document.getElementById('bRand').click();else if(k==='e')bExp.click();else if(k===' '){e.preventDefault();setPause(!paused)}else if(k==='h')document.body.classList.toggle('hideui');else if(k==='d')setDbg(dbg.hidden);else if(k==='escape'&&exploring)setExplore(false)});
 
-// ---------- pointer: drag strokes the fur; two fingers / right / shift pan and pinch ----------
+// ---------- pointer: drag rakes the strokes; two fingers / right / shift pan and pinch ----------
 const ptrs=new Map();let mode=null,pinch=null;
 const hint=document.getElementById('hint');
 const toW=(x,y)=>{const m=Math.min(cssW,cssH);return{x:(x-cssW/2)/m*2/view.z+view.x,y:-(y-cssH/2)/m*2/view.z+view.y}};
