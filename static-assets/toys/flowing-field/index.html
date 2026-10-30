@@ -28,6 +28,9 @@
   color-scheme:dark;
 }
 [hidden]{display:none!important}
+/* Keep iOS from selecting the page on taps and long presses */
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea{-webkit-user-select:text;user-select:text}
 html,body{height:100%;overflow:hidden}
 body{background:var(--ink);color:var(--rice);font-family:var(--f-body);-webkit-font-smoothing:antialiased;touch-action:none}
 canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:grab}
@@ -664,6 +667,8 @@ const toW=(x,y)=>{const m=Math.min(cssW,cssH);return{x:(x-cssW/2)/m*2/view.z+vie
 function setMode(m){mode=m;cv.classList.toggle('stroking',m==='stroke');cv.classList.toggle('panning',m==='pan'||m==='pinch');handDown=m==='stroke'}
 cv.addEventListener('contextmenu',e=>e.preventDefault());
 cv.addEventListener('pointerdown',e=>{
+  // a trackpad or mouse press would otherwise start a text selection that tints the canvas on iPad
+  e.preventDefault();
   initAudio();cv.setPointerCapture(e.pointerId);
   ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY,t:e.timeStamp});
   if(ptrs.size===1)setMode(e.button!==0||e.shiftKey?'pan':'stroke');
