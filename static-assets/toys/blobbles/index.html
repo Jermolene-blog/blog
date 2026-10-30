@@ -144,8 +144,8 @@ function drawBackground() {
 
 /* ---------------- WebGL ---------------- */
 // The shader is compiled for the exact number of blobs (N), bubbles per blob (NB),
-// whether the blobs are tinted (TINT) and whether they are glass, liquid metal or halftone
-// (MAT 0, 1 or 2), so every loop unrolls and unused work vanishes. Everything that is the same for every pixel of a blob (its squash,
+// whether the blobs are tinted (TINT) and whether they are glass, liquid metal, halftone or soap bubbles
+// (MAT 0, 1, 2 or 3), so every loop unrolls and unused work vanishes. Everything that is the same for every pixel of a blob (its squash,
 // spread, wobble phases and bubble positions) is worked out on the CPU each frame.
 const vs = `attribute vec2 a; void main(){ gl_Position = vec4(a,0.,1.); }`;
 const fs = `
@@ -168,6 +168,10 @@ uniform vec3 uBub[N*NB]; // bubble centres and radii
 #if MAT == 2
 uniform mat3 uRot[N];   // how far each ball has rolled, taking a point on it from the screen to the ball
 uniform float uDots[N]; // how many halftone dots cover the whole of each ball
+#endif
+#if MAT == 3
+uniform vec4 uF[N];   // popping: the centre and radius of the hole torn in the film, then how much of it shows
+uniform float uSheen; // how strongly the film shows its colours
 #endif
 
 float smin(float a, float b, float k){ float h = clamp(.5 + .5*(b-a)/k, 0., 1.); return mix(b, a, h) - k*h*(1.-h); }
@@ -194,7 +198,12 @@ float sdf(vec2 p){
     float sin3 = sn*(3. - 4.*s2), cos3 = c*(4.*c2 - 3.);
     float sin5 = sn*(5. + s2*(16.*s2 - 20.)), cos5 = c*(5. + c2*(16.*c2 - 20.));
     float wob = sin3*w.x + cos3*w.y + sin5*w.z + cos5*w.w;
+#if MAT == 3
+    // soap bubbles never merge, they only stick together, so their outline is a plain union
+    d = min(d, (l - b.z - wob)*s.z);
+#else
     d = smin(d, (l - b.z - wob)*s.z, uMerge);
+#endif
   }
   // and is flattened where it meets the edge
   float edge = -min(min(p.x, uRes.x - p.x), min(p.y, uRes.y - p.y));
@@ -331,6 +340,72 @@ vec3 halftone(vec2 p){
 }
 #endif
 
+#if MAT == 3
+// the colours of a soap film come from light reflected off its front and back interfering: where
+// the film is a given thickness some wavelengths cancel out, so the colour follows the thickness,
+// which swirls as the film flows and thins towards the top as it drains
+vec3 film(vec2 u, float z, float ph){
+  float tt = uT*0.3 + ph*1.7;
+  vec2 w = u + 0.30*vec2(sin(u.y*3.1 + tt), sin(u.x*2.7 - tt*1.3));
+  w += 0.14*vec2(sin(w.y*7.3 - tt*1.7 + ph), sin(w.x*6.1 + tt*1.1));
+  float th = 560. - 200.*u.y + 170.*sin(w.x*4.1 + w.y*2.3 + tt) + 90.*sin(w.y*7.7 - w.x*3.1 - tt*1.4);
+  // the light crosses the film at more of a slant towards the rim (its refractive index is 1.33)
+  float ct = sqrt(1. - (1. - z*z)/1.77);
+  vec3 c = 0.5 - 0.5*cos(6.2831*2.66*th*ct/vec3(650., 540., 450.));
+  return clamp(mix(vec3(dot(c, vec3(.333))), c, 1.15), 0., 1.);
+}
+
+// the film over p belongs to the bubble with the least power (the square of the distance from its
+// centre, less the square of its radius), so bubbles stuck together share a flat wall along the line
+// where their powers are equal, much as real ones do. Returns the colour and how much of it shows
+vec4 soap(vec2 p, float d){
+  float p1 = 1e10, p2 = 1e10, ph = 0.;
+  vec2 c1 = vec2(0.), c2 = vec2(1e5), u = vec2(0.);
+  vec4 f = vec4(0., 0., 0., 1.);
+  for (int i = 0; i < N; i++){
+    vec4 b = uB[i];
+    if (b.z <= 0.) continue;
+    vec2 q = local(p, b, uDf[i], uSt[i]);
+    float l = length(q), pw = (l - b.z)*(l + b.z);
+    if (pw < p1){ p2 = p1; c2 = c1; p1 = pw; c1 = b.xy; u = q/b.z; f = uF[i]; ph = float(i); }
+    else if (pw < p2){ p2 = pw; c2 = b.xy; }
+  }
+  float z = sqrt(1. - min(dot(u, u), 0.998));
+  vec3 fc = film(u, z, ph);
+#if TINT
+  fc *= mix(vec3(1.), tint(p)*1.4, min(uCs, 1.)*0.7);
+#endif
+  // looking through it, the film hardly bends the light at all
+  vec3 gc = tx(p + u*uS*0.006);
+  // it reflects more as it turns away towards the rim
+  float fr = 0.07 + 0.93*pow(1. - z, 2.);
+  gc = mix(gc, fc*1.05, clamp(fr*uSheen*0.85, 0., 0.92));
+  // a reflected window, and a softer light opposite
+  vec2 hq = u - vec2(-0.40, 0.42);
+  float win = smoothstep(0.07, -0.03, max(abs(hq.x) - 0.12, abs(hq.y) - 0.08));
+  win *= 1. - 0.6*max(smoothstep(0.016, 0.004, abs(hq.x)), smoothstep(0.016, 0.004, abs(hq.y)));
+  vec2 lq = u - vec2(0.46, -0.44);
+  gc += win*0.32 + exp(-dot(lq, lq)/0.015)*0.18;
+  // the rim: a fine dark line outside a bright coloured one
+  float ed = -d;
+  gc *= 1. - 0.30*exp(-pow((ed - uS*0.0015)/(uS*0.0018), 2.));
+  gc += (0.25 + 0.5*fc)*0.6*exp(-pow((ed - uS*0.004)/(uS*0.003), 2.));
+  // the wall between bubbles stuck together
+  if (p2 < 0.){
+    float wd = (p2 - p1)/(2.*max(length(c1 - c2), 1.));
+    gc = mix(gc, 0.35 + 0.6*fc, 0.75*exp(-pow(wd/(uS*0.0022), 2.)));
+  }
+  // popping: a hole tears open from where it was tapped, with a bright frayed edge
+  float cover = f.w;
+  if (f.z > 0.){
+    float hd = length(p - f.xy) - f.z;
+    cover *= smoothstep(-1.5, 1.5, hd);
+    gc += (0.5 + 0.5*fc)*exp(-pow(hd/(uS*0.004), 2.));
+  }
+  return vec4(gc, cover);
+}
+#endif
+
 void main(){
   vec2 p = gl_FragCoord.xy;
   vec3 col = tx(p);
@@ -347,7 +422,11 @@ void main(){
       float ds = sdf(p - so);
       float sh = smoothstep(uS*0.10, -uS*0.04, ds);
       float caus = smoothstep(-uS*0.02, -uS*0.16, ds);
-#if MAT != 0
+#if MAT == 3
+      // a soap film stops almost no light: a faint shadow, brightened where the bubble focuses light
+      bg *= 1. - sh*0.06;
+      bg += caus*vec3(1., .98, .94)*0.05;
+#elif MAT != 0
       // metal lets no light through, nor does a halftone ball, so its shadow is plain and deeper
       bg *= 1. - sh*0.32;
 #else
@@ -365,8 +444,13 @@ void main(){
     }
 
     if (d < aa){
+      float cover = 1.;
 #if MAT == 2
       vec3 gc = halftone(p);
+#elif MAT == 3
+      vec4 sp = soap(p, d);
+      vec3 gc = sp.rgb;
+      cover = sp.a;
 #else
       // the slope of the glass, from the height here and a little to the right and above
       float e = 1.5;
@@ -444,7 +528,7 @@ void main(){
       }
 #endif
 #endif
-      col = mix(bg, gc, m);
+      col = mix(bg, gc, m*cover);
     }
   }
   gl_FragColor = vec4(col, 1.);
@@ -467,7 +551,7 @@ const MAXB = Math.max(0, Math.min(16, Math.floor(((gl.getParameter(gl.MAX_FRAGME
 // per-blob uniform data, packed on the CPU; a program's views cover just the blobs in play
 const bufB = new Float32Array(32), bufDf = new Float32Array(32), bufSt = new Float32Array(32), bufWb = new Float32Array(32);
 const bufE = new Float32Array(16), bufC = new Float32Array(24), bufBub = new Float32Array(8 * 16 * 3);
-const bufRot = new Float32Array(72), bufDots = new Float32Array(8);
+const bufRot = new Float32Array(72), bufDots = new Float32Array(8), bufF = new Float32Array(32);
 
 // programs are compiled once for each combination of blob count, bubble count, tint and material, and kept
 const progs = new Map();
@@ -491,9 +575,9 @@ function program(N, NB, T, M) {
   const U = n => gl.getUniformLocation(prog, n);
   v = { prog, NB,
     uRes: U('uRes'), uS: U('uS'), uT: U('uT'), uMerge: U('uMerge'), uFar: U('uFar'), uRef: U('uRef'), uDis: U('uDis'), uCs: U('uCs'), uSw: U('uSw'),
-    uB: U('uB[0]'), uDf: U('uDf[0]'), uSt: U('uSt[0]'), uWb: U('uWb[0]'), uE: U('uE[0]'), uC: U('uC[0]'), uBub: U('uBub[0]'), uRot: U('uRot[0]'), uDots: U('uDots[0]'),
+    uB: U('uB[0]'), uDf: U('uDf[0]'), uSt: U('uSt[0]'), uWb: U('uWb[0]'), uE: U('uE[0]'), uC: U('uC[0]'), uBub: U('uBub[0]'), uRot: U('uRot[0]'), uDots: U('uDots[0]'), uF: U('uF[0]'), uSheen: U('uSheen'),
     B: bufB.subarray(0, 4 * N), Df: bufDf.subarray(0, 4 * N), St: bufSt.subarray(0, 4 * N), Wb: bufWb.subarray(0, 4 * N),
-    E: bufE.subarray(0, 2 * N), C: bufC.subarray(0, 3 * N), Bub: bufBub.subarray(0, 3 * N * NB), Rot: bufRot.subarray(0, 9 * N), Dots: bufDots.subarray(0, N) };
+    E: bufE.subarray(0, 2 * N), C: bufC.subarray(0, 3 * N), Bub: bufBub.subarray(0, 3 * N * NB), Rot: bufRot.subarray(0, 9 * N), Dots: bufDots.subarray(0, N), F: bufF.subarray(0, 4 * N) };
   progs.set(key, v);
   return v;
 }
@@ -514,12 +598,13 @@ function upload() {
 
 /* ---------------- settings ---------------- */
 const pct = v => `${Math.round(v * 100)}%`;
-const COLOUR_MODES = () => ({ clear: { glass: 'Clear glass', metal: 'Silver', halftone: 'White dots' }[cfg.material], one: 'One colour', rainbow: 'Rainbow', each: 'A colour for each blob' });
-const MATERIALS = { glass: 'Glass', metal: 'Liquid metal', halftone: 'Halftone' };
+const COLOUR_MODES = () => ({ clear: { glass: 'Clear glass', metal: 'Silver', halftone: 'White dots', bubble: 'Clear' }[cfg.material], one: 'One colour', rainbow: 'Rainbow', each: 'A colour for each blob' });
+const MATERIALS = { glass: 'Glass', metal: 'Liquid metal', halftone: 'Halftone', bubble: 'Soap bubbles' };
 const tinted = () => cfg.tint !== 'clear';
 const glass = () => cfg.material === 'glass';
 const halftone = () => cfg.material === 'halftone';
-// the shader's MAT: 0 for glass, 1 for liquid metal, 2 for halftone
+const bubbly = () => cfg.material === 'bubble';
+// the shader's MAT: 0 for glass, 1 for liquid metal, 2 for halftone, 3 for soap bubbles
 const material = () => Object.keys(MATERIALS).indexOf(cfg.material);
 // a select's options may be a function, when their names depend on other settings
 const optionsOf = s => typeof s.options === 'function' ? s.options() : s.options;
@@ -529,7 +614,7 @@ const SETTINGS = [
   { key: 'size', label: 'Size', min: 0.3, max: 2.5, step: 0.05, def: 1, fmt: pct },
   { key: 'roam', label: 'Roaming speed', min: 0, max: 4, step: 0.1, def: 1, fmt: pct },
   { key: 'wobble', label: 'Wobble', min: 0, max: 5, step: 0.1, def: 1, fmt: pct },
-  { key: 'merge', label: 'Merging reach', min: 0.01, max: 0.3, step: 0.01, def: 0.1 },
+  { key: 'merge', label: 'Merging reach', min: 0.01, max: 0.3, step: 0.01, def: 0.1, when: () => !bubbly() },
   { group: 'Colour', key: 'tint', label: 'Colours', type: 'select', options: COLOUR_MODES, def: 'clear' },
   { key: 'colour', label: 'Colour', type: 'colour', def: '#1c9cf0', when: () => cfg.tint === 'one' },
   { key: 'colours', label: 'Blob colours', type: 'colours', def: ['#ff4d6d', '#ffb000', '#1c9cf0', '#2ec27e', '#8b5cf6', '#ff7a2e', '#00c2b8', '#e64bd8'], when: () => cfg.tint === 'each' },
@@ -544,6 +629,8 @@ const SETTINGS = [
   { key: 'dispersion', label: 'Rainbow fringes', min: 0, max: 4, step: 0.1, def: 1, fmt: pct, when: glass },
   { key: 'dotSize', label: 'Dot size', min: 0.4, max: 3, step: 0.05, def: 1, fmt: pct, when: halftone },
   { key: 'roll', label: 'Rolling', min: 0, max: 3, step: 0.1, def: 1, fmt: pct, when: halftone },
+  { key: 'sheen', label: 'Rainbow sheen', min: 0, max: 3, step: 0.05, def: 1, fmt: pct, when: bubbly },
+  { key: 'regrow', label: 'Time to grow back', min: 0.3, max: 10, step: 0.1, def: 2, fmt: v => `${v.toFixed(1)}s`, when: bubbly },
   { group: 'Bubbles', key: 'bubbles', label: 'Bubbles per blob', min: 0, max: MAXB, step: 1, def: Math.min(6, MAXB), when: () => MAXB > 0 && glass() },
   { key: 'bubbleSize', label: 'Bubble size', min: 0.3, max: 4, step: 0.1, def: 1, fmt: pct, when: () => MAXB > 0 && glass() },
   { key: 'drift', label: 'Drift speed', min: 0, max: 5, step: 0.1, def: 1, fmt: pct, when: () => MAXB > 0 && glass() },
@@ -566,6 +653,7 @@ try {
     if (ok && (!s.options || v in optionsOf(s))) cfg[s.key] = copy(v);
   });
 } catch (_) {}
+if (bubbly()) document.getElementById('hint').textContent = 'Drag and flick the bubbles, with as many fingers as you like. Tap a bubble to pop it, or bubbles stuck together to part them. Double-tap to change the word.';
 const saveCfg = () => { try { localStorage.setItem(STORE, JSON.stringify(cfg)); } catch (_) {} };
 
 const hud = document.getElementById('hud'), hudPanel = document.getElementById('hud-panel');
@@ -662,6 +750,8 @@ const blobs = [
   da: 0, db: 0, dva: 0, dvb: 0, // squash and stretch (see uDf in the shader) and its rate of change
   fly: 0, whizz: 0, home: null, // seconds left flying free, then whizzing back to home (or its path)
   rot: [1, 0, 0, 0, 1, 0, 0, 0, 1], // how far its halftone ball has rolled, row by row
+  pop: 0, wait: 0, grow: 1, hole: [0, 0], // as a soap bubble: seconds left popping, then gone, then how far grown back
+  loose: 0, // seconds left before a parted bubble can stick to another
 }));
 
 // roll a ball of radius r along the page by (dx, dy): it turns about the axis in the page square
@@ -683,7 +773,17 @@ function roll(b, dx, dy, r) {
 }
 
 const active = () => blobs.slice(0, cfg.count);
-const radius = b => b.r * cfg.size * S;
+const POP = 0.18;
+// how big a soap bubble is for now: it swells a little as it pops, and springs up past its size as it grows back
+function sizeOf(b) {
+  if (!bubbly()) return 1;
+  if (b.wait > 0) return 0;
+  if (b.pop > 0) return 1 + 0.1 * (1 - b.pop / POP);
+  const x = b.grow - 1;
+  return 1 + 2.70158 * x ** 3 + 1.70158 * x * x;
+}
+const radius = b => b.r * cfg.size * S * sizeOf(b);
+const gone = b => bubbly() && (b.pop > 0 || b.wait > 0);
 
 function target(b, t) {
   const [ox, oy] = b.path(t);
@@ -699,7 +799,7 @@ canvas.addEventListener('pointerdown', e => {
   const [px, py] = ptr(e);
   let best = null, bd = Infinity;
   active().forEach(b => {
-    if (held(b)) return;
+    if (held(b) || gone(b)) return;
     const d = Math.hypot(b.x - px, b.y - py) - radius(b);
     if (d < bd) { bd = d; best = b; }
   });
@@ -728,8 +828,9 @@ canvas.addEventListener('pointerup', e => {
   if (d) {
     const [px, py] = ptr(e), [x0, y0, t0] = d.down;
     const tap = e.timeStamp - t0 < 400 && Math.hypot(e.clientX - x0, e.clientY - y0) < 12;
-    // a tap on merged blobs bursts them, and doesn't count towards a double-tap
-    if (tap && burst(d.b)) { taps.delete(e.pointerId); lastTap = null; return; }
+    // a tap on merged blobs bursts them (or parts bubbles stuck together), a tap on a lone bubble
+    // pops it, and neither counts towards a double-tap
+    if (tap && (burst(d.b) || pop(d.b, px, py))) { taps.delete(e.pointerId); lastTap = null; return; }
     if (!tap) flick(d.b, [...d.trail, [px, py, e.timeStamp]], e.timeStamp);
   }
   noteTapEnd(e);
@@ -761,12 +862,13 @@ function flick(b, trail, now) {
 }
 // the blobs merged with b, found by following overlaps from one to the next
 function clump(b0) {
-  const free = active().filter(b => !held(b));
+  const free = active().filter(b => !held(b) && !gone(b));
+  const reach = bubbly() ? S * 0.01 : S * cfg.merge * 0.3;
   const found = [b0];
   for (let i = 0; i < found.length; i++) {
     const a = found[i];
     free.forEach(b => {
-      if (!found.includes(b) && Math.hypot(a.x - b.x, a.y - b.y) < radius(a) + radius(b) + S * cfg.merge * 0.3) found.push(b);
+      if (!found.includes(b) && Math.hypot(a.x - b.x, a.y - b.y) < radius(a) + radius(b) + reach) found.push(b);
     });
   }
   return found;
@@ -790,8 +892,35 @@ function burst(b0) {
     b.home = [b.x, b.y]; b.fly = (1.6 + Math.random() * 0.6) / Math.sqrt(cfg.burstSpeed); b.whizz = 0;
     // a pop: squashed flat across the direction of travel, springing into a stretch along it
     kick(b, -6, a);
+    if (bubbly()) {
+      // parted bubbles go back to roaming, and don't stick to anything until they're clear
+      b.vx *= 0.7; b.vy *= 0.7;
+      b.home = null; b.fly = 0.4 + Math.random() * 0.3; b.loose = b.fly + 1;
+    }
   });
   return true;
+}
+// a lone soap bubble pops, tearing open from where it was tapped, and later grows back
+function pop(b, px, py) {
+  if (!bubbly() || gone(b)) return false;
+  b.pop = POP; b.hole = [px - b.x, py - b.y];
+  return true;
+}
+// soap bubbles never merge: pressed together they push apart, and touching they stick, sharing a wall
+function stick(dt) {
+  const live = active().filter(b => b.init && !gone(b));
+  for (let i = 0; i < live.length; i++) for (let j = i + 1; j < live.length; j++) {
+    const a = live[i], b = live[j];
+    const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy), sum = radius(a) + radius(b), rest = sum * 0.84;
+    if (d >= sum * 1.12 || d < 1e-6 || (d > rest && (a.loose > 0 || b.loose > 0))) continue;
+    // a bubble being dragged isn't pushed about, but drags along any stuck to it
+    const ia = held(a) ? 0 : radius(a) ** -2, ib = held(b) ? 0 : radius(b) ** -2;
+    if (!ia && !ib) continue;
+    const nx = dx / d, ny = dy / d;
+    const f = (rest - d) * (d < rest ? 150 : 25) - ((b.vx - a.vx) * nx + (b.vy - a.vy) * ny) * 7;
+    const fa = f * ia / (ia + ib) * dt, fb = f * ib / (ia + ib) * dt;
+    a.vx -= nx * fa; a.vy -= ny * fa; b.vx += nx * fb; b.vy += ny * fb;
+  }
 }
 // stop iOS/Android from treating multi-finger gestures as page zoom/scroll
 ['gesturestart', 'gesturechange', 'touchmove'].forEach(t => document.addEventListener(t, e => { if (!hud.contains(e.target)) e.preventDefault(); }, { passive: false }));
@@ -895,10 +1024,28 @@ function frame(now) {
   const v = program(cfg.count, M ? 0 : Math.min(cfg.bubbles, MAXB), T, M), NB = v.NB;
   // blobs beyond the chosen number are let go, and start afresh if they come back
   blobs.slice(cfg.count).forEach(b => { b.init = false; b.vx = b.vy = b.da = b.db = b.dva = b.dvb = b.fly = b.whizz = 0; b.home = null; });
-  for (const [id, d] of drags) if (!active().includes(d.b)) drags.delete(id);
+  for (const [id, d] of drags) if (!active().includes(d.b) || gone(d.b)) drags.delete(id);
   if (!drags.size) canvas.classList.remove('dragging');
+  if (M === 3) stick(dt);
+  else blobs.forEach(b => { b.pop = b.wait = b.loose = 0; b.grow = 1; });
   active().forEach((b, i) => {
     let [tx, ty] = target(b, t);
+    if (M === 3) {
+      if (b.pop > 0 && (b.pop -= pace) <= 0) { b.pop = 0; b.wait = cfg.regrow; }
+      else if (b.wait > 0 && (b.wait -= pace) <= 0) {
+        // it grows back where it would have roamed to by now
+        b.wait = 0; b.grow = 0; b.x = tx; b.y = ty;
+        b.vx = b.vy = b.da = b.db = b.dva = b.dvb = b.fly = b.whizz = 0; b.home = null;
+      } else if (b.grow < 1) b.grow = Math.min(1, b.grow + pace / 0.8);
+      if (b.loose > 0) b.loose -= dt;
+      if (b.wait > 0) {
+        // nowhere to be seen: a radius below zero leaves it out of the picture
+        bufB.set([b.x, b.y, -1, 1], i * 4); bufDf.set([0, 1, 1, 1], i * 4); bufSt.set([1, 1, 1, -1], i * 4);
+        bufWb.fill(0, i * 4, i * 4 + 4); bufE.set([1, 0], i * 2); bufF.fill(0, i * 4, i * 4 + 4);
+        if (T) bufC.set(blobColour(i, cfg.count, turn), i * 3);
+        return;
+      }
+    }
     let k = 5, c = 3.2;
     if (held(b)) {
       for (const d of drags.values()) if (d.b === b) { tx = d.x + d.dx; ty = d.y + d.dy; }
@@ -942,7 +1089,7 @@ function frame(now) {
     if (m < 1e-4) m = 0;
 
     // --- pack what the shader needs to know about this blob
-    const rz = radius(b) * breathe;
+    const rz = Math.max(radius(b) * breathe, 1);
     // the stretch is by 1+m along the axis u, and the area is kept, so 1/(1+m) across it
     let ux = 0, uy = 1;
     if (m) {
@@ -960,6 +1107,10 @@ function frame(now) {
     const A3 = 0.016 * cfg.wobble * rz, A5 = 0.010 * cfg.wobble * rz, p3 = clock * 1.6 + i * 2.1, p5 = -clock * 2.2 + i * 1.3;
     bufWb.set([A3 * Math.cos(p3), A3 * Math.sin(p3), A5 * Math.cos(p5), A5 * Math.sin(p5)], i * 4);
     if (T) bufC.set(blobColour(i, cfg.count, turn), i * 3);
+    if (M === 3) {
+      const f = b.pop > 0 ? 1 - b.pop / POP : 0;
+      bufF.set(f ? [b.x + b.hole[0], b.y + b.hole[1], rz * 2.3 * f ** 0.6, 1 - f * f] : [0, 0, 0, 1], i * 4);
+    }
     if (M === 2) {
       // the ball's rows become the columns of the shader's matrix, which so takes the screen to the ball
       bufRot.set(b.rot, i * 9);
@@ -1003,6 +1154,7 @@ function frame(now) {
   }
   if (NB) gl.uniform3fv(v.uBub, v.Bub);
   if (M === 2) { gl.uniformMatrix3fv(v.uRot, false, v.Rot); gl.uniform1fv(v.uDots, v.Dots); }
+  if (M === 3) { gl.uniform4fv(v.uF, v.F); gl.uniform1f(v.uSheen, cfg.sheen); }
   gl.uniform1f(v.uMerge, S * cfg.merge);
   // beyond this cheap lower bound on the distance, a pixel shows only paper (see bound() in the shader)
   gl.uniform1f(v.uFar, S * (cfg.merge + 0.19));
