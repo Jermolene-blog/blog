@@ -120,6 +120,8 @@ tr.me td{color:var(--gold)}
 #toasts div{background:var(--ink2);padding:8px 12px;border-radius:8px;animation:tin 4s ease both;align-self:flex-start}
 @keyframes tin{0%{opacity:0;transform:translateX(-20px)}8%{opacity:1;transform:none}85%{opacity:1}100%{opacity:0}}
 #tvBar{position:absolute;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 16px);display:flex;gap:10px}
+body.hostdrive #tvBar{top:calc(env(safe-area-inset-top,0px) + 92px);bottom:auto;right:auto;left:max(16px,env(safe-area-inset-left,0px));flex-direction:column;align-items:flex-start;gap:8px}
+body.hostdrive #tvBar .btn{white-space:nowrap}
 #tvJoinCard{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(70vw,60vh)}
 #scanner{position:absolute;inset:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px}
 #scanner video{width:min(92vw,520px);max-height:62vh;object-fit:cover;border:3px solid var(--snow)}
@@ -194,6 +196,7 @@ body.racing #mute{display:none}
         <div class="row stepper"><span class="lbl">Bots</span><button class="btn small" id="botsM" type="button" aria-label="Fewer bots">−</button><b id="botsN">2</b><button class="btn small" id="botsP" type="button" aria-label="More bots">+</button>
           <span class="lbl">Laps</span><button class="btn small" id="lapsM" type="button" aria-label="Fewer laps">−</button><b id="lapsN">3</b><button class="btn small" id="lapsP" type="button" aria-label="More laps">+</button>
           <button class="btn small" id="hostNew" type="button">New track</button></div>
+        <div class="row"><button class="btn small" id="hostDrive" type="button" aria-pressed="true">Drive on this device: Yes</button><input type="text" id="hostName" maxlength="14" autocomplete="off" placeholder="Your name" aria-label="Your name" style="flex:1;width:auto;min-width:8em"></div>
         <div class="row"><button class="btn pri" id="bStart" type="button">Start race</button></div>
         <div class="meta" id="hostMeta"></div>
         <div id="pasteRow"><input type="text" id="pasteIn" placeholder="Or paste a reply code" aria-label="Reply code"><button class="btn small" id="pasteGo" type="button">Add</button></div>
@@ -213,7 +216,7 @@ body.racing #mute{display:none}
 
   <section id="sReply" class="screen" hidden>
     <div class="slab">
-      <h2>Hold this up to the big screen’s camera</h2>
+      <h2>Hold this up to the host’s camera</h2>
       <canvas id="qrReply"></canvas>
       <div class="status" id="replyStatus"></div>
     </div>
@@ -894,7 +897,7 @@ function showResults(rows){
 
 /* ================= screens ================= */
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.hidden=s.id!==id)}
-function showHUD(on){const host=G.mode==='host';document.body.classList.toggle('racing',!!on);$('#hud').hidden=!on||host||!G.me;$('#pad').hidden=!on||!IS_TOUCH||host||!G.me;$('#tv').hidden=!(on&&host);$('#tvBar').hidden=!(on&&host);$('#mini').hidden=!on}
+function showHUD(on){const host=G.mode==='host',watching=host&&!G.me;document.body.classList.toggle('racing',!!on);document.body.classList.toggle('hostdrive',!!on&&host&&!!G.me);$('#hud').hidden=!on||!G.me;$('#pad').hidden=!on||!IS_TOUCH||!G.me;$('#tv').hidden=!(on&&watching);$('#tvBar').hidden=!(on&&host);$('#mini').hidden=!on}
 let soloBots=+(store.get('trackaholic.bots')||5);
 function newSeed(){G.seed=1000+Math.floor(Math.random()*9000)}
 function showTitle(){G.mode='solo';G.phase='title';showHUD(false);showScreen('sTitle');$('#soloBots').textContent=soloBots;$('#soloLaps').textContent=G.laps;
@@ -943,7 +946,7 @@ function chaseCam(c,dt,dist,height,snap){
   camera.position.copy(cam.pos);camera.lookAt(cam.look);
   camera.fov=lerp(camera.fov,clamp(60+sp*0.42,60,84)+(port?12:0),1-Math.exp(-dt*3));camera.updateProjectionMatrix();
 }
-// the projector: follows one car at a time, cutting between chase, high chase and trackside shots
+// the watching view (a host that isn't driving, or a phone that joined mid-race): follows one car at a time, cutting between chase, high chase and trackside shots
 const TV={focus:null,t:99,mode:0,side:new THREE.Vector3(),
   pick(){const live=standings().filter(c=>!c.done);const pool=live.length?live:G.cars;
     const k=Math.random(),best=pool[k<0.5?0:Math.min(pool.length-1,1+(Math.random()*3|0))];
@@ -986,7 +989,7 @@ function frame(){
     sendT+=rdt;if(sendT>0.05){sendT=0;if(G.mode==='guest'&&G.me)NET.send({t:'st',k:G.raceId,a:pack(G.me)});if(G.mode==='host')HOST.relay()}
     if(G.mode!=='guest'){const allDone=G.cars.every(c=>c.done||(c.kind!=='bot'&&c.gone));
       if(allDone||(G.finAt&&tn-G.finAt>45000/SPEED)){if(!G.resT)G.resT=tn;if(tn-G.resT>3000/SPEED){G.resT=0;const rows=resultRows();if(G.mode==='host')HOST.results(rows);else showResults(rows)}}}
-    if(G.mode==='host'||!G.me)TV.update(rdt);else chaseCam(G.me,rdt,6.2,2.0,camSnap);camSnap=false;
+    if(!G.me)TV.update(rdt);else chaseCam(G.me,rdt,6.2,2.0,camSnap);camSnap=false;
     hudT+=rdt;if(hudT>0.1){hudT=0;updateHud()}
     drawMini();updateAudio(G.me&&G.me.local?G.me:null);
   }else if(G.phase==='results'){if(G.me)chaseCam(G.me,rdt,8,3,false);else previewCam(rdt);for(const c of G.cars)if(c.local&&c.model){stepCar(c,{steer:0,thr:0,brk:1},rdt);poseCar(c.model,c)}if(eng)eng.g.gain.value=0}
@@ -996,14 +999,14 @@ function frame(){
   for(const a of anim.arches)a.m.emissiveIntensity=a.base*(0.8+0.25*Math.sin(tn/400+a.ph));
   if(anim.motes){anim.motes.position.set(Math.round(camera.position.x/40)*40,camera.position.y-6,Math.round(camera.position.z/40)*40);anim.motes.rotation.y=tn/1000*0.02}
   sky.position.copy(camera.position);
-  const fp=G.phase==='title'?cam.look.set((T.bounds.minX+T.bounds.maxX)/2,0,(T.bounds.minZ+T.bounds.maxZ)/2):(G.mode==='host'||!G.me?(TV.focus?stOf(TV.focus).p:camera.position):stOf(G.me).p);
+  const fp=G.phase==='title'?cam.look.set((T.bounds.minX+T.bounds.maxX)/2,0,(T.bounds.minZ+T.bounds.maxZ)/2):(!G.me?(TV.focus?stOf(TV.focus).p:camera.position):stOf(G.me).p);
   sun.target.position.copy(fp);sun.position.copy(fp).addScaledVector(SUNDIR,150);
   if(NORENDER)return;
   if(composer)composer.render();else renderer.render(scene,camera);
 }
 function updateHud(){
   const order=standings();
-  if(G.mode==='host'||!G.me){const tot=(G.laps+1)*T.S;$('#board').innerHTML=order.map((c,i)=>'<li'+(c===TV.focus?' class="focus"':'')+'><b>'+(i+1)+'</b><span class="sw" style="background:'+c.color+'"></span><span class="n">'+esc(c.name)+'</span><span class="x">'+(c.done?fmtT(c.time):'lap '+clamp(Math.floor(progOf(c)/T.S),1,G.laps))+'</span></li>').join('');return}
+  if(!G.me){const tot=(G.laps+1)*T.S;$('#board').innerHTML=order.map((c,i)=>'<li'+(c===TV.focus?' class="focus"':'')+'><b>'+(i+1)+'</b><span class="sw" style="background:'+c.color+'"></span><span class="n">'+esc(c.name)+'</span><span class="x">'+(c.done?fmtT(c.time):'lap '+clamp(Math.floor(progOf(c)/T.S),1,G.laps))+'</span></li>').join('');return}
   const me=G.me,pl=order.indexOf(me)+1;
   $('#hPos').innerHTML=pl+'<sup>'+ordS(pl)+'</sup>';$('#hOf').textContent='of '+G.cars.length;
   const rc=Math.max(0,raceClock());$('#hTime').textContent=fmtT(me.done?me.time:rc);
@@ -1016,7 +1019,7 @@ function updateHud(){
 /* ================= signalling: SDP <-> compact codes (from Bowling Bear) ================= */
 // A code carries only what the other side can't guess: ICE ufrag and password, the DTLS fingerprint, the setup role,
 // the mid and the host candidates as raw addresses. Replies are Base45 so the phone's QR can use alphanumeric mode;
-// the projector's code is a URL, so phones can scan it with the ordinary camera app.
+// the host's code is a URL, so phones can scan it with the ordinary camera app.
 const B45='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:',SETUPS=['actpass','active','passive'];
 const b45=bytes=>{let s='';for(let i=0;i<bytes.length;i+=2){if(i+1<bytes.length){const n=bytes[i]*256+bytes[i+1];s+=B45[n%45]+B45[(n/45|0)%45]+B45[n/2025|0]}else s+=B45[bytes[i]%45]+B45[bytes[i]/45|0]}return s};
 const unb45=s=>{const o=[],v=[...s].map(c=>{const k=B45.indexOf(c);if(k<0)throw 0;return k});
@@ -1076,7 +1079,7 @@ function scanQR(accept){ // rear camera, one code
     const stop=()=>{alive=false;if(stream)stream.getTracks().forEach(t=>t.stop());video.srcObject=null;ov.hidden=true;scanAbort=null};
     scanAbort=()=>{stop();reject(new Error('cancelled'))};
     try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false})}catch(e){stop();return reject(new Error('Camera unavailable. Open the page over HTTPS and allow the camera.'))}
-    ov.hidden=false;$('#scanMsg').textContent='Point the camera at the code on the big screen';video.srcObject=stream;try{await video.play()}catch(e){}
+    ov.hidden=false;$('#scanMsg').textContent='Point the camera at the code on the host’s screen';video.srcObject=stream;try{await video.play()}catch(e){}
     const det=await makeDetector(),cv=document.createElement('canvas'),g=cv.getContext('2d',{willReadFrequently:true});
     const tick=async()=>{if(!alive)return;const t=await readQR(video,det,cv,g);if(t){if(accept(t)){stop();return resolve(t)}$('#scanMsg').textContent='That isn’t a Trackaholic join code.'}requestAnimationFrame(tick)};tick()})}
 $('#scanCancel').onclick=()=>{if(scanAbort)scanAbort()};
@@ -1091,7 +1094,7 @@ const CHAN='trackaholic';
 // The host is the hub: it admits phones, owns the race (course, line-up, start, results), runs the bots, and relays
 // every rider's state to every phone. Each phone simulates its own rider, so steering never waits for the network.
 const NET={send(m){}};
-const HOST={peers:new Map(),pending:null,guestN:0,spares:new Map(),spareN:0,grace:new Map(),players:[],bots:+(store.get('trackaholic.hostbots')||2),phase:'lobby',
+const HOST={peers:new Map(),pending:null,guestN:0,spares:new Map(),spareN:0,grace:new Map(),players:[],bots:+(store.get('trackaholic.hostbots')||2),phase:'lobby',drive:store.get('trackaholic.hostdrive')!=='0',
   init(){
     G.mode='host';G.phase='lobby';if(!G.seed)newSeed();rebuildCourse(G.seed);showScreen('sHost');keepAwake();
     $('#botsN').textContent=this.bots;
@@ -1100,6 +1103,8 @@ const HOST={peers:new Map(),pending:null,guestN:0,spares:new Map(),spareN:0,grac
     $('#hostNew').onclick=()=>{newSeed();rebuildCourse(G.seed);this.lobbyUpdate()};
     $('#lapsM').onclick=()=>{G.laps=Math.max(1,G.laps-1);store.set('trackaholic.laps',G.laps);this.lobbyUpdate()};
     $('#lapsP').onclick=()=>{G.laps=Math.min(9,G.laps+1);store.set('trackaholic.laps',G.laps);this.lobbyUpdate()};
+    $('#hostDrive').onclick=()=>{this.drive=!this.drive;store.set('trackaholic.hostdrive',this.drive?'1':'0');this.lobbyUpdate()};
+    $('#hostName').value=store.get('trackaholic.name')||'';$('#hostName').oninput=()=>{store.set('trackaholic.name',$('#hostName').value.trim());this.lobbyUpdate()};
     $('#bStart').onclick=()=>this.start();
     $('#tvEnd').onclick=()=>this.results(resultRows());
     $('#tvJoin').onclick=()=>{const c=$('#tvJoinCard');c.hidden=!c.hidden};
@@ -1163,7 +1168,7 @@ const HOST={peers:new Map(),pending:null,guestN:0,spares:new Map(),spareN:0,grac
   receive(from,m){
     const p=this.players.find(q=>q.id===from);
     if(m.t==='hello'){
-      if(!p){const used=new Set(this.players.map(q=>q.color));const color=COLORS.find(c=>!used.has(c))||COLORS[this.players.length%COLORS.length];
+      if(!p){const used=new Set(this.players.map(q=>q.color)),me=this.me();if(me)used.add(me.color);const color=COLORS.find(c=>!used.has(c))||COLORS[this.players.length%COLORS.length];
         this.players.push({id:from,pid:m.pid,name:String(m.name||'Driver').slice(0,14),color,gone:false})}
       else if(m.name)p.name=String(m.name).slice(0,14);
       this.sendTo(from,{t:'welcome',id:from});this.lobbyUpdate();$('#hostStatus').textContent='Phones: show your reply code to this camera';
@@ -1174,20 +1179,25 @@ const HOST={peers:new Map(),pending:null,guestN:0,spares:new Map(),spareN:0,grac
     else if(m.t==='fin'&&m.k===G.raceId){const r=G.riders.find(x=>x.id===from);if(r&&!r.done){r.done=true;r.time=+m.time||0;r.pen=+m.pen||0;onFinish(r)}}
     else if(m.t==='ev'&&m.k===G.raceId){const r=G.riders.find(x=>x.id===from);if(r)toast(r,m.kind,String(m.text).slice(0,40))}
   },
-  lobbyUpdate(){
+  // the host drives on its own device too, unless switched to watching
+  me(){if(!this.drive)return null;const used=new Set(this.players.map(q=>q.color));
+    return{id:'host',name:($('#hostName').value.trim()||'Host').slice(0,14),color:COLORS.find(c=>!used.has(c))||COLORS[0]}},
+  lobbyUpdate(){const me=this.me();
+    $('#hostDrive').textContent='Drive on this device: '+(me?'Yes':'No');$('#hostDrive').setAttribute('aria-pressed',!!me);$('#hostName').hidden=!me;
     $('#botsN').textContent=this.bots;store.set('trackaholic.hostbots',this.bots);
-    $('#roster').innerHTML=this.players.length?this.players.map(p=>'<li><span class="sw" style="background:'+p.color+'"></span>'+esc(p.name)+(p.gone?'<small>lost</small>':this.grace.has(p.id)?'<small>reconnecting</small>':'')+'</li>').join(''):'<li><small style="margin:0">No drivers yet</small></li>';
-    $('#bStart').disabled=!CAR_BASE||(!this.players.filter(p=>!p.gone).length&&!this.bots);$('#lapsN').textContent=G.laps;
-    $('#hostMeta').textContent='Track '+G.seed+' · '+G.laps+' laps · '+this.players.length+' driver'+(this.players.length===1?'':'s')+(this.bots?' + '+this.bots+' bot'+(this.bots>1?'s':''):'');
-    this.broadcast({t:'lobby',seed:G.seed,laps:G.laps,phase:this.phase,players:this.players.map(p=>({id:p.id,name:p.name,color:p.color}))});
+    $('#roster').innerHTML=(me?'<li><span class="sw" style="background:'+me.color+'"></span>'+esc(me.name)+'<small>this device</small></li>':'')+(this.players.length||me?this.players.map(p=>'<li><span class="sw" style="background:'+p.color+'"></span>'+esc(p.name)+(p.gone?'<small>lost</small>':this.grace.has(p.id)?'<small>reconnecting</small>':'')+'</li>').join(''):'<li><small style="margin:0">No drivers yet</small></li>');
+    $('#bStart').disabled=!CAR_BASE||(!me&&!this.players.filter(p=>!p.gone).length&&!this.bots);$('#lapsN').textContent=G.laps;
+    const nd=this.players.length+(me?1:0);
+    $('#hostMeta').textContent='Track '+G.seed+' · '+G.laps+' laps · '+nd+' driver'+(nd===1?'':'s')+(this.bots?' + '+this.bots+' bot'+(this.bots>1?'s':''):'');
+    this.broadcast({t:'lobby',seed:G.seed,laps:G.laps,phase:this.phase,players:(me?[me]:[]).concat(this.players.map(p=>({id:p.id,name:p.name,color:p.color})))});
   },
   start(){
     initAudio();this.phase='race';$('#tvJoinCard').hidden=true;
-    const ents=this.players.filter(p=>!p.gone).map(p=>({id:p.id,name:p.name,color:p.color,kind:'human'}));
+    const me=this.me(),ents=(me?[{...me,kind:'human'}]:[]).concat(this.players.filter(p=>!p.gone).map(p=>({id:p.id,name:p.name,color:p.color,kind:'human'})));
     const used=new Set(ents.map(e=>e.color));let bi=0;
     for(let i=0;i<this.bots;i++){const color=COLORS.find(c=>!used.has(c))||COLORS[(i+3)%8];used.add(color);ents.push({id:'b'+i,name:BOT_NAMES[(G.seed+i)%BOT_NAMES.length],color,kind:'bot'})}
     this.spec={seed:G.seed,raceId:G.raceId+1,entrants:ents,cd:4.5,laps:G.laps};
-    this.broadcast({t:'start',spec:this.spec});showScreen('none');setupRace({...this.spec,meId:null}).then(()=>{TV.focus=null;TV.t=99;showHUD(true)});
+    this.broadcast({t:'start',spec:this.spec});showScreen('none');setupRace({...this.spec,meId:me?me.id:null}).then(()=>{if(!G.me){TV.focus=null;TV.t=99}showHUD(true)});
   },
   relay(){const r=G.riders.map(x=>[x.id,...(x.local?pack(x):(x.buf.length?x.buf[x.buf.length-1].a:pack(x)))]);this.broadcast({t:'all',k:G.raceId,r})},
   results(rows){this.phase='results';G.phase='results';this.broadcast({t:'results',k:G.raceId,rows,seed:G.seed});showResults(rows)},
@@ -1211,7 +1221,7 @@ const GU={live:null,spares:[],heard:0,rescuing:false,ping:0,tryT:0,id:null,lobby
       const line={pc:new RTCPeerConnection({iceServers:[]}),first:true};this.wire(line);
       await line.pc.setRemoteDescription({type:'offer',sdp});await line.pc.setLocalDescription(await line.pc.createAnswer());await waitIce(line.pc);
       const rc=replyCode(packSdp(1,line.pc.localDescription.sdp));window.FL_REPLY=rc;
-      drawQR($('#qrReply'),rc,true);showScreen('sReply');setStatus('#replyStatus','Waiting for the big screen to read it…');keepAwake();
+      drawQR($('#qrReply'),rc,true);showScreen('sReply');setStatus('#replyStatus','Waiting for the host to read it…');keepAwake();
     }catch(err){$('#bJoin').disabled=false;setStatus('#joinStatus',err.message||String(err),true)}
   },
   wire(line){
@@ -1238,14 +1248,14 @@ const GU={live:null,spares:[],heard:0,rescuing:false,ping:0,tryT:0,id:null,lobby
     this.spares.push(line);this.wire(line);
     try{await line.pc.setRemoteDescription({type:'offer',sdp:noCands(m.sdp)});await line.pc.setLocalDescription(await line.pc.createAnswer());this.send({t:'spare',n:m.n,sdp:noCands(line.pc.localDescription.sdp)})}
     catch(err){this.spares=this.spares.filter(s=>s!==line)}},
-  rescue(){if(this.rescuing)return;if(!this.spares.length){this.live=null;this.hostLost();return}this.rescuing=true;netNote('Lost the big screen. Reconnecting…');this.tryNext()},
+  rescue(){if(this.rescuing)return;if(!this.spares.length){this.live=null;this.hostLost();return}this.rescuing=true;netNote('Lost the host. Reconnecting…');this.tryNext()},
   tryNext(again){let line=again&&this.spares.find(s=>s.trying&&s.pc.connectionState!=='failed');
     if(!line){for(const s of this.spares)if(s.trying)try{s.pc.close()}catch(x){}this.spares=this.spares.filter(s=>!s.trying);line=this.spares[0]}
     if(!line){this.rescuing=false;netNote('');this.live=null;this.hostLost();return}
     if(!line.trying){line.trying=true;line.cands.forEach(c=>line.pc.addIceCandidate({candidate:c,sdpMid:line.mid}).catch(()=>{}))}
     this.tryT=setTimeout(()=>{if(this.live!==line)this.tryNext()},20000)},
   hostLost(){netNote('');G.phase='join';showHUD(false);showScreen('sJoin');$('#bJoin').disabled=false;
-    setStatus('#joinStatus','Lost the connection. Scan the big screen’s code again to get back in.',true)},
+    setStatus('#joinStatus','Lost the connection. Scan the host’s code again to get back in.',true)},
   receive(m){
     if(m.t==='welcome'){this.id=m.id;if(G.phase==='join'||G.phase==='lobby'){G.phase='lobby';showScreen('sWait')}}
     else if(m.t==='lobby'){this.lobby=m;if(m.laps)G.laps=m.laps;if(!T||T.seed!==m.seed){G.seed=m.seed;rebuildCourse(m.seed)}

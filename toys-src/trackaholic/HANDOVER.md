@@ -32,6 +32,15 @@ Renamed from Glimmerway on 2026-10-30. Settings are stored under `trackaholic.*`
 - All props are placed at `terrainH(x,z)`.
 - A hard clamp lifts any car whose centre of mass ends up under the ground.
 
+## Hosting
+
+Trackaholic isn't meant to be projected: the players gather round, each looking at their own device, and the host is one of them. So by default the host drives too (2026-10-30):
+- The lobby has a "Drive on this device" switch (stored as `trackaholic.hostdrive`, on unless `'0'`) and a name field (shared with `trackaholic.name`). `HOST.me()` makes the host's entrant, id `host`, in the first colour no guest has; guests joining later skip that colour, so it doesn't change.
+- The host enters the race first and is its local car (`meId: 'host'`), with the HUD, the touch pad and the chase camera; `relay()` sends its state with the bots'. The checks that picked the overview camera and leaderboard ask whether this device is driving (`!G.me`), not whether it's the host.
+- While driving, the host's Join code and End race buttons sit in a column under the place counter (`body.hostdrive #tvBar`), clear of Back on track, the minimap and the pad.
+- Switched off, the host watches as before, with the overview cutting between cars; Start is then disabled until there's a guest or a bot.
+- The wording no longer mentions a big screen: phones hold their reply up to the host's camera.
+
 ## Physics
 
 - Rigid body: 1250 kg.
