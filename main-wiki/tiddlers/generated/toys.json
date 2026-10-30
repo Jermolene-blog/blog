@@ -72,6 +72,18 @@
 		"screenshot": "/screenshots/toys/engravery.webp"
 	},
 	{
+		"title": "Toys/flowing-field",
+		"caption": "Flowing Field",
+		"description": "An animated ink drawing of thousands of fine pen strokes sweeping into dark creased ridges, with sections filled with hand-drawn patterns. Drag to rake the strokes into line, then randomise, explore nearby drawings and cycle psychedelic colours",
+		"url": "/toys/flowing-field/",
+		"tags": "toy",
+		"text": "",
+		"category": "trifles",
+		"tagline": "Thousands of fine pen strokes sweep into ridges and rake into line under your finger",
+		"theme-color": "#0c0b10",
+		"screenshot": "/screenshots/toys/flowing-field.webp"
+	},
+	{
 		"title": "Toys/fractaliser",
 		"caption": "Fractaliser",
 		"description": "A fast, smooth explorer of the Mandelbrot set and its relatives, the Tricorn, Burning Ship and Cubic Multibrot, and their Julia sets: zoom deep into them, randomise, and browse nearby variations of colour and place",
@@ -252,6 +264,18 @@
 		"tagline": "Print and fold pictures that change as you move past them",
 		"theme-color": "#ffffff",
 		"screenshot": "/screenshots/toys/lenticulator.webp"
+	},
+	{
+		"title": "Toys/trackaholic",
+		"caption": "Trackaholic",
+		"description": "A car race through a glowing valley at dusk, against bots on one screen or with phones joining over the same Wi-Fi by QR code. Every track is new, and the car has real suspension and tyre grip, so brake before the bends",
+		"url": "/toys/trackaholic/",
+		"tags": "toy",
+		"text": "",
+		"category": "games",
+		"tagline": "A car race through a glowing valley at dusk, against bots or everyone's phones",
+		"theme-color": "#140f2e",
+		"screenshot": "/screenshots/toys/trackaholic.webp"
 	},
 	{
 		"title": "Toys/trundle-world",

@@ -10,6 +10,8 @@ Each toy's notes are in its `CLAUDE.md` or `HANDOVER.md`. Read them before makin
 | `meadow-games` | **Built**: `python3 tools/build.py --site` writes `index.html` and `models.js` | Source for three apps (only Meadow Games is published), the CC0 animal models, tests |
 | `bowling-bear` | Edited in place | Notes; the original table-mode handover (`src/`); the bear model (CC BY 4.0) and `tools/build_toy_model.py`, which writes `bear-model.js`; tests, including the network tests `test/rejoin.mjs` and `test/link.mjs` |
 | `bear-beat` | Edited in place | Notes; the bear model and `tools/build_toy_model.py`; tests |
+| `trackaholic` | Edited in place | Handover notes; the car model (CC BY 4.0) and `tools/build_car_model.py`, which writes `car-model.js` |
+| `flowing-field` | Edited in place | Notes and `tools/render.mjs`, a headless render check. Its history, from its own repository, is merged into this one |
 | `animal-island`, `trundle-world` | Edited in place | Notes and checks |
 | `fractaliser`, `lala-yala`, `rug-addict` | Edited in place | Handover notes |
 | `vectorious` | Edited in place | Handover notes, test images and the Python tracing experiments behind it |

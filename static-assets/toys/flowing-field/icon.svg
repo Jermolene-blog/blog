@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<rect width="512" height="512" fill="#ece6da"/>
+<!-- Fine pen strokes, tapered as wedges, sweeping in from both sides to meet along a dark creased spine -->
+<g fill="#24212b">
+<path d="M70 118 Q170 150 252 252 Q166 158 70 124 Z"/>
+<path d="M60 168 Q160 190 248 270 Q158 198 60 174 Z"/>
+<path d="M62 220 Q156 236 244 290 Q154 244 62 226 Z"/>
+<path d="M70 274 Q160 282 240 310 Q158 290 70 280 Z"/>
+<path d="M84 328 Q166 330 238 330 Q166 336 84 334 Z"/>
+<path d="M104 384 Q180 372 242 348 Q182 380 104 390 Z"/>
+<path d="M442 394 Q342 362 260 260 Q346 354 442 388 Z"/>
+<path d="M452 344 Q352 322 264 242 Q354 314 452 338 Z"/>
+<path d="M450 292 Q356 276 268 222 Q358 268 450 286 Z"/>
+<path d="M442 238 Q352 230 272 202 Q354 222 442 232 Z"/>
+<path d="M428 184 Q346 182 274 182 Q346 176 428 178 Z"/>
+<path d="M408 128 Q332 140 270 164 Q330 132 408 122 Z"/>
+</g>
+<g fill="hsl(200 60% 42%)">
+<path d="M90 144 Q180 172 254 258 Q178 178 90 149 Z"/>
+<path d="M78 246 Q166 258 242 300 Q164 264 78 251 Z"/>
+<path d="M94 356 Q170 352 240 338 Q172 360 94 361 Z"/>
+<path d="M422 368 Q332 340 258 254 Q334 334 422 363 Z"/>
+<path d="M434 266 Q346 254 270 212 Q348 248 434 261 Z"/>
+<path d="M418 156 Q342 160 272 174 Q340 154 418 151 Z"/>
+</g>
+<path d="M300 92 C270 160 250 250 256 300 C262 350 232 400 212 420" fill="none" stroke="#24212b" stroke-width="9" stroke-linecap="round"/>
+</svg>

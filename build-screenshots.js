@@ -146,6 +146,11 @@ const recipes = {
 		await page.click("#enter");
 		await page.wait(4000);
 	},
+	"toys/flowing-field": async page => {
+		// Hide the controls, as the H key does, so that only the drawing is shown
+		await page.evaluate(`document.body.classList.add("hideui")`);
+		await page.wait(2000);
+	},
 	"archive/cecily": async page => {
 		// Let the zooming animations finish
 		await page.wait(3000);
@@ -176,6 +181,7 @@ const closeups = {
 	},
 	"toys/catflap": {clip: {x: 560, y: 120, width: 580, height: 580}},
 	"toys/engravery": {clip: {x: 170, y: 160, width: 580, height: 580}},
+	"toys/flowing-field": {clip: {x: 300, y: 150, width: 500, height: 500}},
 	"toys/fractaliser": {clip: {x: 330, y: 110, width: 500, height: 500}},
 	"toys/jpegulator": {clip: {x: 330, y: 230, width: 560, height: 560}},
 	"toys/jumbleword": {clip: {x: 10, y: 250, width: 540, height: 167}},
@@ -191,6 +197,18 @@ const closeups = {
 	"toys/rug-addict": {clip: {x: 155, y: 250, width: 315, height: 315}},
 	"toys/spotty-sphericle": {clip: {x: 110, y: 90, width: 590, height: 590}},
 	"toys/sunthesis": {clip: {x: 140, y: 110, width: 580, height: 580}},
+	"toys/trackaholic": {
+		// Race alone, holding the accelerator, to show the car under the start
+		// arch with the bots
+		recipe: async page => {
+			await page.evaluate(`new Promise(resolve => { const check = () => document.getElementById("bSolo").disabled ? setTimeout(check,200) : resolve(true); check(); })`);
+			await page.click("#bSolo");
+			await page.wait(3000);
+			await page.evaluate(`dispatchEvent(new KeyboardEvent("keydown",{code: "ArrowUp"}))`);
+			await page.wait(4000);
+		},
+		clip: {x: 240, y: 60, width: 720, height: 720}
+	},
 	"toys/trundle-world": {clip: {x: 300, y: 60, width: 640, height: 640}},
 	"toys/tunerful": {clip: {x: 320, y: 50, width: 560, height: 560}},
 	"toys/vectorious": {
