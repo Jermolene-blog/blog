@@ -11,7 +11,7 @@
 <meta name="description" content="Ten-pin bowling in 3D with a bear that cheers you on. Up to four play round one phone or tablet, against each other or the computer, as the lane swings round to each bowler. Or play on phones on the same Wi-Fi, with no server: they join by scanning each other's QR codes. Swipe to roll and curve the swipe to hook">
 <meta name="toy-category" content="games">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One+SC&family=Barlow:wght@400;600;700&family=Barlow+Condensed:wght@500;600;700&family=Kalam:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One+SC&family=Barlow:wght@400;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
 <style>
 /* Layout: full-bleed 3D lane; score-sheet paper floats above it (scorecard strip, lobby card). Single deliberate look. */
 :root{
@@ -23,7 +23,7 @@
   --red:#c0281b;        /* strike/spare pencil */
   --display:"Bowlby One SC","Arial Black",Impact,sans-serif;
   --body:"Barlow","Helvetica Neue",Arial,sans-serif;
-  --hand:"Kalam","Comic Sans MS","Segoe Print",cursive;
+  --figures:"Barlow Condensed","Arial Narrow",sans-serif;
   color-scheme:dark;
 }
 [hidden]{display:none!important}
@@ -46,10 +46,10 @@ canvas#trail{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
 #card tr.gone{opacity:.45}
 .fr{width:40px}.fr.ten{width:58px}
 .mk{display:flex;justify-content:flex-end;height:17px}
-.mk span{width:17px;border-left:1px solid var(--rule);border-bottom:1px solid var(--rule);font:700 13px/17px var(--hand);color:var(--ink)}
+.mk span{width:17px;border-left:1px solid var(--rule);border-bottom:1px solid var(--rule);font:700 14px/17px var(--figures);color:var(--ink)}
 .mk span.x{color:var(--red)}
-.tot{font:700 14px/18px var(--hand);height:18px;font-variant-numeric:tabular-nums}
-td.sum{font:700 15px/35px var(--hand);width:40px;font-variant-numeric:tabular-nums}
+.tot{font:400 13px/18px var(--display);height:18px;font-variant-numeric:tabular-nums}
+td.sum{font:400 15px/35px var(--display);width:40px;font-variant-numeric:tabular-nums}
 
 /* HUD */
 #hud{position:fixed;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;
@@ -75,7 +75,7 @@ td.sum{font:700 15px/35px var(--hand);width:40px;font-variant-numeric:tabular-nu
 :is(#lobby,#scanner) h2{margin:0;font:400 20px/1.1 var(--display);letter-spacing:.02em}
 :is(#lobby,#scanner) .lede{margin:0;font-size:15px}
 :is(#lobby,#scanner) label{font:700 11px/1 var(--body);letter-spacing:.12em;text-transform:uppercase}
-:is(#lobby,#scanner) input,:is(#lobby,#scanner) textarea{width:100%;background:transparent;border:0;border-bottom:2px solid var(--ink);color:var(--ink);font:700 22px/1.3 var(--hand);padding:2px 0;border-radius:0}
+:is(#lobby,#scanner) input,:is(#lobby,#scanner) textarea{width:100%;background:transparent;border:0;border-bottom:2px solid var(--ink);color:var(--ink);font:700 22px/1.3 var(--figures);padding:2px 0;border-radius:0}
 :is(#lobby,#scanner) textarea{font:12px/1.3 ui-monospace,Menlo,monospace;height:70px;border:1px solid var(--ink);padding:6px;resize:vertical}
 :is(#lobby,#scanner) input:focus-visible,:is(#lobby,#scanner) textarea:focus-visible,:is(#lobby,#scanner) button:focus-visible,:is(#lobby,#scanner) summary:focus-visible{outline:3px solid var(--red);outline-offset:2px}
 :is(#lobby,#scanner) .stack{display:flex;flex-direction:column;gap:10px}
@@ -95,7 +95,7 @@ td.sum{font:700 15px/35px var(--hand);width:40px;font-variant-numeric:tabular-nu
 :is(#lobby,#scanner) details[open]{display:flex;flex-direction:column;gap:8px}
 :is(#lobby,#scanner) .status{margin:0;font:600 13px/1.35 var(--body);min-height:1.35em}
 :is(#lobby,#scanner) .status.err{color:var(--red)}
-:is(#lobby,#scanner) .roster{margin:0;padding:0 0 0 1.6em;font:700 20px/28px var(--hand)}
+:is(#lobby,#scanner) .roster{margin:0;padding:0 0 0 1.6em;font:700 20px/28px var(--figures)}
 :is(#lobby,#scanner) .roster li i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:8px;vertical-align:0}
 :is(#lobby,#scanner) .roster li small{font:600 11px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;margin-left:6px;opacity:.7}
 :is(#lobby,#scanner) .finals li b{float:right;color:var(--red)}
