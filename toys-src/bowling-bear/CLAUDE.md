@@ -175,3 +175,11 @@ A dropped WebRTC link can't be revived from storage: each connection needs fresh
 ## Join link and smaller codes (2026-10-29, `BB3`)
 
 The host's QR is now a link (`…/bowling-bear/#BB3O…*`), as Quizbuzz's is: a phone scans it with its own camera app and lands on the `invited` screen (name, Join), which calls `joinWith`; the hash is cleared so a reload doesn't reuse a stale offer. In-app scanning still works and accepts the link (`codeOf` takes what follows `#`). Codec: Base45 replaced by a 41-character alphabet (`0-9A-Z+-./:`, safe in a URL fragment and in QR alphanumeric mode), ufrag/pwd packed 6 bits a character, mid omitted when `0`, at most 3 candidates; `drawQR` uses a byte segment for the address and an alphanumeric one for the code, error correction L. Host link 41×41 modules on jermolene.com, reply 33×33. `BB1`/`BB2` codes get "from an older Bowling Bear".
+
+## Sound in the alley (2026-10-30)
+
+The alley (host and join, practise alone) had no sound at all; only the table did. The table's `sfx` engine now lives at page level, above the main loop, and both games use it:
+- Browsers only start audio from a gesture, so a capturing `pointerdown`/`pointerup`/`keydown` listener on the window calls `sfx.init()` on every tap, which also resumes the context when iOS has suspended or interrupted it (after the phone locks, for example).
+- On/off is `sfx.on`/`sfx.setOn()`, stored under `bowling-bear.sound` (seeded from the table's old `sound` pref). The table menu's Sound button sets it; the alley has no switch of its own.
+- `alleySound()` derives the alley's sounds from the snapshots every device draws, so the screen and all the phones hear every roll whoever bowls: the release when the first snapshot of a roll arrives, the rumble from the ball's speed between snapshots, a clack as a pin goes from standing to falling (louder for the first) and a softer one as it lands. `applyState()` adds the cheer and roar for a strike, the cheer for a spare and the womp for a gutter or a miss, beside the toasts, and a roar at the end of the game; the bear's strike and spare dances get `sfx.groove`.
+- Checked headlessly with two Chromium processes (host and a guest who joins by link), counting the sounds started through a patched `AudioContext`: the watching device hears the roll as well as the bowler. Not yet listened to on real devices.

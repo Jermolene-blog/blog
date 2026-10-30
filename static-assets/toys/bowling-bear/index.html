@@ -788,6 +788,8 @@ function applyState(s){
     const endSnap=lastSnap||remoteSnap;
     local.sim=null;local.waiting=false;lastSnap=null;remoteSnap=null;showRack(s.pins);hold=null;
     if(s.last&&s.phase!=='lobby'){const t={X:'Strike!','/':'Spare!',G:'Gutter'}[s.last.mark];if(t)toast(t);
+      if(s.last.mark==='X'){sfx.cheer();sfx.roar();}else if(s.last.mark==='/')sfx.cheer();else if(s.last.mark==='G'||!s.last.down)sfx.womp();
+      if(s.phase==='over')setTimeout(()=>sfx.roar(),1200);
       if(endSnap){hold={until:performance.now()+1800,snap:endSnap};nbReact(s.last.mark,s.last.down);}}
     if(!hold&&nb&&nb.chasing){nb.chasing=false;nbHome();}}
   const lb=$('#lobby');
@@ -1271,7 +1273,7 @@ function nbReact(mark,down){
   // (home only counts once the camera is back too, since until then keeping in view holds the bear near the pins)
   const back=()=>new Promise(r=>{const f=()=>!hold&&camZ<0?r():requestAnimationFrame(f);f();});
   first.then(()=>{if(ep!==nb.epoch)return false;nbHome(9);return back().then(()=>ep===nb.epoch&&nb.arrival());})
-    .then(ok=>ok!==false&&ep===nb.epoch&&nb.dance(BearDance.forResult(res,down),{bpm:res==='strike'||res==='spare'?136:150,face:away=>away?0:Math.PI}));
+    .then(ok=>ok!==false&&ep===nb.epoch&&nb.dance(BearDance.forResult(res,down),{bpm:res==='strike'||res==='spare'?136:150,face:away=>away?0:Math.PI,music:res==='strike'||res==='spare'?(n,bpm)=>sfx.groove(n,bpm):null}));
 }
 // Keep the alley bear where the camera can see it: far enough ahead of the camera for its distance from the lane
 // centre, coming in to the capping beside the gutter when the screen is narrow
@@ -1347,6 +1349,92 @@ function drawTrail(dt){
 }
 let lastTrail=null;
 
+// ================= Sound =================
+// Synthesised with WebAudio, and shared by the alley and the table. Browsers only let a page start sound from a
+// user gesture, so every tap and key press calls init(), which also resumes the context after iOS suspends it
+const sfx = (() => {
+  let ctx = null, master = null, rollGain = null, noiseBuf = null, lastClack = 0;
+  let on = (() => { try {
+    const v = localStorage.getItem('bowling-bear.sound');
+    if (v !== null) return v === '1';
+    const t = JSON.parse(localStorage.getItem('bowling-bear.table') || '{}'); return t.sound !== false;
+  } catch (e) { return true; } })();
+  function init() {
+    if (ctx) { if (ctx.state !== 'running' && ctx.state !== 'closed') ctx.resume().catch(() => {}); return; }
+    try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
+    master = ctx.createGain(); master.gain.value = on ? 0.8 : 0; master.connect(ctx.destination);
+    noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+    const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    const src = ctx.createBufferSource(); src.buffer = noiseBuf; src.loop = true;
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 260;
+    rollGain = ctx.createGain(); rollGain.gain.value = 0;
+    src.connect(lp); lp.connect(rollGain); rollGain.connect(master); src.start();
+  }
+  function noiseBurst(t, dur, freq, q, vol) {
+    const s = ctx.createBufferSource(); s.buffer = noiseBuf; s.playbackRate.value = 1;
+    const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = q;
+    const g = ctx.createGain(); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    s.connect(f); f.connect(g); g.connect(master); s.start(t, Math.random()); s.stop(t + dur + 0.05);
+  }
+  function tone(t, f0, f1, dur, vol, type = 'sine') {
+    const o = ctx.createOscillator(); o.type = type; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.05);
+  }
+  return {
+    init,
+    get on() { return on; },
+    setOn(v) { on = v; try { localStorage.setItem('bowling-bear.sound', v ? '1' : '0'); } catch (e) {} if (master) master.gain.value = v ? 0.8 : 0; },
+    roll(speed) { if (rollGain) rollGain.gain.setTargetAtTime(Math.min(1, speed / 7) * 0.5, ctx.currentTime, 0.05); },
+    release() { if (!ctx) return; noiseBurst(ctx.currentTime, 0.12, 180, 1, 0.5); },
+    clack(v, isBall) {
+      if (!ctx) return; const now = ctx.currentTime; if (now - lastClack < 0.018) return; lastClack = now;
+      const vol = Math.min(1, v / 4) * (isBall ? 0.9 : 0.6);
+      tone(now, 1300 + Math.random() * 900, 700, 0.07, vol * 0.35, 'triangle');
+      noiseBurst(now, 0.09, 2600 + Math.random() * 1500, 2.5, vol * 0.7);
+    },
+    roar() {
+      if (!ctx) return; const t = ctx.currentTime;
+      const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(95, t); o.frequency.linearRampToValueAtTime(140, t + 0.35); o.frequency.linearRampToValueAtTime(70, t + 1.1);
+      const lfo = ctx.createOscillator(); lfo.frequency.value = 23; const lg = ctx.createGain(); lg.gain.value = 18; lfo.connect(lg); lg.connect(o.frequency);
+      const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 520; f.Q.value = 1.2;
+      const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.5, t + 0.12); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.15);
+      o.connect(f); f.connect(g); g.connect(master); o.start(t); lfo.start(t); o.stop(t + 1.2); lfo.stop(t + 1.2);
+      noiseBurst(t, 1.0, 700, 0.8, 0.25);
+    },
+    cheer() { if (!ctx) return; const t = ctx.currentTime; for (let i = 0; i < 4; i++) tone(t + i*0.09, 520 * Math.pow(1.26, i), 560 * Math.pow(1.26, i), 0.22, 0.18, 'square'); },
+    womp() { if (!ctx) return; const t = ctx.currentTime; tone(t, 330, 160, 0.35, 0.25, 'triangle'); tone(t + 0.32, 250, 110, 0.6, 0.25, 'triangle'); },
+    tick() { if (!ctx) return; tone(ctx.currentTime, 900, 900, 0.05, 0.12, 'square'); },
+    groove(beats, bpm) { // kick, off-beat hat and a walking bass under the bear's dancing
+      if (!ctx) return; const t = ctx.currentTime + 0.03, b = 60 / bpm, bass = [110, 110, 131, 147, 165, 147, 131, 98];
+      for (let i = 0; i < beats; i++) {
+        tone(t + i*b, 140, 45, 0.2, 0.55); noiseBurst(t + (i + 0.5)*b, 0.05, 8000, 1.2, 0.18);
+        tone(t + i*b, bass[i % 8], bass[i % 8], b*0.42, 0.09, 'square'); tone(t + (i + 0.5)*b, bass[i % 8]*2, bass[i % 8]*2, b*0.3, 0.05, 'square');
+      }
+    },
+  };
+})();
+for (const type of ['pointerdown', 'pointerup', 'keydown']) addEventListener(type, () => sfx.init(), { capture: true, passive: true });
+
+// The alley's sounds come from the snapshots that every device draws, so the screen and the phones all hear each
+// roll, whoever is bowling: the release as a roll begins, the rumble from the ball's speed, and a clack as each pin
+// starts to topple and a softer one as it lands
+const aSnd={snap:null,seq:-1,t:0,states:null,hit:false};
+function alleySound(s,dt){
+  if(!s){if(aSnd.snap){aSnd.snap=null;sfx.roll(0);}return;}
+  aSnd.t+=dt;if(s===aSnd.snap)return;
+  if(view&&view.seq!==aSnd.seq){aSnd.seq=view.seq;aSnd.states=null;aSnd.hit=false;sfx.release();}
+  const prev=aSnd.snap,b=s.b;
+  if(prev&&b[4]&&aSnd.t>0)sfx.roll(Math.hypot(b[0]-prev.b[0],b[2]-prev.b[2])/aSnd.t);else sfx.roll(0);
+  const states=[];for(let i=0;i<10;i++)states.push(s.p[i*5+4]);
+  if(aSnd.states)for(let i=0;i<10;i++){
+    const was=aSnd.states[i],now=states[i];
+    if(was===1&&now>=2){sfx.clack(2.5+Math.random()*1.5,!aSnd.hit);aSnd.hit=true;}
+    else if(was===2&&now===3)sfx.clack(1+Math.random(),false);
+  }
+  aSnd.states=states;aSnd.snap=s;aSnd.t=0;
+}
+
 // ================= Main loop =================
 let last=performance.now();
 renderer.setAnimationLoop(now=>{
@@ -1366,6 +1454,7 @@ renderer.setAnimationLoop(now=>{
   const s=hold?hold.snap:(lastSnap||remoteSnap);
   if(s){applySnap(s);updateCamera(dt,s.b[2],true);if(!hold){nbBallZ=s.b[2];nbChase();}}
   else{applySnap(rackCache);updateCamera(dt,0,false);}
+  alleySound(hold?null:(lastSnap||remoteSnap),dt);
   if(nb)nb.update(dt);
   drawTrail(dt);
   renderer.render(scene,camera);
@@ -1402,7 +1491,7 @@ async function initTable(renderer, onLeave) {
   const KIND_LABEL = { human: 'Human', cpu: 'Computer', empty: 'Empty' };
 
   /* ------------------------------------------------------------------ prefs */
-  const prefs = { frames: 5, mode: null, kinds: ['human', 'cpu', 'empty', 'empty'], sound: true };
+  const prefs = { frames: 5, mode: null, kinds: ['human', 'cpu', 'empty', 'empty'] };
   try { Object.assign(prefs, JSON.parse(localStorage.getItem('bowling-bear.table') || '{}')); } catch (e) {}
   function savePrefs() { try { localStorage.setItem('bowling-bear.table', JSON.stringify(prefs)); } catch (e) {} }
   const isSmall = () => Math.min(innerWidth, innerHeight) < 600;
@@ -1760,63 +1849,6 @@ async function initTable(renderer, onLeave) {
   function laneToWorld(x, z, y = 0) { lane.updateMatrixWorld(true); return lane.localToWorld(_v.set(x, y, z)).clone(); }
   function laneForwardHeading() { const a = pivot.rotation.y; return Math.atan2(-Math.sin(a), -Math.cos(a)); }
 
-  /* ------------------------------------------------------------------ audio */
-  const sfx = (() => {
-    let ctx = null, master = null, rollGain = null, noiseBuf = null, lastClack = 0;
-    function init() {
-      if (ctx) { if (ctx.state === 'suspended') ctx.resume(); return; }
-      try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
-      master = ctx.createGain(); master.gain.value = prefs.sound ? 0.8 : 0; master.connect(ctx.destination);
-      noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
-      const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-      const src = ctx.createBufferSource(); src.buffer = noiseBuf; src.loop = true;
-      const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 260;
-      rollGain = ctx.createGain(); rollGain.gain.value = 0;
-      src.connect(lp); lp.connect(rollGain); rollGain.connect(master); src.start();
-    }
-    function noiseBurst(t, dur, freq, q, vol) {
-      const s = ctx.createBufferSource(); s.buffer = noiseBuf; s.playbackRate.value = 1;
-      const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = q;
-      const g = ctx.createGain(); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-      s.connect(f); f.connect(g); g.connect(master); s.start(t, Math.random()); s.stop(t + dur + 0.05);
-    }
-    function tone(t, f0, f1, dur, vol, type = 'sine') {
-      const o = ctx.createOscillator(); o.type = type; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur);
-      const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-      o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.05);
-    }
-    return {
-      init,
-      setOn(on) { prefs.sound = on; savePrefs(); if (master) master.gain.value = on ? 0.8 : 0; },
-      roll(speed) { if (rollGain) rollGain.gain.setTargetAtTime(Math.min(1, speed / 7) * 0.5, ctx.currentTime, 0.05); },
-      release() { if (!ctx) return; noiseBurst(ctx.currentTime, 0.12, 180, 1, 0.5); },
-      clack(v, isBall) {
-        if (!ctx) return; const now = ctx.currentTime; if (now - lastClack < 0.018) return; lastClack = now;
-        const vol = Math.min(1, v / 4) * (isBall ? 0.9 : 0.6);
-        tone(now, 1300 + Math.random() * 900, 700, 0.07, vol * 0.35, 'triangle');
-        noiseBurst(now, 0.09, 2600 + Math.random() * 1500, 2.5, vol * 0.7);
-      },
-      roar() {
-        if (!ctx) return; const t = ctx.currentTime;
-        const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(95, t); o.frequency.linearRampToValueAtTime(140, t + 0.35); o.frequency.linearRampToValueAtTime(70, t + 1.1);
-        const lfo = ctx.createOscillator(); lfo.frequency.value = 23; const lg = ctx.createGain(); lg.gain.value = 18; lfo.connect(lg); lg.connect(o.frequency);
-        const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 520; f.Q.value = 1.2;
-        const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.5, t + 0.12); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.15);
-        o.connect(f); f.connect(g); g.connect(master); o.start(t); lfo.start(t); o.stop(t + 1.2); lfo.stop(t + 1.2);
-        noiseBurst(t, 1.0, 700, 0.8, 0.25);
-      },
-      cheer() { if (!ctx) return; const t = ctx.currentTime; for (let i = 0; i < 4; i++) tone(t + i*0.09, 520 * Math.pow(1.26, i), 560 * Math.pow(1.26, i), 0.22, 0.18, 'square'); },
-      womp() { if (!ctx) return; const t = ctx.currentTime; tone(t, 330, 160, 0.35, 0.25, 'triangle'); tone(t + 0.32, 250, 110, 0.6, 0.25, 'triangle'); },
-      tick() { if (!ctx) return; tone(ctx.currentTime, 900, 900, 0.05, 0.12, 'square'); },
-      groove(beats, bpm) { // kick, off-beat hat and a walking bass under the bear's dancing
-        if (!ctx) return; const t = ctx.currentTime + 0.03, b = 60 / bpm, bass = [110, 110, 131, 147, 165, 147, 131, 98];
-        for (let i = 0; i < beats; i++) {
-          tone(t + i*b, 140, 45, 0.2, 0.55); noiseBurst(t + (i + 0.5)*b, 0.05, 8000, 1.2, 0.18);
-          tone(t + i*b, bass[i % 8], bass[i % 8], b*0.42, 0.09, 'square'); tone(t + (i + 0.5)*b, bass[i % 8]*2, bass[i % 8]*2, b*0.3, 0.05, 'square');
-        }
-      },
-    };
-  })();
 
   /* ------------------------------------------------------------------ clock, waits */
   let gameTime = 0, paused = false;
@@ -2025,14 +2057,14 @@ async function initTable(renderer, onLeave) {
       const el = document.createElement('div'); el.className = 'sheet'; el.style.left = x + 'px'; el.style.top = y + 'px'; el.style.setProperty('--r', panelRot(k) + 'rad'); el.style.width = '260px';
       el.innerHTML = `<h2>Paused</h2><div class="btns" style="flex-direction:column;align-items:stretch">
         <button class="btn" data-a="resume">Resume</button>
-        <button class="btn ghost" data-a="sound">Sound: ${prefs.sound ? 'On' : 'Off'}</button>
+        <button class="btn ghost" data-a="sound">Sound: ${sfx.on ? 'On' : 'Off'}</button>
         <button class="btn ghost" data-a="restart">Restart game</button>
         <button class="btn ghost" data-a="seats">Change seats</button>
         <button class="btn ghost" data-a="leave">Leave the table</button></div>`;
       el.addEventListener('click', e => {
         const a = e.target.closest('button')?.dataset.a; if (!a) return;
         if (a === 'resume') closeOverlay();
-        if (a === 'sound') { sfx.setOn(!prefs.sound); openMenu(); }
+        if (a === 'sound') { sfx.setOn(!sfx.on); openMenu(); }
         if (a === 'restart') { closeOverlay(); startGame(); }
         if (a === 'seats') { closeOverlay(); toSetup(); }
         if (a === 'leave') { closeOverlay(); leave(); }
