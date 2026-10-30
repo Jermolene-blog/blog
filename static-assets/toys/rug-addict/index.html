@@ -125,6 +125,9 @@ details.group[open] summary::before{transform:rotate(45deg)}
 .sources{font-size:.85rem;color:var(--muted)}
 .sources a{color:var(--indigo)}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
+/* Keep iOS from selecting the page on taps and long presses */
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea{-webkit-user-select:text;user-select:text}
 </style>
 
 <div class="wrap">

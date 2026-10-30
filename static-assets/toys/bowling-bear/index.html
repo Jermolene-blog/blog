@@ -194,6 +194,9 @@ td.sum{font:700 15px/35px var(--hand);width:40px;font-variant-numeric:tabular-nu
 #table .full .fh{font-size:10px;opacity:.55;text-align:center;font-weight:700}
 #t-loading{position:fixed;inset:0;display:grid;place-items:center;font-family:var(--display);color:var(--honey);font-size:28px;background:var(--pine)}
 @media (prefers-reduced-motion: reduce){#table .toast{transition:opacity .2s}}
+/* Keep iOS from selecting the page on taps and long presses */
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea{-webkit-user-select:text;user-select:text}
 </style>
 </head>
 <body>

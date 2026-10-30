@@ -154,6 +154,9 @@ input[type="range"] { width: 100%; accent-color: var(--tangerine); height: 28px;
 .note { margin: 0; font: 600 13px/1.45 var(--body); color: var(--ink-soft); }
 @keyframes pulse { 50% { transform: scale(1.06); } }
 @media (prefers-reduced-motion: reduce) { .go, .card { animation: none; } }
+/* Keep iOS from selecting the page on taps and long presses */
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea{-webkit-user-select:text;user-select:text}
 </style>
 </head>
 <body>

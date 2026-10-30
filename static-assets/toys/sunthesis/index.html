@@ -104,6 +104,9 @@ textarea{width:100%;box-sizing:border-box;min-height:90px;font:11px/1.4 var(--f-
   #panel{width:auto;border-left:0;border-top:1px solid var(--line);overflow:visible;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 }
 @media (prefers-reduced-motion: reduce){ .toast,#hint{transition:none} }
+/* Keep iOS from selecting the page on taps and long presses */
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea{-webkit-user-select:text;user-select:text}
 </style>
 
 <div id="app">

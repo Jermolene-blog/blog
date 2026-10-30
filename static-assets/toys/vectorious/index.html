@@ -280,6 +280,9 @@
     color: var(--muted);
   }
   footer a { color: inherit; }
+  /* Keep iOS from selecting the page on taps and long presses */
+  body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  input,textarea{-webkit-user-select:text;user-select:text}
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#f4f2ec">

@@ -51,6 +51,9 @@
     -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;
   }
   #canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+  /* Keep iOS from selecting the page on taps and long presses */
+  body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  input,textarea{-webkit-user-select:text;user-select:text}
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#f2ede3">

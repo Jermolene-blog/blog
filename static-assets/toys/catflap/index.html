@@ -52,6 +52,9 @@ body{background:var(--wall);font-family:var(--f-round);color:var(--ink)}
 #panel button.main{background:var(--accent);border-color:var(--accent);color:#fff}
 #panel button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
 #panel input:focus-visible,#panel button:focus-visible,#grown:focus-visible,#wake:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+/* Keep iOS from selecting the page on taps and long presses */
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea{-webkit-user-select:text;user-select:text}
 </style>
 
 <div id="game" aria-label="Catflap: a game about feeding a cat">

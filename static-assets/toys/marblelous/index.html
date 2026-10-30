@@ -114,6 +114,9 @@
     #panel .row { flex-wrap: wrap; }
     #s-hist { min-width: 0; }
   }
+  /* Keep iOS from selecting the page on taps and long presses */
+  body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  input,textarea{-webkit-user-select:text;user-select:text}
 </style>
 <body>
 <canvas id="bath"></canvas>

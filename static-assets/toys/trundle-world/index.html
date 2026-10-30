@@ -75,6 +75,9 @@ canvas#c{position:fixed;inset:0;z-index:1;display:block;width:100%;height:100%;o
 }
 [hidden]{display:none!important}
 @media (prefers-reduced-motion:reduce){#night{transition:none}.hint{transition:none}}
+/* Keep iOS from selecting the page on taps and long presses */
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea{-webkit-user-select:text;user-select:text}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&display=swap">
 </head>

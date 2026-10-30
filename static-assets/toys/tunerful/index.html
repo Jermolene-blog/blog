@@ -86,6 +86,9 @@ button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outlin
 .foot{font-size:12px;color:var(--muted);line-height:1.5}
 @media (max-width:420px){.note{font-size:80px}.str .n{font-size:22px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* Keep iOS from selecting the page on taps and long presses */
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea{-webkit-user-select:text;user-select:text}
 </style>
 
 <div class="wrap">

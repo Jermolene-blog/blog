@@ -147,6 +147,9 @@ input[type=range]{width:100%;accent-color:var(--brass);margin:0}
 }
 @media (min-width:721px){ #panel.closed{display:none} }
 @media (prefers-reduced-motion:reduce){ *{transition:none!important} }
+/* Keep iOS from selecting the page on taps and long presses */
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea{-webkit-user-select:text;user-select:text}
 </style>
 
 <canvas id="gl"></canvas>

@@ -53,6 +53,9 @@
      styles resolved: parked off-stage rather than hidden, because
      visibility and display would be inherited by what we are reading */
   #source{ position:absolute; left:-20000px; top:0; width:1px; height:1px; overflow:hidden; pointer-events:none; }
+  /* Keep iOS from selecting the page on taps and long presses */
+  body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  input,textarea{-webkit-user-select:text;user-select:text}
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#f2ede3">
