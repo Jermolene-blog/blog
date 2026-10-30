@@ -1,0 +1,631 @@
+<title>Sumi Field</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;800&family=Zen+Kaku+Gothic+New:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: full-bleed live fur/flow canvas; floating lacquer toolbar bottom, collapsible control panel right (bottom sheet on phones). Single dark UI look by choice. */
+:root{
+  --ink:#0c0b10;
+  --lacquer:rgba(14,12,19,.84);
+  --rice:#ece6da;
+  --dim:#a39bab;
+  --line:rgba(236,230,218,.14);
+  --accent:hsl(200 60% 62%);
+  --f-display:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho",Georgia,serif;
+  --f-body:"Zen Kaku Gothic New","Hiragino Sans",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html,body{height:100%;overflow:hidden}
+body{background:var(--ink);color:var(--rice);font-family:var(--f-body);-webkit-font-smoothing:antialiased;touch-action:none}
+canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:grab}
+canvas#c.stroking{cursor:grabbing}
+canvas#c.panning{cursor:move}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.mark{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:calc(12px + env(safe-area-inset-left,0px));display:flex;align-items:baseline;gap:10px;pointer-events:none;background:var(--lacquer);border:1px solid var(--line);border-radius:10px;padding:6px 12px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.mark h1{margin:0;font-family:var(--f-display);font-weight:800;font-size:19px;letter-spacing:.02em}
+.mark span{font-family:var(--f-display);font-weight:600;font-size:12px;color:var(--accent);letter-spacing:.3em}
+
+.hint{position:fixed;left:50%;bottom:calc(78px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--lacquer);border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-family:var(--f-display);font-weight:600;font-size:15px;pointer-events:none;transition:opacity .8s ease;white-space:nowrap;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.hint.gone{opacity:0}
+
+.bar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));display:flex;flex-wrap:wrap;justify-content:center;gap:4px;padding:5px;background:var(--lacquer);border:1px solid var(--line);border-radius:24px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:5;width:max-content;max-width:calc(100% - 24px)}
+.bar button{border:0;background:transparent;padding:9px 14px;border-radius:999px;font-size:13px;font-weight:500;letter-spacing:.02em;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:7px}
+.bar button:hover{background:rgba(236,230,218,.08)}
+.bar button[aria-pressed="true"]{background:var(--accent);color:#0c0b10}
+.bar kbd{font-family:var(--f-mono);font-size:10px;color:var(--dim);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+.bar button[aria-pressed="true"] kbd{color:#0c0b10;border-color:rgba(0,0,0,.3)}
+@media (max-width:620px){.bar kbd{display:none}.bar button{padding:8px 9px;font-size:12px}}
+
+.panel{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(76px + env(safe-area-inset-bottom,0px));width:292px;background:var(--lacquer);border:1px solid var(--line);border-radius:14px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);overflow-y:auto;z-index:4;padding:14px 16px 18px;display:flex;flex-direction:column;gap:18px;overscroll-behavior:contain}
+@media (max-width:620px){.panel{top:auto;left:calc(10px + env(safe-area-inset-left,0px));right:calc(10px + env(safe-area-inset-right,0px));width:auto;max-height:52vh;bottom:calc(112px + env(safe-area-inset-bottom,0px))}}
+.grp{display:flex;flex-direction:column;gap:9px}
+.grp h2{margin:0;font-family:var(--f-display);font-weight:600;font-size:14px;display:flex;align-items:baseline;gap:8px;border-bottom:1px solid var(--line);padding-bottom:5px}
+.grp h2 small{font-family:var(--f-display);font-weight:600;font-size:12px;color:var(--dim)}
+.row{display:grid;grid-template-columns:1fr auto;gap:2px 8px;align-items:center}
+.row label,.lbl{font-size:12px;color:var(--rice)}
+.row output{font-family:var(--f-mono);font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}
+.row input{grid-column:1/-1}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:18px;background:transparent;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line);border-radius:2px}
+input[type=range]::-moz-range-track{height:2px;background:var(--line)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--rice);margin-top:-5.5px;box-shadow:0 0 0 3px rgba(0,0,0,.35)}
+input[type=range]::-moz-range-thumb{width:13px;height:13px;border:0;border-radius:50%;background:var(--rice)}
+input[type=range]:focus-visible::-webkit-slider-thumb{background:var(--accent)}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:3px;background:rgba(0,0,0,.3);padding:3px;border-radius:8px}
+.seg button{border:0;background:transparent;font-size:11px;padding:6px 0;border-radius:6px;cursor:pointer;color:var(--dim)}
+.seg button[aria-pressed="true"]{background:var(--rice);color:#0c0b10}
+.btns{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-family:var(--f-mono);font-size:11px;color:var(--dim)}
+.btns button{border:1px solid var(--line);background:transparent;border-radius:6px;padding:4px 8px;cursor:pointer;font-family:var(--f-body);font-size:11px}
+.foot{font-size:11px;color:var(--dim);line-height:1.6;max-width:65ch;margin:0}
+.foot kbd{font-family:var(--f-mono);font-size:10px;border:1px solid var(--line);border-radius:3px;padding:0 3px}
+
+.grid{position:fixed;inset:0;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:3px;z-index:3}
+.grid button{border:0;background:transparent;cursor:pointer;position:relative;outline-offset:-3px}
+.grid button:hover{box-shadow:inset 0 0 0 2px var(--accent)}
+.grid button span{position:absolute;left:8px;bottom:8px;font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;background:var(--lacquer);padding:3px 6px;border-radius:4px;color:var(--dim)}
+.grid button.centre{box-shadow:inset 0 0 0 2px var(--accent)}
+.grid button.centre span{color:var(--accent)}
+.xbar{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:5;display:flex;gap:10px;align-items:center;background:var(--lacquer);border:1px solid var(--line);border-radius:999px;padding:6px 8px 6px 16px;font-size:12px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);max-width:calc(100% - 24px)}
+.xbar input{width:110px}
+.xbar button{border:0;background:rgba(236,230,218,.1);border-radius:999px;padding:6px 12px;cursor:pointer;font-size:12px;white-space:nowrap}
+.nogl{position:fixed;inset:0;display:grid;place-items:center;padding:24px;text-align:center;font-size:15px}
+.hideui .mark,.hideui .bar,.hideui .panel,.hideui .xbar,.hideui .hint{display:none}
+</style>
+
+<canvas id="c" aria-label="Animated field of fine ink hairs. Drag to stroke the fur."></canvas>
+<div class="mark"><h1>Sumi Field</h1><span>墨</span></div>
+<div class="hint" id="hint">Stroke the fur</div>
+
+<div class="grid" id="grid" hidden></div>
+<div class="xbar" id="xbar" hidden>
+  <label for="mut">Mutation</label><input id="mut" type="range" min="0.05" max="1" step="0.01" value="0.35">
+  <button id="reroll" type="button">New neighbours</button>
+  <button id="xdone" type="button">Done</button>
+</div>
+
+<aside class="panel" id="panel" aria-label="Controls"></aside>
+
+<nav class="bar" aria-label="Actions">
+  <button id="bRand" type="button">Randomise <kbd>R</kbd></button>
+  <button id="bExp" type="button" aria-pressed="false">Explore <kbd>E</kbd></button>
+  <button id="bPause" type="button" aria-pressed="false">Pause <kbd>␣</kbd></button>
+  <button id="bReset" type="button">Reset</button>
+  <button id="bPurr" type="button" aria-pressed="true">Purr</button>
+  <button id="bPanel" type="button" aria-pressed="true">Controls</button>
+</nav>
+
+<script>
+(()=>{
+// ---------- parameters ----------
+const SPEC=[
+ {g:'Hand',jp:'手',items:[
+  {k:'hand',l:'Hand size (px)',min:20,max:240,step:1,d:90,keep:1},
+  {k:'press',l:'Pressure',min:.1,max:1,step:.01,d:.75,keep:1},
+  {k:'memory',l:'Fur memory (s)',min:1,max:120,step:1,d:12,keep:1},
+  {k:'purr',l:'Purr volume',min:0,max:1,step:.01,d:.6,keep:1},
+ ]},
+ {g:'Field',jp:'場',items:[
+  {k:'scale',l:'Frequency',min:.3,max:5,step:.01,d:1.1},
+  {k:'oct',l:'Detail layers',min:1,max:4,step:1,d:2},
+  {k:'gain',l:'Detail strength',min:.15,max:.8,step:.01,d:.42},
+  {k:'crease',l:'Crease sharpness',min:0,max:1,step:.01,d:1},
+  {k:'curl',l:'Curl (degrees)',min:-90,max:90,step:1,d:42},
+  {k:'warp',l:'Warp',min:0,max:1.5,step:.01,d:.2},
+  {k:'drift',l:'Drift speed',min:0,max:1,step:.005,d:.08},
+ ]},
+ {g:'Hair',jp:'毛',items:[
+  {k:'spacing',l:'Hair spacing (px)',min:3,max:24,step:.5,d:7.5,keep:1},
+  {k:'len',l:'Hair length (px)',min:10,max:300,step:1,d:170},
+  {k:'width',l:'Hair weight',min:.3,max:5,step:.05,d:1.1},
+  {k:'taper',l:'Taper',min:0,max:1,step:.01,d:.7},
+  {k:'ink',l:'Ink density',min:.05,max:1,step:.01,d:.55},
+  {k:'dash',l:'Broken hairs',min:0,max:.8,step:.01,d:.08},
+  {k:'dashLen',l:'Break length (px)',min:3,max:40,step:.5,d:14},
+  {k:'flow',l:'Flow along hairs',min:-3,max:3,step:.05,d:.6},
+ ]},
+ {g:'Colour',jp:'色',items:[
+  {k:'mode',l:'Palette',type:'seg',opts:['Sumi','Spectrum','Acid','Duotone'],d:0},
+  {k:'key',l:'Colour by',type:'seg',opts:['Direction','Field','Hair'],d:0},
+  {k:'hue',l:'Hue',min:0,max:1,step:.005,d:.6},
+  {k:'hueSpread',l:'Hue range',min:0,max:3,step:.01,d:1},
+  {k:'sat',l:'Saturation',min:0,max:1,step:.01,d:.05},
+  {k:'cycle',l:'Colour cycling',min:-.5,max:.5,step:.005,d:.03},
+ ]},
+ {g:'Paper',jp:'紙',items:[
+  {k:'paper',l:'Paper tone',min:0,max:1,step:.01,d:.93},
+  {k:'grain',l:'Grain',min:0,max:1,step:.01,d:.25},
+ ]},
+];
+const ALL=SPEC.flatMap(g=>g.items);
+const DEF=Object.fromEntries(ALL.map(s=>[s.k,s.d]));DEF.seed=1729;
+const clone=o=>JSON.parse(JSON.stringify(o));
+const LS='sumi-field-v3';
+let P=clone(DEF);
+try{const s=JSON.parse(localStorage.getItem(LS)||'null');if(s)P=Object.assign(clone(DEF),s)}catch(e){}
+const save=()=>{try{localStorage.setItem(LS,JSON.stringify(P))}catch(e){}};
+function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+// ---------- GL ----------
+const cv=document.getElementById('c');
+const gl=cv.getContext('webgl2',{antialias:true,premultipliedAlpha:false});
+if(!gl){document.body.insertAdjacentHTML('beforeend','<div class="nogl">Sumi Field needs WebGL2, which this browser does not provide.</div>');return}
+const FAST=!!gl.getExtension('EXT_color_buffer_float')&&location.hash!=='#slow';
+const ENC=FAST?0:1;
+const MAXTEX=gl.getParameter(gl.MAX_TEXTURE_SIZE);
+
+const NOISE=`
+vec3 m289(vec3 x){return x-floor(x*(1./289.))*289.;}
+vec4 m289(vec4 x){return x-floor(x*(1./289.))*289.;}
+vec4 perm(vec4 x){return m289(((x*34.)+1.)*x);}
+float snoise(vec3 v){
+ const vec2 C=vec2(1./6.,1./3.);const vec4 D=vec4(0.,.5,1.,2.);
+ vec3 i=floor(v+dot(v,C.yyy));vec3 x0=v-i+dot(i,C.xxx);
+ vec3 g=step(x0.yzx,x0.xyz);vec3 l=1.-g;vec3 i1=min(g.xyz,l.zxy);vec3 i2=max(g.xyz,l.zxy);
+ vec3 x1=x0-i1+C.xxx;vec3 x2=x0-i2+C.yyy;vec3 x3=x0-D.yyy;
+ i=m289(i);
+ vec4 p=perm(perm(perm(i.z+vec4(0.,i1.z,i2.z,1.))+i.y+vec4(0.,i1.y,i2.y,1.))+i.x+vec4(0.,i1.x,i2.x,1.));
+ vec3 ns=.142857142857*D.wyz-D.xzx;
+ vec4 j=p-49.*floor(p*ns.z*ns.z);
+ vec4 x_=floor(j*ns.z);vec4 y_=floor(j-7.*x_);
+ vec4 x=x_*ns.x+ns.yyyy;vec4 y=y_*ns.x+ns.yyyy;vec4 h=1.-abs(x)-abs(y);
+ vec4 b0=vec4(x.xy,y.xy);vec4 b1=vec4(x.zw,y.zw);
+ vec4 s0=floor(b0)*2.+1.;vec4 s1=floor(b1)*2.+1.;vec4 sh=-step(h,vec4(0.));
+ vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy;vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
+ vec3 p0=vec3(a0.xy,h.x);vec3 p1=vec3(a0.zw,h.y);vec3 p2=vec3(a1.xy,h.z);vec3 p3=vec3(a1.zw,h.w);
+ vec4 nr=1.79284291400159-.85373472095314*vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3));
+ p0*=nr.x;p1*=nr.y;p2*=nr.z;p3*=nr.w;
+ vec4 m=max(.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.);m=m*m;
+ return 42.*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
+}
+vec3 hsl(float h,float s,float l){vec3 c=clamp(abs(mod(h*6.+vec3(0.,4.,2.),6.)-3.)-1.,0.,1.);return l+s*(c-.5)*(1.-abs(2.*l-1.));}
+`;
+const VS_TRI=`#version 300 es
+layout(location=0) in vec2 a;void main(){gl_Position=vec4(a,0.,1.);}`;
+
+// Flow field: noise gradient, rotated by curl, then blended toward the groomed (stroked) direction.
+const FS_FIELD=`#version 300 es
+precision highp float;
+uniform vec2 uSize,uView,uPan;uniform float uZoom,uScale,uGain,uCrease,uCurl,uWarp,uT,uSeedOff;uniform int uOct;
+uniform sampler2D uGroom;uniform int uGroomOn,uEnc;
+out vec4 o;
+${NOISE}
+float F(vec2 p){
+  vec2 w=p;
+  if(uWarp>0.)w+=uWarp*vec2(snoise(vec3(p*.6,uT*.7+uSeedOff+11.)),snoise(vec3(p*.6+5.2,uT*.7+uSeedOff+23.)));
+  float a=1.,fr=uScale,s=0.,n=0.;
+  for(int k=0;k<4;k++){if(k>=uOct)break;float nz=snoise(vec3(w*fr,uT+uSeedOff+float(k)*17.));s+=a*mix(nz,.5-abs(nz)*(k==0?1.:1.2),uCrease);n+=a;a*=uGain;fr*=2.07;w=mat2(.8,-.6,.6,.8)*w;}
+  return s/n;
+}
+void main(){
+  vec2 uv=gl_FragCoord.xy/uSize;float m=min(uView.x,uView.y);
+  vec2 p=(uv-.5)*uView/m*2./uZoom+uPan;
+  float e=uView.x/uSize.x*2./m/uZoom;
+  vec2 g=vec2(F(p+vec2(e,0.))-F(p-vec2(e,0.)),F(p+vec2(0.,e))-F(p-vec2(0.,e)));
+  float L=length(g);vec2 v=L>1e-8?g/L:vec2(1.,0.);
+  float c=cos(uCurl),s=sin(uCurl);v=vec2(c*v.x-s*v.y,s*v.x+c*v.y);
+  float gm=0.;
+  if(uGroomOn==1){vec4 t=texture(uGroom,uv);vec2 gv=uEnc==1?t.xy*2.-1.:t.xy;gm=length(gv);
+    if(gm>.02){float w=smoothstep(.02,.7,gm);vec2 b=mix(v,gv/gm,w);float bl=length(b);v=bl>1e-4?b/bl:gv/gm;}}
+  o=vec4(v*.5+.5,clamp(F(p)*.5+.5,0.,1.),clamp(gm,0.,1.));
+}`;
+// Groom: persistent hand-combed direction field, carried with pan/zoom, slowly relaxing.
+const FS_GROOM=`#version 300 es
+precision highp float;
+uniform sampler2D uPrev;uniform vec2 uGS,uB;uniform float uK,uDecay,uMinStep;uniform int uEnc;
+uniform vec4 uSeg[16];uniform vec4 uSegV[16];uniform int uNSeg;
+out vec4 o;
+vec2 rd(vec2 uv){if(uv.x<0.||uv.y<0.||uv.x>1.||uv.y>1.)return vec2(0.);vec4 t=texture(uPrev,uv);return uEnc==1?t.xy*2.-1.:t.xy;}
+void main(){
+  vec2 uv=gl_FragCoord.xy/uGS;vec2 u0=.5+(uv-.5)*uK+uB;vec2 px=uK/uGS;
+  vec2 g=rd(u0)*.8+(rd(u0+vec2(px.x,0.))+rd(u0-vec2(px.x,0.))+rd(u0+vec2(0.,px.y))+rd(u0-vec2(0.,px.y)))*.05;
+  float L=length(g);if(L>0.){float nl=max(0.,L*uDecay-uMinStep);g*=nl/L;}
+  vec2 q=gl_FragCoord.xy;
+  for(int i=0;i<16;i++){if(i>=uNSeg)break;vec4 s=uSeg[i];vec4 v=uSegV[i];
+    vec2 ab=s.zw-s.xy;float t=clamp(dot(q-s.xy,ab)/max(dot(ab,ab),1e-4),0.,1.);vec2 d=q-(s.xy+ab*t);
+    float w=v.z*exp(-dot(d,d)/(v.w*v.w));g=mix(g,v.xy,clamp(w,0.,1.));}
+  o=uEnc==1?vec4(g*.5+.5,0.,1.):vec4(g,0.,1.);
+}`;
+// Trace: one pass per step, each hair advanced by a midpoint step; stops where the flow reverses (the crease).
+const FS_TRACE=`#version 300 es
+precision highp float;
+uniform highp sampler2D uField,uPrevT,uSeeds;uniform vec2 uView,uFS;uniform float uH;uniform int uBand,uR,uWt,uN;
+out vec4 o;
+vec4 fld(vec2 q){return textureLod(uField,clamp(q/uView,0.,1.)*uFS,0.);}
+vec2 dirAt(vec2 q){vec2 d=fld(q).xy*2.-1.;float l=length(d);return l>1e-4?d/l:vec2(1.,0.);}
+void main(){
+  ivec2 c=ivec2(gl_FragCoord.xy);int row=c.y-uBand*uR;
+  if(row*uWt+c.x>=uN){o=vec4(0.);return;}
+  if(uBand==0){vec2 s=texelFetch(uSeeds,ivec2(c.x,row),0).xy*uView;o=vec4(s,dirAt(s));return;}
+  vec4 p=texelFetch(uPrevT,ivec2(c.x,c.y-uR),0);
+  vec2 q=p.xy,d=p.zw;
+  if(dot(d,d)<.25){o=p;return;}
+  vec2 dm=dirAt(q+d*uH*.5);if(dot(dm,d)<-.2){o=vec4(q,d*.01);return;}
+  vec2 dn=dirAt(q+dm*uH);if(dot(dn,dm)<-.2){o=vec4(q,d*.01);return;}
+  o=vec4(q+dm*uH,dn);
+}`;
+const STROKE_COMMON=`
+uniform sampler2D uField;uniform vec2 uView,uFS;uniform float uH,uS,uWidth,uTaper,uPx;
+out float vSide,vArc,vCov,vKeyF,vGm;out vec4 vRnd;out vec2 vDir;
+vec4 fld(vec2 q){return textureLod(uField,clamp(q/uView,0.,1.)*uFS,0.);}
+vec2 dirAt(vec2 q){vec2 d=fld(q).xy*2.-1.;float l=length(d);return l>1e-4?d/l:vec2(1.,0.);}
+void emit(vec2 q,vec2 d,float fi,float n,float gm,float side){
+  float s=fi/n;
+  float a=mix(.6,.3,uTaper),b=mix(.6,1.8,uTaper);float sm=a/(a+b);
+  float prof=pow(max(s,1e-4),a)*pow(max(1.-s,0.),b)/(pow(sm,a)*pow(1.-sm,b));
+  float w=uWidth*uPx*(.45+1.1*aRnd.y)*prof*(1.-.25*gm);
+  float ww=max(w,1.);vCov=w/ww;
+  vec2 N=vec2(-d.y,d.x);vec2 pos=q+N*side*ww*.5;
+  gl_Position=vec4(pos/uView*2.-1.,0.,1.);
+  vSide=side;vArc=fi*uH/uPx;vRnd=aRnd;vDir=d;vKeyF=fld(q).z;vGm=gm;
+}
+float lenSteps(float gm){return max(2.,floor(uS*(.45+.55*aRnd.x)*(1.+.5*gm)/1.5));}
+`;
+const VS_FAST=`#version 300 es
+layout(location=2) in vec4 aRnd;
+uniform highp sampler2D uT0,uT1;uniform int uR,uWt;
+${STROKE_COMMON}
+vec4 tr(int b){ivec2 tc=ivec2(gl_InstanceID%uWt,b*uR+gl_InstanceID/uWt);return (b%2==0)?texelFetch(uT0,tc,0):texelFetch(uT1,tc,0);}
+void main(){
+  int i=gl_VertexID/2;float side=float(gl_VertexID%2)*2.-1.;
+  float gm=fld(tr(0).xy).w;float n=lenSteps(gm);float fi=min(float(i),n);
+  vec4 t=tr(int(fi));vec2 d=t.zw;float l=length(d);d=l>1e-6?d/l:vec2(1.,0.);
+  emit(t.xy,d,fi,n,gm,side);
+}`;
+const VS_SLOW=`#version 300 es
+layout(location=1) in vec2 aSeed;layout(location=2) in vec4 aRnd;
+${STROKE_COMMON}
+void main(){
+  int i=gl_VertexID/2;float side=float(gl_VertexID%2)*2.-1.;
+  vec2 q=aSeed*uView;float gm=fld(q).w;float n=lenSteps(gm);float fi=min(float(i),n);
+  vec2 d=dirAt(q);
+  for(int k=0;k<200;k++){if(float(k)>=fi)break;vec2 dm=dirAt(q+d*uH*.5);if(dot(dm,d)<-.2)break;vec2 dn=dirAt(q+dm*uH);if(dot(dn,dm)<-.2)break;q+=dm*uH;d=dn;}
+  emit(q,d,fi,n,gm,side);
+}`;
+const FS_STROKE=`#version 300 es
+precision highp float;
+in float vSide,vArc,vCov,vKeyF,vGm;in vec4 vRnd;in vec2 vDir;
+uniform float uInk,uDash,uDashLen,uFlowPh,uHue,uHueSpread,uSat,uPhase;uniform int uMode,uKey,uAdd;
+out vec4 o;
+${NOISE}
+vec3 ink(float key){
+  float t=uHue+key*uHueSpread+uPhase;
+  if(uMode==0){vec3 base=uAdd==1?vec3(.93,.91,.87):vec3(.05,.05,.07);vec3 tint=hsl(fract(t),1.,uAdd==1?.7:.3);return mix(base,tint,uSat*.85);}
+  if(uMode==1)return hsl(fract(t),uSat*.5+.5,uAdd==1?.6:.42);
+  if(uMode==2){vec3 c=.5+.5*cos(6.28318*(t+vec3(0.,.33,.67)));float y=dot(c,vec3(.3,.59,.11));c=mix(vec3(y),c,.6+.6*uSat);return clamp(uAdd==1?c:c*.8,0.,1.);}
+  float m=.5+.5*sin(6.28318*(key*uHueSpread+uPhase));
+  return mix(hsl(fract(uHue),.4+.6*uSat,uAdd==1?.55:.32),hsl(fract(uHue+.5),.4+.6*uSat,uAdd==1?.7:.45),m);
+}
+void main(){
+  float a=uInk*(.35+.65*vRnd.z)*vCov*(1.+.3*vGm);
+  a*=1.-smoothstep(.5,1.,abs(vSide))*.55;
+  if(uDash>0.){float m=fract(vArc/uDashLen-uFlowPh*(.6+.8*vRnd.x)+vRnd.w*7.);
+    a*=smoothstep(0.,.1,m)*(1.-smoothstep(1.-uDash-.1,1.-uDash,m));}
+  float key=uKey==0?atan(vDir.y,vDir.x)/6.28318:(uKey==1?vKeyF*2.:vRnd.w);
+  vec3 c=ink(key);
+  o=uAdd==1?vec4(c*a,1.):vec4(mix(vec3(1.),c,clamp(a,0.,1.)),1.);
+}`;
+const FS_PAPER=`#version 300 es
+precision highp float;
+uniform vec2 uOrigin;uniform float uPaper,uGrain;out vec4 o;
+${NOISE}
+float h12(vec2 p){p=fract(p*vec2(443.897,441.423));p+=dot(p,p.yx+19.19);return fract((p.x+p.y)*p.x);}
+void main(){
+  vec2 q=gl_FragCoord.xy-uOrigin;
+  vec3 c=uPaper>.5?hsl(.11,.5*(1.-uPaper)+.25,uPaper):hsl(.7,.25,uPaper);
+  float n=snoise(vec3(q*.004,1.))*.5+snoise(vec3(q*.02,3.))*.3;
+  c+=(n*.035+(h12(gl_FragCoord.xy)-.5)*.05)*uGrain;
+  o=vec4(c,1.);
+}`;
+function sh(t,s){const x=gl.createShader(t);gl.shaderSource(x,s);gl.compileShader(x);if(!gl.getShaderParameter(x,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(x));return x}
+function prog(v,f){const p=gl.createProgram();gl.attachShader(p,sh(gl.VERTEX_SHADER,v));gl.attachShader(p,sh(gl.FRAGMENT_SHADER,f));gl.linkProgram(p);
+  if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(p));
+  const u={},n=gl.getProgramParameter(p,gl.ACTIVE_UNIFORMS);
+  for(let i=0;i<n;i++){const nm=gl.getActiveUniform(p,i).name.replace(/\[0\]$/,'');u[nm]=gl.getUniformLocation(p,nm)}
+  return{p,u:new Proxy(u,{get:(o,k)=>k in o?o[k]:null})}}
+const pF=prog(VS_TRI,FS_FIELD),pG=prog(VS_TRI,FS_GROOM),pP=prog(VS_TRI,FS_PAPER),pS=prog(FAST?VS_FAST:VS_SLOW,FS_STROKE);
+const pT=FAST?prog(VS_TRI,FS_TRACE):null;
+const pC=prog(VS_TRI,`#version 300 es
+precision mediump float;uniform sampler2D uTex;uniform vec2 uSize;out vec4 o;void main(){o=texture(uTex,gl_FragCoord.xy/uSize);}`);
+
+const triVAO=gl.createVertexArray();gl.bindVertexArray(triVAO);
+const tb=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,tb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
+const sVAO=gl.createVertexArray();gl.bindVertexArray(sVAO);
+const sb=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,sb);
+gl.enableVertexAttribArray(1);gl.vertexAttribPointer(1,2,gl.FLOAT,false,24,0);gl.vertexAttribDivisor(1,1);
+gl.enableVertexAttribArray(2);gl.vertexAttribPointer(2,4,gl.FLOAT,false,24,8);gl.vertexAttribDivisor(2,1);
+gl.bindVertexArray(null);
+
+function mkTex(ifmt,w,h,fmt,type,filter,data){const t=gl.createTexture();gl.activeTexture(gl.TEXTURE7);gl.bindTexture(gl.TEXTURE_2D,t);
+  gl.texImage2D(gl.TEXTURE_2D,0,ifmt,w,h,0,fmt,type,data||null);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,filter);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,filter);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);return t}
+function mkFbo(t){const f=gl.createFramebuffer();gl.bindFramebuffer(gl.FRAMEBUFFER,f);gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,t,0);gl.bindFramebuffer(gl.FRAMEBUFFER,null);return f}
+function del(ts,fs){ts.forEach(t=>t&&gl.deleteTexture(t));fs.forEach(f=>f&&gl.deleteFramebuffer(f))}
+
+// field texture
+let ftex=null,fbo=null,texW=0,texH=0;
+// explore atlas: tiles render here at reduced density, a few per frame, then it is copied to screen
+let aTex=null,aFbo=null,aW=0,aH=0,aScale=1,tpf=2,tileCursor=0,fdt=.016;const tileDirty=new Array(9).fill(true);
+function ensureAtlas(){aScale=Math.min(scale,1);const w=Math.max(8,Math.round(cssW*aScale)),h=Math.max(8,Math.round(cssH*aScale));if(w===aW&&h===aH)return;
+  del([aTex],[aFbo]);aW=w;aH=h;aTex=mkTex(gl.RGBA8,w,h,gl.RGBA,gl.UNSIGNED_BYTE,gl.LINEAR);aFbo=mkFbo(aTex);
+  gl.bindFramebuffer(gl.FRAMEBUFFER,aFbo);gl.disable(gl.SCISSOR_TEST);gl.clearColor(.05,.045,.06,1);gl.clear(gl.COLOR_BUFFER_BIT);gl.bindFramebuffer(gl.FRAMEBUFFER,null);tileDirty.fill(true)}
+function allocField(w,h){if(w===texW&&h===texH)return;del([ftex],[fbo]);texW=w;texH=h;ftex=mkTex(gl.RGBA8,w,h,gl.RGBA,gl.UNSIGNED_BYTE,gl.LINEAR);fbo=mkFbo(ftex)}
+// groom ping-pong
+let gTex=[],gFbo=[],gW=0,gH=0,gCur=0;const GDIV=4;
+function allocGroom(w,h){if(w===gW&&h===gH)return;del(gTex,gFbo);gW=w;gH=h;
+  gTex=[0,1].map(()=>FAST?mkTex(gl.RGBA16F,w,h,gl.RGBA,gl.HALF_FLOAT,gl.LINEAR):mkTex(gl.RGBA8,w,h,gl.RGBA,gl.UNSIGNED_BYTE,gl.LINEAR));
+  gFbo=gTex.map(mkFbo);clearGroom()}
+function clearGroom(){const c=ENC?.5:0;gl.clearColor(c,c,0,1);gFbo.forEach(f=>{gl.bindFramebuffer(gl.FRAMEBUFFER,f);gl.clear(gl.COLOR_BUFFER_BIT)});gl.bindFramebuffer(gl.FRAMEBUFFER,null)}
+// trace textures
+const Wt=Math.min(4096,MAXTEX);let R=1,seedTex=null,tTex=[],tFbo=[],tS=0,tR=0;
+function allocTrace(S){if(S===tS&&R===tR)return;del(tTex,tFbo);tS=S;tR=R;
+  tTex=[0,1].map(()=>mkTex(gl.RGBA32F,Wt,(S+1)*R,gl.RGBA,gl.FLOAT,gl.NEAREST));tFbo=tTex.map(mkFbo)}
+
+// ---------- state ----------
+const view={x:0,y:0,z:1},gView={x:0,y:0,z:1};
+let paused=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let exploring=false,mut=.35,dirty=true;
+let tiles=[];
+const main={P,T:0,F:0,ph:0};
+let scale=Math.min(devicePixelRatio||1,2),W=0,H=0,cssW=0,cssH=0,nSeeds=0,seedKey='';
+const FDIV=1.5;
+
+function resize(){cssW=innerWidth;cssH=innerHeight;const w=Math.round(cssW*scale),h=Math.round(cssH*scale);
+  if(w!==W||h!==H){W=cv.width=w;H=cv.height=h;dirty=true}
+  allocField(Math.max(8,Math.ceil(cssW/FDIV)),Math.max(8,Math.ceil(cssH/FDIV)));
+  allocGroom(Math.max(8,Math.ceil(cssW/GDIV)),Math.max(8,Math.ceil(cssH/GDIV)));seeds()}
+function seeds(){
+  const key=[cssW,cssH,P.spacing,P.seed].join();if(key===seedKey)return;seedKey=key;
+  const Rn=rng(P.seed*31+7),sp=P.spacing,cols=Math.ceil(cssW/sp),rows=Math.ceil(cssH/sp);
+  const n=Math.min(90000,cols*rows);const idx=new Uint32Array(cols*rows);for(let i=0;i<idx.length;i++)idx[i]=i;
+  for(let i=idx.length-1;i>0;i--){const j=Math.floor(Rn()*(i+1));const t=idx[i];idx[i]=idx[j];idx[j]=t}
+  const d=new Float32Array(n*6);
+  for(let k=0;k<n;k++){const i=idx[k],cx=i%cols,cy=(i/cols)|0;d.set([(cx+Rn())/cols,(cy+Rn())/rows,Rn(),Rn(),Rn(),Rn()],k*6)}
+  gl.bindBuffer(gl.ARRAY_BUFFER,sb);gl.bufferData(gl.ARRAY_BUFFER,d,gl.STATIC_DRAW);nSeeds=n;
+  if(FAST){R=Math.ceil(n/Wt);const st=new Float32Array(Wt*R*4);for(let k=0;k<n;k++){st[k*4]=d[k*6];st[k*4+1]=d[k*6+1]}
+    del([seedTex],[]);seedTex=mkTex(gl.RGBA32F,Wt,R,gl.RGBA,gl.FLOAT,gl.NEAREST,st)}
+  dirty=true}
+addEventListener('resize',resize);
+
+function stepsFor(P,k=1){const base=Math.max(3,Math.round(P.len*k/2.5));let S=Math.min(200,Math.round(base*1.5));if(FAST)S=Math.min(S,Math.floor(MAXTEX/R)-1);return S}
+
+// k: miniature factor (1 = full view); out: target framebuffer; px: device pixels per css pixel of the target
+function draw(st,ox,oy,w,h,count,groomOn,k=1,out=null,px=scale){
+  const P=st.P;
+  const fw=Math.max(8,Math.min(texW,Math.ceil(w/px/FDIV))),fh=Math.max(8,Math.min(texH,Math.ceil(h/px/FDIV)));
+  gl.disable(gl.BLEND);gl.disable(gl.SCISSOR_TEST);
+  // 1. field
+  gl.bindFramebuffer(gl.FRAMEBUFFER,fbo);gl.viewport(0,0,fw,fh);
+  gl.useProgram(pF.p);let u=pF.u;
+  gl.uniform2f(u.uSize,fw,fh);gl.uniform2f(u.uView,w,h);gl.uniform2f(u.uPan,view.x,view.y);gl.uniform1f(u.uZoom,view.z);
+  gl.uniform1f(u.uScale,P.scale);gl.uniform1f(u.uGain,P.gain);gl.uniform1f(u.uCrease,P.crease);gl.uniform1f(u.uCurl,P.curl*Math.PI/180);
+  gl.uniform1f(u.uWarp,P.warp);gl.uniform1f(u.uT,st.T);gl.uniform1f(u.uSeedOff,(P.seed%997)*.731);gl.uniform1i(u.uOct,P.oct);
+  gl.activeTexture(gl.TEXTURE3);gl.bindTexture(gl.TEXTURE_2D,gTex[gCur]);gl.uniform1i(u.uGroom,3);gl.uniform1i(u.uGroomOn,groomOn?1:0);gl.uniform1i(u.uEnc,ENC);
+  gl.bindVertexArray(triVAO);gl.drawArrays(gl.TRIANGLES,0,3);
+  const S=stepsFor(P,k),hh=2.5*px;
+  gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,ftex);
+  // 2. trace hairs (fast path)
+  if(FAST){
+    allocTrace(S);gl.useProgram(pT.p);u=pT.u;
+    gl.uniform1i(u.uField,0);gl.uniform1i(u.uPrevT,1);gl.uniform1i(u.uSeeds,2);
+    gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,seedTex);
+    gl.uniform2f(u.uView,w,h);gl.uniform2f(u.uFS,fw/texW,fh/texH);gl.uniform1f(u.uH,hh);gl.uniform1i(u.uR,R);gl.uniform1i(u.uWt,Wt);gl.uniform1i(u.uN,count);
+    for(let k=0;k<=S;k++){gl.bindFramebuffer(gl.FRAMEBUFFER,tFbo[k&1]);gl.viewport(0,k*R,Wt,R);
+      gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,tTex[(k+1)&1]);gl.uniform1i(u.uBand,k);gl.drawArrays(gl.TRIANGLES,0,3)}
+  }
+  // 3. paper
+  gl.bindFramebuffer(gl.FRAMEBUFFER,out);gl.enable(gl.SCISSOR_TEST);gl.scissor(ox,oy,w,h);gl.viewport(ox,oy,w,h);
+  gl.useProgram(pP.p);gl.uniform2f(pP.u.uOrigin,ox,oy);gl.uniform1f(pP.u.uPaper,P.paper);gl.uniform1f(pP.u.uGrain,P.grain);
+  gl.drawArrays(gl.TRIANGLES,0,3);
+  // 4. hairs
+  const add=P.paper<.5;
+  gl.enable(gl.BLEND);if(add)gl.blendFunc(gl.ONE,gl.ONE);else gl.blendFunc(gl.DST_COLOR,gl.ZERO);
+  gl.useProgram(pS.p);u=pS.u;
+  gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,ftex);gl.uniform1i(u.uField,0);
+  if(FAST){gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,tTex[0]);gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,tTex[1]);
+    gl.uniform1i(u.uT0,1);gl.uniform1i(u.uT1,2);gl.uniform1i(u.uR,R);gl.uniform1i(u.uWt,Wt)}
+  gl.uniform2f(u.uView,w,h);gl.uniform2f(u.uFS,fw/texW,fh/texH);gl.uniform1f(u.uH,hh);gl.uniform1f(u.uS,S);
+  gl.uniform1f(u.uWidth,P.width);gl.uniform1f(u.uTaper,P.taper);gl.uniform1f(u.uPx,px*k);
+  gl.uniform1f(u.uInk,add?P.ink*.7:P.ink);gl.uniform1f(u.uDash,P.dash);gl.uniform1f(u.uDashLen,P.dashLen);gl.uniform1f(u.uFlowPh,st.F);
+  gl.uniform1f(u.uHue,P.hue);gl.uniform1f(u.uHueSpread,P.hueSpread);gl.uniform1f(u.uSat,P.sat);gl.uniform1f(u.uPhase,st.ph);
+  gl.uniform1i(u.uMode,P.mode);gl.uniform1i(u.uKey,P.key);gl.uniform1i(u.uAdd,add?1:0);
+  gl.bindVertexArray(sVAO);gl.drawArraysInstanced(gl.TRIANGLE_STRIP,0,2*(S+1),count);
+  gl.bindVertexArray(null);
+}
+
+// ---------- grooming (hand) ----------
+const segA=new Float32Array(64),segV=new Float32Array(64);let segs=[];
+function updateGroom(dt){
+  const m=Math.min(cssW,cssH);
+  const K=gView.z/view.z,bx=(view.x-gView.x)*gView.z*m/2/cssW,by=(view.y-gView.y)*gView.z*m/2/cssH;
+  Object.assign(gView,view);
+  const perm=P.memory>=120;
+  const tgt=1-gCur;gl.disable(gl.BLEND);gl.disable(gl.SCISSOR_TEST);
+  gl.bindFramebuffer(gl.FRAMEBUFFER,gFbo[tgt]);gl.viewport(0,0,gW,gH);
+  gl.useProgram(pG.p);const u=pG.u;
+  gl.activeTexture(gl.TEXTURE4);gl.bindTexture(gl.TEXTURE_2D,gTex[gCur]);gl.uniform1i(u.uPrev,4);
+  gl.uniform2f(u.uGS,gW,gH);gl.uniform2f(u.uB,bx,by);gl.uniform1f(u.uK,K);
+  gl.uniform1f(u.uDecay,perm?1:Math.exp(-dt/P.memory));gl.uniform1f(u.uMinStep,perm?0:(ENC?1.6/255:.0004));gl.uniform1i(u.uEnc,ENC);
+  const n=Math.min(16,segs.length);segA.fill(0);segV.fill(0);
+  for(let i=0;i<n;i++){segA.set(segs[i].slice(0,4),i*4);segV.set(segs[i].slice(4,8),i*4)}
+  gl.uniform4fv(u.uSeg,segA);gl.uniform4fv(u.uSegV,segV);gl.uniform1i(u.uNSeg,n);
+  gl.bindVertexArray(triVAO);gl.drawArrays(gl.TRIANGLES,0,3);gl.bindVertexArray(null);
+  gCur=tgt;segs=[];
+}
+
+// ---------- purr ----------
+let ac=null,purrGain=null,purrOn=true,handSpeed=0,handDown=false;
+try{purrOn=localStorage.getItem(LS+'-purr')!=='0'}catch(e){}
+function initAudio(){
+  if(ac){if(ac.state==='suspended')ac.resume().catch(()=>{});return}
+  try{ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){ac=null;return}
+  const sr=ac.sampleRate,len=sr*3,buf=ac.createBuffer(1,len,sr),d=buf.getChannelData(0);let b=0;
+  for(let i=0;i<len;i++){b=(b+.02*(Math.random()*2-1))/1.02;d[i]=b*3.5}
+  const src=ac.createBufferSource();src.buffer=buf;src.loop=true;
+  const lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=380;
+  const pk=ac.createBiquadFilter();pk.type='peaking';pk.frequency.value=95;pk.Q.value=1.2;pk.gain.value=10;
+  const am=ac.createGain();am.gain.value=0;
+  const lfo=ac.createOscillator();lfo.frequency.value=25;
+  const shp=ac.createWaveShaper();const cu=new Float32Array(1024);for(let i=0;i<1024;i++){const x=i/511.5-1;cu[i]=Math.pow(Math.max(0,x),2.2)*1.6}shp.curve=cu;
+  lfo.connect(shp).connect(am.gain);
+  const br=ac.createOscillator();br.frequency.value=.42;const brg=ac.createGain();brg.gain.value=2.2;br.connect(brg).connect(lfo.frequency);
+  const brA=ac.createGain();brA.gain.value=.75;const brAm=ac.createGain();brAm.gain.value=.25;br.connect(brAm).connect(brA.gain);
+  purrGain=ac.createGain();purrGain.gain.value=0;
+  src.connect(lp).connect(pk).connect(am).connect(brA).connect(purrGain).connect(ac.destination);
+  src.start();lfo.start();br.start();
+}
+function updatePurr(dt){
+  handSpeed*=Math.exp(-dt/.9);
+  if(!ac||!purrGain)return;
+  const lvl=Math.max(handDown?.35:0,Math.min(1,Math.pow(handSpeed/700,.6)));
+  purrGain.gain.setTargetAtTime(purrOn?lvl*P.purr*.9:0,ac.currentTime,.18);
+}
+
+// ---------- loop ----------
+let last=performance.now(),frameN=0,lastStrokeT=-1e9;
+function step(st,dt){if(!paused){st.T+=dt*st.P.drift;st.F+=dt*st.P.flow;st.ph+=dt*st.P.cycle}}
+function frame(now){
+  const dt=Math.min(.05,(now-last)/1000);last=now;
+  step(main,dt);if(exploring)tiles.forEach((t,i)=>{if(i!==4)step(t,dt)});
+  const active=handDown||now-lastStrokeT<Math.min(P.memory,40)*4000||view.x!==gView.x||view.y!==gView.y||view.z!==gView.z;
+  if(!exploring&&(active||!paused))updateGroom(dt);
+  if(!paused||dirty||active){
+    if(exploring){
+      ensureAtlas();
+      const g=Math.max(2,Math.round(3*aScale)),tw=Math.round((aW-2*g)/3),th=Math.round((aH-2*g)/3),k=tw/aW;
+      let drew=0;
+      for(let j=0;j<9&&drew<tpf;j++){const i=(tileCursor+j)%9;if(paused&&!tileDirty[i])continue;
+        const r=Math.floor(i/3),c=i%3;draw(tiles[i],c*(tw+g),aH-(r+1)*th-r*g,tw,th,nSeeds,false,k,aFbo,aScale);
+        tileDirty[i]=false;drew++;tileCursor=(i+1)%9}
+      gl.disable(gl.SCISSOR_TEST);gl.disable(gl.BLEND);gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,W,H);
+      gl.useProgram(pC.p);gl.activeTexture(gl.TEXTURE5);gl.bindTexture(gl.TEXTURE_2D,aTex);gl.uniform1i(pC.u.uTex,5);gl.uniform2f(pC.u.uSize,W,H);
+      gl.bindVertexArray(triVAO);gl.drawArrays(gl.TRIANGLES,0,3);gl.bindVertexArray(null);
+      dirty=tileDirty.some(Boolean);
+      fdt=fdt*.9+dt*.1;if(frameN%15===0){if(fdt>.03&&tpf>1)tpf--;else if(fdt<.02&&tpf<9)tpf++}
+    }else{draw(main,0,0,W,H,nSeeds,true);dirty=false}
+    if(snapCb){const c=snapCb;snapCb=null;c(cv.toDataURL('image/png'))}
+  }
+  updatePurr(dt);
+  if(++frameN%12===0)setAccent();
+  if(!halted)requestAnimationFrame(frame);
+}
+let halted=false,snapCb=null;
+function setAccent(){const P=main.P;const h=((P.hue+main.ph)%1+1)%1;document.documentElement.style.setProperty('--accent',`hsl(${(h*360).toFixed(0)} ${Math.max(45,P.sat*100).toFixed(0)}% 66%)`)}
+
+// ---------- panel ----------
+const panel=document.getElementById('panel');const inputs={};
+SPEC.forEach(g=>{
+  const sec=document.createElement('section');sec.className='grp';
+  sec.innerHTML=`<h2>${g.g}<small>${g.jp}</small></h2>`;
+  g.items.forEach(s=>{
+    if(s.type==='seg'){
+      const lab=document.createElement('div');lab.className='lbl';lab.textContent=s.l;sec.appendChild(lab);
+      const d=document.createElement('div');d.className='seg';d.setAttribute('role','group');d.setAttribute('aria-label',s.l);
+      s.opts.forEach((o,i)=>{const b=document.createElement('button');b.type='button';b.textContent=o;b.onclick=()=>set(s.k,i);d.appendChild(b)});
+      inputs[s.k]={seg:d};sec.appendChild(d);return;
+    }
+    const r=document.createElement('div');r.className='row';const id='p-'+s.k;
+    r.innerHTML=`<label for="${id}">${s.l}</label><output for="${id}"></output><input id="${id}" type="range" min="${s.min}" max="${s.max}" step="${s.step}">`;
+    const inp=r.querySelector('input'),out=r.querySelector('output');
+    inp.addEventListener('input',()=>set(s.k,parseFloat(inp.value)));
+    inputs[s.k]={inp,out,s};sec.appendChild(r);
+  });
+  panel.appendChild(sec);
+});
+const misc=document.createElement('section');misc.className='grp';
+misc.innerHTML=`<h2>View<small>見</small></h2>
+<div class="btns">Seed <span id="seedv"></span><button type="button" id="newseed">New seed</button></div>
+<div class="btns"><button type="button" id="ruffle">Ruffle the fur</button><button type="button" id="recentre">Recentre</button></div>
+<p class="foot">Drag to stroke the fur; it settles back into chaos over the fur memory time (120 keeps it combed). Two-finger drag, right-drag or Shift-drag pans; pinch or scroll zooms. <kbd>H</kbd> hides the interface.</p>`;
+panel.appendChild(misc);
+const fmt=(s,v)=>s.step>=1?String(v):v.toFixed(s.step<.01?3:2);
+function sync(){
+  ALL.forEach(s=>{const I=inputs[s.k];if(I.seg)[...I.seg.children].forEach((b,i)=>b.setAttribute('aria-pressed',i===P[s.k]));else{I.inp.value=P[s.k];I.out.textContent=s.k==='memory'&&P[s.k]>=120?'∞':fmt(s,P[s.k])}});
+  document.getElementById('seedv').textContent=P.seed;
+}
+function set(k,v){P[k]=v;if(k==='spacing'||k==='seed')seeds();dirty=true;sync();save();if(exploring&&!ALL.find(s=>s.k===k)?.keep)makeTiles()}
+document.getElementById('newseed').onclick=()=>set('seed',Math.floor(Math.random()*1e6));
+document.getElementById('ruffle').onclick=()=>{clearGroom();dirty=true};
+document.getElementById('recentre').onclick=()=>{view.x=view.y=0;view.z=1;dirty=true};
+
+// ---------- randomise / reset / explore ----------
+function randomP(){const n={};ALL.forEach(s=>{if(s.keep){n[s.k]=P[s.k];return}if(s.type==='seg')n[s.k]=Math.floor(Math.random()*s.opts.length);else{let v=s.min+Math.random()*(s.max-s.min);n[s.k]=s.step>=1?Math.round(v):v}});
+  n.seed=Math.floor(Math.random()*1e6);n.len=60+Math.random()*200;n.width=.6+Math.random()*2;n.dash=Math.random()<.5?0:Math.random()*.5;
+  n.paper=Math.random()<.55?.82+Math.random()*.16:Math.random()*.1;n.drift=.03+Math.random()*.25;n.flow=(Math.random()-.5)*2.4;n.cycle=(Math.random()-.5)*.2;
+  n.oct=1+Math.floor(Math.random()*3);n.ink=.3+Math.random()*.5;n.crease=.6+Math.random()*.4;return n}
+function adopt(n){Object.keys(P).forEach(k=>delete P[k]);Object.assign(P,n);main.P=P;seeds();dirty=true;sync();save()}
+function mutate(base,amt){const n=clone(base);
+  ALL.forEach(s=>{if(s.keep)return;if(s.type==='seg'){if(Math.random()<amt*.3)n[s.k]=Math.floor(Math.random()*s.opts.length);return}
+    let v=n[s.k]+(Math.random()-.5)*2*amt*(s.max-s.min)*.4;v=Math.min(s.max,Math.max(s.min,v));n[s.k]=s.step>=1?Math.round(v):v});
+  return n}
+function makeTiles(){tiles=[];for(let i=0;i<9;i++){if(i===4){tiles.push(main);continue}const p=mutate(P,mut);tiles.push({P:p,T:main.T+(i===6||i===8?37+i*11:0),F:main.F,ph:main.ph})}tileDirty.fill(true);dirty=true}
+const grid=document.getElementById('grid'),xbar=document.getElementById('xbar'),bExp=document.getElementById('bExp');
+for(let i=0;i<9;i++){const b=document.createElement('button');b.type='button';if(i===4){b.className='centre';b.innerHTML='<span>Current · keep</span>'}else b.innerHTML=`<span>Variant ${i<4?i+1:i}</span>`;
+  b.onclick=()=>{if(i===4){setExplore(false);return}const t=tiles[i];main.T=t.T;main.F=t.F;main.ph=t.ph;adopt(t.P);makeTiles()};grid.appendChild(b)}
+function setExplore(on){exploring=on;grid.hidden=xbar.hidden=!on;bExp.setAttribute('aria-pressed',on);dirty=true;if(on){makeTiles();setPanel(false)}}
+document.getElementById('mut').oninput=e=>{mut=parseFloat(e.target.value);makeTiles()};
+document.getElementById('reroll').onclick=makeTiles;document.getElementById('xdone').onclick=()=>setExplore(false);
+bExp.onclick=()=>setExplore(!exploring);
+document.getElementById('bRand').onclick=()=>{adopt(randomP());if(exploring)makeTiles()};
+document.getElementById('bReset').onclick=()=>{adopt(clone(DEF));clearGroom();view.x=view.y=0;view.z=1;main.T=main.F=main.ph=0;if(exploring)makeTiles()};
+const bPause=document.getElementById('bPause');const setPause=v=>{paused=v;dirty=true;bPause.setAttribute('aria-pressed',v);bPause.firstChild.textContent=v?'Play ':'Pause '};
+bPause.onclick=()=>setPause(!paused);
+const bPurr=document.getElementById('bPurr');const setPurr=v=>{purrOn=v;bPurr.setAttribute('aria-pressed',v);try{localStorage.setItem(LS+'-purr',v?'1':'0')}catch(e){}};
+bPurr.onclick=()=>{initAudio();setPurr(!purrOn)};
+const bPanel=document.getElementById('bPanel');function setPanel(v){panel.hidden=!v;bPanel.setAttribute('aria-pressed',v)}
+bPanel.onclick=()=>setPanel(panel.hidden);
+if(innerWidth<620)setPanel(false);
+addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'&&e.key!==' ')return;const k=e.key.toLowerCase();
+  if(k==='r')document.getElementById('bRand').click();else if(k==='e')bExp.click();else if(k===' '){e.preventDefault();setPause(!paused)}else if(k==='h')document.body.classList.toggle('hideui');else if(k==='escape'&&exploring)setExplore(false)});
+
+// ---------- pointer: drag strokes the fur; two fingers / right / shift pan and pinch ----------
+const ptrs=new Map();let mode=null,pinch=null;
+const hint=document.getElementById('hint');
+const toW=(x,y)=>{const m=Math.min(cssW,cssH);return{x:(x-cssW/2)/m*2/view.z+view.x,y:-(y-cssH/2)/m*2/view.z+view.y}};
+function setMode(m){mode=m;cv.classList.toggle('stroking',m==='stroke');cv.classList.toggle('panning',m==='pan'||m==='pinch');handDown=m==='stroke'}
+cv.addEventListener('contextmenu',e=>e.preventDefault());
+cv.addEventListener('pointerdown',e=>{
+  initAudio();cv.setPointerCapture(e.pointerId);
+  ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY,t:e.timeStamp});
+  if(ptrs.size===1)setMode(e.button!==0||e.shiftKey?'pan':'stroke');
+  else{const[a,b]=[...ptrs.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y)||1,mx:(a.x+b.x)/2,my:(a.y+b.y)/2};setMode('pinch')}
+});
+function addSeg(x0,y0,x1,y1,speed,pressure){
+  const len=Math.hypot(x1-x0,y1-y0);if(len<.3)return;
+  const sx=gW/cssW,sy=gH/cssH;
+  const str=Math.min(1,(.3+speed/900))*P.press*pressure;
+  const s=[x0*sx,(cssH-y0)*sy,x1*sx,(cssH-y1)*sy,(x1-x0)/len,-(y1-y0)/len,str,P.hand*sx*.5];
+  if(segs.length>=16){const l=segs[15];l[2]=s[2];l[3]=s[3];l[4]=(l[4]+s[4])/2;l[5]=(l[5]+s[5])/2;const q=Math.hypot(l[4],l[5])||1;l[4]/=q;l[5]/=q;l[6]=Math.max(l[6],s[6])}
+  else segs.push(s);
+}
+cv.addEventListener('pointermove',e=>{
+  const p=ptrs.get(e.pointerId);if(!p)return;
+  const evs=e.getCoalescedEvents?e.getCoalescedEvents():[e];
+  for(const ev of (evs.length?evs:[e])){
+    const x=ev.clientX,y=ev.clientY,dx=x-p.x,dy=y-p.y;const dtm=Math.max(1,ev.timeStamp-p.t);
+    if(mode==='stroke'){
+      const sp=Math.hypot(dx,dy)/dtm*1000;
+      addSeg(p.x,p.y,x,y,sp,ev.pointerType==='pen'?.35+.9*(ev.pressure||.5):1);
+      handSpeed+=(sp-handSpeed)*.25;lastStrokeT=performance.now();
+      if(!hint.classList.contains('gone')&&Math.hypot(dx,dy)>2)hint.classList.add('gone');
+    }else if(mode==='pan'){const m=Math.min(cssW,cssH);view.x-=dx/m*2/view.z;view.y+=dy/m*2/view.z}
+    p.x=x;p.y=y;p.t=ev.timeStamp;
+  }
+  if(mode==='pinch'&&ptrs.size>=2){const[a,b]=[...ptrs.values()];const mx=(a.x+b.x)/2,my=(a.y+b.y)/2,d=Math.hypot(a.x-b.x,a.y-b.y)||1;
+    const before=toW(pinch.mx,pinch.my);view.z=Math.min(8,Math.max(.25,view.z*d/pinch.d));const after=toW(mx,my);
+    view.x+=before.x-after.x;view.y+=before.y-after.y;pinch={d,mx,my}}
+  if(mode!=='stroke')dirty=true;
+});
+const up=e=>{if(!ptrs.has(e.pointerId))return;ptrs.delete(e.pointerId);
+  if(ptrs.size===0)setMode(null);else if(mode==='pinch'&&ptrs.size===1){mode='after-pinch';handDown=false}};
+cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+cv.addEventListener('wheel',e=>{e.preventDefault();const b=toW(e.clientX,e.clientY);view.z=Math.min(8,Math.max(.25,view.z*Math.exp(-e.deltaY*.0015)));const a=toW(e.clientX,e.clientY);view.x+=b.x-a.x;view.y+=b.y-a.y;dirty=true},{passive:false});
+
+resize();sync();setPause(paused);setPurr(purrOn);setAccent();requestAnimationFrame(frame);
+window.__sumi={get fast(){return FAST},halt(){halted=true},snap(){return new Promise(r=>{snapCb=r;dirty=true})},frames(){return frameN}};
+})();
+</script>
