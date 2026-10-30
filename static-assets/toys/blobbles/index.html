@@ -395,12 +395,18 @@ vec4 soap(vec2 p, float d){
     float wd = (p2 - p1)/(2.*max(length(c1 - c2), 1.));
     gc = mix(gc, 0.35 + 0.6*fc, 0.75*exp(-pow(wd/(uS*0.0022), 2.)));
   }
-  // popping: a hole tears open from where it was tapped, with a bright frayed edge
+  // popping: a hole tears open from where it was tapped and sweeps across. Its edge is ragged, and
+  // the film gathers into a thick, vivid rim as it pulls back
   float cover = f.w;
   if (f.z > 0.){
-    float hd = length(p - f.xy) - f.z;
+    vec2 hv = p - f.xy;
+    float a = atan(hv.y, hv.x), sd = f.x*0.013 + f.y*0.007;
+    float jag = 1. + 0.07*sin(a*11. + sd) + 0.05*sin(a*23. - sd*1.7) + 0.035*sin(a*41. + sd*2.3);
+    float hd = length(hv) - f.z*jag, band = uS*0.007;
     cover *= smoothstep(-1.5, 1.5, hd);
-    gc += (0.5 + 0.5*fc)*exp(-pow(hd/(uS*0.004), 2.));
+    vec3 rc = film(u*1.7 + 0.3, z, ph + 2.);
+    gc = mix(gc, rc*1.1 + 0.08, 0.85*exp(-pow((hd - band*0.6)/band, 2.)));
+    gc *= 1. - 0.5*exp(-pow(hd/(uS*0.0025), 2.));
   }
   return vec4(gc, cover);
 }
@@ -423,7 +429,16 @@ void main(){
       float sh = smoothstep(uS*0.10, -uS*0.04, ds);
       float caus = smoothstep(-uS*0.02, -uS*0.16, ds);
 #if MAT == 3
-      // a soap film stops almost no light: a faint shadow, brightened where the bubble focuses light
+      // a soap film stops almost no light: a faint shadow, brightened where the bubble focuses light.
+      // A bubble that is popping loses its shadow along with its film
+      vec2 ps = p - so;
+      for (int i = 0; i < N; i++){
+        vec4 f = uF[i];
+        if (f.z > 0. && length(ps - uB[i].xy) < uB[i].z + uS*0.15){
+          float lit = f.w*smoothstep(-uS*0.06, uS*0.06, length(ps - f.xy) - f.z - uS*0.1);
+          sh *= lit; caus *= lit;
+        }
+      }
       bg *= 1. - sh*0.06;
       bg += caus*vec3(1., .98, .94)*0.05;
 #elif MAT != 0
@@ -543,7 +558,25 @@ const vshader = sh(gl.VERTEX_SHADER, vs);
 const buf = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, buf);
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
-gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+gl.enableVertexAttribArray(0);
+
+// the spray of droplets thrown off a popping bubble, drawn as points over the picture: each a tiny
+// lens, with a dark rim and a bright centre, so it shows against the pale paper
+const spray = (() => {
+  const prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, `attribute vec4 a; uniform vec2 uRes; varying float vA;
+    void main(){ gl_Position = vec4(a.xy/uRes*2. - 1., 0., 1.); gl_PointSize = a.z; vA = a.w; }`));
+  gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, `precision mediump float; varying float vA;
+    void main(){
+      float d = length(gl_PointCoord - .5)*2.;
+      if (d > 1.) discard;
+      vec3 c = mix(vec3(0.12), vec3(1.), smoothstep(0.75, 0.2, d));
+      gl_FragColor = vec4(c, vA*smoothstep(1., 0.8, d)*mix(0.55, 0.9, smoothstep(0.75, 0.2, d)));
+    }`));
+  gl.bindAttribLocation(prog, 0, 'a');
+  gl.linkProgram(prog);
+  return { prog, uRes: gl.getUniformLocation(prog, 'uRes'), buf: gl.createBuffer(), data: new Float32Array(4 * 6000), drops: [] };
+})();
 
 // bubbles are uniforms now, so how many there can be depends on the GPU's uniform space
 const MAXB = Math.max(0, Math.min(16, Math.floor(((gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS) || 0) - 64) / 8)));
@@ -630,6 +663,7 @@ const SETTINGS = [
   { key: 'dotSize', label: 'Dot size', min: 0.4, max: 3, step: 0.05, def: 1, fmt: pct, when: halftone },
   { key: 'roll', label: 'Rolling', min: 0, max: 3, step: 0.1, def: 1, fmt: pct, when: halftone },
   { key: 'sheen', label: 'Rainbow sheen', min: 0, max: 3, step: 0.05, def: 1, fmt: pct, when: bubbly },
+  { key: 'sound', label: 'Pop sound', type: 'check', def: true, when: bubbly },
   { key: 'regrow', label: 'Time to grow back', min: 0.3, max: 10, step: 0.1, def: 2, fmt: v => `${v.toFixed(1)}s`, when: bubbly },
   { group: 'Bubbles', key: 'bubbles', label: 'Bubbles per blob', min: 0, max: MAXB, step: 1, def: Math.min(6, MAXB), when: () => MAXB > 0 && glass() },
   { key: 'bubbleSize', label: 'Bubble size', min: 0.3, max: 4, step: 0.1, def: 1, fmt: pct, when: () => MAXB > 0 && glass() },
@@ -750,7 +784,7 @@ const blobs = [
   da: 0, db: 0, dva: 0, dvb: 0, // squash and stretch (see uDf in the shader) and its rate of change
   fly: 0, whizz: 0, home: null, // seconds left flying free, then whizzing back to home (or its path)
   rot: [1, 0, 0, 0, 1, 0, 0, 0, 1], // how far its halftone ball has rolled, row by row
-  pop: 0, wait: 0, grow: 1, hole: [0, 0], // as a soap bubble: seconds left popping, then gone, then how far grown back
+  pop: 0, wait: 0, grow: 1, hole: [0, 0], hr: 0, // as a soap bubble: seconds left popping, then gone, then how far grown back
   loose: 0, // seconds left before a parted bubble can stick to another
 }));
 
@@ -773,12 +807,12 @@ function roll(b, dx, dy, r) {
 }
 
 const active = () => blobs.slice(0, cfg.count);
-const POP = 0.18;
+const POP = 0.32;
 // how big a soap bubble is for now: it swells a little as it pops, and springs up past its size as it grows back
 function sizeOf(b) {
   if (!bubbly()) return 1;
   if (b.wait > 0) return 0;
-  if (b.pop > 0) return 1 + 0.1 * (1 - b.pop / POP);
+  if (b.pop > 0) return 1;
   const x = b.grow - 1;
   return 1 + 2.70158 * x ** 3 + 1.70158 * x * x;
 }
@@ -903,8 +937,57 @@ function burst(b0) {
 // a lone soap bubble pops, tearing open from where it was tapped, and later grows back
 function pop(b, px, py) {
   if (!bubbly() || gone(b)) return false;
-  b.pop = POP; b.hole = [px - b.x, py - b.y];
+  b.pop = POP; b.hole = [px - b.x, py - b.y]; b.hr = 0;
+  // the air let out puffs its neighbours away, setting them wobbling
+  active().forEach(o => {
+    if (o === b || gone(o)) return;
+    const dx = o.x - b.x, dy = o.y - b.y, d = Math.hypot(dx, dy), reach = (radius(b) + radius(o)) * 1.6;
+    if (d > reach || d < 1e-6) return;
+    const push = S * 0.35 * (1 - d / reach);
+    o.vx += dx / d * push; o.vy += dy / d * push;
+    kick(o, 2.5 * (1 - d / reach), Math.atan2(dy, dx));
+  });
+  if (cfg.sound) popSound(radius(b) / S);
+  try { navigator.vibrate && navigator.vibrate(8); } catch (_) {}
   return true;
+}
+// a soft pop: a click of noise through a resonant filter, higher for smaller bubbles, and a falling plip
+let audio = null, noise = null;
+function popSound(size) {
+  try {
+    if (!audio) {
+      audio = new (window.AudioContext || window.webkitAudioContext)();
+      noise = audio.createBuffer(1, audio.sampleRate * 0.08, audio.sampleRate);
+      const d = noise.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length) ** 2;
+    }
+    if (audio.state === 'suspended') audio.resume();
+    const t = audio.currentTime, pitch = Math.min(Math.max(0.12 / size, 0.5), 2.5) * (0.9 + Math.random() * 0.2);
+    const src = audio.createBufferSource(), bp = audio.createBiquadFilter(), g = audio.createGain();
+    src.buffer = noise; bp.type = 'bandpass'; bp.frequency.value = 1700 * pitch; bp.Q.value = 1.2;
+    g.gain.setValueAtTime(0.5, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+    src.connect(bp).connect(g).connect(audio.destination); src.start(t);
+    const osc = audio.createOscillator(), og = audio.createGain();
+    osc.frequency.setValueAtTime(900 * pitch, t); osc.frequency.exponentialRampToValueAtTime(260 * pitch, t + 0.05);
+    og.gain.setValueAtTime(0.18, t); og.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+    osc.connect(og).connect(audio.destination); osc.start(t); osc.stop(t + 0.07);
+  } catch (_) {}
+}
+// throw droplets off the rim of the hole as it grows from radius r0 to r1, inside a bubble of radius R
+function shed(b, hx, hy, r0, r1, R, grow) {
+  const drops = spray.drops;
+  const n = Math.min(Math.round((r1 - r0) / S * 9000), 260);
+  for (let k = 0; k < n && drops.length < 6000; k++) {
+    const a = Math.random() * 6.2832, r = r0 + Math.random() * (r1 - r0);
+    const x = hx + Math.cos(a) * r, y = hy + Math.sin(a) * r;
+    if (Math.hypot(x - b.x, y - b.y) > R) continue;
+    // flung on outwards, as the rim pulls back, scattering as they go
+    // most stay close behind the rim as a mist; a few are thrown further
+    const sp = grow * (Math.random() < 0.85 ? 0.15 + Math.random() * 0.45 : 0.6 + Math.random() * 0.7), j = S * 0.08;
+    const life = 0.25 + Math.random() * 0.45;
+    drops.push({ x, y, vx: Math.cos(a) * sp + b.vx + (Math.random() - 0.5) * j, vy: Math.sin(a) * sp + b.vy + (Math.random() - 0.5) * j,
+      size: (1 + 3 * Math.random() ** 3) * DPR, life, left: life });
+  }
 }
 // soap bubbles never merge: pressed together they push apart, and touching they stick, sharing a wall
 function stick(dt) {
@@ -1109,7 +1192,13 @@ function frame(now) {
     if (T) bufC.set(blobColour(i, cfg.count, turn), i * 3);
     if (M === 3) {
       const f = b.pop > 0 ? 1 - b.pop / POP : 0;
-      bufF.set(f ? [b.x + b.hole[0], b.y + b.hole[1], rz * 2.3 * f ** 0.6, 1 - f * f] : [0, 0, 0, 1], i * 4);
+      if (f) {
+        // the hole spreads at a steady pace (as real ones do), just far enough to sweep the whole bubble
+        const hx = b.x + b.hole[0], hy = b.y + b.hole[1], far = (rz + Math.hypot(...b.hole)) * 1.12, hr = far * f;
+        bufF.set([hx, hy, hr, 1 - Math.max(f - 0.85, 0) / 0.15], i * 4);
+        shed(b, hx, hy, b.hr, hr, rz, far / POP);
+        b.hr = hr;
+      } else bufF.set([0, 0, 0, 1], i * 4);
     }
     if (M === 2) {
       // the ball's rows become the columns of the shader's matrix, which so takes the screen to the ball
@@ -1160,7 +1249,29 @@ function frame(now) {
   gl.uniform1f(v.uFar, S * (cfg.merge + 0.19));
   gl.uniform1f(v.uRef, cfg.refraction);
   gl.uniform1f(v.uDis, cfg.dispersion);
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
   gl.drawArrays(gl.TRIANGLES, 0, 3);
+  // the droplets fly, slow in the air, fall a little and fade
+  if (spray.drops.length) {
+    const drops = spray.drops = spray.drops.filter(d => (d.left -= pace) > 0);
+    const drag = Math.exp(-2.5 * pace), data = spray.data;
+    drops.forEach((d, k) => {
+      d.vx *= drag; d.vy = d.vy * drag - S * 1.2 * pace;
+      d.x += d.vx * pace; d.y += d.vy * pace;
+      data.set([d.x, d.y, d.size, Math.min(d.left / d.life * 1.5, 1)], k * 4);
+    });
+    if (drops.length) {
+      gl.useProgram(spray.prog); current = null;
+      gl.uniform2f(spray.uRes, W, H);
+      gl.bindBuffer(gl.ARRAY_BUFFER, spray.buf);
+      gl.bufferData(gl.ARRAY_BUFFER, data.subarray(0, drops.length * 4), gl.STREAM_DRAW);
+      gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 0, 0);
+      gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+      gl.drawArrays(gl.POINTS, 0, drops.length);
+      gl.disable(gl.BLEND);
+    }
+  }
   if (cfg.fps) {
     fpsFrames++; fpsTime += elapsed; fpsWorst = Math.max(fpsWorst, elapsed);
     if (fpsTime >= 500) {
