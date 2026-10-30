@@ -340,7 +340,7 @@ function makeTrack(seed){
 const Q={i:0,t:0,d:0,y:0,bk:0,dist:1e9,tx:0,tz:1,along:0};
 function trackQuery(x,z,hint=-1,out=Q){
   const t=T,S=t.S;let best=-1,bd=1e18;
-  if(hint>=0){for(let k=-14;k<=14;k++){const i=(hint+k+S)%S,dx=x-t.X[i],dz=z-t.Z[i],d=dx*dx+dz*dz;if(d<bd){bd=d;best=i}}if(bd>900)best=-1}
+  if(hint>=0){for(let k=-14;k<=14;k++){const i=(hint+k+S)%S,dx=x-t.X[i],dz=z-t.Z[i],d=dx*dx+dz*dz;if(d<bd){bd=d;best=i}}if(bd>900){best=-1;bd=1e18}}
   if(best<0){const cx=Math.floor(x/t.CELL),cz=Math.floor(z/t.CELL);
     for(let r=1;r<=4&&best<0;r+=r<2?1:2)for(let a=-r;a<=r;a++)for(let b=-r;b<=r;b++){const l=t.hash.get(t.key(cx+a,cz+b));if(l)for(const i of l){const dx=x-t.X[i],dz=z-t.Z[i],d=dx*dx+dz*dz;if(d<bd){bd=d;best=i}}}
     if(best<0)for(let i=0;i<S;i+=3){const dx=x-t.X[i],dz=z-t.Z[i],d=dx*dx+dz*dz;if(d<bd){bd=d;best=i}}}
@@ -397,8 +397,14 @@ function groundN(x,z,hint,o){const e=0.35,hx=groundH(x+e,z,hint)-groundH(x-e,z,h
 // curve), longitudinal force from drive and brakes, and the pair is capped by a friction circle scaled by that wheel's load.
 // Weight transfer, body roll and pitch all come out of the springs; nothing is scripted.
 const CAR={mass:1250,I:new THREE.Vector3(2170,2390,620),k:32000,cb:2600,cr:3500,rest:0.32,arbF:9000,arbR:6000,
-  power:175000,fmax:11500,brake:17000,cd:0.85,down:0.5,mu:1.18,muGrass:0.78,radius:0.384,wheels:null,com:new THREE.Vector3(0,0.5,0.05),
-  dims:{w:1.9,h:1.15,l:4.35,fz:2.4,rz:-1.95}};
+  power:175000,fmax:11500,brake:17000,cd:0.85,down:0.5,mu:1.45,muGrass:0.95,radius:0.384,wheels:null,com:new THREE.Vector3(0,0.5,0.05),
+  dims:{w:1.9,h:1.15,l:4.35,fz:2.4,rz:-1.95},
+  // handling aids, tuned with toys-src/trackaholic/test/gameplay.mjs (as was the grip, mu and muGrass): in the air the
+  // body is turned to match the ground below and its rolling and pitching damped (air); on the ground a tipped car is
+  // pushed back upright (tip); tyre forces act tyreH above the contact patch; steering lock falls with speed as
+  // 1/(1+v/stV); on touch screens the automatic throttle also slows for the corner ahead, aiming for assist times the
+  // corner's speed (0 turns that off)
+  air:{k:8,d:3},tip:{k:6,start:0.35},tyreH:0.28,stV:16,assist:1.05};
 const HZ=120,GRAV=9.81;
 const _v1=new THREE.Vector3(),_v2=new THREE.Vector3(),_v3=new THREE.Vector3(),_v4=new THREE.Vector3(),_v5=new THREE.Vector3(),_n=new THREE.Vector3(),
   _m3=new THREE.Matrix3(),_m4=new THREE.Matrix4(),_q=new THREE.Quaternion(),_up=new THREE.Vector3(),_fw=new THREE.Vector3(),_rt=new THREE.Vector3(),
@@ -448,7 +454,7 @@ function stepCar(c,inp,h){
   c.boost=!!inp.nitro&&c.nitro>0&&!c.rev&&!c.done;
   if(c.boost){c.nitro=Math.max(0,c.nitro-h/2.6);drive=1}else c.nitro=Math.min(1,c.nitro+h/9+(drifting?h/2.5:0));
   if(c.done){drive=0;brakeIn=Math.max(brakeIn,0.25)}
-  const maxSt=0.6/(1+Math.max(0,vf)/16);
+  const maxSt=0.6/(1+Math.max(0,vf)/CAR.stV);
   c.steer+=clamp(clamp(inp.steer,-1,1)*maxSt-c.steer,-2.4*h,2.4*h);
   c.thr=drive;c.brk=brakeIn;
   _F.set(0,-m*GRAV,0);_Tq.set(0,0,0);
@@ -493,7 +499,7 @@ function stepCar(c,inp,h){
     // suspension along the strut, tyre forces applied a little above the contact patch to tame roll
     _v3.copy(_up).multiplyScalar(Fs);_F.add(_v3);_Tq.add(_v4.crossVectors(_v5.copy(C).addScaledVector(_up,0.0).sub(c.p),_v3));
     _v3.copy(_wf).multiplyScalar(Fx).addScaledVector(_ws,Fy);_F.add(_v3);
-    _Tq.add(_v4.crossVectors(_v5.copy(C).addScaledVector(_up,0.28).sub(c.p),_v3));
+    _Tq.add(_v4.crossVectors(_v5.copy(C).addScaledVector(_up,CAR.tyreH).sub(c.p),_v3));
     c.spin[k]+=vl/CAR.radius*h*(brakeIn>0.9&&Math.abs(vl)<1?0:1);
   }
   c.slipMax=slipMax;
@@ -510,6 +516,12 @@ function stepCar(c,inp,h){
       _F.add(_v3);_Tq.add(_v4.crossVectors(_v1,_v3))}}
   // integrate
   c.v.addScaledVector(_F,h/m);
+  // handling aids: level the car in the air to the ground below, and push a tipped car back upright
+  {const nw=c.contact.filter(Boolean).length,upY=_up.y;
+    let k=0,d=0;if(!nw){k=CAR.air.k;d=CAR.air.d}else if(nw<4&&upY>0.2){const tilt=Math.acos(clamp(upY,-1,1));if(tilt>CAR.tip.start)k=CAR.tip.k}
+    if(k||d){groundN(c.p.x,c.p.z,c.hint,_n);_v2.crossVectors(_up,_n);const sn=_v2.length(),ang=Math.atan2(sn,_up.dot(_n)),Ir=CAR.I.x;
+      if(sn>1e-4)_Tq.addScaledVector(_v2,Ir*k*ang/sn);
+      if(d){_v3.copy(c.w).addScaledVector(_n,-c.w.dot(_n));_Tq.addScaledVector(_v3,-Ir*d)}}}
   _v1.copy(_Tq).applyMatrix3(_m3.clone().transpose()); // to body frame
   _v1.set(_v1.x/CAR.I.x,_v1.y/CAR.I.y,_v1.z/CAR.I.z).applyMatrix3(_m3);
   c.w.addScaledVector(_v1,h).multiplyScalar(1-0.4*h);
@@ -877,27 +889,37 @@ function tiltRotated(){tilt.settle=now()+600;tiltZero()}
 if(screen.orientation&&screen.orientation.addEventListener)screen.orientation.addEventListener('change',tiltRotated);
 addEventListener('orientationchange',tiltRotated);
 addEventListener('resize',()=>{const l=innerWidth>innerHeight;if(l!==tilt.land){tilt.land=l;tiltRotated()}});
+// device angle in degrees (clockwise positive) to steering
+function tiltCurve(deg){const a=Math.abs(deg);return a<1.5?0:Math.sign(deg)*Math.pow(Math.min(1,(a-1.5)/26.5),1.15)}
 function tiltSteer(dt){
   if(now()<tilt.settle){tiltZero();return 0}
   let d=tilt.raw-tilt.zero;d=Math.atan2(Math.sin(d),Math.cos(d));
   const deg=-d*180/Math.PI,a=Math.abs(deg);
   // held far past any steering angle for most of a second (a turned device whose screen is locked): centre again
   if(a>65){if(!tilt.far)tilt.far=now();else if(now()-tilt.far>800){tilt.far=0;tiltZero();return 0}}else tilt.far=0;
-  const s=a<1.5?0:Math.sign(deg)*Math.pow(Math.min(1,(a-1.5)/26.5),1.15);
+  const s=tiltCurve(deg);
   tilt.steer+=(s-tilt.steer)*Math.min(1,dt*18);return tilt.steer}
 const tiltMode=()=>tilt.pref==='tilt'&&tilt.ok;
 function paintPad(){$('#pad').classList.toggle('tilt',tiltMode())}
 function paintSteer(){const b=$('#steerMode');b.hidden=!TILT_ABLE;b.textContent='Steering: '+(tilt.pref==='tilt'?'Tilt':'Drag');paintPad()}
 $('#steerMode').onclick=()=>{tilt.pref=tilt.pref==='tilt'?'drag':'tilt';store.set('trackaholic.steer',tilt.pref);askTilt();paintSteer()};
 paintSteer();if(TILT_ABLE&&tilt.pref==='tilt'&&!(window.DeviceMotionEvent&&typeof DeviceMotionEvent.requestPermission==='function'))listenTilt();
+// the automatic throttle on touch screens, which also slows for the corner ahead: {thr, brk}
+function autoGas(c){
+  let thr=1,brk=0;
+  if(CAR.assist>0){const v=c.v.length(),n=Math.ceil((8+v*v/14)/SAMPLE);let vt=1e9;
+    for(let j=0;j<n;j++){const s=(c.idx+j)%T.S,d=j*SAMPLE;vt=Math.min(vt,Math.sqrt(T.VC[s]*T.VC[s]*CAR.assist*CAR.assist+2*7*d))}
+    thr=Math.min(thr,clamp((vt-v)*0.35+0.3,0,1));if(v>vt+3)brk=clamp((v-vt-3)*0.2,0,1)}
+  return{thr,brk}}
 function playerInput(dt){
   const k=keys.R-keys.L;kSteer+=clamp(k-kSteer,-4*dt,4*dt);if(!k&&Math.abs(kSteer)<0.06)kSteer=0;
-  const autoGas=IS_TOUCH; // on a phone the car accelerates by itself; the thumbs brake, drift and fire the nitro
+  const autoGasOn=IS_TOUCH; // on a phone the car accelerates by itself; the thumbs brake, drift and fire the nitro
   const me=G.me,fast=me&&me.v.dot(_v1.set(0,0,1).applyQuaternion(me.q))>9;
   const steer=clamp(kSteer+(tiltMode()?tiltSteer(dt):touch.steer),-1,1);
   // braking while turning at speed drifts; braking in a straight line just brakes
   const drift=(keys.S||touch.drift)&&fast&&Math.abs(steer)>0.25,brk=keys.D||keys.S||touch.brake?1:0;
-  return{steer,thr:brk&&!drift?0:(keys.U||autoGas?1:0),brk,drift,nitro:!!(keys.N||touch.nitro)};
+  const ag=autoGasOn&&me&&!keys.U?autoGas(me):{thr:keys.U?1:0,brk:0};
+  return{steer,thr:brk&&!drift?0:ag.thr,brk:Math.max(brk,ag.brk),drift,nitro:!!(keys.N||touch.nitro)};
 }
 
 /* ================= game state ================= */
@@ -1344,7 +1366,7 @@ const GU={live:null,spares:[],heard:0,rescuing:false,ping:0,tryT:0,id:null,lobby
 function setStatus(sel,t,err){const e=$(sel);e.textContent=t;e.classList.toggle('err',!!err)}
 
 /* ================= boot ================= */
-window.GW={G,HOST,GU,get T(){return T},stepCar,botInput,groundH,terrainH,trackQuery,startSolo,setupRace,newCar,placeCar,CAR,accept:c=>HOST.accept(c)};
+window.GW={G,HOST,GU,get T(){return T},rebuildCourse,resetCar,tiltCurve,autoGas,HALF_W,HZ,stepCar,botInput,groundH,terrainH,trackQuery,startSolo,setupRace,newCar,placeCar,CAR,accept:c=>HOST.accept(c)};
 window.FL=window.GW;
 resize();
 const hj=/^#j=([A-Za-z0-9_-]+)$/.exec(location.hash);

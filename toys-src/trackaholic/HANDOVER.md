@@ -66,6 +66,29 @@ Trackaholic isn't meant to be projected: the players gather round, each looking 
 - **Nitro** (`inp.nitro`): `c.nitro` is a tank from 0 to 1, full at the start, drained in 2.6 s while boosting and refilled in 9 s, faster (an extra 1 per 2.5 s) while drifting. Boosting gives 75% more power and 35% more maximum drive force, widens the chase camera by 10° and adds wind noise. The meter (`#hNitro`) is under the lap counter.
 - Bots never send `drift` or `nitro`, so they drive as before. Neither is in the network packet: other devices see a drifting or boosting car only through how it moves.
 
+## Gameplay test and handling (2026-10-30)
+
+`toys-src/trackaholic/test/gameplay.mjs` drives single cars round six fixed tracks for 150 s each through the game's own physics (`stepCar`), headless and without rendering (`?norender`), in about ten seconds. It needs only Playwright from `toys-src` (`cd toys-src && npm install`); the toy's CDN libraries are cached in `test/.cache` (not committed) on the first run, so later runs don't need the network.
+
+- Drivers: the game's bot, as a reference, and a model person steering by tilt, by drag and by keyboard. The person corrects by feel (device angle or thumb offset in proportion to the angle to a point on the road ahead), with a 0.2 s reaction delay, a lagging hand and a tremor, through the game's own `tiltCurve` and `autoGas`; brakes by eye, entering corners about 10% too fast; the tilt driver uses the nitro on straights. Random numbers are seeded, so runs repeat exactly.
+- Measures: distance covered, lap time, time off the road, flips, resets (and how many were for being lost), jumps and how many landed on their wheels, spins, and how hard the steering works. The header of the script defines each.
+- `node toys-src/trackaholic/test/gameplay.mjs` compares with the committed `test/baseline.json` and marks each change ✓ or ✗; `--save` makes the current results the baseline; `--detail` shows each track; `--set key=value` (repeatable, eg `--set tip.k=0`, `--set mu=1.3`) tries other values of `CAR`'s settings without editing the toy. After changing the physics or the controls, run it, and save a new baseline when the change is committed.
+- `window.GW` exposes what it needs: `rebuildCourse`, `newCar`, `placeCar`, `stepCar`, `botInput`, `trackQuery`, `tiltCurve`, `autoGas`, `CAR`, `HZ`, `HALF_W`. It waits for the car model before starting, since the model sets the wheels' positions and size.
+
+What it found, and what changed (all in `CAR`, which documents each setting):
+- Cars that went far from the road (more than 30 m) got a `NaN` road position from `trackQuery`, which then dropped the nearby search but kept its best distance; their progress went `NaN` and they were never reset as lost. Fixed.
+- Coming into a corner faster than it could take, the car ran wide off the road (the front tyres were saturated, so more lock did nothing), and on touch screens, where the throttle is automatic, the player couldn't lift off. Off the road it rolled over easily on the hillsides, and jumps often ended on the roof.
+- Changes: more grip (`mu` 1.18 → 1.45, `muGrass` 0.78 → 0.95); on touch screens the automatic throttle also slows for the corner ahead (`assist` 1.05: it aims for 1.05 times the corner speed the bots use, looking as far ahead as the car needs to brake); in the air the car is turned to match the ground below and its rolling and pitching damped (`air`), so it flies and lands on its wheels; and a car tipped past 20° on the ground is pushed back upright (`tip`). Keyboard players keep their own throttle. Tried and not kept: easing the automatic throttle on full lock, more steering lock at speed, stronger air and tip settings (no consistent gain).
+- Results, before → after, summed over the six tracks:
+
+  | driver | off the road | flips | resets | jumps landed |
+  |---|---|---|---|---|
+  | tilt | 52% → 27% | 18 → 3 | 23 → 6 | 65% → 82% |
+  | drag | 24% → 6% | 7 → 1 | 8 → 0 | 68% → 87% |
+  | keys | 48% → 24% | 21 → 1 | 26 → 7 | 65% → 87% |
+
+  The bot was unaffected (it never exceeds its corner speeds). The model people are a rough stand-in: the numbers show direction, not how it feels, and the tilt curve itself (`tiltCurve`: full lock at 28°) hasn't been tuned against real players yet.
+
 ## Network
 
 - Bowling Bear signalling, with the host as hub.
