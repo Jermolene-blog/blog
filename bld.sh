@@ -19,6 +19,10 @@ node "$(dirname "$0")/build-screenshots.js"
 # Regenerate the tiddlers listing the toys in static-assets/toys
 node "$(dirname "$0")/build-toys.js"
 
+# Draw the social media cards of any toys, posts and pages that have changed
+# since their committed cards were drawn
+node "$(dirname "$0")/build-social.js"
+
 tiddlywiki main-wiki --verbose --build
 
 # The save command writes .meta sidecar files for binary tiddlers; they are
@@ -34,6 +38,11 @@ cp -R main-wiki/output/* site/
 cp -R talkytalky-wiki/output/* site/talkytalky/
 cp -R static-assets/. site/
 find site -name ".DS_Store" -delete
+
+# Give the toys the tags that show their cards when they are shared on social
+# media. This is done before build-pwa.js so that the service worker's version
+# covers the tags
+node "$(dirname "$0")/build-social.js" --tags
 
 # Generate the web app manifests, and write the precache list into the service
 # worker, to make the toys installable, from the assembled site

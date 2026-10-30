@@ -15,7 +15,9 @@ If `build-screenshots.js` has captured a screenshot of the toy, its URL is
 recorded in the `screenshot` field. For the web app manifests written by
 build-pwa.js, `<meta name="theme-color">` is recorded in the `theme-color`
 field, `<meta name="toy-short-title">` in `short-caption` and
-`<meta name="toy-background-color">` in `background-color`.
+`<meta name="toy-background-color">` in `background-color`. For the social media
+cards written by build-social.js, `<meta name="toy-tagline">`, a line short
+enough to fit on a card, is recorded in `tagline`.
 
 Usage: node build-toys.js
 */
@@ -82,6 +84,7 @@ function readToy(name) {
 		caption = metaTags["toy-title"] || metaTags["og:title"] || (titleMatch ? tidy(titleMatch[1]) : name),
 		description = metaTags["toy-description"] || metaTags.description || metaTags["og:description"] || "",
 		shortCaption = metaTags["toy-short-title"] || "",
+		tagline = metaTags["toy-tagline"] || "",
 		themeColor = metaTags["theme-color"] || "",
 		backgroundColor = metaTags["toy-background-color"] || "",
 		category = metaTags["toy-category"] || "";
@@ -104,6 +107,11 @@ function readToy(name) {
 	}
 	if(shortCaption) {
 		toy["short-caption"] = shortCaption;
+	}
+	if(tagline) {
+		toy.tagline = tagline;
+	} else {
+		console.log("build-toys: warning: toys/" + name + " has no toy-tagline meta tag");
 	}
 	if(themeColor) {
 		toy["theme-color"] = themeColor;

@@ -51,7 +51,7 @@ site = os.path.normpath(os.path.join(ROOT, "..", "..", "static-assets", "toys", 
 os.makedirs(site, exist_ok=True)
 meta = ('<meta name="description" content="A family quiz show for Christmas: a 1960s TV studio on the big screen, '
         'a buzzer on everyone\'s phone, joined by QR code over the same Wi-Fi, and a toddler button with real power">\n'
-        '<meta name="toy-category" content="games">\n<meta name="theme-color" content="#1d1411">\n'
+        '<meta name="toy-tagline" content="A family quiz show: a 1960s TV studio on the big screen and a buzzer on every phone">\n<meta name="toy-category" content="games">\n<meta name="theme-color" content="#1d1411">\n'
         '<link rel="manifest" href="manifest.webmanifest">\n<link rel="apple-touch-icon" href="apple-touch-icon.png">\n'
         '<meta name="apple-mobile-web-app-capable" content="yes">\n<script src="../pwa.js" defer></script>\n')
 page = '<!doctype html>\n<!-- Built by toys-src/quizbuzz/build.py in the blog repo: edit the source there, not this file -->\n<html lang="en-GB">\n' + html.replace("<title>Quizbuzz</title>\n", "<title>Quizbuzz</title>\n" + meta, 1) + "\n</html>\n"

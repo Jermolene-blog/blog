@@ -27,7 +27,7 @@ All rendered pages carry a `rel=canonical` link derived from the route filter an
 Each toy is a self-contained folder under `static-assets/toys`, published verbatim at `/toys/<name>` and reached from the "Toys" item in the top menu. The index page at `/toys` is generated from the folder listing, so adding, renaming or re-describing a toy requires no other change:
 
 * `build-toys.js` scans `static-assets/toys/*/index.html` and writes one tiddler per toy, tagged `toy`, to `main-wiki/tiddlers/generated/toys.json`. It is run automatically by `bld.sh` and `serve.sh`, and its output is committed so that the wiki also builds without it
-* Each toy describes itself in the `<head>` of its own `index.html`: the caption comes from `<meta name="toy-title">`, falling back to `og:title` and then `<title>`, and the description from `<meta name="toy-description">`, falling back to the standard `description` and then `og:description`. A toy with no description generates a build warning
+* Each toy describes itself in the `<head>` of its own `index.html`: the caption comes from `<meta name="toy-title">`, falling back to `og:title` and then `<title>`, and the description from `<meta name="toy-description">`, falling back to the standard `description` and then `og:description`. A toy with no description generates a build warning. `<meta name="toy-tagline">` gives a shorter line for its social media card (see below)
 * The `Toys` page tiddler (tagged `page`, so rendered at `/toys`) lists the tiddlers tagged `toy`, sorted by caption, each with a thumbnail screenshot (see below)
 * A folder without an `index.html` is skipped
 
@@ -49,10 +49,21 @@ To try it locally, run `preview.sh` and open http://127.0.0.1:8080/toys/ (servic
 Thumbnail screenshots of the toys and other interactive pages are captured automatically by `build-screenshots.js`:
 
 * Every toy in `static-assets/toys` is captured, plus the extra pages listed in `extraTargets` in the script (currently Cecily and the TalkyTalky slides). The screenshot of the page at `/<path>/` is saved as `static-assets/screenshots/<path>.webp`, and so is published at `/screenshots/<path>.webp`
-* Pages are loaded into headless Google Chrome, driven over the DevTools protocol so there are no npm dependencies. A page that looks empty when first loaded can be given a recipe in `recipes` in the script that interacts with it before capture (eg Knottery draws a knot, Jpegulator loads its samples). Set `CHROME_PATH` to use a particular Chrome or Chromium
+* Pages are loaded into headless Google Chrome, driven over the DevTools protocol so there are no npm dependencies. They are rendered at twice the resolution of the screenshot, so that a close-up of the most interesting part of each page, set in `closeups` in the script, can be captured at the same time for its social media card. Close-ups are saved in `social/closeups/`, which is committed but not published A page that looks empty when first loaded can be given a recipe in `recipes` in the script that interacts with it before capture (eg Knottery draws a knot, Jpegulator loads its samples). Set `CHROME_PATH` to use a particular Chrome or Chromium
 * Screenshots are committed, along with `screenshots.json` which records a hash of each target's files (as seen by git) and recipe. A target is only recaptured when its hash changes, so the script is cheap to run and the CI build normally does not need Chrome. It is run by `bld.sh`; run it by hand after changing a toy so that the new screenshot can be committed. `node build-screenshots.js --force toys/knottery` recaptures a single target regardless of its hash
 * If Chrome cannot be found the script warns and leaves existing screenshots alone, and `build-toys.js` omits the thumbnail of any toy without a screenshot
 * In posts, `<<screenshot-link "/toys/mimic/" "Screenshot of Mimic">>` renders a thumbnail linking to the page (defined in `$:/Screenshots/Procedures`)
+
+## Social Media Cards
+
+Every toy, post and page has a card, the 1200x630 picture shown when a link to it is shared on social media, with a close-up of its most interesting part beside its title and a line or two about it. The cards are drawn by `build-social.js`:
+
+* A toy's card has its close-up (see Screenshots above), its caption, its `<meta name="toy-tagline">` and its `theme-color`
+* A post's or page's card has its caption or title and its `description` field, beside the close-ups listed in its `social-closeup` field (eg `toys/mimic`, or several for a grid), or else the image tiddler named in its `social-image` field (cropped by `social-image-clip`, "<x> <y> <width> <height>" in the image's pixels), or else the site banner. The wiki lists them for the script in `$:/_Social/Cards`. A post without a description gets the home page's
+* The card for the page at `/<path>` is saved as `static-assets/social/<path>.jpg` (the home page's is `index.jpg`). A square picture sits beside the text; a wide one goes across the top
+* Like the screenshots, cards are committed along with `social.json`, which records a hash of each card's text and pictures, and only redrawn when that changes. `node build-social.js --force post/mimic` redraws one regardless
+* `$:/_Social/Meta` writes the `og:` and `twitter:` tags into every page of the wiki. The toys are published verbatim, so `node build-social.js --tags` adds theirs to the copies in `site/` after it is assembled
+* To check a card, paste the page's address into a preview tool such as https://www.opengraph.xyz once it is published
 
 ## Contents
 
@@ -61,6 +72,7 @@ This repository contains the following top level folders:
 * **archive**: content archived from older versions of jermolene.com
 * **artwork**: artwork for favicons, animated gifs etc
 * **main-wiki**: the content of the main wiki comprising the blog
+* **social**: the close-ups that the social media cards are drawn from
 * **main-wiki-server**: an indirected version of the main wiki suitable for using in the client-server configuration
 * **static-assets**: static assets to be copied unchanged to the output
 * **toys-src**: source, build scripts, tests and working notes for the toys that need more than their published files

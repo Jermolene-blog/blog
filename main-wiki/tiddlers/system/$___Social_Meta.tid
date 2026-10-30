@@ -1,0 +1,29 @@
+tags: $:/tags/Static/HTML/Head
+title: $:/_Social/Meta
+
+\whitespace trim
+<!-- The tags that give a page its title, description and picture when shared on social media. The pictures are drawn by build-social.js from $:/_Social/Cards -->
+<$list filter="[<tv-canonical-path>!is[blank]]" variable="ignore">
+<$let
+	page={{{ [<tv-canonical-path>match[/]then[index]] ~[<currentTiddler>] }}}
+	route={{{ [<tv-canonical-path>match[/]then[index]] ~[<tv-canonical-path>removeprefix[/]] }}}
+	description={{{ [<page>get[description]] ~[[index]get[description]] }}}
+	baseUrl={{$:/config/static/base-url}}
+>
+<$wikify name="caption" text={{{ [<page>get[caption]] }}} output="text">
+<$let title={{{ [<tv-canonical-path>match[/]then{$:/SiteTitle}] ~[<caption>!is[blank]] ~[<page>] }}}>
+<meta name="description" content=<<description>>/>
+<meta property="og:type" content={{{ [<page>tag[post]then[article]else[website]] }}}/>
+<meta property="og:site_name" content={{$:/SiteTitle}}/>
+<meta property="og:title" content=<<title>>/>
+<meta property="og:description" content=<<description>>/>
+<meta property="og:url" content={{{ [<tv-canonical-path>addprefix<baseUrl>] }}}/>
+<meta property="og:image" content={{{ [<route>addprefix[/social/]addsuffix[.jpg]addprefix<baseUrl>] }}}/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:image:alt" content={{{ [<title>addsuffix[: ]addsuffix<description>] }}}/>
+<meta name="twitter:card" content="summary_large_image"/>
+</$let>
+</$wikify>
+</$let>
+</$list>

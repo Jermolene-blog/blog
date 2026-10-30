@@ -1,0 +1,24 @@
+title: $:/_Social/Cards
+
+\whitespace trim
+\procedure json-field(name,value) <$text text={{{ [<value>jsonstringify[]addprefix["]addsuffix["]addprefix[":]addprefix<name>addprefix["]] }}}/>
+<!-- The posts and pages that have social media cards, as JSON for build-social.js. A card shows the post's description beside a close-up of a toy or page (one or more paths in the `social-closeup` field), or else beside a picture (an image tiddler named in the `social-image` field, optionally cropped by `social-image-clip`, "<x> <y> <width> <height>" in its pixels), or else beside the site banner -->
+<$text text="["/>
+<$list filter="[tag[post]] [tag[page]]" counter="counter">
+<$text text={{{ [<counter-first>match[no]then[,]] }}}/>
+<$text text="{"/>
+<$transclude $variable="json-field" name="route" value={{{ [<currentTiddler>subfilter{$:/config/static/route-filter}] }}}/>,
+<$wikify name="caption" text={{!!caption}} output="text">
+<$transclude $variable="json-field" name="title" value={{{ [<caption>!is[blank]] ~[<currentTiddler>] }}}/>,
+</$wikify>
+<$transclude $variable="json-field" name="description" value={{!!description}}/>,
+<$transclude $variable="json-field" name="date" value={{{ [<currentTiddler>tag[post]get[created]format:date[DDth MMM YYYY]] }}}/>,
+<$transclude $variable="json-field" name="closeups" value={{!!social-closeup}}/>,
+<$let image={{{ [<currentTiddler>get[social-closeup]then[]] ~[<currentTiddler>get[social-image]] ~[[banner.jpg]] }}}>
+<$transclude $variable="json-field" name="imageType" value={{{ [<image>get[type]] }}}/>,
+<$transclude $variable="json-field" name="imageData" value={{{ [<image>get[text]] }}}/>,
+<$transclude $variable="json-field" name="imageClip" value={{{ [<image>!is[blank]then{!!social-image-clip}] }}}/>
+</$let>
+<$text text="}"/>
+</$list>
+<$text text="]"/>

@@ -13,11 +13,17 @@ directly over the DevTools protocol so that there are no npm dependencies. A
 page can be prepared before capture by a recipe in `recipes` below, for example
 to draw something into an empty canvas.
 
+Pages are rendered at twice the resolution of the screenshot, so that a target
+listed in `closeups` below can also be captured as a sharp close-up of its most
+interesting part, saved as `social/closeups/<path>.webp`. The close-ups are not
+published themselves: `build-social.js` makes them into social media preview
+cards.
+
 Screenshots are committed to the repository. `screenshots.json` records a hash
-of each target's files and recipe, and a target is only recaptured when its
-hash changes, so a normal build does not need Chrome at all. If Chrome cannot be
-found, stale screenshots are left alone with a warning rather than failing the
-build.
+of each target's files, recipe and close-up, and a target is only recaptured
+when its hash changes, so a normal build does not need Chrome at all. If Chrome
+cannot be found, stale screenshots are left alone with a warning rather than
+failing the build.
 
 Usage: node build-screenshots.js [--force] [<path>...]
 
@@ -39,13 +45,16 @@ const fs = require("fs"),
 const rootDir = __dirname,
 	staticDir = path.join(rootDir,"static-assets"),
 	screenshotsDir = path.join(staticDir,"screenshots"),
+	closeupsDir = path.join(rootDir,"social","closeups"),
 	manifestFile = path.join(rootDir,"screenshots.json");
 
 // Bump to force every screenshot to be recaptured
-const CAPTURE_VERSION = 1;
+const CAPTURE_VERSION = 2;
 
 const VIEWPORT = {width: 1200, height: 800},
+	DEVICE_SCALE_FACTOR = 2,
 	WEBP_QUALITY = 80,
+	CLOSEUP_QUALITY = 90,
 	SETTLE_DELAY = 1000,
 	NAVIGATION_TIMEOUT = 30000;
 
@@ -146,6 +155,54 @@ const recipes = {
 	}
 };
 
+// The most interesting part of each target, captured after the screenshot as a
+// close-up for its social media card. `clip` is a rectangle in CSS pixels in the
+// 1200x800 page, square unless the subject is wide (a wide close-up gets a card
+// with the picture across the top). A close-up can have its own recipe, run
+// after the screenshot, to reach a view that the thumbnail doesn't show
+const closeups = {
+	"archive/cecily": {clip: {x: 120, y: 80, width: 640, height: 640}},
+	"talkytalky": {clip: {x: 300, y: 320, width: 330, height: 330}},
+	"toys/animal-island": {clip: {x: 300, y: 170, width: 520, height: 520}},
+	"toys/bear-beat": {clip: {x: 390, y: 200, width: 420, height: 420}},
+	"toys/blobbles": {clip: {x: 560, y: 100, width: 520, height: 520}},
+	"toys/bowling-bear": {
+		// Practise alone, to show the bear by the pins at the end of the lane
+		recipe: async page => {
+			await page.click("#bSolo");
+			await page.wait(4000);
+		},
+		clip: {x: 440, y: 230, width: 420, height: 420}
+	},
+	"toys/catflap": {clip: {x: 560, y: 120, width: 580, height: 580}},
+	"toys/engravery": {clip: {x: 170, y: 160, width: 580, height: 580}},
+	"toys/fractaliser": {clip: {x: 330, y: 110, width: 500, height: 500}},
+	"toys/jpegulator": {clip: {x: 330, y: 230, width: 560, height: 560}},
+	"toys/jumbleword": {clip: {x: 10, y: 250, width: 540, height: 167}},
+	"toys/knottery": {clip: {x: 300, y: 120, width: 600, height: 600}},
+	"toys/lala-yala": {clip: {x: 345, y: 200, width: 560, height: 560}},
+	"toys/lenticulator": {clip: {x: 33, y: 253, width: 1132, height: 314}},
+	"toys/marble-flick": {clip: {x: 250, y: 180, width: 600, height: 600}},
+	"toys/marblelous": {clip: {x: 560, y: 90, width: 570, height: 570}},
+	"toys/meadow-games": {clip: {x: 180, y: 150, width: 620, height: 620}},
+	"toys/mimic": {clip: {x: 30, y: 300, width: 500, height: 500}},
+	"toys/over-underiser": {clip: {x: 290, y: 90, width: 620, height: 620}},
+	"toys/quizbuzz": {clip: {x: 160, y: 0, width: 600, height: 600}},
+	"toys/rug-addict": {clip: {x: 155, y: 250, width: 315, height: 315}},
+	"toys/spotty-sphericle": {clip: {x: 110, y: 90, width: 590, height: 590}},
+	"toys/sunthesis": {clip: {x: 140, y: 110, width: 580, height: 580}},
+	"toys/trundle-world": {clip: {x: 300, y: 60, width: 640, height: 640}},
+	"toys/tunerful": {clip: {x: 320, y: 50, width: 560, height: 560}},
+	"toys/vectorious": {
+		// The quantised bitmap beside the traced vector, further down the page
+		recipe: async page => {
+			await page.scrollTo("#bit");
+		},
+		selector: "#bit",
+		clip: {x: -14, y: -40, width: 764, height: 200}
+	}
+};
+
 function readManifest() {
 	try {
 		return JSON.parse(fs.readFileSync(manifestFile,"utf8"));
@@ -178,7 +235,8 @@ function findTargets() {
 		});
 	return toys.concat(extraTargets).map(target => Object.assign({
 		source: target.dir,
-		outputFile: path.join(screenshotsDir,target.path + ".webp")
+		outputFile: path.join(screenshotsDir,target.path + ".webp"),
+		closeupFile: closeups[target.path] ? path.join(closeupsDir,target.path + ".webp") : null
 	},target));
 }
 
@@ -187,7 +245,10 @@ function findTargets() {
 // are left out so that a fresh checkout computes the same hash
 function hashTarget(target) {
 	const hash = crypto.createHash("sha256");
-	hash.update(JSON.stringify({CAPTURE_VERSION, VIEWPORT, WEBP_QUALITY, recipe: String(recipes[target.path] || "")}));
+	const closeup = closeups[target.path];
+	hash.update(JSON.stringify({CAPTURE_VERSION, VIEWPORT, DEVICE_SCALE_FACTOR, WEBP_QUALITY, CLOSEUP_QUALITY,
+		recipe: String(recipes[target.path] || ""),
+		closeup: closeup ? {recipe: String(closeup.recipe || ""), selector: closeup.selector, clip: closeup.clip} : null}));
 	hashFolder(hash,target.source,"");
 	// Shared folders are named by their path relative to the toy, as the page refers to them
 	(target.shared || []).forEach(folder => hashFolder(hash,folder,path.relative(target.source,folder) + "/"));
@@ -357,7 +418,8 @@ async function launchChrome(executable) {
 }
 
 // Open a new tab and return an object with helpers for recipes
-async function openPage(browser) {
+async function openPage(browser,viewport) {
+	viewport = viewport || VIEWPORT;
 	const {targetId} = await browser.send("Target.createTarget",{url: "about:blank"}),
 		{sessionId} = await browser.send("Target.attachToTarget",{targetId, flatten: true}),
 		send = (method,params) => browser.send(method,params,sessionId),
@@ -379,7 +441,7 @@ async function openPage(browser) {
 		});
 	}
 	await send("Page.enable");
-	await send("Emulation.setDeviceMetricsOverride",{width: VIEWPORT.width, height: VIEWPORT.height, deviceScaleFactor: 1, mobile: false});
+	await send("Emulation.setDeviceMetricsOverride",{width: viewport.width, height: viewport.height, deviceScaleFactor: DEVICE_SCALE_FACTOR, mobile: false});
 	await send("Emulation.setEmulatedMedia",{features: [{name: "prefers-color-scheme", value: "light"}, {name: "prefers-reduced-motion", value: "no-preference"}]});
 	const page = {
 		wait,
@@ -427,8 +489,15 @@ async function openPage(browser) {
 			await page.evaluate(`document.querySelector(${JSON.stringify(selector)}).scrollIntoView({block: "start"})`);
 			await wait(SETTLE_DELAY);
 		},
-		async screenshot() {
-			const {data} = await send("Page.captureScreenshot",{format: "webp", quality: WEBP_QUALITY});
+		// Capture a rectangle of the viewport in CSS pixels (the whole viewport by
+		// default). The image has `scale` times the page's device pixels, so the
+		// default of one pixel to each CSS pixel undoes the device pixel ratio
+		async screenshot(options) {
+			options = Object.assign({format: "webp", quality: WEBP_QUALITY, clip: {x: 0, y: 0, width: viewport.width, height: viewport.height}, scale: 1 / DEVICE_SCALE_FACTOR},options);
+			// The clip is given to Chrome in page coordinates
+			const scroll = await page.evaluate("({x: window.scrollX, y: window.scrollY})"),
+				clip = Object.assign({},options.clip,{x: options.clip.x + scroll.x, y: options.clip.y + scroll.y, scale: options.scale}),
+				{data} = await send("Page.captureScreenshot",{format: options.format, quality: options.quality, clip});
 			return Buffer.from(data,"base64");
 		},
 		close() {
@@ -436,6 +505,24 @@ async function openPage(browser) {
 		}
 	};
 	return page;
+}
+
+// Capture a close-up at full resolution. A clip with a selector is relative to
+// the top left corner of the element it matches
+async function captureCloseup(page,closeup) {
+	if(closeup.recipe) {
+		await closeup.recipe(page);
+		await page.wait(SETTLE_DELAY);
+	}
+	let clip = closeup.clip;
+	if(closeup.selector) {
+		const origin = await page.evaluate(`(() => {
+			const r = document.querySelector(${JSON.stringify(closeup.selector)}).getBoundingClientRect();
+			return {x: r.left, y: r.top};
+		})()`);
+		clip = Object.assign({},clip,{x: clip.x + origin.x, y: clip.y + origin.y});
+	}
+	return page.screenshot({clip, scale: 1, quality: CLOSEUP_QUALITY});
 }
 
 async function main() {
@@ -454,6 +541,7 @@ async function main() {
 		Object.keys(manifest).forEach(name => {
 			if(!allTargets.find(target => target.path === name)) {
 				fs.rmSync(path.join(screenshotsDir,name + ".webp"),{force: true});
+				fs.rmSync(path.join(closeupsDir,name + ".webp"),{force: true});
 				delete manifest[name];
 				console.log("build-screenshots: removed screenshot of " + name);
 			}
@@ -468,7 +556,7 @@ async function main() {
 			return false;
 		}
 		target.hash = hashTarget(target);
-		return force || manifest[target.path] !== target.hash || !fs.existsSync(target.outputFile);
+		return force || manifest[target.path] !== target.hash || !fs.existsSync(target.outputFile) || (target.closeupFile && !fs.existsSync(target.closeupFile));
 	});
 	if(!stale.length) {
 		writeManifest(manifest);
@@ -497,8 +585,14 @@ async function main() {
 				const image = await page.screenshot();
 				fs.mkdirSync(path.dirname(target.outputFile),{recursive: true});
 				fs.writeFileSync(target.outputFile,image);
-				manifest[target.path] = target.hash;
 				console.log("build-screenshots: captured " + target.path + " (" + Math.round(image.length / 1024) + "KB)");
+				if(target.closeupFile) {
+					const closeup = await captureCloseup(page,closeups[target.path]);
+					fs.mkdirSync(path.dirname(target.closeupFile),{recursive: true});
+					fs.writeFileSync(target.closeupFile,closeup);
+					console.log("build-screenshots: captured close-up of " + target.path + " (" + Math.round(closeup.length / 1024) + "KB)");
+				}
+				manifest[target.path] = target.hash;
 			} catch(e) {
 				failures++;
 				console.log("build-screenshots: warning: failed to capture " + target.path + ": " + e.message);
@@ -516,7 +610,12 @@ async function main() {
 	}
 }
 
-main().catch(e => {
-	console.error("build-screenshots: " + e.message);
-	process.exit(1);
-});
+// build-social.js renders its cards with the same Chrome
+module.exports = {findChrome, launchChrome, openPage};
+
+if(require.main === module) {
+	main().catch(e => {
+		console.error("build-screenshots: " + e.message);
+		process.exit(1);
+	});
+}

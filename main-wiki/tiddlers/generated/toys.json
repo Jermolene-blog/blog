@@ -7,6 +7,7 @@
 		"tags": "toy",
 		"text": "",
 		"category": "games",
+		"tagline": "Tap the animals on a little 3D island to hear their names and noises",
 		"theme-color": "#5fbdea",
 		"screenshot": "/screenshots/toys/animal-island.webp"
 	},
@@ -18,6 +19,7 @@
 		"tags": "toy",
 		"text": "",
 		"category": "trifles",
+		"tagline": "Bears dance on a disco floor to the beat of whatever they hear",
 		"theme-color": "#0d0a13",
 		"screenshot": "/screenshots/toys/bear-beat.webp"
 	},
@@ -29,6 +31,7 @@
 		"tags": "toy",
 		"text": "",
 		"category": "trifles",
+		"tagline": "Blobs of glass at your command",
 		"theme-color": "#ececec",
 		"screenshot": "/screenshots/toys/blobbles.webp"
 	},
@@ -40,6 +43,7 @@
 		"tags": "toy",
 		"text": "",
 		"category": "games",
+		"tagline": "Ten-pin bowling in 3D, with a bear that cheers you on",
 		"theme-color": "#17120e",
 		"screenshot": "/screenshots/toys/bowling-bear.webp"
 	},
@@ -51,6 +55,7 @@
 		"tags": "toy",
 		"text": "",
 		"category": "games",
+		"tagline": "Let the cat in, give it its dinner and watch it curl up to sleep",
 		"theme-color": "#f7e6c4",
 		"screenshot": "/screenshots/toys/catflap.webp"
 	},
@@ -62,6 +67,7 @@
 		"tags": "toy",
 		"text": "",
 		"category": "tools",
+		"tagline": "Hide a photo in a field of parallel lines, then squint to see it",
 		"theme-color": "#f6f5f1",
 		"screenshot": "/screenshots/toys/engravery.webp"
 	},
@@ -73,6 +79,7 @@
 		"tags": "toy",
 		"text": "",
 		"category": "trifles",
+		"tagline": "A fast, smooth explorer of the Mandelbrot set and its relatives",
 		"theme-color": "#05070b",
 		"screenshot": "/screenshots/toys/fractaliser.webp"
 	},
@@ -84,6 +91,7 @@
 		"tags": "toy",
 		"text": "",
 		"category": "tools",
+		"tagline": "Turn any image into a JPEG, cropped and resized, one at a time or a whole folder",
 		"theme-color": "#efece4",
 		"screenshot": "/screenshots/toys/jpegulator.webp"
 	},
@@ -95,6 +103,7 @@
 		"tags": "toy",
 		"text": "",
 		"category": "games",
+		"tagline": "Spell every word hidden in a rack of lettered balls",
 		"theme-color": "#24160f",
 		"screenshot": "/screenshots/toys/jumbleword.webp"
 	},
@@ -106,6 +115,7 @@
 		"tags": "toy",
 		"text": "",
 		"category": "tools",
+		"tagline": "Draw Celtic knots freehand, and tap a crossing to flip it",
 		"theme-color": "#f2ede3",
 		"screenshot": "/screenshots/toys/knottery.webp"
 	},
@@ -117,6 +127,7 @@
 		"tags": "toy",
 		"text": "",
 		"category": "games",
+		"tagline": "Four tap-only games for toddlers, starring two grey cats",
 		"theme-color": "#8fd6f5",
 		"screenshot": "/screenshots/toys/lala-yala.webp"
 	},
@@ -128,6 +139,7 @@
 		"tags": "toy",
 		"text": "",
 		"category": "games",
+		"tagline": "Flick marbles into the rings, watched by some very opinionated cats",
 		"theme-color": "#244a3d",
 		"screenshot": "/screenshots/toys/marble-flick.webp"
 	},
@@ -139,6 +151,7 @@
 		"tags": "toy",
 		"text": "",
 		"category": "trifles",
+		"tagline": "Drop inks onto a marbling bath and comb them into Florentine swirls",
 		"theme-color": "#161310",
 		"screenshot": "/screenshots/toys/marblelous.webp"
 	},
@@ -150,6 +163,7 @@
 		"tags": "toy",
 		"text": "",
 		"category": "games",
+		"tagline": "Five tap-only 3D games for toddlers in a meadow full of animals",
 		"theme-color": "#bfe3f2",
 		"screenshot": "/screenshots/toys/meadow-games.webp"
 	},
@@ -161,6 +175,7 @@
 		"tags": "toy",
 		"text": "",
 		"category": "trifles",
+		"tagline": "Feed in any text and generate new phrases in the same style",
 		"theme-color": "#eeeeee",
 		"screenshot": "/screenshots/toys/mimic.webp"
 	},
@@ -172,6 +187,7 @@
 		"tags": "toy",
 		"text": "",
 		"category": "tools",
+		"tagline": "Weave any SVG: click an overlap to choose which shape goes on top",
 		"theme-color": "#f2ede3",
 		"screenshot": "/screenshots/toys/over-underiser.webp"
 	},
@@ -183,6 +199,7 @@
 		"tags": "toy",
 		"text": "",
 		"category": "games",
+		"tagline": "A family quiz show: a 1960s TV studio on the big screen and a buzzer on every phone",
 		"theme-color": "#1d1411",
 		"screenshot": "/screenshots/toys/quizbuzz.webp"
 	},
@@ -194,6 +211,7 @@
 		"tags": "toy",
 		"text": "",
 		"category": "trifles",
+		"tagline": "Persian and Anatolian rugs, generated knot by knot from the grammar of real carpets",
 		"theme-color": "#e8ebe3",
 		"screenshot": "/screenshots/toys/rug-addict.webp"
 	},
@@ -206,6 +224,7 @@
 		"text": "",
 		"category": "trifles",
 		"short-caption": "Sphericle",
+		"tagline": "Thousands of dots on a spinning sphere, sized by the light falling on them",
 		"theme-color": "#050505",
 		"screenshot": "/screenshots/toys/spotty-sphericle.webp"
 	},
@@ -217,6 +236,7 @@
 		"tags": "toy",
 		"text": "",
 		"category": "trifles",
+		"tagline": "Photorealistic sunsets computed from the physics of light in air, haze and cloud",
 		"theme-color": "#0a0c12",
 		"screenshot": "/screenshots/toys/sunthesis.webp"
 	},
@@ -229,6 +249,7 @@
 		"text": "",
 		"category": "tools",
 		"short-caption": "Lenticulator",
+		"tagline": "Print and fold pictures that change as you move past them",
 		"theme-color": "#ffffff",
 		"screenshot": "/screenshots/toys/lenticulator.webp"
 	},
@@ -240,6 +261,7 @@
 		"tags": "toy",
 		"text": "",
 		"category": "games",
+		"tagline": "A little 3D island for small children to poke at",
 		"theme-color": "#7cc8ff",
 		"screenshot": "/screenshots/toys/trundle-world.webp"
 	},
@@ -251,6 +273,7 @@
 		"tags": "toy",
 		"text": "",
 		"category": "tools",
+		"tagline": "A guitar tuner built like a chart recorder",
 		"theme-color": "#e7ecef",
 		"screenshot": "/screenshots/toys/tunerful.webp"
 	},
@@ -262,6 +285,7 @@
 		"tags": "toy",
 		"text": "",
 		"category": "tools",
+		"tagline": "Trace a photo into a crisp vector drawing, ready to download as SVG or PDF",
 		"theme-color": "#f4f2ec",
 		"screenshot": "/screenshots/toys/vectorious.webp"
 	}
