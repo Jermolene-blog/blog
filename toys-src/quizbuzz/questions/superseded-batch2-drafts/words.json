@@ -1,0 +1,806 @@
+[
+ {
+  "c": "words",
+  "d": 1,
+  "q": "Who wrote 'Treasure Island'?",
+  "a": [
+   "Daniel Defoe",
+   "Arthur Conan Doyle",
+   "Walter Scott",
+   "R. L. Stevenson"
+  ],
+  "k": 3
+ },
+ {
+  "c": "words",
+  "d": 1,
+  "q": "Which character in 'Alice in Wonderland' worries he is late?",
+  "a": [
+   "White Rabbit",
+   "March Hare",
+   "Cheshire Cat",
+   "Mad Hatter"
+  ],
+  "k": 0
+ },
+ {
+  "c": "words",
+  "d": 1,
+  "q": "In rhyming slang, what are your 'plates of meat'?",
+  "a": [
+   "Teeth",
+   "Knees",
+   "Hands",
+   "Feet"
+  ],
+  "k": 3
+ },
+ {
+  "c": "words",
+  "d": 1,
+  "q": "In rhyming slang, who is your 'trouble and strife'?",
+  "a": [
+   "Neighbour",
+   "Mother",
+   "Boss",
+   "Wife"
+  ],
+  "k": 3
+ },
+ {
+  "c": "words",
+  "d": 1,
+  "q": "In rhyming slang, what are 'porky pies'?",
+  "a": [
+   "Ties",
+   "Eyes",
+   "Lies",
+   "Thighs"
+  ],
+  "k": 2
+ },
+ {
+  "c": "words",
+  "d": 1,
+  "q": "In rhyming slang, what are your 'mince pies'?",
+  "a": [
+   "Lies",
+   "Ties",
+   "Thighs",
+   "Eyes"
+  ],
+  "k": 3
+ },
+ {
+  "c": "words",
+  "d": 1,
+  "q": "To 'bury the hatchet' means to do what?",
+  "a": [
+   "Make peace",
+   "Retire",
+   "Start a feud",
+   "Hide evidence"
+  ],
+  "k": 0
+ },
+ {
+  "c": "words",
+  "d": 1,
+  "q": "If something is 'the bee's knees', it is what?",
+  "a": [
+   "Tiny",
+   "Old-fashioned",
+   "Excellent",
+   "Fragile"
+  ],
+  "k": 2
+ },
+ {
+  "c": "words",
+  "d": 1,
+  "q": "In a mystery, what is a 'red herring'?",
+  "a": [
+   "The murder weapon",
+   "A false clue",
+   "A secret ally",
+   "The final twist"
+  ],
+  "k": 1
+ },
+ {
+  "c": "words",
+  "d": 1,
+  "q": "If you 'mind your Ps and Qs', you mind your what?",
+  "a": [
+   "Manners",
+   "Money",
+   "Spelling",
+   "Step"
+  ],
+  "k": 0
+ },
+ {
+  "c": "words",
+  "d": 1,
+  "q": "If a plan has gone 'pear-shaped', what has happened?",
+  "a": [
+   "It has gone wrong",
+   "It has grown",
+   "It has been delayed",
+   "It has succeeded"
+  ],
+  "k": 0
+ },
+ {
+  "c": "words",
+  "d": 1,
+  "q": "'Listen' and 'silent' are examples of what?",
+  "a": [
+   "Anagrams",
+   "Palindromes",
+   "Synonyms",
+   "Homophones"
+  ],
+  "k": 0
+ },
+ {
+  "c": "words",
+  "d": 1,
+  "q": "How many tiles does each Scrabble player hold?",
+  "a": [
+   "Six",
+   "Nine",
+   "Seven",
+   "Eight"
+  ],
+  "k": 2
+ },
+ {
+  "c": "words",
+  "d": 1,
+  "q": "In 'The Hitchhiker's Guide', what is the answer to life, the universe and everything?",
+  "a": [
+   "101",
+   "42",
+   "7",
+   "0"
+  ],
+  "k": 1
+ },
+ {
+  "c": "words",
+  "d": 1,
+  "q": "Who wrote 'I Wandered Lonely as a Cloud'?",
+  "a": [
+   "Lord Byron",
+   "John Keats",
+   "William Wordsworth",
+   "Percy Bysshe Shelley"
+  ],
+  "k": 2
+ },
+ {
+  "c": "words",
+  "d": 1,
+  "q": "Who wrote 'The Owl and the Pussy-Cat'?",
+  "a": [
+   "A. A. Milne",
+   "Edward Lear",
+   "Lewis Carroll",
+   "Hilaire Belloc"
+  ],
+  "k": 1
+ },
+ {
+  "c": "words",
+  "d": 1,
+  "q": "In 'Gulliver's Travels', the tiny people live where?",
+  "a": [
+   "Utopia",
+   "Laputa",
+   "Brobdingnag",
+   "Lilliput"
+  ],
+  "k": 3
+ },
+ {
+  "c": "words",
+  "d": 1,
+  "q": "Who wrote 'Dracula'?",
+  "a": [
+   "Edgar Allan Poe",
+   "Wilkie Collins",
+   "Bram Stoker",
+   "Mary Shelley"
+  ],
+  "k": 2
+ },
+ {
+  "c": "words",
+  "d": 1,
+  "q": "In 'The Hobbit', what kind of creature is Smaug?",
+  "a": [
+   "Goblin",
+   "Dragon",
+   "Troll",
+   "Giant spider"
+  ],
+  "k": 1
+ },
+ {
+  "c": "words",
+  "d": 1,
+  "q": "Who wrote 'The Gruffalo'?",
+  "a": [
+   "Judith Kerr",
+   "Julia Donaldson",
+   "Jacqueline Wilson",
+   "Shirley Hughes"
+  ],
+  "k": 1
+ },
+ {
+  "c": "words",
+  "d": 1,
+  "q": "How many lines does a limerick have?",
+  "a": [
+   "Six",
+   "Four",
+   "Five",
+   "Eight"
+  ],
+  "k": 2
+ },
+ {
+  "c": "words",
+  "d": 1,
+  "q": "Who is Sherlock Holmes's arch-enemy?",
+  "a": [
+   "Professor Moriarty",
+   "Mycroft",
+   "Dr Watson",
+   "Inspector Lestrade"
+  ],
+  "k": 0
+ },
+ {
+  "c": "words",
+  "d": 1,
+  "q": "If you 'go Dutch', what do you do?",
+  "a": [
+   "Split the bill",
+   "Cycle home",
+   "Speak bluntly",
+   "Give up halfway"
+  ],
+  "k": 0
+ },
+ {
+  "c": "words",
+  "d": 1,
+  "q": "If you are 'on the wagon', what have you given up?",
+  "a": [
+   "Sweets",
+   "Alcohol",
+   "Driving",
+   "Smoking"
+  ],
+  "k": 1
+ },
+ {
+  "c": "words",
+  "d": 1,
+  "q": "Who wrote 'Charlie and the Chocolate Factory'?",
+  "a": [
+   "Michael Bond",
+   "Roald Dahl",
+   "Enid Blyton",
+   "David Walliams"
+  ],
+  "k": 1
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "In rhyming slang, what does 'Adam and Eve' mean?",
+  "a": [
+   "Sleeve",
+   "Believe",
+   "Deceive",
+   "Leave"
+  ],
+  "k": 1
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "In rhyming slang, what is 'rabbit and pork'?",
+  "a": [
+   "Talk",
+   "Chalk",
+   "Fork",
+   "Walk"
+  ],
+  "k": 0
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "In rhyming slang, what is a 'syrup of figs'?",
+  "a": [
+   "Cig",
+   "Wig",
+   "Jig",
+   "Pig"
+  ],
+  "k": 1
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "What is 'Hobson's choice'?",
+  "a": [
+   "A wrong choice",
+   "A difficult choice",
+   "No real choice",
+   "A lucky choice"
+  ],
+  "k": 2
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "What is a 'busman's holiday'?",
+  "a": [
+   "An unpaid day off",
+   "A works outing to the seaside",
+   "Leisure spent doing your job",
+   "A cheap coach trip"
+  ],
+  "k": 2
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "Something that is a 'damp squib' is what?",
+  "a": [
+   "A soggy biscuit",
+   "A disappointment",
+   "A lucky escape",
+   "An embarrassing mistake"
+  ],
+  "k": 1
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "A word like NATO, formed from initials and spoken as a word, is a what?",
+  "a": [
+   "Acronym",
+   "Homonym",
+   "Synonym",
+   "Anagram"
+  ],
+  "k": 0
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "Which word, blending 'chuckle' and 'snort', did Lewis Carroll coin?",
+  "a": [
+   "Chortle",
+   "Snicker",
+   "Guffaw",
+   "Giggle"
+  ],
+  "k": 0
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "Who wrote 'Brideshead Revisited'?",
+  "a": [
+   "E. M. Forster",
+   "Graham Greene",
+   "Evelyn Waugh",
+   "Anthony Powell"
+  ],
+  "k": 2
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "Who wrote 'The Remains of the Day'?",
+  "a": [
+   "Julian Barnes",
+   "Ian McEwan",
+   "Salman Rushdie",
+   "Kazuo Ishiguro"
+  ],
+  "k": 3
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "'Last night I dreamt I went to Manderley again' opens which novel?",
+  "a": [
+   "Wuthering Heights",
+   "Jamaica Inn",
+   "Jane Eyre",
+   "Rebecca"
+  ],
+  "k": 3
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "Who wrote 'The Thirty-Nine Steps'?",
+  "a": [
+   "Ian Fleming",
+   "John Buchan",
+   "Erskine Childers",
+   "Graham Greene"
+  ],
+  "k": 1
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "Who wrote 'Watership Down'?",
+  "a": [
+   "Richard Adams",
+   "Douglas Adams",
+   "Gerald Durrell",
+   "Kenneth Grahame"
+  ],
+  "k": 0
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "Who wrote 'The Day of the Triffids'?",
+  "a": [
+   "Arthur C. Clarke",
+   "John Wyndham",
+   "H. G. Wells",
+   "Nigel Kneale"
+  ],
+  "k": 1
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "Who wrote 'Cider with Rosie'?",
+  "a": [
+   "Laurie Lee",
+   "Thomas Hardy",
+   "H. E. Bates",
+   "Dylan Thomas"
+  ],
+  "k": 0
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "Who wrote 'The Rime of the Ancient Mariner'?",
+  "a": [
+   "Alfred Tennyson",
+   "William Blake",
+   "John Milton",
+   "S. T. Coleridge"
+  ],
+  "k": 3
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "Who wrote 'Under Milk Wood'?",
+  "a": [
+   "Seamus Heaney",
+   "W. H. Auden",
+   "R. S. Thomas",
+   "Dylan Thomas"
+  ],
+  "k": 3
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "Which railway-loving poet was Poet Laureate from 1972 to 1984?",
+  "a": [
+   "Philip Larkin",
+   "Cecil Day-Lewis",
+   "John Betjeman",
+   "Ted Hughes"
+  ],
+  "k": 2
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "Who wrote 'Three Men in a Boat'?",
+  "a": [
+   "Kenneth Grahame",
+   "George Grossmith",
+   "P. G. Wodehouse",
+   "Jerome K. Jerome"
+  ],
+  "k": 3
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "In 'Dracula', the Count comes ashore at which English town?",
+  "a": [
+   "Dover",
+   "Scarborough",
+   "Plymouth",
+   "Whitby"
+  ],
+  "k": 3
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "What is Inspector Morse's first name?",
+  "a": [
+   "Endeavour",
+   "Ernest",
+   "Engelbert",
+   "Edward"
+  ],
+  "k": 0
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "Bathsheba Everdene is the heroine of which Hardy novel?",
+  "a": [
+   "The Mayor of Casterbridge",
+   "The Return of the Native",
+   "Tess of the d'Urbervilles",
+   "Far from the Madding Crowd"
+  ],
+  "k": 3
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "Which Jane Austen novel, set partly in Bath, mocks Gothic fiction?",
+  "a": [
+   "Emma",
+   "Northanger Abbey",
+   "Sense and Sensibility",
+   "Persuasion"
+  ],
+  "k": 1
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "Adrian Mole's first diary gave his age as what?",
+  "a": [
+   "12½",
+   "15",
+   "13¾",
+   "14¼"
+  ],
+  "k": 2
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "English borrowed the word 'ombudsman' from which language?",
+  "a": [
+   "Dutch",
+   "Danish",
+   "Norwegian",
+   "Swedish"
+  ],
+  "k": 3
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "Which Shakespeare play calls jealousy 'the green-eyed monster'?",
+  "a": [
+   "Macbeth",
+   "Twelfth Night",
+   "King Lear",
+   "Othello"
+  ],
+  "k": 3
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "In 'The Importance of Being Earnest', who exclaims 'A handbag?'",
+  "a": [
+   "Cecily",
+   "Algernon Moncrieff",
+   "Gwendolen",
+   "Lady Bracknell"
+  ],
+  "k": 3
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "Early Penguin paperbacks used which colour for fiction?",
+  "a": [
+   "Blue",
+   "Green",
+   "Orange",
+   "Yellow"
+  ],
+  "k": 2
+ },
+ {
+  "c": "words",
+  "d": 2,
+  "q": "Which Mr Men character did Roger Hargreaves create first?",
+  "a": [
+   "Mr Happy",
+   "Mr Tickle",
+   "Mr Greedy",
+   "Mr Bump"
+  ],
+  "k": 1
+ },
+ {
+  "c": "words",
+  "d": 3,
+  "q": "Malapropisms are named after a character created by which playwright?",
+  "a": [
+   "Oliver Goldsmith",
+   "Richard Sheridan",
+   "William Congreve",
+   "Ben Jonson"
+  ],
+  "k": 1
+ },
+ {
+  "c": "words",
+  "d": 3,
+  "q": "William Spooner, of spoonerisms, was warden of which Oxford college?",
+  "a": [
+   "New College",
+   "Balliol",
+   "Magdalen",
+   "Christ Church"
+  ],
+  "k": 0
+ },
+ {
+  "c": "words",
+  "d": 3,
+  "q": "Who coined the word 'serendipity' in 1754?",
+  "a": [
+   "Samuel Johnson",
+   "Jonathan Swift",
+   "Laurence Sterne",
+   "Horace Walpole"
+  ],
+  "k": 3
+ },
+ {
+  "c": "words",
+  "d": 3,
+  "q": "Who was Poet Laureate from 1984 to 1998?",
+  "a": [
+   "Philip Larkin",
+   "Andrew Motion",
+   "Ted Hughes",
+   "John Betjeman"
+  ],
+  "k": 2
+ },
+ {
+  "c": "words",
+  "d": 3,
+  "q": "In 'Three Men in a Boat', what is the dog called?",
+  "a": [
+   "Montmorency",
+   "Toby",
+   "Bonzo",
+   "Bartholomew"
+  ],
+  "k": 0
+ },
+ {
+  "c": "words",
+  "d": 3,
+  "q": "Who wrote 'Vanity Fair', featuring Becky Sharp?",
+  "a": [
+   "Anthony Trollope",
+   "William Thackeray",
+   "Wilkie Collins",
+   "Elizabeth Gaskell"
+  ],
+  "k": 1
+ },
+ {
+  "c": "words",
+  "d": 3,
+  "q": "Which author created Lord Peter Wimsey?",
+  "a": [
+   "Margery Allingham",
+   "Ngaio Marsh",
+   "Dorothy L. Sayers",
+   "Josephine Tey"
+  ],
+  "k": 2
+ },
+ {
+  "c": "words",
+  "d": 3,
+  "q": "Who wrote 'Goodnight Mister Tom'?",
+  "a": [
+   "Michelle Magorian",
+   "Nina Bawden",
+   "Joan Aiken",
+   "Rosemary Sutcliff"
+  ],
+  "k": 0
+ },
+ {
+  "c": "words",
+  "d": 3,
+  "q": "English borrowed the word 'tycoon' from which language?",
+  "a": [
+   "Mongolian",
+   "Malay",
+   "Japanese",
+   "Hindi"
+  ],
+  "k": 2
+ },
+ {
+  "c": "words",
+  "d": 3,
+  "q": "A clerihew is a type of what?",
+  "a": [
+   "Sailing boat",
+   "Comic verse",
+   "Riddle",
+   "Pastry"
+  ],
+  "k": 1
+ },
+ {
+  "c": "words",
+  "d": 3,
+  "q": "In 'Ye Olde Tea Shoppe', the Y stands in for which old letter?",
+  "a": [
+   "Wynn",
+   "Long s",
+   "Eth",
+   "Thorn"
+  ],
+  "k": 3
+ },
+ {
+  "c": "words",
+  "d": 3,
+  "q": "The earliest recorded 'wild-goose chase' is in which Shakespeare play?",
+  "a": [
+   "The Tempest",
+   "Romeo and Juliet",
+   "Henry V",
+   "A Midsummer Night's Dream"
+  ],
+  "k": 1
+ },
+ {
+  "c": "words",
+  "d": 3,
+  "q": "Which publisher launched Penguin paperbacks in 1935?",
+  "a": [
+   "Victor Gollancz",
+   "Stanley Unwin",
+   "Allen Lane",
+   "Jonathan Cape"
+  ],
+  "k": 2
+ }
+]

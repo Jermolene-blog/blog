@@ -1,0 +1,1538 @@
+[
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Who designed St Paul's Cathedral?",
+  "a": [
+   "Christopher Wren",
+   "Inigo Jones",
+   "John Nash",
+   "Nicholas Hawksmoor"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "In which year was the Festival of Britain held?",
+  "a": [
+   "1953",
+   "1951",
+   "1946",
+   "1948"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Who commanded the British army at Waterloo?",
+  "a": [
+   "Duke of Marlborough",
+   "Lord Nelson",
+   "Duke of Wellington",
+   "General Wolfe"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "The Tolpuddle Martyrs of 1834 came from which county?",
+  "a": [
+   "Wiltshire",
+   "Devon",
+   "Somerset",
+   "Dorset"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "In which year was the NHS launched?",
+  "a": [
+   "1948",
+   "1945",
+   "1950",
+   "1951"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Which king was restored to the throne in 1660?",
+  "a": [
+   "James II",
+   "Charles II",
+   "William III",
+   "Charles I"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Which Scottish king won the Battle of Bannockburn in 1314?",
+  "a": [
+   "Malcolm III",
+   "David I",
+   "Robert the Bruce",
+   "James IV"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Which king had been Prince Regent before taking the throne?",
+  "a": [
+   "Edward VII",
+   "William IV",
+   "George III",
+   "George IV"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Which king ordered the Domesday Book?",
+  "a": [
+   "William I",
+   "Harold II",
+   "Henry I",
+   "William II"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Which diarist buried his parmesan cheese during the Great Fire of London?",
+  "a": [
+   "Daniel Defoe",
+   "Samuel Pepys",
+   "James Boswell",
+   "John Evelyn"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Which king did William the Conqueror defeat at Hastings in 1066?",
+  "a": [
+   "Canute",
+   "Edward the Confessor",
+   "Harold II",
+   "Ethelred"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "In which ship did Francis Drake sail around the world?",
+  "a": [
+   "Revenge",
+   "Mary Rose",
+   "Victory",
+   "Golden Hind"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "How many wives did Henry VIII have?",
+  "a": [
+   "Six",
+   "Four",
+   "Five",
+   "Eight"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Which king was known as 'the Lionheart'?",
+  "a": [
+   "Henry II",
+   "Richard I",
+   "John",
+   "Edward I"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "In which year was the Battle of Waterloo?",
+  "a": [
+   "1805",
+   "1812",
+   "1815",
+   "1821"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "In the Wars of the Roses, which house had the white rose?",
+  "a": [
+   "Lancaster",
+   "Tudor",
+   "Stuart",
+   "York"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "In which year was the Gunpowder Plot?",
+  "a": [
+   "1605",
+   "1615",
+   "1588",
+   "1603"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "Balmoral Castle is in which historic Scottish county?",
+  "a": [
+   "Perthshire",
+   "Aberdeenshire",
+   "Argyll",
+   "Inverness-shire"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "Who led a Welsh revolt against Henry IV from 1400?",
+  "a": [
+   "Hywel Dda",
+   "Llywelyn the Great",
+   "Owain Glyndŵr",
+   "Rhodri Mawr"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "What was Captain Cook's ship on his first Pacific voyage?",
+  "a": [
+   "Victory",
+   "Adventure",
+   "Resolution",
+   "Endeavour"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Who was Henry VIII's first wife?",
+  "a": [
+   "Catherine of Aragon",
+   "Anne Boleyn",
+   "Jane Seymour",
+   "Catherine Parr"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "In which year could women first vote in a UK general election?",
+  "a": [
+   "1928",
+   "1918",
+   "1922",
+   "1910"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Which king's remains were found under a Leicester car park in 2012?",
+  "a": [
+   "Henry VI",
+   "Edward V",
+   "Richard III",
+   "King John"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "On which ship did Charles Darwin make his famous voyage?",
+  "a": [
+   "HMS Endurance",
+   "HMS Discovery",
+   "HMS Bounty",
+   "HMS Beagle"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "In which year did the Spanish Armada sail against England?",
+  "a": [
+   "1588",
+   "1605",
+   "1580",
+   "1592"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Which queen of the Iceni led a revolt against Rome?",
+  "a": [
+   "Gwenllian",
+   "Boudica",
+   "Cartimandua",
+   "Matilda"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "In which year was the General Strike?",
+  "a": [
+   "1936",
+   "1919",
+   "1926",
+   "1931"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Which Saxon king supposedly burnt the cakes?",
+  "a": [
+   "Offa",
+   "Edgar",
+   "Athelstan",
+   "Alfred the Great"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Who was known as the 'Nine Days' Queen'?",
+  "a": [
+   "Lady Jane Grey",
+   "Matilda",
+   "Anne of Cleves",
+   "Mary I"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Who invented the bouncing bomb used by the Dambusters?",
+  "a": [
+   "Frank Whittle",
+   "Barnes Wallis",
+   "R. J. Mitchell",
+   "Guy Gibson"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "In which year was the Great Fire of London?",
+  "a": [
+   "1688",
+   "1665",
+   "1666",
+   "1660"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "What title did Oliver Cromwell take in 1653?",
+  "a": [
+   "Lord Chamberlain",
+   "Lord Privy Seal",
+   "Lord Chancellor",
+   "Lord Protector"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Whom did Margaret Thatcher replace as Conservative leader in 1975?",
+  "a": [
+   "Edward Heath",
+   "Alec Douglas-Home",
+   "Willie Whitelaw",
+   "Harold Macmillan"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "In which country was Prince Philip born?",
+  "a": [
+   "Malta",
+   "Greece",
+   "Germany",
+   "Denmark"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Which king reigned from 1830 to 1837, before Victoria?",
+  "a": [
+   "George IV",
+   "George III",
+   "William IV",
+   "Edward VII"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "Who introduced the Uniform Penny Post in 1840?",
+  "a": [
+   "Robert Peel",
+   "Thomas Cook",
+   "Edwin Chadwick",
+   "Rowland Hill"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "Who was the monarch at the time of Trafalgar in 1805?",
+  "a": [
+   "George III",
+   "George IV",
+   "George II",
+   "William IV"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "Who was the first woman to take her seat as an MP?",
+  "a": [
+   "Ellen Wilkinson",
+   "Nancy Astor",
+   "Margaret Bondfield",
+   "Constance Markievicz"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "In which year did Britain go decimal?",
+  "a": [
+   "1969",
+   "1973",
+   "1971",
+   "1968"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Who was the last Tudor monarch?",
+  "a": [
+   "Edward VI",
+   "James I",
+   "Mary I",
+   "Elizabeth I"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Who helped Bonnie Prince Charlie escape to Skye?",
+  "a": [
+   "Flora MacDonald",
+   "Jenny Geddes",
+   "Grace Darling",
+   "Mary Somerville"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "Which Roman emperor launched the invasion of Britain in AD 43?",
+  "a": [
+   "Augustus",
+   "Claudius",
+   "Nero",
+   "Julius Caesar"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "The Act of Union of 1707 joined England with which country?",
+  "a": [
+   "Wales",
+   "Ireland",
+   "Scotland",
+   "Hanover"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Who became king after the Battle of Bosworth in 1485?",
+  "a": [
+   "Henry VIII",
+   "Richard III",
+   "Edward IV",
+   "Henry VII"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Who was Prime Minister during the Suez Crisis of 1956?",
+  "a": [
+   "Anthony Eden",
+   "Clement Attlee",
+   "Winston Churchill",
+   "Harold Macmillan"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "How many old pennies made a shilling?",
+  "a": [
+   "10",
+   "12",
+   "24",
+   "20"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "Which king met Francis I at the Field of the Cloth of Gold?",
+  "a": [
+   "Henry VII",
+   "Edward VI",
+   "Henry VIII",
+   "Henry V"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Beside the Thames at which meadow was Magna Carta sealed?",
+  "a": [
+   "Hampton Court",
+   "Westminster",
+   "Windsor",
+   "Runnymede"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Who was the first Stuart king of England?",
+  "a": [
+   "James I",
+   "Charles I",
+   "James II",
+   "Charles II"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Which Tudor warship was raised from the Solent in 1982?",
+  "a": [
+   "Golden Hind",
+   "Mary Rose",
+   "Ark Royal",
+   "Great Harry"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Who was Britain's first female Prime Minister?",
+  "a": [
+   "Betty Boothroyd",
+   "Barbara Castle",
+   "Margaret Thatcher",
+   "Shirley Williams"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Who was Prime Minister when the Second World War began in 1939?",
+  "a": [
+   "Winston Churchill",
+   "Clement Attlee",
+   "Stanley Baldwin",
+   "Neville Chamberlain"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Who succeeded Churchill as Prime Minister in 1945?",
+  "a": [
+   "Clement Attlee",
+   "Hugh Gaitskell",
+   "Ernest Bevin",
+   "Anthony Eden"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "Who wrote the 1516 book 'Utopia'?",
+  "a": [
+   "Francis Bacon",
+   "Thomas More",
+   "Thomas Wolsey",
+   "Thomas Cromwell"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "In 1917 the royal family changed its name to what?",
+  "a": [
+   "York",
+   "Mountbatten",
+   "Windsor",
+   "Hanover"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "In which year was Elizabeth II crowned?",
+  "a": [
+   "1955",
+   "1951",
+   "1952",
+   "1953"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "HMS Victory was whose flagship at Trafalgar?",
+  "a": [
+   "Nelson",
+   "Rodney",
+   "Collingwood",
+   "Hood"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Which Prime Minister was nicknamed 'Supermac'?",
+  "a": [
+   "Alec Douglas-Home",
+   "Harold Macmillan",
+   "Anthony Eden",
+   "Ramsay MacDonald"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "Harold Wilson was MP for which constituency from 1950 to 1983?",
+  "a": [
+   "Wallasey",
+   "Bootle",
+   "Huyton",
+   "Birkenhead"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Which king abdicated in 1936?",
+  "a": [
+   "George VI",
+   "George V",
+   "Edward VII",
+   "Edward VIII"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Which monarch reigned immediately before Elizabeth II?",
+  "a": [
+   "George VI",
+   "Edward VII",
+   "Edward VIII",
+   "George V"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "Which cardinal rebuilt Hampton Court before it passed to Henry VIII?",
+  "a": [
+   "Thomas Cranmer",
+   "Thomas Wolsey",
+   "Henry Beaufort",
+   "Reginald Pole"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Which king sealed Magna Carta in 1215?",
+  "a": [
+   "Richard I",
+   "Henry II",
+   "John",
+   "Henry III"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Which Roman emperor ordered a wall built across northern England in the 120s?",
+  "a": [
+   "Claudius",
+   "Trajan",
+   "Antoninus Pius",
+   "Hadrian"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Where did Charles and Diana marry in 1981?",
+  "a": [
+   "St Paul's Cathedral",
+   "Westminster Abbey",
+   "Southwark Cathedral",
+   "St George's Chapel"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Who was Henry VIII's sixth and last wife?",
+  "a": [
+   "Jane Seymour",
+   "Anne of Cleves",
+   "Catherine Howard",
+   "Catherine Parr"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Who was the mother of Elizabeth I?",
+  "a": [
+   "Anne Boleyn",
+   "Catherine of Aragon",
+   "Jane Seymour",
+   "Anne of Cleves"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Queen Victoria's husband is known to history as Prince Albert of where?",
+  "a": [
+   "Brunswick",
+   "Hanover",
+   "Hesse",
+   "Saxe-Coburg and Gotha"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Who was Britain's first Labour Prime Minister?",
+  "a": [
+   "Keir Hardie",
+   "Clement Attlee",
+   "Ramsay MacDonald",
+   "Harold Wilson"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Which Prime Minister took Britain into the EEC in 1973?",
+  "a": [
+   "Alec Douglas-Home",
+   "Harold Wilson",
+   "Edward Heath",
+   "James Callaghan"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Whom did James Callaghan succeed as Prime Minister in 1976?",
+  "a": [
+   "Roy Jenkins",
+   "Edward Heath",
+   "Denis Healey",
+   "Harold Wilson"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "In which year did Britain first hold a referendum on EEC membership?",
+  "a": [
+   "1971",
+   "1979",
+   "1975",
+   "1973"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Who is generally regarded as Britain's first Prime Minister?",
+  "a": [
+   "William Pitt",
+   "Lord North",
+   "Robert Walpole",
+   "Duke of Newcastle"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Who became Prime Minister at just 24 in 1783?",
+  "a": [
+   "William Pitt the Younger",
+   "Lord Liverpool",
+   "Charles James Fox",
+   "Lord Melbourne"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Which Victorian Prime Minister was nicknamed 'the Grand Old Man'?",
+  "a": [
+   "Benjamin Disraeli",
+   "Lord Palmerston",
+   "William Gladstone",
+   "Lord Salisbury"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "Which Prime Minister was created Earl of Beaconsfield?",
+  "a": [
+   "Benjamin Disraeli",
+   "William Gladstone",
+   "Lord Palmerston",
+   "Lord Rosebery"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Who was known as 'the Lady with the Lamp'?",
+  "a": [
+   "Mary Seacole",
+   "Edith Cavell",
+   "Grace Darling",
+   "Florence Nightingale"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Florence Nightingale nursed soldiers during which war?",
+  "a": [
+   "Crimean War",
+   "Boer War",
+   "First World War",
+   "Napoleonic Wars"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Which engineer designed the steamship SS Great Britain?",
+  "a": [
+   "James Watt",
+   "Isambard Kingdom Brunel",
+   "Thomas Telford",
+   "George Stephenson"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Brunel was chief engineer of which railway?",
+  "a": [
+   "Great Northern Railway",
+   "Midland Railway",
+   "Great Western Railway",
+   "London and North Western"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Who founded the suffragette Women's Social and Political Union in 1903?",
+  "a": [
+   "Emily Davison",
+   "Nancy Astor",
+   "Emmeline Pankhurst",
+   "Millicent Fawcett"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Which 1746 battle near Inverness ended the Jacobite rising?",
+  "a": [
+   "Prestonpans",
+   "Culloden",
+   "Killiecrankie",
+   "Falkirk"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Which king authorised the Bible translation published in 1611?",
+  "a": [
+   "Charles I",
+   "Elizabeth I",
+   "Henry VIII",
+   "James I"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Which order of chivalry has the motto 'Honi soit qui mal y pense'?",
+  "a": [
+   "Order of Merit",
+   "Order of the Thistle",
+   "Order of the Garter",
+   "Order of the Bath"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "Which king founded the Order of the Garter?",
+  "a": [
+   "Edward I",
+   "Richard II",
+   "Edward III",
+   "Henry V"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Which king won the Battle of Agincourt in 1415?",
+  "a": [
+   "Henry IV",
+   "Henry V",
+   "Richard II",
+   "Edward III"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Which monarch was known as 'the Virgin Queen'?",
+  "a": [
+   "Elizabeth I",
+   "Queen Anne",
+   "Mary I",
+   "Lady Jane Grey"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Who was the mother of James VI of Scotland?",
+  "a": [
+   "Mary, Queen of Scots",
+   "Margaret Tudor",
+   "Elizabeth I",
+   "Mary of Guise"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "Who designed the Banqueting House in Whitehall?",
+  "a": [
+   "Robert Adam",
+   "Inigo Jones",
+   "Christopher Wren",
+   "John Vanbrugh"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "The Norman Conquest is depicted on which embroidered cloth?",
+  "a": [
+   "Overlord Embroidery",
+   "Lindisfarne Gospels",
+   "Bayeux Tapestry",
+   "Hereford Mappa"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "In which year did the Channel Tunnel open?",
+  "a": [
+   "1987",
+   "1990",
+   "1997",
+   "1994"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "Who was the last British king to lead troops into battle, at Dettingen in 1743?",
+  "a": [
+   "George I",
+   "George II",
+   "William III",
+   "George III"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Which royal house ruled Britain from 1714 to 1901?",
+  "a": [
+   "Saxe-Coburg",
+   "Hanover",
+   "Windsor",
+   "Stuart"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Who founded the Salvation Army?",
+  "a": [
+   "John Wesley",
+   "William Booth",
+   "George Whitefield",
+   "Thomas Barnardo"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Who published the 'Principia' in 1687?",
+  "a": [
+   "Isaac Newton",
+   "Robert Boyle",
+   "Edmond Halley",
+   "Robert Hooke"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Who led the Peasants' Revolt of 1381?",
+  "a": [
+   "Robert Kett",
+   "Wat Tyler",
+   "Jack Cade",
+   "Perkin Warbeck"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "Which king faced the Peasants' Revolt of 1381?",
+  "a": [
+   "Henry IV",
+   "Edward III",
+   "Richard II",
+   "Richard III"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Thatcher's Community Charge was better known as what?",
+  "a": [
+   "Poll tax",
+   "Council tax",
+   "Window tax",
+   "Rates"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "In which year was the Battle of Britain fought?",
+  "a": [
+   "1941",
+   "1940",
+   "1939",
+   "1942"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "At which country house were Enigma codes broken in the Second World War?",
+  "a": [
+   "Chequers",
+   "Cliveden",
+   "Bletchley Park",
+   "Blenheim Palace"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "In which year were the D-Day landings?",
+  "a": [
+   "1944",
+   "1943",
+   "1945",
+   "1942"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "On what date in 1945 was VE Day?",
+  "a": [
+   "15 August",
+   "11 November",
+   "6 June",
+   "8 May"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Which fighter, designed by Sydney Camm, flew alongside the Spitfire in 1940?",
+  "a": [
+   "Bristol Blenheim",
+   "Avro Lancaster",
+   "Gloster Gladiator",
+   "Hawker Hurricane"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Who designed the Spitfire?",
+  "a": [
+   "Frank Whittle",
+   "Barnes Wallis",
+   "Geoffrey de Havilland",
+   "R. J. Mitchell"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Which king was called 'the Hammer of the Scots'?",
+  "a": [
+   "Henry II",
+   "Edward II",
+   "Edward I",
+   "Edward III"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Which king rebuilt Westminster Abbey, consecrated in 1065?",
+  "a": [
+   "Alfred the Great",
+   "Harold Godwinson",
+   "Edward the Confessor",
+   "William the Conqueror"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Which king is said to have ordered the tide to go back?",
+  "a": [
+   "Alfred",
+   "Ethelred",
+   "Harold",
+   "Cnut"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Who set up the first printing press in England, in the 1470s?",
+  "a": [
+   "Johannes Gutenberg",
+   "Wynkyn de Worde",
+   "William Tyndale",
+   "William Caxton"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Which jubilee did Elizabeth II celebrate in 2012?",
+  "a": [
+   "Diamond",
+   "Platinum",
+   "Golden",
+   "Silver"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "In which year did Prince Charles marry Camilla Parker Bowles?",
+  "a": [
+   "2003",
+   "2005",
+   "2007",
+   "2001"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "In which year did Prince William marry Catherine Middleton?",
+  "a": [
+   "2010",
+   "2009",
+   "2012",
+   "2011"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 1,
+  "q": "Which royal residence was badly damaged by fire in 1992?",
+  "a": [
+   "Hampton Court",
+   "Windsor Castle",
+   "Buckingham Palace",
+   "Sandringham House"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "At which Kenyan hotel was Princess Elizabeth staying the night her father died?",
+  "a": [
+   "Treetops",
+   "Norfolk Hotel",
+   "Mount Kenya Safari Club",
+   "Muthaiga Club"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Which Health Minister founded the NHS?",
+  "a": [
+   "Aneurin Bevan",
+   "Hugh Gaitskell",
+   "Herbert Morrison",
+   "William Beveridge"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Which pre-decimal coin was worth two shillings?",
+  "a": [
+   "Half-crown",
+   "Tanner",
+   "Crown",
+   "Florin"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "In pre-decimal money, how much was a guinea worth?",
+  "a": [
+   "20 shillings",
+   "21 shillings",
+   "30 shillings",
+   "25 shillings"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Whom did Pope Gregory send to convert Kent in 597?",
+  "a": [
+   "Columba",
+   "Augustine",
+   "Patrick",
+   "Aidan"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "Which monk wrote the 'Ecclesiastical History of the English People'?",
+  "a": [
+   "Alcuin",
+   "Dunstan",
+   "Bede",
+   "Gildas"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Where was an Anglo-Saxon ship burial unearthed in 1939?",
+  "a": [
+   "Jorvik",
+   "Tintagel",
+   "Lindisfarne",
+   "Sutton Hoo"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Which ship of Shackleton's was trapped and crushed by Antarctic ice?",
+  "a": [
+   "Discovery",
+   "Nimrod",
+   "Terra Nova",
+   "Endurance"
+  ],
+  "k": 3
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "Who led the 1953 British expedition that first climbed Everest?",
+  "a": [
+   "John Hunt",
+   "Edmund Hillary",
+   "Chris Bonington",
+   "George Mallory"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Who made the first non-stop transatlantic flight in 1919?",
+  "a": [
+   "Charles Lindbergh",
+   "The Wright brothers",
+   "Alcock and Brown",
+   "Amy Johnson"
+  ],
+  "k": 2
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Which Victorian engineer built London's sewer network?",
+  "a": [
+   "John Rennie",
+   "Joseph Bazalgette",
+   "Marc Brunel",
+   "Thomas Telford"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "The Queen Mother was born into which family?",
+  "a": [
+   "Bowes-Lyon",
+   "Spencer",
+   "Mountbatten",
+   "Cavendish"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "Which king married Eleanor of Aquitaine?",
+  "a": [
+   "King John",
+   "Henry II",
+   "Henry I",
+   "Richard I"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "Which 1645 battle was a decisive victory for the New Model Army?",
+  "a": [
+   "Marston Moor",
+   "Naseby",
+   "Edgehill",
+   "Worcester"
+  ],
+  "k": 1
+ },
+ {
+  "c": "hist",
+  "d": 2,
+  "q": "Which Prime Minister made the 'Wind of Change' speech in 1960?",
+  "a": [
+   "Harold Macmillan",
+   "Anthony Eden",
+   "Harold Wilson",
+   "Alec Douglas-Home"
+  ],
+  "k": 0
+ },
+ {
+  "c": "hist",
+  "d": 3,
+  "q": "Who composed the music for 'Rule, Britannia!'?",
+  "a": [
+   "Thomas Arne",
+   "George Frideric Handel",
+   "Hubert Parry",
+   "Henry Purcell"
+  ],
+  "k": 0
+ }
+]

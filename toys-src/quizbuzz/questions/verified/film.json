@@ -1,0 +1,1622 @@
+[
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Which Goldfinger henchman threw a deadly bowler hat?",
+  "a": [
+   "Red Grant",
+   "Oddjob",
+   "Nick Nack",
+   "Jaws"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Which cars carry the gold in The Italian Job (1969)?",
+  "a": [
+   "Minis",
+   "Jaguars",
+   "Ford Cortinas",
+   "Rovers"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "What is the name of Dorothy's dog in The Wizard of Oz?",
+  "a": [
+   "Tiny",
+   "Bobo",
+   "Spot",
+   "Toto"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "The Sound of Music is set in and around which city?",
+  "a": [
+   "Munich",
+   "Salzburg",
+   "Innsbruck",
+   "Vienna"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "In Notting Hill, what kind of shop does Hugh Grant run?",
+  "a": [
+   "Travel bookshop",
+   "Record shop",
+   "Antiques shop",
+   "Flower shop"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "The Full Monty (1997) is set in which city?",
+  "a": [
+   "Bradford",
+   "Sheffield",
+   "Wakefield",
+   "Leeds"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Which steel-toothed giant appeared in The Spy Who Loved Me?",
+  "a": [
+   "Mr Big",
+   "Jaws",
+   "Oddjob",
+   "Tee Hee"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "In Monty Python and the Holy Grail, what replaces the horses?",
+  "a": [
+   "Broomsticks",
+   "Hobby horses",
+   "Coconut shells",
+   "Wooden spoons"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Which cheese does Wallace love most?",
+  "a": [
+   "Red Leicester",
+   "Cheddar",
+   "Stilton",
+   "Wensleydale"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "In Kes (1969), what kind of bird does Billy train?",
+  "a": [
+   "Pigeon",
+   "Owl",
+   "Kestrel",
+   "Raven"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "In Calendar Girls, the women belong to which organisation?",
+  "a": [
+   "Mothers' Union",
+   "Women's Institute",
+   "Townswomen's Guild",
+   "Girl Guides"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "The King's Speech (2010) is about which king's stammer?",
+  "a": [
+   "Edward VIII",
+   "George VI",
+   "Edward VII",
+   "George V"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "What creatures does Indiana Jones hate most?",
+  "a": [
+   "Snakes",
+   "Bats",
+   "Spiders",
+   "Rats"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Which Carry On star cried \"Infamy, infamy, they've all got it in for me!\"?",
+  "a": [
+   "Kenneth Williams",
+   "Sid James",
+   "Kenneth Connor",
+   "Charles Hawtrey"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "In Brief Encounter (1945), where do the lovers meet?",
+  "a": [
+   "Airport",
+   "Bus depot",
+   "Railway station",
+   "Ocean liner"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "In Casablanca, what is the name of Rick's piano player?",
+  "a": [
+   "Ugarte",
+   "Louis",
+   "Victor",
+   "Sam"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Trainspotting (1996) is set in which city?",
+  "a": [
+   "Dundee",
+   "Aberdeen",
+   "Edinburgh",
+   "Glasgow"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "In The Ladykillers (1955), the gang pose as what?",
+  "a": [
+   "String quintet",
+   "Barbershop quartet",
+   "Brass band",
+   "Church choir"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "In The Lavender Hill Mob, the gold is smuggled as models of what?",
+  "a": [
+   "Statue of Liberty",
+   "Leaning Tower of Pisa",
+   "Eiffel Tower",
+   "Big Ben"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "What is the name of the angel in It's a Wonderful Life?",
+  "a": [
+   "Clarence",
+   "Albert",
+   "Harold",
+   "Gabriel"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "In The Railway Children, what do the children wave to stop the train?",
+  "a": [
+   "Red scarves",
+   "Red petticoats",
+   "Tablecloths",
+   "Union flags"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "In Gregory's Girl (1980), which sport does Dorothy play?",
+  "a": [
+   "Hockey",
+   "Rugby",
+   "Tennis",
+   "Football"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "What is the name of the sheep in A Close Shave?",
+  "a": [
+   "Shaun",
+   "Timmy",
+   "Larry",
+   "Woolly"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "The Third Man (1949) is set in which city?",
+  "a": [
+   "Prague",
+   "Vienna",
+   "Berlin",
+   "Budapest"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "In The Dam Busters, who invents the bouncing bomb?",
+  "a": [
+   "Frank Whittle",
+   "R. J. Mitchell",
+   "Barnes Wallis",
+   "Guy Gibson"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "In Shirley Valentine, Shirley runs off to which country?",
+  "a": [
+   "Greece",
+   "Italy",
+   "Portugal",
+   "Spain"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "In Jaws (1975), what is the name of the holiday island?",
+  "a": [
+   "Liberty",
+   "Nantucket",
+   "Haven",
+   "Amity"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "What colour is Blofeld's cat in the Bond films?",
+  "a": [
+   "Ginger",
+   "Black",
+   "White",
+   "Grey"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 3,
+  "q": "In Kind Hearts and Coronets, how many D'Ascoynes did Alec Guinness play?",
+  "a": [
+   "Four",
+   "Six",
+   "Eight",
+   "Ten"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 3,
+  "q": "In Passport to Pimlico, Pimlico turns out to belong to which duchy?",
+  "a": [
+   "Normandy",
+   "Brittany",
+   "Burgundy",
+   "Lancaster"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 3,
+  "q": "Who was the first actress to play Miss Moneypenny?",
+  "a": [
+   "Shirley Eaton",
+   "Honor Blackman",
+   "Lois Maxwell",
+   "Diana Rigg"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 3,
+  "q": "What was the first Carry On film, in 1958?",
+  "a": [
+   "Carry On Constable",
+   "Carry On Teacher",
+   "Carry On Nurse",
+   "Carry On Sergeant"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 3,
+  "q": "In Withnail and I, the pair holiday in which present-day county?",
+  "a": [
+   "Cumbria",
+   "Devon",
+   "Cornwall",
+   "Norfolk"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 3,
+  "q": "Who won an Oscar for A Fish Called Wanda?",
+  "a": [
+   "Michael Palin",
+   "John Cleese",
+   "Jamie Lee Curtis",
+   "Kevin Kline"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 3,
+  "q": "Genevieve (1953) follows a veteran car run from London to where?",
+  "a": [
+   "Brighton",
+   "Oxford",
+   "Bath",
+   "Southend"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 3,
+  "q": "Hot Fuzz is set in which fictional village?",
+  "a": [
+   "Royston Vasey",
+   "Walmington",
+   "Midsomer Worthy",
+   "Sandford"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 3,
+  "q": "Whose piano concerto plays throughout Brief Encounter?",
+  "a": [
+   "Chopin",
+   "Rachmaninov",
+   "Tchaikovsky",
+   "Grieg"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Who played James Bond in Dr. No (1962)?",
+  "a": [
+   "David Niven",
+   "George Lazenby",
+   "Sean Connery",
+   "Roger Moore"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Who played Mary Poppins in the 1964 film?",
+  "a": [
+   "Petula Clark",
+   "Hayley Mills",
+   "Audrey Hepburn",
+   "Julie Andrews"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Whose character jumps a barbed-wire fence on a motorbike in The Great Escape?",
+  "a": [
+   "James Garner",
+   "Richard Attenborough",
+   "Steve McQueen",
+   "Charles Bronson"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Which author created James Bond?",
+  "a": [
+   "Len Deighton",
+   "Alistair MacLean",
+   "John le Carré",
+   "Ian Fleming"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Shirley Bassey sang the theme to which 1964 Bond film?",
+  "a": [
+   "Thunderball",
+   "Goldfinger",
+   "You Only Live Twice",
+   "From Russia with Love"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Which Carry On star was known for his dirty laugh?",
+  "a": [
+   "Bernard Bresslaw",
+   "Jim Dale",
+   "Kenneth Williams",
+   "Sid James"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Who played Obi-Wan Kenobi in Star Wars (1977)?",
+  "a": [
+   "Christopher Lee",
+   "Peter Cushing",
+   "Alec Guinness",
+   "Laurence Olivier"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Paddington comes from \"darkest\" where?",
+  "a": [
+   "Bolivia",
+   "Peru",
+   "Brazil",
+   "Chile"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Who plays the Prime Minister in Love Actually?",
+  "a": [
+   "Bill Nighy",
+   "Colin Firth",
+   "Alan Rickman",
+   "Hugh Grant"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Who plays Mark Darcy in Bridget Jones's Diary?",
+  "a": [
+   "Colin Firth",
+   "Jude Law",
+   "Hugh Grant",
+   "Rupert Everett"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Chariots of Fire is about which Olympic Games?",
+  "a": [
+   "Paris 1924",
+   "London 1948",
+   "London 1908",
+   "Berlin 1936"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Who directed The Bridge on the River Kwai?",
+  "a": [
+   "Alfred Hitchcock",
+   "David Lean",
+   "Carol Reed",
+   "Michael Powell"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "What was Roger Moore's first Bond film?",
+  "a": [
+   "Moonraker",
+   "Live and Let Die",
+   "For Your Eyes Only",
+   "The Man with the Golden Gun"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "George Lazenby's only Bond film was which?",
+  "a": [
+   "Diamonds Are Forever",
+   "You Only Live Twice",
+   "Thunderball",
+   "On Her Majesty's Secret Service"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Who won the Best Actor Oscar for Gandhi (1982)?",
+  "a": [
+   "Alec Guinness",
+   "Ben Kingsley",
+   "John Hurt",
+   "Anthony Hopkins"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "What is the name of Dick Van Dyke's inventor in Chitty Chitty Bang Bang?",
+  "a": [
+   "Caractacus Potts",
+   "Lionel Potts",
+   "Bert Alfred",
+   "Truly Scrumptious"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Which Green Cross Code Man also wore Darth Vader's suit?",
+  "a": [
+   "Dave Prowse",
+   "Anthony Daniels",
+   "Kenny Baker",
+   "Peter Mayhew"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Who played Dumbledore in the first two Harry Potter films?",
+  "a": [
+   "Christopher Lee",
+   "Ian McKellen",
+   "Richard Harris",
+   "Michael Gambon"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Which British actress played Scarlett O'Hara in Gone with the Wind?",
+  "a": [
+   "Vivien Leigh",
+   "Jean Simmons",
+   "Margaret Lockwood",
+   "Deborah Kerr"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Who played Rita in Educating Rita (1983)?",
+  "a": [
+   "Julie Walters",
+   "Victoria Wood",
+   "Brenda Blethyn",
+   "Pauline Collins"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Who directed both Trainspotting and Slumdog Millionaire?",
+  "a": [
+   "Mike Leigh",
+   "Danny Boyle",
+   "Guy Ritchie",
+   "Stephen Frears"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Which film ends with the line \"Well, nobody's perfect\"?",
+  "a": [
+   "Gone with the Wind",
+   "The Apartment",
+   "Casablanca",
+   "Some Like It Hot"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Who played Scaramanga in The Man with the Golden Gun?",
+  "a": [
+   "Christopher Lee",
+   "Peter Cushing",
+   "Telly Savalas",
+   "Donald Pleasence"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 3,
+  "q": "Who played Fagin in Oliver! (1968)?",
+  "a": [
+   "Jack Wild",
+   "Ron Moody",
+   "Harry Secombe",
+   "Oliver Reed"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 3,
+  "q": "Who played Hugh Grant's flatmate Spike in Notting Hill?",
+  "a": [
+   "James Dreyfus",
+   "Tim McInnerny",
+   "Hugh Bonneville",
+   "Rhys Ifans"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 3,
+  "q": "Who played Sir Lancelot Spratt in Doctor in the House (1954)?",
+  "a": [
+   "Kenneth More",
+   "Donald Sinden",
+   "Dirk Bogarde",
+   "James Robertson Justice"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "In Back to the Future, the DeLorean time-travels at what speed?",
+  "a": [
+   "121 mph",
+   "100 mph",
+   "88 mph",
+   "70 mph"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 3,
+  "q": "Which 1953 Ealing comedy sees villagers run their own railway?",
+  "a": [
+   "Passport to Pimlico",
+   "The Man in the White Suit",
+   "The Titfield Thunderbolt",
+   "Whisky Galore!"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "What was Daniel Craig's first Bond film?",
+  "a": [
+   "Casino Royale",
+   "Skyfall",
+   "Spectre",
+   "Quantum of Solace"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Christopher Lee played which count for Hammer?",
+  "a": [
+   "Monte Cristo",
+   "Dracula",
+   "Frankenstein",
+   "Orlok"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 3,
+  "q": "Who directed The Railway Children (1970)?",
+  "a": [
+   "Ken Annakin",
+   "Richard Attenborough",
+   "Lionel Jeffries",
+   "Bryan Forbes"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Who played Q in most Bond films from 1963 to 1999?",
+  "a": [
+   "John Cleese",
+   "Bernard Lee",
+   "Lois Maxwell",
+   "Desmond Llewelyn"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "What was Pierce Brosnan's first Bond film?",
+  "a": [
+   "GoldenEye",
+   "Die Another Day",
+   "The World Is Not Enough",
+   "Tomorrow Never Dies"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "In Shaun of the Dead, what is Shaun's favourite pub?",
+  "a": [
+   "The World's End",
+   "The Winchester",
+   "The Slaughtered Lamb",
+   "The Nag's Head"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 3,
+  "q": "The Wicker Man (1973) is set on which fictional island?",
+  "a": [
+   "Sodor",
+   "Kirrin Island",
+   "Summerisle",
+   "Craggy Island"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Mamma Mia! (2008) is built around whose songs?",
+  "a": [
+   "Queen",
+   "The Bee Gees",
+   "Boney M.",
+   "ABBA"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "In Ice Cold in Alex, what drink is the reward at journey's end?",
+  "a": [
+   "A glass of lager",
+   "A cup of tea",
+   "A whisky and soda",
+   "A gin and tonic"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Who played Lawrence of Arabia in 1962?",
+  "a": [
+   "Richard Burton",
+   "Peter O'Toole",
+   "Albert Finney",
+   "Alec Guinness"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Who directed Lock, Stock and Two Smoking Barrels?",
+  "a": [
+   "Matthew Vaughn",
+   "Edgar Wright",
+   "Guy Ritchie",
+   "Danny Boyle"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Who played Willy Wonka in the 1971 film?",
+  "a": [
+   "Johnny Depp",
+   "Danny Kaye",
+   "Dick Van Dyke",
+   "Gene Wilder"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Peter Cushing played which vampire hunter opposite Dracula?",
+  "a": [
+   "Van Helsing",
+   "Renfield",
+   "Jonathan Harker",
+   "Seward"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "In Billy Elliot (2000), what does Billy secretly take up?",
+  "a": [
+   "Brass band",
+   "Ballet",
+   "Boxing",
+   "Football"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "What is Leonardo DiCaprio's character called in Titanic?",
+  "a": [
+   "Cal Hockley",
+   "Jack Sparrow",
+   "Jack Dawson",
+   "Jack Ryan"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Who played Princess Leia in Star Wars (1977)?",
+  "a": [
+   "Jodie Foster",
+   "Karen Allen",
+   "Sigourney Weaver",
+   "Carrie Fisher"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "What does Elliott use to lure E.T. into the house?",
+  "a": [
+   "Reese's Pieces",
+   "Jelly Babies",
+   "Chocolate buttons",
+   "Marshmallows"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Who played the taxidermist villain in Paddington (2014)?",
+  "a": [
+   "Julie Walters",
+   "Nicole Kidman",
+   "Sally Hawkins",
+   "Emma Thompson"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Zulu (1964) depicts the defence of which mission station?",
+  "a": [
+   "Khartoum",
+   "Isandlwana",
+   "Rorke's Drift",
+   "Mafeking"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Get Carter (1971) is set in which city?",
+  "a": [
+   "Hull",
+   "Liverpool",
+   "Glasgow",
+   "Newcastle"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Local Hero (1983) is set mainly in which country?",
+  "a": [
+   "Scotland",
+   "Northern Ireland",
+   "Norway",
+   "Wales"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Who played Vito Corleone in The Godfather (1972)?",
+  "a": [
+   "Al Pacino",
+   "Marlon Brando",
+   "James Caan",
+   "Robert De Niro"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Who played Johnny Castle in Dirty Dancing?",
+  "a": [
+   "Rob Lowe",
+   "John Travolta",
+   "Patrick Swayze",
+   "Matthew Broderick"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 3,
+  "q": "The Empire Strikes Back opens on which ice planet?",
+  "a": [
+   "Tatooine",
+   "Dagobah",
+   "Endor",
+   "Hoth"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 3,
+  "q": "Who played the Artful Dodger in Oliver! (1968)?",
+  "a": [
+   "Jack Wild",
+   "Phil Collins",
+   "Dennis Waterman",
+   "Mark Lester"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "A Room with a View (1985) opens in which Italian city?",
+  "a": [
+   "Naples",
+   "Florence",
+   "Rome",
+   "Venice"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Who played Elizabeth Bennet in Pride & Prejudice (2005)?",
+  "a": [
+   "Kate Winslet",
+   "Rosamund Pike",
+   "Keira Knightley",
+   "Emma Thompson"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Who played the title role in Mrs Doubtfire?",
+  "a": [
+   "Dustin Hoffman",
+   "Steve Martin",
+   "Billy Crystal",
+   "Robin Williams"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "In The Lion King, who is Simba's father?",
+  "a": [
+   "Mufasa",
+   "Zazu",
+   "Rafiki",
+   "Scar"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "In Chicken Run, the hens finally escape in what?",
+  "a": [
+   "A submarine",
+   "An aeroplane",
+   "A lorry",
+   "A hot-air balloon"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "In The Jungle Book, what kind of creature is Kaa?",
+  "a": [
+   "A tiger",
+   "A panther",
+   "A python",
+   "An elephant"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Which inspector did Peter Sellers play in The Pink Panther films?",
+  "a": [
+   "Lestrade",
+   "Maigret",
+   "Japp",
+   "Clouseau"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "In Disney's Snow White, which of the seven dwarfs never speaks?",
+  "a": [
+   "Dopey",
+   "Bashful",
+   "Sneezy",
+   "Sleepy"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Carry On Up the Khyber is set in which country?",
+  "a": [
+   "Egypt",
+   "India",
+   "Kenya",
+   "China"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "In The Wizard of Oz, what does the Tin Man want?",
+  "a": [
+   "Courage",
+   "A brain",
+   "A heart",
+   "A home"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "In Grease, which high school do Danny and Sandy attend?",
+  "a": [
+   "Shermer High",
+   "Bayside High",
+   "Ridgemont High",
+   "Rydell High"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "How does Mary Poppins arrive at the Banks house?",
+  "a": [
+   "By umbrella",
+   "On a broomstick",
+   "By hot-air balloon",
+   "By kite"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "From which platform does the Hogwarts Express leave King's Cross?",
+  "a": [
+   "Seven and a half",
+   "Nine and three-quarters",
+   "Eight and three-quarters",
+   "Ten and a half"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Who played James Bond in Licence to Kill (1989)?",
+  "a": [
+   "Pierce Brosnan",
+   "George Lazenby",
+   "Timothy Dalton",
+   "Roger Moore"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 3,
+  "q": "Who played headmistress Miss Fritton in The Belles of St Trinian's?",
+  "a": [
+   "Joyce Grenfell",
+   "Margaret Rutherford",
+   "Terry-Thomas",
+   "Alastair Sim"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "In Mary Poppins, the Banks family live at 17 which road?",
+  "a": [
+   "Cherry Tree Lane",
+   "Privet Drive",
+   "Chestnut Tree Close",
+   "Acacia Avenue"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Who is the villain in 101 Dalmatians?",
+  "a": [
+   "Ursula",
+   "Cruella de Vil",
+   "Madame Medusa",
+   "Maleficent"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Who wrote the children's novel Chitty-Chitty-Bang-Bang?",
+  "a": [
+   "Enid Blyton",
+   "C. S. Lewis",
+   "Ian Fleming",
+   "Roald Dahl"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "What species is Chewbacca in Star Wars?",
+  "a": [
+   "Hutt",
+   "Ewok",
+   "Jawa",
+   "Wookiee"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Who played Charles in Four Weddings and a Funeral?",
+  "a": [
+   "Hugh Grant",
+   "Simon Callow",
+   "Rupert Everett",
+   "Colin Firth"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "What kind of animal is Gromit?",
+  "a": [
+   "A penguin",
+   "A dog",
+   "A sheep",
+   "A cat"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Brassed Off (1996) centres on what kind of band?",
+  "a": [
+   "A ceilidh band",
+   "A skiffle group",
+   "A brass band",
+   "A military band"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "In Live and Let Die, Bond escapes by running across which animals?",
+  "a": [
+   "Hippos",
+   "Sharks",
+   "Turtles",
+   "Crocodiles"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Who played Professor Snape in the Harry Potter films?",
+  "a": [
+   "Alan Rickman",
+   "Gary Oldman",
+   "Kenneth Branagh",
+   "Ralph Fiennes"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "In Whisky Galore! (1949), what cargo does the wrecked ship carry?",
+  "a": [
+   "Gin",
+   "Whisky",
+   "Rum",
+   "Brandy"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "What colour are Dorothy's slippers in the 1939 Wizard of Oz?",
+  "a": [
+   "Silver",
+   "Emerald green",
+   "Ruby red",
+   "Gold"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "In Mary Poppins, what is Bert's job in the rooftop 'Step in Time' dance?",
+  "a": [
+   "Milkman",
+   "Lamplighter",
+   "Window cleaner",
+   "Chimney sweep"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 3,
+  "q": "Who played the title role in Billy Liar (1963)?",
+  "a": [
+   "Tom Courtenay",
+   "Tom Bell",
+   "Alan Bates",
+   "Albert Finney"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Who played Professor Higgins in My Fair Lady (1964)?",
+  "a": [
+   "Stanley Holloway",
+   "Rex Harrison",
+   "Richard Burton",
+   "Peter O'Toole"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Who played Charlie Croker in The Italian Job (1969)?",
+  "a": [
+   "Richard Burton",
+   "Sean Connery",
+   "Michael Caine",
+   "Oliver Reed"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 3,
+  "q": "Who wrote the songs for the musical Oliver!?",
+  "a": [
+   "Lionel Jeffries",
+   "Andrew Lloyd Webber",
+   "Leslie Bricusse",
+   "Lionel Bart"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "How many von Trapp children are there in The Sound of Music?",
+  "a": [
+   "Seven",
+   "Five",
+   "Eight",
+   "Six"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "What is the name of Bambi's rabbit friend?",
+  "a": [
+   "Hazel",
+   "Thumper",
+   "Flower",
+   "Peter"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Who played gangster Harold Shand in The Long Good Friday?",
+  "a": [
+   "Tom Bell",
+   "Ray Winstone",
+   "Bob Hoskins",
+   "Michael Caine"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 3,
+  "q": "Who played Mrs Robinson in The Graduate (1967)?",
+  "a": [
+   "Lauren Bacall",
+   "Shirley MacLaine",
+   "Katharine Ross",
+   "Anne Bancroft"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "Who voiced Donkey in Shrek?",
+  "a": [
+   "Eddie Murphy",
+   "Mike Myers",
+   "Robin Williams",
+   "Chris Rock"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "In Back to the Future, what is Marty's surname?",
+  "a": [
+   "Baines",
+   "McFly",
+   "Brown",
+   "Tannen"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "In Chitty Chitty Bang Bang, which country does the Child Catcher serve?",
+  "a": [
+   "Grand Fenwick",
+   "Freedonia",
+   "Vulgaria",
+   "Ruritania"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 2,
+  "q": "What is the green ghost from Ghostbusters popularly known as?",
+  "a": [
+   "Stay Puft",
+   "Gozer",
+   "Zuul",
+   "Slimer"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 3,
+  "q": "How many roles did Peter Sellers play in Dr. Strangelove?",
+  "a": [
+   "Three",
+   "Two",
+   "Five",
+   "Four"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "What sport is played on broomsticks in Harry Potter?",
+  "a": [
+   "Broomball",
+   "Quidditch",
+   "Bludger",
+   "Quodpot"
+  ],
+  "k": 1
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Who directed Jurassic Park (1993)?",
+  "a": [
+   "George Lucas",
+   "Ridley Scott",
+   "Steven Spielberg",
+   "James Cameron"
+  ],
+  "k": 2
+ },
+ {
+  "c": "film",
+  "d": 3,
+  "q": "Who played Truly Scrumptious in Chitty Chitty Bang Bang?",
+  "a": [
+   "Julie Andrews",
+   "Glynis Johns",
+   "Hayley Mills",
+   "Sally Ann Howes"
+  ],
+  "k": 3
+ },
+ {
+  "c": "film",
+  "d": 3,
+  "q": "In The Man in the White Suit, what does Alec Guinness invent?",
+  "a": [
+   "Everlasting fabric",
+   "An endless light bulb",
+   "Rustproof steel",
+   "Unbreakable glass"
+  ],
+  "k": 0
+ },
+ {
+  "c": "film",
+  "d": 1,
+  "q": "Which Hogwarts house is Harry Potter sorted into?",
+  "a": [
+   "Ravenclaw",
+   "Gryffindor",
+   "Hufflepuff",
+   "Slytherin"
+  ],
+  "k": 1
+ }
+]

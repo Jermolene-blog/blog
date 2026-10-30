@@ -1,0 +1,830 @@
+[
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "In the carol, what arrives on the first day of Christmas?",
+  "a": [
+   "Turtle doves",
+   "A partridge",
+   "French hens",
+   "Calling birds"
+  ],
+  "k": 1
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "What is 26 December called in Britain?",
+  "a": [
+   "Boxing Day",
+   "Twelfth Night",
+   "Plough Monday",
+   "Lady Day"
+  ],
+  "k": 0
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "In 'Cinderella', what does the pumpkin become?",
+  "a": [
+   "A horse",
+   "A palace",
+   "A ballgown",
+   "A coach"
+  ],
+  "k": 3
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "What does Cinderella leave behind at the ball?",
+  "a": [
+   "Silver tiara",
+   "Velvet glove",
+   "Glass slipper",
+   "Pearl necklace"
+  ],
+  "k": 2
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "In panto, the comic older woman played by a man is the what?",
+  "a": [
+   "Squire",
+   "Dame",
+   "Jester",
+   "Baroness"
+  ],
+  "k": 1
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "In 'Peter Pan', which creature swallowed a ticking clock?",
+  "a": [
+   "Crocodile",
+   "Shark",
+   "Whale",
+   "Alligator"
+  ],
+  "k": 0
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "Which carol has the chorus 'Born is the King of Israel'?",
+  "a": [
+   "Joy to the World",
+   "Silent Night",
+   "Once in Royal David's City",
+   "The First Nowell"
+  ],
+  "k": 3
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "Which carol's chorus is 'O come, let us adore him'?",
+  "a": [
+   "The First Nowell",
+   "Once in Royal David's City",
+   "O Come, All Ye Faithful",
+   "Joy to the World"
+  ],
+  "k": 2
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "In the carol, the halls are decked with boughs of what?",
+  "a": [
+   "Ivy",
+   "Holly",
+   "Mistletoe",
+   "Fir"
+  ],
+  "k": 1
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "What was the UK Christmas No.1 in 1984?",
+  "a": [
+   "Do They Know It's Christmas?",
+   "Last Christmas",
+   "Merry Xmas Everybody",
+   "Lonely This Christmas"
+  ],
+  "k": 0
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "Who plays the Prime Minister in 'Love Actually' (2003)?",
+  "a": [
+   "Colin Firth",
+   "Alan Rickman",
+   "Bill Nighy",
+   "Hugh Grant"
+  ],
+  "k": 3
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "Which animated duo starred in 'The Wrong Trousers' (1993)?",
+  "a": [
+   "Morph and Chas",
+   "Bill and Ben",
+   "Wallace and Gromit",
+   "Postman Pat and Jess"
+  ],
+  "k": 2
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "In 'The Wrong Trousers', what is Feathers McGraw?",
+  "a": [
+   "A chicken",
+   "A penguin",
+   "An owl",
+   "A puffin"
+  ],
+  "k": 1
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "What was Morecambe and Wise's signature song?",
+  "a": [
+   "Bring Me Sunshine",
+   "Sunny Afternoon",
+   "Hello Dolly",
+   "Walking on Sunshine"
+  ],
+  "k": 0
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "Which duo performed the 'Four Candles' sketch?",
+  "a": [
+   "Morecambe and Wise",
+   "French and Saunders",
+   "Cannon and Ball",
+   "The Two Ronnies"
+  ],
+  "k": 3
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "At what time is the monarch's Christmas broadcast traditionally shown?",
+  "a": [
+   "Noon",
+   "6pm",
+   "3pm",
+   "9am"
+  ],
+  "k": 2
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "In 'A Christmas Carol', who says 'God bless us, every one!'?",
+  "a": [
+   "Fred",
+   "Tiny Tim",
+   "Fezziwig",
+   "Bob Cratchit"
+  ],
+  "k": 1
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "In 'A Christmas Carol', what does the reformed Scrooge send the Cratchits?",
+  "a": [
+   "A prize turkey",
+   "A goose",
+   "A plum pudding",
+   "A side of beef"
+  ],
+  "k": 0
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "What vegetable is traditionally left out for the reindeer?",
+  "a": [
+   "Parsnip",
+   "Turnip",
+   "Sprout",
+   "Carrot"
+  ],
+  "k": 3
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "Brussels sprouts take their name from a city in which country?",
+  "a": [
+   "Netherlands",
+   "France",
+   "Belgium",
+   "Luxembourg"
+  ],
+  "k": 2
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "How many pounds are in a stone?",
+  "a": [
+   "12",
+   "14",
+   "16",
+   "10"
+  ],
+  "k": 1
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "How many players are in a cricket team?",
+  "a": [
+   "11",
+   "10",
+   "12",
+   "9"
+  ],
+  "k": 0
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "At which racecourse is the Grand National run?",
+  "a": [
+   "Cheltenham",
+   "Epsom",
+   "Ascot",
+   "Aintree"
+  ],
+  "k": 3
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "Land's End is in which county?",
+  "a": [
+   "Devon",
+   "Dorset",
+   "Cornwall",
+   "Somerset"
+  ],
+  "k": 2
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "How many lines does a limerick have?",
+  "a": [
+   "Four",
+   "Five",
+   "Six",
+   "Eight"
+  ],
+  "k": 1
+ },
+ {
+  "c": "xmas",
+  "d": 1,
+  "q": "Which Cluedo suspect holds the rank of colonel?",
+  "a": [
+   "Mustard",
+   "Plum",
+   "Green",
+   "Scarlett"
+  ],
+  "k": 0
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "How many lords are a-leaping in the carol?",
+  "a": [
+   "Nine",
+   "Eleven",
+   "Twelve",
+   "Ten"
+  ],
+  "k": 3
+ },
+ {
+  "c": "xmas",
+  "d": 3,
+  "q": "Which pantomime features the evil sorcerer Abanazar?",
+  "a": [
+   "Cinderella",
+   "Dick Whittington",
+   "Aladdin",
+   "Mother Goose"
+  ],
+  "k": 2
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "Which carol includes 'Peace on earth and mercy mild'?",
+  "a": [
+   "Hark! The Herald Angels Sing",
+   "O Little Town of Bethlehem",
+   "It Came Upon the Midnight Clear",
+   "We Three Kings"
+  ],
+  "k": 0
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "Which carol has 'the holly bears a berry as red as any blood'?",
+  "a": [
+   "Deck the Halls",
+   "Ding Dong Merrily on High",
+   "Good King Wenceslas",
+   "The Holly and the Ivy"
+  ],
+  "k": 3
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "Which carol continues 'all seated on the ground'?",
+  "a": [
+   "The First Nowell",
+   "Away in a Manger",
+   "While Shepherds Watched",
+   "Once in Royal David's City"
+  ],
+  "k": 2
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "'God rest ye merry, gentlemen, let nothing you' do what?",
+  "a": [
+   "Delay",
+   "Dismay",
+   "Dismiss",
+   "Despair"
+  ],
+  "k": 1
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "Which carol's chorus includes 'Westward leading, still proceeding'?",
+  "a": [
+   "We Three Kings",
+   "The First Nowell",
+   "Away in a Manger",
+   "O Little Town of Bethlehem"
+  ],
+  "k": 0
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "Which carol says 'The hopes and fears of all the years are met in thee tonight'?",
+  "a": [
+   "Once in Royal David's City",
+   "In the Bleak Midwinter",
+   "It Came Upon the Midnight Clear",
+   "O Little Town of Bethlehem"
+  ],
+  "k": 3
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "On which day did 'I Saw Three Ships' come sailing in?",
+  "a": [
+   "Boxing Day",
+   "Midsummer Day",
+   "Christmas Day",
+   "Twelfth Night"
+  ],
+  "k": 2
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "Which Queen song was the 1975 Christmas No.1?",
+  "a": [
+   "Killer Queen",
+   "Bohemian Rhapsody",
+   "Somebody to Love",
+   "We Are the Champions"
+  ],
+  "k": 1
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "Which school choir had the 1980 Christmas No.1?",
+  "a": [
+   "St Winifred's",
+   "King's College",
+   "Aled Jones's",
+   "Westminster Abbey"
+  ],
+  "k": 0
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "Who had the 1985 Christmas No.1 'Merry Christmas Everyone'?",
+  "a": [
+   "Cliff Richard",
+   "Alvin Stardust",
+   "Gilbert O'Sullivan",
+   "Shakin' Stevens"
+  ],
+  "k": 3
+ },
+ {
+  "c": "xmas",
+  "d": 3,
+  "q": "Which band had the 1974 Christmas No.1 'Lonely This Christmas'?",
+  "a": [
+   "Slade",
+   "Wizzard",
+   "Mud",
+   "The Rubettes"
+  ],
+  "k": 2
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "Which Wings song was the 1977 Christmas No.1?",
+  "a": [
+   "Jet",
+   "Mull of Kintyre",
+   "Band on the Run",
+   "Live and Let Die"
+  ],
+  "k": 1
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "In 2009, which band's 'Killing in the Name' beat The X Factor to Christmas No.1?",
+  "a": [
+   "Rage Against the Machine",
+   "Nirvana",
+   "The Prodigy",
+   "The Red Hot Chili Peppers"
+  ],
+  "k": 0
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "In 'Love Actually', Billy Mack's hit reworks which song?",
+  "a": [
+   "Wonderful Christmastime",
+   "White Christmas",
+   "Lonely This Christmas",
+   "Love Is All Around"
+  ],
+  "k": 3
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "Which actor made his full debut as the Doctor in 'The Christmas Invasion' (2005)?",
+  "a": [
+   "Matt Smith",
+   "Peter Capaldi",
+   "David Tennant",
+   "Christopher Eccleston"
+  ],
+  "k": 2
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "In 'A Grand Day Out', where do Wallace and Gromit go?",
+  "a": [
+   "Mars",
+   "The Moon",
+   "Blackpool",
+   "The seaside"
+  ],
+  "k": 1
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "Who played Scrooge in 'The Muppet Christmas Carol' (1992)?",
+  "a": [
+   "Michael Caine",
+   "Albert Finney",
+   "Patrick Stewart",
+   "Alastair Sim"
+  ],
+  "k": 0
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "On which night are Christmas decorations traditionally taken down?",
+  "a": [
+   "New Year's Eve",
+   "Boxing Day",
+   "Burns Night",
+   "Twelfth Night"
+  ],
+  "k": 3
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "On what date is the Feast of the Epiphany?",
+  "a": [
+   "1 January",
+   "2 February",
+   "6 January",
+   "25 January"
+  ],
+  "k": 2
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "Wassailing traditionally blesses which trees?",
+  "a": [
+   "Oak trees",
+   "Apple trees",
+   "Holly trees",
+   "Yew trees"
+  ],
+  "k": 1
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "In Scottish first-footing, who is the luckiest first visitor?",
+  "a": [
+   "A tall dark man",
+   "A fair-haired woman",
+   "A small child",
+   "A red-haired man"
+  ],
+  "k": 0
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "Which Radio 4 broadcast is introduced by 'Sailing By'?",
+  "a": [
+   "Today",
+   "The Archers",
+   "Desert Island Discs",
+   "Shipping Forecast"
+  ],
+  "k": 3
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "Strictly speaking, 'Big Ben' is the name of what?",
+  "a": [
+   "The clock tower",
+   "The clock face",
+   "The great bell",
+   "The minute hand"
+  ],
+  "k": 2
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "How many yards are in a mile?",
+  "a": [
+   "1,000",
+   "1,760",
+   "1,500",
+   "2,000"
+  ],
+  "k": 1
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "Which pre-decimal coin was nicknamed a 'tanner'?",
+  "a": [
+   "Sixpence",
+   "Shilling",
+   "Threepence",
+   "Florin"
+  ],
+  "k": 0
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "How many times did Red Rum win the Grand National?",
+  "a": [
+   "Two",
+   "Four",
+   "Seven",
+   "Three"
+  ],
+  "k": 3
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "How many points is the pink ball worth in snooker?",
+  "a": [
+   "Five",
+   "Seven",
+   "Six",
+   "Four"
+  ],
+  "k": 2
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "A diamond wedding anniversary marks how many years?",
+  "a": [
+   "50",
+   "60",
+   "40",
+   "25"
+  ],
+  "k": 1
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "Which number sits at the top of a standard dartboard?",
+  "a": [
+   "20",
+   "1",
+   "12",
+   "5"
+  ],
+  "k": 0
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "How many points is the letter Z worth in English Scrabble?",
+  "a": [
+   "8",
+   "5",
+   "12",
+   "10"
+  ],
+  "k": 3
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "In UK Monopoly, how much do you collect for passing Go?",
+  "a": [
+   "£100",
+   "£250",
+   "£200",
+   "£500"
+  ],
+  "k": 2
+ },
+ {
+  "c": "xmas",
+  "d": 2,
+  "q": "Which Scottish city is known as the Granite City?",
+  "a": [
+   "Dundee",
+   "Aberdeen",
+   "Inverness",
+   "Perth"
+  ],
+  "k": 1
+ },
+ {
+  "c": "xmas",
+  "d": 3,
+  "q": "How many gifts are given in total across 'The Twelve Days'?",
+  "a": [
+   "364",
+   "78",
+   "144",
+   "365"
+  ],
+  "k": 0
+ },
+ {
+  "c": "xmas",
+  "d": 3,
+  "q": "In the original carol, 'four calling birds' were 'colly birds'. What are they?",
+  "a": [
+   "Canaries",
+   "Nightingales",
+   "Doves",
+   "Blackbirds"
+  ],
+  "k": 3
+ },
+ {
+  "c": "xmas",
+  "d": 3,
+  "q": "Which Welsh custom parades a decorated horse's skull?",
+  "a": [
+   "Plygain",
+   "Calennig",
+   "Mari Lwyd",
+   "Eisteddfod"
+  ],
+  "k": 2
+ },
+ {
+  "c": "xmas",
+  "d": 3,
+  "q": "Which channel first broadcast 'The Snowman' in 1982?",
+  "a": [
+   "BBC One",
+   "Channel 4",
+   "ITV",
+   "BBC Two"
+  ],
+  "k": 1
+ },
+ {
+  "c": "xmas",
+  "d": 3,
+  "q": "In 'Blackadder's Christmas Carol' (1988), how does Ebenezer Blackadder begin?",
+  "a": [
+   "As England's nicest man",
+   "As a ruthless miser",
+   "As a pirate",
+   "As a highwayman"
+  ],
+  "k": 0
+ },
+ {
+  "c": "xmas",
+  "d": 3,
+  "q": "Which Human League song was the 1981 Christmas No.1?",
+  "a": [
+   "Love Action",
+   "(Keep Feeling) Fascination",
+   "Mirror Man",
+   "Don't You Want Me"
+  ],
+  "k": 3
+ },
+ {
+  "c": "xmas",
+  "d": 3,
+  "q": "Which Pet Shop Boys single was the 1987 Christmas No.1?",
+  "a": [
+   "It's a Sin",
+   "Left to My Own Devices",
+   "Always on My Mind",
+   "Heart"
+  ],
+  "k": 2
+ },
+ {
+  "c": "xmas",
+  "d": 3,
+  "q": "Which Shipping Forecast area was renamed FitzRoy in 2002?",
+  "a": [
+   "Dogger",
+   "Finisterre",
+   "German Bight",
+   "Sole"
+  ],
+  "k": 1
+ },
+ {
+  "c": "xmas",
+  "d": 3,
+  "q": "How many balls, excluding the cue ball, start a snooker frame?",
+  "a": [
+   "21",
+   "15",
+   "22",
+   "18"
+  ],
+  "k": 0
+ }
+]

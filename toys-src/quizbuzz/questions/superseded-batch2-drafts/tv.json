@@ -1,0 +1,842 @@
+[
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "Who was the first presenter of Ready Steady Cook in 1994?",
+  "a": [
+   "Fern Britton",
+   "Gloria Hunniford",
+   "Judith Chalmers",
+   "Anneka Rice"
+  ],
+  "k": 0
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "The Bill was set at which fictional police station?",
+  "a": [
+   "Newtown",
+   "Sun Hill",
+   "Holby",
+   "Dock Green"
+  ],
+  "k": 1
+ },
+ {
+  "c": "tv",
+  "d": 3,
+  "q": "Julian and Sandy were characters in which radio comedy?",
+  "a": [
+   "Hancock's Half Hour",
+   "The Navy Lark",
+   "Round the Horne",
+   "The Goon Show"
+  ],
+  "k": 2
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "Which children's show opened with \"It's Friday, it's five to five\"?",
+  "a": [
+   "Blue Peter",
+   "Magpie",
+   "Saturday Superstore",
+   "Crackerjack"
+  ],
+  "k": 3
+ },
+ {
+  "c": "tv",
+  "d": 3,
+  "q": "In Thunderbirds, which craft was the space station?",
+  "a": [
+   "Thunderbird 5",
+   "Thunderbird 3",
+   "Thunderbird 4",
+   "Thunderbird 2"
+  ],
+  "k": 0
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "Who presented the consumer show That's Life!?",
+  "a": [
+   "Judith Chalmers",
+   "Esther Rantzen",
+   "Anne Robinson",
+   "Angela Rippon"
+  ],
+  "k": 1
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "In Doctor Who, what is K-9?",
+  "a": [
+   "A spaceship",
+   "A Dalek",
+   "A robot dog",
+   "A Time Lord"
+  ],
+  "k": 2
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "Which glove puppet bear was Harry Corbett's partner?",
+  "a": [
+   "Rupert",
+   "Fozzie",
+   "Paddington",
+   "Sooty"
+  ],
+  "k": 3
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "Who presented the game show Strike It Lucky?",
+  "a": [
+   "Michael Barrymore",
+   "Jim Bowen",
+   "Bob Monkhouse",
+   "Jim Davidson"
+  ],
+  "k": 0
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "Grace Brothers department store was the setting for which sitcom?",
+  "a": [
+   "Dinnerladies",
+   "Are You Being Served?",
+   "Hi-de-Hi!",
+   "Open All Hours"
+  ],
+  "k": 1
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "Which Doctor Who actor wore a very long striped scarf?",
+  "a": [
+   "Peter Davison",
+   "Patrick Troughton",
+   "Tom Baker",
+   "Jon Pertwee"
+  ],
+  "k": 2
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "Fireman Sam lives in which village?",
+  "a": [
+   "Trumpton",
+   "Llanfairfechan",
+   "Greendale",
+   "Pontypandy"
+  ],
+  "k": 3
+ },
+ {
+  "c": "tv",
+  "d": 3,
+  "q": "Which tune precedes Radio 4's late-night Shipping Forecast?",
+  "a": [
+   "Sailing By",
+   "By the Sleepy Lagoon",
+   "Coronation Scot",
+   "Barwick Green"
+  ],
+  "k": 0
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "Where did Mr Benn get his costumes?",
+  "a": [
+   "His attic",
+   "A fancy-dress shop",
+   "A theatre wardrobe",
+   "A jumble sale"
+  ],
+  "k": 1
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "Who presented the first ever show on Radio 1 in 1967?",
+  "a": [
+   "Noel Edmonds",
+   "Johnnie Walker",
+   "Tony Blackburn",
+   "Jimmy Young"
+  ],
+  "k": 2
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "How many letters are chosen in a Countdown letters round?",
+  "a": [
+   "Ten",
+   "Eight",
+   "Seven",
+   "Nine"
+  ],
+  "k": 3
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "Who hosted Through the Keyhole alongside Loyd Grossman?",
+  "a": [
+   "David Frost",
+   "Michael Parkinson",
+   "Terry Wogan",
+   "Clive James"
+  ],
+  "k": 0
+ },
+ {
+  "c": "tv",
+  "d": 3,
+  "q": "Which writer created the Daleks?",
+  "a": [
+   "Russell T Davies",
+   "Terry Nation",
+   "Terrance Dicks",
+   "Sydney Newman"
+  ],
+  "k": 1
+ },
+ {
+  "c": "tv",
+  "d": 3,
+  "q": "What was the name of Catchphrase's golden robot mascot?",
+  "a": [
+   "Dusty Bin",
+   "Metal Mickey",
+   "Mr Chips",
+   "Bully"
+  ],
+  "k": 2
+ },
+ {
+  "c": "tv",
+  "d": 3,
+  "q": "The Liverpool sitcom Bread followed which family?",
+  "a": [
+   "The Royles",
+   "The Lomaxes",
+   "The Gartsides",
+   "The Boswells"
+  ],
+  "k": 3
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "The vets' practice in All Creatures Great and Small is in which fictional town?",
+  "a": [
+   "Darrowby",
+   "Cardale",
+   "Holmfirth",
+   "Aidensfield"
+  ],
+  "k": 0
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "Who first presented This Is Your Life in Britain?",
+  "a": [
+   "Hughie Green",
+   "Eamonn Andrews",
+   "Michael Aspel",
+   "Cliff Michelmore"
+  ],
+  "k": 1
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "How many lifelines did Who Wants to Be a Millionaire? originally offer?",
+  "a": [
+   "Four",
+   "Two",
+   "Three",
+   "Five"
+  ],
+  "k": 2
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "Neighbours is set in which street?",
+  "a": [
+   "Albert Square",
+   "Summer Bay",
+   "Coronation Street",
+   "Ramsay Street"
+  ],
+  "k": 3
+ },
+ {
+  "c": "tv",
+  "d": 3,
+  "q": "Who played Rab C. Nesbitt?",
+  "a": [
+   "Gregor Fisher",
+   "Ford Kiernan",
+   "Billy Connolly",
+   "Robbie Coltrane"
+  ],
+  "k": 0
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "Who chaired Radio 4's Just a Minute from 1967 to 2019?",
+  "a": [
+   "Clement Freud",
+   "Nicholas Parsons",
+   "Humphrey Lyttelton",
+   "Paul Merton"
+  ],
+  "k": 1
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "Who presented ITV's talent show Opportunity Knocks?",
+  "a": [
+   "Bruce Forsyth",
+   "Larry Grayson",
+   "Hughie Green",
+   "Michael Aspel"
+  ],
+  "k": 2
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "Who presented the quiz Going for Gold?",
+  "a": [
+   "Leslie Crowther",
+   "Bob Holness",
+   "Nicholas Parsons",
+   "Henry Kelly"
+  ],
+  "k": 3
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "In Open All Hours, what is Arkwright's nephew called?",
+  "a": [
+   "Granville",
+   "Rodney",
+   "Wilfred",
+   "Godber"
+  ],
+  "k": 0
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "In Red Dwarf, which character is a hologram?",
+  "a": [
+   "Cat",
+   "Rimmer",
+   "Lister",
+   "Kryten"
+  ],
+  "k": 1
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "Father Ted's parochial house is on which island?",
+  "a": [
+   "Inis Mór",
+   "Rockall",
+   "Craggy Island",
+   "Fantasy Island"
+  ],
+  "k": 2
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "In Last of the Summer Wine, who was Nora Batty's husband?",
+  "a": [
+   "Clegg",
+   "Compo",
+   "Howard",
+   "Wally"
+  ],
+  "k": 3
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "The detective series Bergerac was set on which island?",
+  "a": [
+   "Jersey",
+   "Guernsey",
+   "Isle of Man",
+   "Isle of Wight"
+  ],
+  "k": 0
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "Which Blackadder series is set in the trenches of the First World War?",
+  "a": [
+   "Blackadder II",
+   "Blackadder Goes Forth",
+   "Blackadder's Christmas Carol",
+   "Blackadder the Third"
+  ],
+  "k": 1
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "In Gavin & Stacey, Stacey comes from which Welsh town?",
+  "a": [
+   "Newport",
+   "Rhyl",
+   "Barry",
+   "Swansea"
+  ],
+  "k": 2
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "Windy Miller lived in which village?",
+  "a": [
+   "Trumpton",
+   "Greendale",
+   "Chigley",
+   "Camberwick Green"
+  ],
+  "k": 3
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "Who hosted ITV's The Price Is Right from 1984 to 1988?",
+  "a": [
+   "Leslie Crowther",
+   "Jimmy Tarbuck",
+   "Ted Rogers",
+   "Bob Monkhouse"
+  ],
+  "k": 0
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "Miss Marple lives in which village?",
+  "a": [
+   "Ambridge",
+   "St Mary Mead",
+   "Midsomer Worthy",
+   "Little Hangleton"
+  ],
+  "k": 1
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "Who ran around in a jumpsuit in Treasure Hunt?",
+  "a": [
+   "Sarah Greene",
+   "Kenny Everett",
+   "Anneka Rice",
+   "Judith Chalmers"
+  ],
+  "k": 2
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "What is the name of the Trotters' local pub in Only Fools and Horses?",
+  "a": [
+   "The Rovers Return",
+   "The Woolpack",
+   "The Queen Vic",
+   "The Nag's Head"
+  ],
+  "k": 3
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "Who played Edina Monsoon in Absolutely Fabulous?",
+  "a": [
+   "Jennifer Saunders",
+   "Julia Sawalha",
+   "Dawn French",
+   "Joanna Lumley"
+  ],
+  "k": 0
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "What is Lovejoy's trade?",
+  "a": [
+   "Publican",
+   "Antiques dealer",
+   "Private detective",
+   "Car dealer"
+  ],
+  "k": 1
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "In Morecambe and Wise, Ernie was forever writing what?",
+  "a": [
+   "Novels",
+   "Songs",
+   "Plays",
+   "Poems"
+  ],
+  "k": 2
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "In The Good Life, what is Margo and Jerry's surname?",
+  "a": [
+   "Fotheringay",
+   "Good",
+   "Fawlty",
+   "Leadbetter"
+  ],
+  "k": 3
+ },
+ {
+  "c": "tv",
+  "d": 3,
+  "q": "Who played Siegfried Farnon in the original All Creatures Great and Small?",
+  "a": [
+   "Robert Hardy",
+   "Peter Davison",
+   "Timothy West",
+   "Christopher Timothy"
+  ],
+  "k": 0
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "Who played Sybil Fawlty?",
+  "a": [
+   "Penelope Keith",
+   "Prunella Scales",
+   "Connie Booth",
+   "Patricia Routledge"
+  ],
+  "k": 1
+ },
+ {
+  "c": "tv",
+  "d": 3,
+  "q": "Which TV cook was known as The Galloping Gourmet?",
+  "a": [
+   "Rustie Lee",
+   "Keith Floyd",
+   "Graham Kerr",
+   "Ken Hom"
+  ],
+  "k": 2
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "What was the family's surname in Button Moon?",
+  "a": [
+   "Ladle",
+   "Tinpot",
+   "Fork",
+   "Spoon"
+  ],
+  "k": 3
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "Where did the Wombles live?",
+  "a": [
+   "Wimbledon Common",
+   "Hampstead Heath",
+   "Richmond Park",
+   "Clapham Common"
+  ],
+  "k": 0
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "Heartbeat is set in which fictional village?",
+  "a": [
+   "Darrowby",
+   "Aidensfield",
+   "Emmerdale",
+   "Ambridge"
+  ],
+  "k": 1
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "Who presented A Question of Sport from 1979 to 1997?",
+  "a": [
+   "Dickie Davies",
+   "Des Lynam",
+   "David Coleman",
+   "Frank Bough"
+  ],
+  "k": 2
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "What was the name of Blue Peter's first dog?",
+  "a": [
+   "Goldie",
+   "Bonnie",
+   "Shep",
+   "Petra"
+  ],
+  "k": 3
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "What is Inspector Morse's first name?",
+  "a": [
+   "Endeavour",
+   "Eustace",
+   "Edward",
+   "Ernest"
+  ],
+  "k": 0
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "Who first presented Have I Got News for You?",
+  "a": [
+   "Clive Anderson",
+   "Angus Deayton",
+   "Alexander Armstrong",
+   "Paul Merton"
+  ],
+  "k": 1
+ },
+ {
+  "c": "tv",
+  "d": 3,
+  "q": "Which Radio 4 serial has Barwick Green as its theme tune?",
+  "a": [
+   "Desert Island Discs",
+   "Gardeners' Question Time",
+   "The Archers",
+   "Woman's Hour"
+  ],
+  "k": 2
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "Who played the landlord Rigsby in Rising Damp?",
+  "a": [
+   "Richard Wilson",
+   "Warren Mitchell",
+   "Ronnie Barker",
+   "Leonard Rossiter"
+  ],
+  "k": 3
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "Who presented Animal Magic and gave animals voices?",
+  "a": [
+   "Johnny Morris",
+   "Terry Nutkins",
+   "David Attenborough",
+   "Tony Hart"
+  ],
+  "k": 0
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "Who is the housekeeper in Father Ted?",
+  "a": [
+   "Mrs Mopp",
+   "Mrs Doyle",
+   "Mrs Brown",
+   "Mrs Overall"
+  ],
+  "k": 1
+ },
+ {
+  "c": "tv",
+  "d": 3,
+  "q": "Parsley the Lion and Dill the Dog appeared in which children's show?",
+  "a": [
+   "The Clangers",
+   "The Wombles",
+   "The Herbs",
+   "Camberwick Green"
+  ],
+  "k": 2
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "Who was the main presenter of Multi-Coloured Swap Shop?",
+  "a": [
+   "Phillip Schofield",
+   "Chris Tarrant",
+   "Mike Read",
+   "Noel Edmonds"
+  ],
+  "k": 3
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "Which double act performed the Four Candles sketch?",
+  "a": [
+   "The Two Ronnies",
+   "Cannon and Ball",
+   "Little and Large",
+   "Morecambe and Wise"
+  ],
+  "k": 0
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "Who led the Ground Force garden makeover team?",
+  "a": [
+   "Geoff Hamilton",
+   "Alan Titchmarsh",
+   "Percy Thrower",
+   "Monty Don"
+  ],
+  "k": 1
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "Which magician said \"You'll like this... not a lot\"?",
+  "a": [
+   "Tommy Cooper",
+   "David Nixon",
+   "Paul Daniels",
+   "Ali Bongo"
+  ],
+  "k": 2
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "The soap Brookside was set in which city?",
+  "a": [
+   "Birmingham",
+   "Manchester",
+   "Leeds",
+   "Liverpool"
+  ],
+  "k": 3
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "What is the name of the pub in Emmerdale?",
+  "a": [
+   "The Woolpack",
+   "The Feathers",
+   "The Bull",
+   "The Rovers Return"
+  ],
+  "k": 0
+ },
+ {
+  "c": "tv",
+  "d": 3,
+  "q": "Who narrated the cartoon Roobarb?",
+  "a": [
+   "Bernard Cribbins",
+   "Richard Briers",
+   "Johnny Morris",
+   "Ray Brooks"
+  ],
+  "k": 1
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "What was the name of Bullseye's cartoon mascot?",
+  "a": [
+   "Dusty",
+   "Arrow",
+   "Bully",
+   "Dart"
+  ],
+  "k": 2
+ },
+ {
+  "c": "tv",
+  "d": 3,
+  "q": "Who was the Dungeon Master in Knightmare?",
+  "a": [
+   "Pickle",
+   "Merlin",
+   "Lord Fear",
+   "Treguard"
+  ],
+  "k": 3
+ },
+ {
+  "c": "tv",
+  "d": 1,
+  "q": "What is the name of the pub in EastEnders?",
+  "a": [
+   "The Queen Vic",
+   "The Bull",
+   "The Nag's Head",
+   "The Woolpack"
+  ],
+  "k": 0
+ },
+ {
+  "c": "tv",
+  "d": 2,
+  "q": "The Good Life is set in which London suburb?",
+  "a": [
+   "Croydon",
+   "Surbiton",
+   "Bromley",
+   "Twickenham"
+  ],
+  "k": 1
+ }
+]

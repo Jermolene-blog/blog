@@ -1,0 +1,15 @@
+{
+  "name": "bear-beat-tests",
+  "private": true,
+  "type": "module",
+  "description": "Headless checks for Bear Beat: pose screenshots and beat-tracking accuracy",
+  "scripts": {
+    "shots": "node harness.mjs shots",
+    "beats": "node harness.mjs beats",
+    "mic": "node harness.mjs mic"
+  },
+  "dependencies": {
+    "playwright": "^1.49.0",
+    "three": "0.160.0"
+  }
+}

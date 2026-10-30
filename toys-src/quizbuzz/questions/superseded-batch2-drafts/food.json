@@ -1,0 +1,794 @@
+[
+ {
+  "c": "food",
+  "d": 1,
+  "q": "Besides flour and milk, what goes into a Yorkshire pudding batter?",
+  "a": [
+   "Yeast",
+   "Eggs",
+   "Butter",
+   "Suet"
+  ],
+  "k": 1
+ },
+ {
+  "c": "food",
+  "d": 1,
+  "q": "Black pudding is made mainly from what?",
+  "a": [
+   "Beef fat",
+   "Kidney",
+   "Lamb's liver",
+   "Pig's blood"
+  ],
+  "k": 3
+ },
+ {
+  "c": "food",
+  "d": 1,
+  "q": "Spotted dick is a steamed pudding dotted with what?",
+  "a": [
+   "Currants",
+   "Chocolate",
+   "Nuts",
+   "Cherries"
+  ],
+  "k": 0
+ },
+ {
+  "c": "food",
+  "d": 1,
+  "q": "Eton mess combines strawberries, cream and what?",
+  "a": [
+   "Shortbread",
+   "Jelly",
+   "Meringue",
+   "Sponge"
+  ],
+  "k": 2
+ },
+ {
+  "c": "food",
+  "d": 1,
+  "q": "Which sauce is traditionally served with roast lamb?",
+  "a": [
+   "Horseradish",
+   "Bread sauce",
+   "Apple sauce",
+   "Mint sauce"
+  ],
+  "k": 3
+ },
+ {
+  "c": "food",
+  "d": 1,
+  "q": "Horseradish sauce traditionally accompanies which roast?",
+  "a": [
+   "Beef",
+   "Turkey",
+   "Lamb",
+   "Pork"
+  ],
+  "k": 0
+ },
+ {
+  "c": "food",
+  "d": 1,
+  "q": "Wensleydale cheese comes from which county?",
+  "a": [
+   "Yorkshire",
+   "Cumbria",
+   "Lancashire",
+   "Derbyshire"
+  ],
+  "k": 0
+ },
+ {
+  "c": "food",
+  "d": 1,
+  "q": "Caerphilly cheese originated in which country?",
+  "a": [
+   "Ireland",
+   "England",
+   "Scotland",
+   "Wales"
+  ],
+  "k": 3
+ },
+ {
+  "c": "food",
+  "d": 1,
+  "q": "Scrumpy is a rough, strong type of what?",
+  "a": [
+   "Ale",
+   "Perry",
+   "Gin",
+   "Cider"
+  ],
+  "k": 3
+ },
+ {
+  "c": "food",
+  "d": 1,
+  "q": "Which tea brand was famous for adverts starring chimpanzees?",
+  "a": [
+   "Tetley",
+   "PG Tips",
+   "Yorkshire Tea",
+   "Typhoo"
+  ],
+  "k": 1
+ },
+ {
+  "c": "food",
+  "d": 1,
+  "q": "Which drink is said to be 'made in Scotland from girders'?",
+  "a": [
+   "Irn-Bru",
+   "Lucozade",
+   "Tizer",
+   "Vimto"
+  ],
+  "k": 0
+ },
+ {
+  "c": "food",
+  "d": 1,
+  "q": "'Everyone's a fruit and nut case' advertised which bar?",
+  "a": [
+   "Picnic",
+   "Fruit & Nut",
+   "Topic",
+   "Galaxy Caramel"
+  ],
+  "k": 1
+ },
+ {
+  "c": "food",
+  "d": 1,
+  "q": "Which chocolates did a man in black deliver 'because the lady loves' them?",
+  "a": [
+   "Quality Street",
+   "Roses",
+   "Black Magic",
+   "Milk Tray"
+  ],
+  "k": 3
+ },
+ {
+  "c": "food",
+  "d": 1,
+  "q": "Which bar claimed to help you 'work, rest and play'?",
+  "a": [
+   "Mars",
+   "Lion",
+   "Bounty",
+   "Twix"
+  ],
+  "k": 0
+ },
+ {
+  "c": "food",
+  "d": 1,
+  "q": "Bertie, made of sweets, is the mascot of which brand?",
+  "a": [
+   "Maynards",
+   "Bassett's",
+   "Rowntree's",
+   "Trebor"
+  ],
+  "k": 1
+ },
+ {
+  "c": "food",
+  "d": 1,
+  "q": "Haggis is ceremonially addressed at a supper on which night?",
+  "a": [
+   "Bonfire Night",
+   "St Andrew's Night",
+   "Burns Night",
+   "Hogmanay"
+  ],
+  "k": 2
+ },
+ {
+  "c": "food",
+  "d": 1,
+  "q": "Kent's oast houses were built to dry what?",
+  "a": [
+   "Apples",
+   "Barley",
+   "Hops",
+   "Tobacco"
+  ],
+  "k": 2
+ },
+ {
+  "c": "food",
+  "d": 1,
+  "q": "Gin gets its main flavour from which berry?",
+  "a": [
+   "Juniper",
+   "Elderberry",
+   "Blackcurrant",
+   "Rowan"
+  ],
+  "k": 0
+ },
+ {
+  "c": "food",
+  "d": 1,
+  "q": "The Two Fat Ladies travelled around on what?",
+  "a": [
+   "Narrowboat",
+   "Vintage Rolls-Royce car",
+   "Steam train",
+   "Motorbike and sidecar"
+  ],
+  "k": 3
+ },
+ {
+  "c": "food",
+  "d": 1,
+  "q": "Which gravy brand's adverts featured children sighing 'Ahh'?",
+  "a": [
+   "Bisto",
+   "Oxo",
+   "Bovril",
+   "Paxo"
+  ],
+  "k": 0
+ },
+ {
+  "c": "food",
+  "d": 1,
+  "q": "An Arctic Roll is sponge cake wrapped around what?",
+  "a": [
+   "Jelly",
+   "Mousse",
+   "Ice cream",
+   "Whipped cream"
+  ],
+  "k": 2
+ },
+ {
+  "c": "food",
+  "d": 1,
+  "q": "Coronation chicken was devised for the coronation of which monarch?",
+  "a": [
+   "George V",
+   "Elizabeth II",
+   "George VI",
+   "Queen Victoria"
+  ],
+  "k": 1
+ },
+ {
+  "c": "food",
+  "d": 1,
+  "q": "The Victoria sponge is named after whom?",
+  "a": [
+   "Queen Victoria",
+   "Victoria Beckham",
+   "Victoria Plum",
+   "Victoria Wood"
+  ],
+  "k": 0
+ },
+ {
+  "c": "food",
+  "d": 1,
+  "q": "A modern Battenberg cake shows how many squares in cross-section?",
+  "a": [
+   "Six",
+   "Four",
+   "Two",
+   "Eight"
+  ],
+  "k": 1
+ },
+ {
+  "c": "food",
+  "d": 1,
+  "q": "Jellied eels are a traditional dish of which city?",
+  "a": [
+   "London",
+   "Liverpool",
+   "Bristol",
+   "Glasgow"
+  ],
+  "k": 0
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "Which fish is traditional in kedgeree?",
+  "a": [
+   "Tuna",
+   "Tinned sardines",
+   "Smoked haddock",
+   "Plaice"
+  ],
+  "k": 2
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "Cranachan mixes raspberries, cream, oats, honey and what?",
+  "a": [
+   "Whisky",
+   "Rum",
+   "Brandy",
+   "Gin"
+  ],
+  "k": 0
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "Bara brith, from Wales, is what kind of food?",
+  "a": [
+   "Lamb stew",
+   "Seaweed cake",
+   "Cheese",
+   "Fruit loaf"
+  ],
+  "k": 3
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "Jam roly-poly is traditionally made with which fat?",
+  "a": [
+   "Lard",
+   "Butter",
+   "Suet",
+   "Dripping"
+  ],
+  "k": 2
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "A snakebite is lager mixed with what?",
+  "a": [
+   "Stout",
+   "Lemonade",
+   "Cider",
+   "Bitter"
+  ],
+  "k": 2
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "How many fluid ounces are in a British pint?",
+  "a": [
+   "18",
+   "16",
+   "24",
+   "20"
+  ],
+  "k": 3
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "Vimto was first made in 1908 in which county?",
+  "a": [
+   "Lancashire",
+   "Yorkshire",
+   "Cheshire",
+   "Staffordshire"
+  ],
+  "k": 0
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "Walkers crisps were founded in which city?",
+  "a": [
+   "Coventry",
+   "Leicester",
+   "Nottingham",
+   "Derby"
+  ],
+  "k": 1
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "Which chocolate bar promised that 'Friday feeling'?",
+  "a": [
+   "Wispa",
+   "Flake",
+   "Crunchie",
+   "Double Decker"
+  ],
+  "k": 2
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "Which chocolate bar was 'full of Eastern promise'?",
+  "a": [
+   "Toblerone",
+   "Bounty",
+   "Turkish Delight",
+   "Fry's Chocolate Cream"
+  ],
+  "k": 2
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "'Don't forget the Fruit Gums, Mum' advertised which brand?",
+  "a": [
+   "Maynards",
+   "Rowntree's",
+   "Mackintosh's",
+   "Bassett's"
+  ],
+  "k": 1
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "Which cut of beef is used for beef Wellington?",
+  "a": [
+   "Brisket",
+   "Fillet",
+   "Rump",
+   "Topside"
+  ],
+  "k": 1
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "Pie and mash shops serve a green parsley sauce called what?",
+  "a": [
+   "Pottage",
+   "Liquor",
+   "Salsa verde",
+   "Relish"
+  ],
+  "k": 1
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "Mushy peas are made from which type of pea?",
+  "a": [
+   "Marrowfat",
+   "Chickpea",
+   "Petits pois",
+   "Sugar snap"
+  ],
+  "k": 0
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "Summer pudding is made by lining a bowl with what?",
+  "a": [
+   "Biscuits",
+   "Sponge",
+   "Pastry",
+   "Bread"
+  ],
+  "k": 3
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "Lincolnshire sausages are flavoured mainly with which herb?",
+  "a": [
+   "Basil",
+   "Rosemary",
+   "Thyme",
+   "Sage"
+  ],
+  "k": 3
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "Banbury cakes come from which county?",
+  "a": [
+   "Northamptonshire",
+   "Warwickshire",
+   "Oxfordshire",
+   "Berkshire"
+  ],
+  "k": 2
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "Which small fish go into Worcestershire sauce?",
+  "a": [
+   "Anchovies",
+   "Whitebait",
+   "Sardines",
+   "Sprats"
+  ],
+  "k": 0
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "Laphroaig whisky is distilled on which island?",
+  "a": [
+   "Islay",
+   "Mull",
+   "Skye",
+   "Arran"
+  ],
+  "k": 0
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "Buckfast tonic wine is made at an abbey in which county?",
+  "a": [
+   "Somerset",
+   "Devon",
+   "Dorset",
+   "Cornwall"
+  ],
+  "k": 1
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "What shape is Scottish Lorne sausage?",
+  "a": [
+   "Round",
+   "Square",
+   "Spiral",
+   "Ring"
+  ],
+  "k": 1
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "Fanny Cradock's TV cookery partner was her husband, named what?",
+  "a": [
+   "Johnnie",
+   "Ronnie",
+   "Harry",
+   "Freddie"
+  ],
+  "k": 0
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "What was Mrs Beeton's first name?",
+  "a": [
+   "Eliza",
+   "Isabella",
+   "Margaret",
+   "Hannah"
+  ],
+  "k": 1
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "Lynda Bellingham played the mum in adverts for which brand?",
+  "a": [
+   "Oxo",
+   "Persil",
+   "Flora",
+   "Bisto"
+  ],
+  "k": 0
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "Marie Rose sauce is mayonnaise mixed mainly with what?",
+  "a": [
+   "Mint",
+   "Horseradish",
+   "Mustard",
+   "Ketchup"
+  ],
+  "k": 3
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "Sloe gin is made from the fruit of which shrub?",
+  "a": [
+   "Hawthorn",
+   "Elder",
+   "Blackthorn",
+   "Wild cherry"
+  ],
+  "k": 2
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "Mulligatawny soup originated in which country?",
+  "a": [
+   "Ireland",
+   "India",
+   "Jamaica",
+   "Wales"
+  ],
+  "k": 1
+ },
+ {
+  "c": "food",
+  "d": 2,
+  "q": "Babycham, a 1960s favourite, is a sparkling what?",
+  "a": [
+   "Mead",
+   "Cider",
+   "White wine",
+   "Perry"
+  ],
+  "k": 3
+ },
+ {
+  "c": "food",
+  "d": 3,
+  "q": "Red Leicester cheese gets its orange colour from what?",
+  "a": [
+   "Carrot juice",
+   "Saffron",
+   "Paprika",
+   "Annatto"
+  ],
+  "k": 3
+ },
+ {
+  "c": "food",
+  "d": 3,
+  "q": "Stinking Bishop cheese is made in which county?",
+  "a": [
+   "Norfolk",
+   "Buckinghamshire",
+   "Kent",
+   "Gloucestershire"
+  ],
+  "k": 3
+ },
+ {
+  "c": "food",
+  "d": 3,
+  "q": "Tunnock's teacakes are made in which Scottish town?",
+  "a": [
+   "Paisley",
+   "Uddingston",
+   "Kirkintilloch",
+   "Falkirk"
+  ],
+  "k": 1
+ },
+ {
+  "c": "food",
+  "d": 3,
+  "q": "Gammon comes from which part of the pig?",
+  "a": [
+   "Belly",
+   "Shoulder",
+   "Loin",
+   "Hind leg"
+  ],
+  "k": 3
+ },
+ {
+  "c": "food",
+  "d": 3,
+  "q": "In a chip shop, 'rock salmon' is actually which fish?",
+  "a": [
+   "Dogfish",
+   "Coley",
+   "Pollock",
+   "Whiting"
+  ],
+  "k": 0
+ },
+ {
+  "c": "food",
+  "d": 3,
+  "q": "Sussex pond pudding has a whole what baked inside it?",
+  "a": [
+   "Apple",
+   "Pear",
+   "Lemon",
+   "Orange"
+  ],
+  "k": 2
+ },
+ {
+  "c": "food",
+  "d": 3,
+  "q": "Vale of Evesham asparagus is grown in which county?",
+  "a": [
+   "Worcestershire",
+   "Northamptonshire",
+   "Herefordshire",
+   "Shropshire"
+  ],
+  "k": 0
+ },
+ {
+  "c": "food",
+  "d": 3,
+  "q": "A genuine Cornish pasty must be crimped where?",
+  "a": [
+   "At both ends",
+   "On the side",
+   "On top",
+   "Underneath"
+  ],
+  "k": 1
+ },
+ {
+  "c": "food",
+  "d": 3,
+  "q": "As a teenager, Gordon Ramsay had trials with which football club?",
+  "a": [
+   "Aberdeen",
+   "Celtic",
+   "Rangers",
+   "Hearts"
+  ],
+  "k": 2
+ },
+ {
+  "c": "food",
+  "d": 3,
+  "q": "Lardy cake is traditionally associated with which county?",
+  "a": [
+   "Cumbria",
+   "Wiltshire",
+   "Lincolnshire",
+   "Kent"
+  ],
+  "k": 1
+ },
+ {
+  "c": "food",
+  "d": 3,
+  "q": "A Black Velvet mixes stout with what?",
+  "a": [
+   "Port",
+   "Blackcurrant",
+   "Champagne",
+   "Cola"
+  ],
+  "k": 2
+ },
+ {
+  "c": "food",
+  "d": 3,
+  "q": "The butterie, or rowie, is a flaky roll from which city?",
+  "a": [
+   "Perth",
+   "Stirling",
+   "Inverness",
+   "Aberdeen"
+  ],
+  "k": 3
+ },
+ {
+  "c": "food",
+  "d": 3,
+  "q": "Early Smith's crisps came with salt in what?",
+  "a": [
+   "A little glass bottle",
+   "A tin",
+   "A twist of paper",
+   "A cardboard tube"
+  ],
+  "k": 2
+ }
+]

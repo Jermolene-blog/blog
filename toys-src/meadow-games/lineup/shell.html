@@ -1,0 +1,78 @@
+<title>Quaternius Animal Lineup</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: a paddock of equal pens — one shared WebGL canvas floats over the grid and draws into each pen */
+:root{
+  --bg:#eaf0e6; --pen:#f7faf3; --ink:#1d2820; --muted:#5d6c60; --line:#d3ddcf;
+  --accent:#d9692a; --accent-ink:#fff; --picked:#fdebd9;
+  --display:"Fredoka","Trebuchet MS",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141a16; --pen:#1d251f; --ink:#e6eee3; --muted:#9aaa9d; --line:#2c372f;
+  --accent:#f08a4b; --accent-ink:#1a1009; --picked:#3a2a1d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141a16; --pen:#1d251f; --ink:#e6eee3; --muted:#9aaa9d; --line:#2c372f;
+  --accent:#f08a4b; --accent-ink:#1a1009; --picked:#3a2a1d; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(26px,4vw,38px);line-height:1.1;margin:0;text-wrap:balance}
+.lede{margin:4px 0 0;color:var(--muted);max-width:62ch}
+.bar{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;
+  background:var(--bg);padding-block:10px;border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.group{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.lbl{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:2px}
+.chip{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--pen);color:var(--ink);border-radius:999px;padding:5px 12px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.chip:focus-visible,.pen:focus-visible,.pick:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.pen{background:var(--pen);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;overflow:hidden;touch-action:pan-y}
+.pen.on{background:var(--picked);border-color:var(--accent)}
+.stage{aspect-ratio:1/1;max-width:100%;cursor:grab;position:relative}
+.stage .load{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:13px}
+.meta{display:flex;align-items:center;gap:8px;padding:8px 10px 10px;border-top:1px solid var(--line)}
+.name{font-family:var(--display);font-weight:500;font-size:18px;line-height:1.2}
+.facts{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.pick{margin-left:auto;font:inherit;font-size:13px;font-weight:700;border:1px solid var(--accent);color:var(--accent);background:transparent;border-radius:8px;padding:4px 10px;cursor:pointer;white-space:nowrap}
+.pen.on .pick{background:var(--accent);color:var(--accent-ink)}
+.summary{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:14px}
+.summary output{color:var(--muted);min-width:0}
+#gl{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:4}
+.foot{font-size:13px;color:var(--muted)}
+.foot a{color:var(--accent)}
+@media (max-width:480px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.name{font-size:16px}.meta{flex-wrap:wrap}.pick{margin-left:0}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Quaternius Animal Lineup</h1>
+    <p class="lede">All 12 animals from Ultimate Animated Animals (CC0), each playing the same clip so you can compare silhouettes, colours and motion. Drag a pen to turn the animal. Mark the ones worth keeping for the matching game.</p>
+  </header>
+
+  <div class="bar" role="toolbar" aria-label="Viewer controls">
+    <div class="group" id="clips"><span class="lbl">Clip</span></div>
+    <div class="group"><span class="lbl">Size</span>
+      <button class="chip" id="fit" aria-pressed="true">Fill pen</button>
+      <button class="chip" id="real" aria-pressed="false">True scale</button>
+    </div>
+    <div class="group"><span class="lbl">Speed</span>
+      <button class="chip spd" data-s="0.5" aria-pressed="false">½×</button>
+      <button class="chip spd" data-s="1" aria-pressed="true">1×</button>
+    </div>
+  </div>
+
+  <div class="summary">
+    <strong id="count">0 picked</strong>
+    <output id="picked">Tap “Keep” on the animals you like.</output>
+    <button class="chip" id="copy" hidden>Copy list</button>
+  </div>
+
+  <main class="grid" id="grid"></main>
+
+  <p class="foot">Models: Quaternius, <a href="https://quaternius.com" target="_blank" rel="noopener">quaternius.com</a>, public domain (CC0). Converted to meshopt-compressed GLB; sizes shown are per file. Around 2,500 triangles each, flat vertex colours, no textures.</p>
+</div>
+<canvas id="gl" aria-hidden="true"></canvas>

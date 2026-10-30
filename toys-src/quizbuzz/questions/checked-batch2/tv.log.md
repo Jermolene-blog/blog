@@ -1,0 +1,61 @@
+# tv batch 2 check
+
+Searches run: 45. SAFE (kept without source): 1, 6, 7, 9, 23, 30, 32, 33, 39, 41, 48, 57, 63, 64, 68
+
+- [0] Who was the first presenter of Ready Steady Cook in 1994? -> Fern Britton: https://en.wikipedia.org/wiki/Ready_Steady_Cook
+- [2] Julian and Sandy were characters in which radio comedy? -> Round the Horne: https://bafybeiemxf5abjwjbikoz4mc3a3dla6ual3jsgpdr4cjr3oz3evfyavhwq.ipfs.4everland.io/wiki/Julian_and_Sandy.html
+- [3] Which children's show opened with "It's Friday, it's five to five"? -> Crackerjack: https://ipfs.aleph.im/ipfs/QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco/wiki/Crackerjack_(TV_series).html
+- [4] In Thunderbirds, which craft was the space station? -> Thunderbird 5: https://wiki.riteme.site/wiki/Thunderbirds_(TV_series)
+- [5] Who presented the consumer show That's Life!? -> Esther Rantzen: https://en.wikipedia.org/wiki/That%27s_Life!
+- [8] Who presented the game show Strike It Lucky? -> Michael Barrymore: https://en.wikipedia.org/wiki/Strike_It_Lucky
+- [10] Which Doctor Who actor wore a very long striped scarf? -> Tom Baker: https://en.wikipedia.org/wiki/Fourth_Doctor
+- [11] Fireman Sam lives in which village? -> Pontypandy: https://ipfs.ssi.eecc.de/ipns/en.wikipedia-on-ipfs.org/wiki/Fireman_Sam
+- [12] Which tune precedes Radio 4's late-night Shipping Forecast? -> Sailing By: https://en.wikipedia.org/wiki/Sailing_By
+- [13] Where did Mr Benn get his costumes? -> A fancy-dress shop: https://en.wikipedia.org/wiki/Mr_Benn
+- [14] Who presented the first ever show on Radio 1 in 1967? -> Tony Blackburn: https://en.wikipedia.org/wiki/BBC_Radio_1
+- [15] How many letters are chosen in a Countdown letters round? -> Nine: https://www.h2g2.com/edited_entry/A1106443
+- [16] Who hosted Through the Keyhole alongside Loyd Grossman? -> David Frost: https://en.wikipedia.org/wiki/Through_the_Keyhole
+- [17] Which writer created the Daleks? -> Terry Nation: https://en.wikipedia.org/wiki/Dalek
+- [18] What was the name of Catchphrase's golden robot mascot? -> Mr Chips: https://en.wikipedia.org/wiki/Catchphrase_(British_game_show)
+- [19] The Liverpool sitcom Bread followed which family? -> The Boswells: https://en.wikipedia.org/wiki/Bread_(TV_series)
+- [20] The vets' practice in All Creatures Great and Small is in which fictional town? -> Darrowby: https://en.wikipedia.org/wiki/All_Creatures_Great_and_Small_(1978_TV_series)
+- [21] Who presented Britain's This Is Your Life from 1969 to 1987? -> Eamonn Andrews: https://en.wikipedia.org/wiki/This_Is_Your_Life_(British_TV_series) FIXED: "first presented" was wrong - Ralph Edwards presented the first UK episode (1955), with Andrews as subject. Reworded to 1969-1987 (Andrews); Aspel 1988-2003, Green and Michelmore never hosted.
+- [22] How many lifelines did Who Wants to Be a Millionaire? originally offer? -> Three: https://lostmediawiki.com/Who_Wants_To_Be_a_Millionaire%3F_(lost_episodes_of_famous_UK_TV_show;_1998-present)
+- [24] Who played Rab C. Nesbitt? -> Gregor Fisher: https://en.wikipedia.org/wiki/Rab_C._Nesbitt
+- [25] Who chaired Radio 4's Just a Minute from 1967 to 2019? -> Nicholas Parsons: https://en.wikipedia.org/wiki/Just_a_Minute
+- [26] Who presented ITV's talent show Opportunity Knocks? -> Hughie Green: https://en.wikipedia.org/wiki/Opportunity_Knocks_(British_TV_series)
+- [27] Who presented the quiz Going for Gold? -> Henry Kelly: https://en.wikipedia.org/wiki/Going_for_Gold
+- [28] In Open All Hours, what is Arkwright's nephew called? -> Granville: https://televisionheaven.co.uk/reviews/open-all-hours
+- [29] In Red Dwarf, which character is a hologram? -> Rimmer: https://en.wikipedia.org/wiki/List_of_Red_Dwarf_characters
+- [31] In Last of the Summer Wine, who was Nora Batty's husband? -> Wally: https://en.wikipedia.org/wiki/Nora_Batty
+- [34] In Gavin & Stacey, Stacey comes from which Welsh town? -> Barry: https://en.wikipedia.org/wiki/List_of_Gavin_%26_Stacey_characters
+- [35] Windy Miller lived in which village? -> Camberwick Green: https://en.wikipedia.org/wiki/Camberwick_Green
+- [36] Who hosted ITV's The Price Is Right from 1984 to 1988? -> Leslie Crowther: https://en.wikipedia.org/wiki/The_Price_Is_Right_(British_game_show)
+- [37] DROPPED: Miss Marple lives in which village? - St Mary Mead (Miss Marple) - search budget exhausted, not confirmed
+- [38] Who ran around in a jumpsuit in Treasure Hunt? -> Anneka Rice: https://ipfs.aleph.im/ipfs/QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco/wiki/Treasure_Hunt_(UK_game_show).html
+- [40] Who played Edina Monsoon in Absolutely Fabulous? -> Jennifer Saunders: https://tv.apple.com/us/person/umc.cpc.7a3az0piv8r246gmrgrfvqmsz
+- [42] DROPPED: In Morecambe and Wise, Ernie was forever writing what? - Ernie writing plays - not confirmed
+- [43] In The Good Life, what is Margo and Jerry's surname? -> Leadbetter: https://www.televisionheaven.co.uk/reviews/the-good-life
+- [44] Who played Siegfried Farnon in the original All Creatures Great and Small? -> Robert Hardy: https://en.wikipedia.org/wiki/All_Creatures_Great_and_Small_(1978_TV_series)
+- [45] Who played Sybil Fawlty? -> Prunella Scales: https://en.wikipedia.org/wiki/Sybil_Fawlty
+- [46] Which TV cook was known as The Galloping Gourmet? -> Graham Kerr: https://en.wikipedia.org/wiki/Graham_Kerr
+- [47] What was the family's surname in Button Moon? -> Spoon: https://en.wikipedia.org/wiki/Button_Moon
+- [49] DROPPED: Heartbeat is set in which fictional village? - Aidensfield (Heartbeat) - not confirmed
+- [50] Who presented A Question of Sport from 1979 to 1997? -> David Coleman: https://en.wikipedia.org/wiki/A_Question_of_Sport
+- [51] Which dog joined Blue Peter in 1962 as its first long-serving pet? -> Petra: https://en.wikipedia.org/wiki/Blue_Peter_pets FIXED: an unnamed puppy appeared just before Christmas 1962 and died days later; Petra was its replacement. Reworded to "first long-serving pet". Goldie 1978, Bonnie 1986, Shep 1971.
+- [52] What is Inspector Morse's first name? -> Endeavour: https://en.wikipedia.org/wiki/Inspector_Morse
+- [53] Who first presented Have I Got News for You? -> Angus Deayton: https://www.wikiwand.com/en/List_of_Have_I_Got_News_for_You_presenters
+- [54] Which Radio 4 serial has Barwick Green as its theme tune? -> The Archers: https://wikiwand.com/en/Barwick_Green
+- [55] Who played the landlord Rigsby in Rising Damp? -> Leonard Rossiter: https://comedy.co.uk/tv/rising_damp/characters
+- [56] DROPPED: Who presented Animal Magic and gave animals voices? - Johnny Morris / Animal Magic - not confirmed
+- [58] Parsley the Lion and Dill the Dog appeared in which children's show? -> The Herbs: https://en.wikipedia.org/wiki/The_Herbs
+- [59] Who was the main presenter of Multi-Coloured Swap Shop? -> Noel Edmonds: https://en.wikipedia.org/wiki/Multi-Coloured_Swap_Shop
+- [60] Which double act performed the Four Candles sketch? -> The Two Ronnies: https://en.wikipedia.org/wiki/Four_Candles
+- [61] DROPPED: Who led the Ground Force garden makeover team? - Alan Titchmarsh / Ground Force - not confirmed
+- [62] Which magician said "You'll like this... not a lot"? -> Paul Daniels: https://en.wikipedia.org/wiki/Paul_Daniels
+- [65] Who narrated the cartoon Roobarb? -> Richard Briers: https://www.roobarbandcustard.tv/history.html
+- [66] What was the name of Bullseye's cartoon mascot? -> Bully: https://en.wikipedia.org/wiki/Bullseye_(British_game_show)
+- [67] Who was the Dungeon Master in Knightmare? -> Treguard: https://en.wikipedia.org/wiki/Knightmare_(TV_series)
+- [69] The Good Life is set in which London suburb? -> Surbiton: https://www.televisionheaven.co.uk/reviews/the-good-life
+
+Kept 65, fixed 2, dropped 5.

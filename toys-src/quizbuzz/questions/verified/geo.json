@@ -1,0 +1,1622 @@
+[
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Gibraltar faces which African country across the strait?",
+  "a": [
+   "Morocco",
+   "Libya",
+   "Algeria",
+   "Tunisia"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "What is the largest natural lake in England?",
+  "a": [
+   "Coniston Water",
+   "Windermere",
+   "Derwentwater",
+   "Ullswater"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 3,
+  "q": "Which Scottish city is nicknamed 'the Fair City'?",
+  "a": [
+   "Dundee",
+   "Inverness",
+   "Stirling",
+   "Perth"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Which city stands on the River Clyde?",
+  "a": [
+   "Glasgow",
+   "Dundee",
+   "Aberdeen",
+   "Edinburgh"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "St Helier is the capital of which island?",
+  "a": [
+   "Alderney",
+   "Jersey",
+   "Guernsey",
+   "Sark"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "What is the highest mountain in Wales?",
+  "a": [
+   "Cadair Idris",
+   "Tryfan",
+   "Snowdon",
+   "Pen y Fan"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which mountain range traditionally divides Europe from Asia?",
+  "a": [
+   "Balkans",
+   "Carpathians",
+   "Altai",
+   "Urals"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Which city stands on the River Tyne?",
+  "a": [
+   "Newcastle",
+   "Middlesbrough",
+   "Sunderland",
+   "Durham"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which river forms the eastern stretch of the England–Scotland border?",
+  "a": [
+   "Eden",
+   "Tweed",
+   "Tyne",
+   "Esk"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "What is the longest river in the UK?",
+  "a": [
+   "Tay",
+   "Thames",
+   "Severn",
+   "Trent"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "The Isle of Skye is part of which island group?",
+  "a": [
+   "Outer Hebrides",
+   "Shetland",
+   "Orkney",
+   "Inner Hebrides"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which Northumberland island is reached by a tidal causeway?",
+  "a": [
+   "Lindisfarne",
+   "Lundy",
+   "Farne Islands",
+   "Coquet Island"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "What is the largest lake in the UK by area?",
+  "a": [
+   "Loch Lomond",
+   "Lough Neagh",
+   "Windermere",
+   "Loch Ness"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "In which county is Stonehenge?",
+  "a": [
+   "Dorset",
+   "Somerset",
+   "Wiltshire",
+   "Hampshire"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "What is the world's largest country by area?",
+  "a": [
+   "China",
+   "Canada",
+   "USA",
+   "Russia"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "In which city is John Wood the Younger's Royal Crescent?",
+  "a": [
+   "Bath",
+   "Harrogate",
+   "York",
+   "Chester"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Which motorway links London and South Wales?",
+  "a": [
+   "M40",
+   "M4",
+   "M3",
+   "M5"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "In which county is Windsor Castle?",
+  "a": [
+   "Surrey",
+   "Buckinghamshire",
+   "Berkshire",
+   "Middlesex"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which river flows through Nottingham?",
+  "a": [
+   "Derwent",
+   "Soar",
+   "Ouse",
+   "Trent"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "The Giant's Causeway is in which county?",
+  "a": [
+   "Down",
+   "Antrim",
+   "Armagh",
+   "Fermanagh"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "What is the capital of Australia?",
+  "a": [
+   "Melbourne",
+   "Perth",
+   "Canberra",
+   "Sydney"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 3,
+  "q": "Which river gives its name to a famous Scotch whisky region?",
+  "a": [
+   "Forth",
+   "Clyde",
+   "Tay",
+   "Spey"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Mount Kilimanjaro is in which country?",
+  "a": [
+   "Tanzania",
+   "Uganda",
+   "Kenya",
+   "Ethiopia"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 3,
+  "q": "Which Scottish loch holds the most water?",
+  "a": [
+   "Loch Tay",
+   "Loch Ness",
+   "Loch Lomond",
+   "Loch Awe"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which stretch of water separates the Isle of Wight from the mainland?",
+  "a": [
+   "Bristol Channel",
+   "The Wash",
+   "The Solent",
+   "The Minch"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 3,
+  "q": "What is the county town of Shropshire?",
+  "a": [
+   "Shrewsbury",
+   "Oswestry",
+   "Telford",
+   "Ludlow"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "What is the highest mountain in England?",
+  "a": [
+   "Pen-y-ghent",
+   "Scafell Pike",
+   "Helvellyn",
+   "Skiddaw"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Which motorway links London and Leeds?",
+  "a": [
+   "M6",
+   "M11",
+   "M1",
+   "M62"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which river flows through York?",
+  "a": [
+   "Aire",
+   "Wharfe",
+   "Don",
+   "Ouse"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which capital city stands on the River Danube?",
+  "a": [
+   "Budapest",
+   "Warsaw",
+   "Berlin",
+   "Prague"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "What is the capital of the Isle of Man?",
+  "a": [
+   "Ramsey",
+   "Douglas",
+   "Peel",
+   "Castletown"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 3,
+  "q": "What is the most northerly point of mainland Britain?",
+  "a": [
+   "Cape Wrath",
+   "John o' Groats",
+   "Duncansby Head",
+   "Dunnet Head"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 3,
+  "q": "Hadrian's Wall runs from Wallsend to where?",
+  "a": [
+   "Bowness-on-Solway",
+   "Maryport",
+   "Carlisle",
+   "Berwick-upon-Tweed"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "What is the capital of Turkey?",
+  "a": [
+   "Izmir",
+   "Ankara",
+   "Istanbul",
+   "Antalya"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "What is the capital of Brazil?",
+  "a": [
+   "Salvador",
+   "Rio de Janeiro",
+   "Brasília",
+   "São Paulo"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which Yorkshire town with a ruined abbey inspired Bram Stoker's Dracula?",
+  "a": [
+   "Bridlington",
+   "Scarborough",
+   "Filey",
+   "Whitby"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 3,
+  "q": "Which Shipping Forecast area was renamed FitzRoy in 2002?",
+  "a": [
+   "Finisterre",
+   "Trafalgar",
+   "Sole",
+   "Biscay"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Which river flows through Paris?",
+  "a": [
+   "Rhine",
+   "Seine",
+   "Rhône",
+   "Loire"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "In which sea is the Dogger Bank?",
+  "a": [
+   "Celtic Sea",
+   "Irish Sea",
+   "North Sea",
+   "Baltic Sea"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Spaghetti Junction is near which city?",
+  "a": [
+   "Leeds",
+   "Manchester",
+   "Coventry",
+   "Birmingham"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "What is the highest mountain in the UK?",
+  "a": [
+   "Ben Nevis",
+   "Snowdon",
+   "Ben Macdui",
+   "Scafell Pike"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "In which county is Cheddar Gorge?",
+  "a": [
+   "Dorset",
+   "Somerset",
+   "Gloucestershire",
+   "Devon"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "The Lake District is in which county?",
+  "a": [
+   "Northumberland",
+   "Durham",
+   "Cumbria",
+   "North Yorkshire"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Stanley is the capital of which British territory?",
+  "a": [
+   "Gibraltar",
+   "St Helena",
+   "Bermuda",
+   "Falkland Islands"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 3,
+  "q": "The island of Lundy belongs to which county?",
+  "a": [
+   "Devon",
+   "Pembrokeshire",
+   "Somerset",
+   "Cornwall"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which Scottish city stands on the Firth of Tay?",
+  "a": [
+   "Arbroath",
+   "St Andrews",
+   "Dundee",
+   "Montrose"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "What is the capital of Canada?",
+  "a": [
+   "Vancouver",
+   "Toronto",
+   "Montreal",
+   "Ottawa"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "The Broads lie in Norfolk and which other county?",
+  "a": [
+   "Suffolk",
+   "Essex",
+   "Lincolnshire",
+   "Cambridgeshire"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Which river flows through Cambridge?",
+  "a": [
+   "Ouse",
+   "Nene",
+   "Isis",
+   "Cam"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "In which seaside resort is the Royal Pavilion?",
+  "a": [
+   "Brighton",
+   "Bournemouth",
+   "Eastbourne",
+   "Hastings"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 3,
+  "q": "What is England's largest ceremonial county by area?",
+  "a": [
+   "Devon",
+   "North Yorkshire",
+   "Lincolnshire",
+   "Cumbria"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which river flows through Bristol?",
+  "a": [
+   "Avon",
+   "Exe",
+   "Severn",
+   "Wye"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which river flows through Chester?",
+  "a": [
+   "Weaver",
+   "Dee",
+   "Mersey",
+   "Severn"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "In which county is Land's End?",
+  "a": [
+   "Somerset",
+   "Devon",
+   "Cornwall",
+   "Dorset"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Offa's Dyke runs along the border between England and where?",
+  "a": [
+   "Mercia",
+   "Cornwall",
+   "Scotland",
+   "Wales"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 3,
+  "q": "What is the longest river in Scotland?",
+  "a": [
+   "Tay",
+   "Spey",
+   "Dee",
+   "Clyde"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "In Oxford, the Thames is traditionally known by what name?",
+  "a": [
+   "Evenlode",
+   "Windrush",
+   "Isis",
+   "Cherwell"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Shropshire's famous 1779 Iron Bridge crosses which river?",
+  "a": [
+   "Severn",
+   "Tyne",
+   "Wear",
+   "Clyde"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Blackpool Tower was inspired by which landmark?",
+  "a": [
+   "Big Ben",
+   "Tower of London",
+   "Leaning Tower of Pisa",
+   "Eiffel Tower"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "The Mont Blanc road tunnel links France with which country?",
+  "a": [
+   "Switzerland",
+   "Germany",
+   "Italy",
+   "Austria"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Which hills are called 'the backbone of England'?",
+  "a": [
+   "Chilterns",
+   "Pennines",
+   "Cotswolds",
+   "Malverns"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "What is the UK's most northerly island group?",
+  "a": [
+   "Orkney",
+   "Shetland",
+   "Inner Hebrides",
+   "Outer Hebrides"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Which county is called 'the Garden of England'?",
+  "a": [
+   "Surrey",
+   "Sussex",
+   "Kent",
+   "Herefordshire"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which city is known as 'the Granite City'?",
+  "a": [
+   "Stirling",
+   "Inverness",
+   "Aberdeen",
+   "Dundee"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which city is nicknamed 'Auld Reekie'?",
+  "a": [
+   "Glasgow",
+   "Perth",
+   "Dundee",
+   "Edinburgh"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which river flows through Shrewsbury?",
+  "a": [
+   "Wye",
+   "Dee",
+   "Trent",
+   "Severn"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Liverpool stands on the estuary of which river?",
+  "a": [
+   "Ribble",
+   "Dee",
+   "Irwell",
+   "Mersey"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Which river flows through Exeter?",
+  "a": [
+   "Axe",
+   "Dart",
+   "Tamar",
+   "Exe"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 3,
+  "q": "Which river flows through the centre of Norwich?",
+  "a": [
+   "Waveney",
+   "Wensum",
+   "Bure",
+   "Yare"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which river flows through Belfast?",
+  "a": [
+   "Lagan",
+   "Foyle",
+   "Erne",
+   "Bann"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which river flows through Leeds city centre?",
+  "a": [
+   "Aire",
+   "Wharfe",
+   "Calder",
+   "Don"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which river flows through Durham?",
+  "a": [
+   "Swale",
+   "Tees",
+   "Tyne",
+   "Wear"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which river flows through Hereford?",
+  "a": [
+   "Usk",
+   "Severn",
+   "Wye",
+   "Lugg"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 3,
+  "q": "Which river flows through the centre of Edinburgh?",
+  "a": [
+   "Almond",
+   "Water of Leith",
+   "Esk",
+   "Forth"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 3,
+  "q": "Wiltshire Council has its headquarters in which town?",
+  "a": [
+   "Devizes",
+   "Trowbridge",
+   "Salisbury",
+   "Swindon"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which is Cornwall's only city?",
+  "a": [
+   "Bodmin",
+   "Falmouth",
+   "Truro",
+   "Penzance"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "What is the county town of Somerset?",
+  "a": [
+   "Bridgwater",
+   "Taunton",
+   "Yeovil",
+   "Frome"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "What is the county town of Kent?",
+  "a": [
+   "Rochester",
+   "Maidstone",
+   "Dover",
+   "Ashford"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "What is the county town of Suffolk?",
+  "a": [
+   "Sudbury",
+   "Lowestoft",
+   "Felixstowe",
+   "Ipswich"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "In which county is Alton Towers?",
+  "a": [
+   "Derbyshire",
+   "Shropshire",
+   "Cheshire",
+   "Staffordshire"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "In which county is Blenheim Palace?",
+  "a": [
+   "Berkshire",
+   "Oxfordshire",
+   "Warwickshire",
+   "Buckinghamshire"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "In which county is Chatsworth House?",
+  "a": [
+   "Yorkshire",
+   "Leicestershire",
+   "Nottinghamshire",
+   "Derbyshire"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "In which county is Sandringham House?",
+  "a": [
+   "Norfolk",
+   "Essex",
+   "Lincolnshire",
+   "Suffolk"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "In which county is the Eden Project?",
+  "a": [
+   "Dorset",
+   "Somerset",
+   "Devon",
+   "Cornwall"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Castle Howard is in which county?",
+  "a": [
+   "Northumberland",
+   "Durham",
+   "North Yorkshire",
+   "Lancashire"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "In which town does the Angel of the North stand?",
+  "a": [
+   "Gateshead",
+   "Sunderland",
+   "Middlesbrough",
+   "Newcastle"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 3,
+  "q": "What is the highest mountain in Ireland?",
+  "a": [
+   "Carrauntoohil",
+   "Croagh Patrick",
+   "Slieve Donard",
+   "Lugnaquilla"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 3,
+  "q": "What is the highest mountain in Northern Ireland?",
+  "a": [
+   "Slieve Gullion",
+   "Cave Hill",
+   "Sperrin",
+   "Slieve Donard"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "What is the longest river wholly in England?",
+  "a": [
+   "Thames",
+   "Trent",
+   "Severn",
+   "Great Ouse"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 3,
+  "q": "What is the largest natural lake in Wales?",
+  "a": [
+   "Bala Lake",
+   "Llyn Brianne",
+   "Lake Vyrnwy",
+   "Llyn Padarn"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Loch Ness lies along which long valley?",
+  "a": [
+   "Glen Affric",
+   "Glen Coe",
+   "Great Glen",
+   "Strathspey"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which canal links Inverness with Fort William?",
+  "a": [
+   "Forth and Clyde",
+   "Union Canal",
+   "Crinan Canal",
+   "Caledonian Canal"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Snowdon lies in which national park?",
+  "a": [
+   "Snowdonia",
+   "Brecon Beacons",
+   "Pembrokeshire Coast",
+   "Peak District"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "What is the most southerly point of mainland Britain?",
+  "a": [
+   "Land's End",
+   "Lizard Point",
+   "Portland Bill",
+   "Start Point"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 3,
+  "q": "Which peninsula holds the most westerly point of mainland Britain?",
+  "a": [
+   "Penwith",
+   "Kintyre",
+   "Ardnamurchan",
+   "Lleyn"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Which strait separates Anglesey from mainland Wales?",
+  "a": [
+   "Bristol Channel",
+   "St George's Channel",
+   "The Minch",
+   "Menai Strait"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "What is the largest Scottish island?",
+  "a": [
+   "Lewis and Harris",
+   "Islay",
+   "Mull",
+   "Skye"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "What is the second largest Channel Island?",
+  "a": [
+   "Alderney",
+   "Sark",
+   "Guernsey",
+   "Herm"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which Channel Island bans cars?",
+  "a": [
+   "Guernsey",
+   "Alderney",
+   "Jersey",
+   "Sark"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "What is the capital of Guernsey?",
+  "a": [
+   "St Peter Port",
+   "St Anne",
+   "St Sampson",
+   "St Aubin"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Skara Brae, a Neolithic village, is in which island group?",
+  "a": [
+   "Scilly",
+   "Shetland",
+   "Orkney",
+   "Hebrides"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 3,
+  "q": "Fingal's Cave is on which island?",
+  "a": [
+   "Staffa",
+   "Iona",
+   "Mull",
+   "Arran"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Which city is called 'the city of dreaming spires'?",
+  "a": [
+   "Salisbury",
+   "Durham",
+   "Oxford",
+   "Cambridge"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Natives of which city are known as Geordies?",
+  "a": [
+   "Newcastle",
+   "Middlesbrough",
+   "Sunderland",
+   "Liverpool"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Which city is nicknamed 'the Steel City'?",
+  "a": [
+   "Middlesbrough",
+   "Port Talbot",
+   "Rotherham",
+   "Sheffield"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Which Fife town is known as 'the home of golf'?",
+  "a": [
+   "Troon",
+   "St Andrews",
+   "Gleneagles",
+   "Carnoustie"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which Welsh town is famous for its bookshops and literary festival?",
+  "a": [
+   "Aberystwyth",
+   "Llandudno",
+   "Tenby",
+   "Hay-on-Wye"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "The village of Llanfairpwllgwyngyll is on which island?",
+  "a": [
+   "Anglesey",
+   "Isle of Man",
+   "Isle of Wight",
+   "Skye"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "The Needles rocks are off which island?",
+  "a": [
+   "Lundy",
+   "Isle of Man",
+   "Isle of Wight",
+   "Anglesey"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Which World Heritage coastline includes Durdle Door?",
+  "a": [
+   "Gower Coast",
+   "Jurassic Coast",
+   "Causeway Coast",
+   "Cornish Riviera"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Beachy Head is near which seaside town?",
+  "a": [
+   "Brighton",
+   "Worthing",
+   "Hastings",
+   "Eastbourne"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which is the longest pleasure pier in Britain?",
+  "a": [
+   "Southend Pier",
+   "Brighton Palace Pier",
+   "Blackpool North Pier",
+   "Llandudno Pier"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Which seaside resort is famous for its autumn Illuminations?",
+  "a": [
+   "Skegness",
+   "Blackpool",
+   "Morecambe",
+   "Scarborough"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which is the longest motorway in Britain?",
+  "a": [
+   "M4",
+   "M1",
+   "M6",
+   "M25"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "What is the capital of New Zealand?",
+  "a": [
+   "Christchurch",
+   "Dunedin",
+   "Wellington",
+   "Auckland"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which Swiss city is the seat of the federal government?",
+  "a": [
+   "Geneva",
+   "Zurich",
+   "Basel",
+   "Bern"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 3,
+  "q": "What is the capital of Morocco?",
+  "a": [
+   "Marrakech",
+   "Rabat",
+   "Casablanca",
+   "Fez"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "What is the capital of Pakistan?",
+  "a": [
+   "Rawalpindi",
+   "Karachi",
+   "Islamabad",
+   "Lahore"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "What is the capital of Malta?",
+  "a": [
+   "Sliema",
+   "Victoria",
+   "Mdina",
+   "Valletta"
+  ],
+  "k": 3
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Which waterfall on the Zambezi was named after a queen?",
+  "a": [
+   "Iguazu Falls",
+   "Angel Falls",
+   "Victoria Falls",
+   "Niagara Falls"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Table Mountain overlooks which city?",
+  "a": [
+   "Durban",
+   "Johannesburg",
+   "Cape Town",
+   "Port Elizabeth"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which stretch of sea separates Scotland from Northern Ireland?",
+  "a": [
+   "North Channel",
+   "The Minch",
+   "Firth of Lorn",
+   "St George's Channel"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 3,
+  "q": "The Channel Tunnel's French terminal is in which commune near Calais?",
+  "a": [
+   "Le Touquet",
+   "Coquelles",
+   "Boulogne",
+   "Dunkirk"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "What is the highest mountain in the Alps?",
+  "a": [
+   "Mont Blanc",
+   "Eiger",
+   "Matterhorn",
+   "Monte Rosa"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Which river flows through Rome?",
+  "a": [
+   "Po",
+   "Tagus",
+   "Tiber",
+   "Arno"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Which river flows through Florence?",
+  "a": [
+   "Tiber",
+   "Arno",
+   "Po",
+   "Adige"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 3,
+  "q": "Which river flows through Prague?",
+  "a": [
+   "Danube",
+   "Vltava",
+   "Oder",
+   "Elbe"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "The Canary Islands belong to which country?",
+  "a": [
+   "Morocco",
+   "Spain",
+   "France",
+   "Portugal"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Madeira belongs to which country?",
+  "a": [
+   "Portugal",
+   "Italy",
+   "Spain",
+   "Greece"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Which is the largest of the Balearic Islands?",
+  "a": [
+   "Formentera",
+   "Ibiza",
+   "Majorca",
+   "Minorca"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 2,
+  "q": "Uluru (Ayers Rock) is in which part of Australia?",
+  "a": [
+   "South Australia",
+   "Northern Territory",
+   "Queensland",
+   "Western Australia"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Which country was formerly called Ceylon?",
+  "a": [
+   "Sri Lanka",
+   "Myanmar",
+   "Bangladesh",
+   "Malaysia"
+  ],
+  "k": 0
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "What did Southern Rhodesia become in 1980?",
+  "a": [
+   "Zambia",
+   "Zimbabwe",
+   "Malawi",
+   "Botswana"
+  ],
+  "k": 1
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "Which is England's smallest historic county?",
+  "a": [
+   "Huntingdonshire",
+   "Bedfordshire",
+   "Rutland",
+   "Middlesex"
+  ],
+  "k": 2
+ },
+ {
+  "c": "geo",
+  "d": 1,
+  "q": "The New Forest is mainly in which county?",
+  "a": [
+   "Sussex",
+   "Hampshire",
+   "Dorset",
+   "Wiltshire"
+  ],
+  "k": 1
+ }
+]

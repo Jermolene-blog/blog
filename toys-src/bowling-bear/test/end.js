@@ -1,0 +1,20 @@
+const { chromium } = require('playwright');
+const { makePage, OUT } = require('./run.js');
+(async () => {
+  const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+  const mode = process.argv[2] || 'ipad';
+  const [w, h, pr] = mode === 'ipad' ? [1024, 768, { frames: 1, mode: 'corners', kinds: ['cpu', 'empty', 'cpu', 'empty'] }] : [390, 844, { frames: 1, mode: 'ends', kinds: ['cpu', 'cpu'] }];
+  const page = await makePage(browser, w, h, pr);
+  await page.click('#go');
+  await page.waitForTimeout(3000);
+  await page.click('.iconbtn'); await page.waitForTimeout(400);
+  await page.screenshot({ path: `${OUT}/${mode}-menu.png` });
+  await page.click('[data-a="resume"]');
+  await page.click('.card'); await page.waitForTimeout(400);
+  await page.screenshot({ path: `${OUT}/${mode}-sheet.png` });
+  await page.mouse.click(w/2, 20);
+  await page.waitForFunction(() => document.querySelector('#over .rk'), null, { timeout: 400000, polling: 1000 });
+  await page.waitForTimeout(500);
+  await page.screenshot({ path: `${OUT}/${mode}-results.png` });
+  await browser.close();
+})();

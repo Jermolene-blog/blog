@@ -1,0 +1,13 @@
+{
+  "name": "meadow-games",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "python3 tools/build.py",
+    "shot": "node tools/shot.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.47.2",
+    "three": "0.160.0"
+  }
+}

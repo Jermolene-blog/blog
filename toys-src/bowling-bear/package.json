@@ -1,0 +1,21 @@
+{
+  "name": "bowling-bear",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "build": "python3 tools/build.py",
+    "slim": "node tools/slim.mjs assets/bear-original/scene.gltf assets/bear.glb",
+    "test:shots": "node test/run.js ipad && node test/run.js phone",
+    "test:human": "node test/human.js"
+  },
+  "devDependencies": {
+    "@gltf-transform/core": "^4.5.1",
+    "@gltf-transform/extensions": "^4.5.1",
+    "@gltf-transform/functions": "^4.5.1",
+    "cannon-es": "0.20.0",
+    "meshoptimizer": "^0.22.0",
+    "playwright": "^1.48.0",
+    "sharp": "^0.33.5",
+    "three": "0.160.0"
+  }
+}

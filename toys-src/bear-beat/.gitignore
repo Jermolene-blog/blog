@@ -1,0 +1,6 @@
+bear.json
+dist/
+tests/node_modules/
+tests/out/
+*.wav
+*.mp3

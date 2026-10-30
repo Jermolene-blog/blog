@@ -31,6 +31,8 @@ Each toy is a self-contained folder under `static-assets/toys`, published verbat
 * The `Toys` page tiddler (tagged `page`, so rendered at `/toys`) lists the tiddlers tagged `toy`, sorted by caption, each with a thumbnail screenshot (see below)
 * A folder without an `index.html` is skipped
 
+Most toys are edited in place, so their folder in `static-assets/toys` is their source. Toys that are built from source, and toys that came with tools, tests or working notes, keep those in `toys-src/<name>/` (see `toys-src/README.md`). A built toy's `index.html` starts with a comment naming the script that builds it; edit the source, rebuild and commit both. The CI build doesn't run these builds: it publishes the committed toys.
+
 ## Progressive Web Apps
 
 The `/toys` index and each toy can be installed as apps and work offline. Installing the index gives one app containing every toy; installing a toy gives an app of that toy alone. Each toy's `index.html` carries `<link rel="manifest" href="manifest.webmanifest">`, `<meta name="theme-color">`, `<link rel="apple-touch-icon">` and `<script src="../pwa.js" defer>`, and the generated index page carries the equivalent (from `$:/_Toys/PWA` and `$:/_Toys/PWA.js` in `main-wiki/tiddlers/system`):
@@ -61,8 +63,18 @@ This repository contains the following top level folders:
 * **main-wiki**: the content of the main wiki comprising the blog
 * **main-wiki-server**: an indirected version of the main wiki suitable for using in the client-server configuration
 * **static-assets**: static assets to be copied unchanged to the output
+* **toys-src**: source, build scripts, tests and working notes for the toys that need more than their published files
+* **local** (not committed): private material that must never be published, such as the original cat photographs read by `build-cat-sprites.sh`. Back it up separately
 * **talkytalky-wiki**: the content of the wiki making up http://jermolene.com/talkytalky
 * **talkytalky-wiki-server**: an indirected version of the wiki making up http://jermolene.com/talkytalky suitable for using in the client-server configuration
+
+## Setting up a new machine
+
+1. Clone this repository, and install Node.js 22 or later and Python 3
+2. Install TiddlyWiki from its master branch, as the CI build does: clone https://github.com/TiddlyWiki/TiddlyWiki5 alongside this repository and run `npm install -g ./TiddlyWiki5` (or `npm link` inside it). `./bld.sh` then builds the site and `./preview.sh` serves it
+3. For screenshots, install Google Chrome. For icons, `brew install librsvg`. For the cat sprites, ImageMagick and cwebp (`brew install imagemagick webp`) and the Xcode command line tools
+4. For the toys' tests: `cd toys-src && npm install && npx playwright install chromium`
+5. Copy the private originals into `local/` from their backup (only needed to rebuild the cat sprites)
 
 ## Batch Scripts
 

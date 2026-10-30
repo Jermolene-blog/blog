@@ -1,0 +1,11 @@
+{
+  "name": "trundle-world",
+  "private": true,
+  "description": "Trundle World: a chunky 3D toy-island diorama for young children (single HTML file, three.js r147).",
+  "scripts": {
+    "shots": "python3 tools/screenshot.py index.html"
+  },
+  "devDependencies": {
+    "three": "0.147.0"
+  }
+}

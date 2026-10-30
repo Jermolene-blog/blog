@@ -1,0 +1,830 @@
+[
+ {
+  "c": "sport",
+  "d": 1,
+  "q": "How many players are in a rugby union team?",
+  "a": [
+   "13",
+   "15",
+   "12",
+   "11"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sport",
+  "d": 1,
+  "q": "In darts, how many points is the bullseye worth?",
+  "a": [
+   "50",
+   "25",
+   "60",
+   "100"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sport",
+  "d": 1,
+  "q": "What colour jersey does the Tour de France leader wear?",
+  "a": [
+   "Polka dot",
+   "Pink",
+   "Yellow",
+   "Green"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sport",
+  "d": 1,
+  "q": "Which Scottish town is known as the 'Home of Golf'?",
+  "a": [
+   "Troon",
+   "St Andrews",
+   "Carnoustie",
+   "Gleneagles"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sport",
+  "d": 1,
+  "q": "In tennis, what is a score of zero called?",
+  "a": [
+   "Zero",
+   "Duck",
+   "Love",
+   "Nil"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sport",
+  "d": 1,
+  "q": "Which two clubs contest Glasgow's Old Firm derby?",
+  "a": [
+   "Celtic and Rangers",
+   "Hearts and Hibs",
+   "Partick and Rangers",
+   "Celtic and Queen's Park"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sport",
+  "d": 1,
+  "q": "In cricket, what does LBW stand for?",
+  "a": [
+   "Long ball wide",
+   "Late bowled wide",
+   "Leg beside wicket",
+   "Leg before wicket"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sport",
+  "d": 1,
+  "q": "In cricket, what is being out first ball for nought called?",
+  "a": [
+   "A diamond duck",
+   "A silver duck",
+   "A golden duck",
+   "A pair"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sport",
+  "d": 1,
+  "q": "The Gold Cup is the highlight of which March racing festival?",
+  "a": [
+   "Cheltenham",
+   "Aintree",
+   "Glorious Goodwood",
+   "Royal Ascot"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sport",
+  "d": 1,
+  "q": "Which Scot won seven world snooker titles in the 1990s?",
+  "a": [
+   "Steve Davis",
+   "Ronnie O'Sullivan",
+   "Stephen Hendry",
+   "John Higgins"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sport",
+  "d": 1,
+  "q": "Which snooker player is nicknamed 'The Rocket'?",
+  "a": [
+   "Mark Williams",
+   "Ronnie O'Sullivan",
+   "John Parrott",
+   "Jimmy White"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sport",
+  "d": 1,
+  "q": "Which number sits at the top of a standard dartboard?",
+  "a": [
+   "20",
+   "12",
+   "1",
+   "5"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sport",
+  "d": 1,
+  "q": "Which club won the 2015–16 Premier League as 5,000–1 outsiders?",
+  "a": [
+   "Wolverhampton Wanderers",
+   "Burnley",
+   "Leicester City",
+   "Stoke City"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sport",
+  "d": 1,
+  "q": "Which England goalkeeper made a famous save from Pelé in 1970?",
+  "a": [
+   "Peter Bonetti",
+   "Peter Shilton",
+   "Ray Clemence",
+   "Gordon Banks"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sport",
+  "d": 1,
+  "q": "Whose 1986 World Cup goal against England became the 'Hand of God'?",
+  "a": [
+   "Diego Maradona",
+   "Mario Kempes",
+   "Gabriel Batistuta",
+   "Pelé"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sport",
+  "d": 1,
+  "q": "Which Northern Irish winger won the European Cup with Manchester United in 1968?",
+  "a": [
+   "Danny Blanchflower",
+   "Pat Jennings",
+   "George Best",
+   "Norman Whiteside"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sport",
+  "d": 1,
+  "q": "Which England cricketer was nicknamed 'Beefy'?",
+  "a": [
+   "Mike Gatting",
+   "Graham Gooch",
+   "Ian Botham",
+   "David Gower"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sport",
+  "d": 1,
+  "q": "Which country's rugby team is known as the All Blacks?",
+  "a": [
+   "Australia",
+   "Fiji",
+   "South Africa",
+   "New Zealand"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sport",
+  "d": 1,
+  "q": "At which tournament did John McEnroe shout 'You cannot be serious!' in 1981?",
+  "a": [
+   "Queen's Club",
+   "Wimbledon",
+   "US Open",
+   "French Open"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sport",
+  "d": 1,
+  "q": "In which event did Jessica Ennis win Olympic gold in 2012?",
+  "a": [
+   "Heptathlon",
+   "400m hurdles",
+   "Long jump",
+   "Pentathlon"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sport",
+  "d": 1,
+  "q": "In 2012, who became the first British winner of the Tour de France?",
+  "a": [
+   "Mark Cavendish",
+   "Chris Hoy",
+   "Chris Froome",
+   "Bradley Wiggins"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sport",
+  "d": 1,
+  "q": "Which British boxer floored Cassius Clay at Wembley in 1963?",
+  "a": [
+   "Brian London",
+   "Henry Cooper",
+   "Joe Bugner",
+   "Frank Bruno"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sport",
+  "d": 1,
+  "q": "What are the Isle of Man's famous motorcycle road races called?",
+  "a": [
+   "The TT",
+   "The Moto Cup",
+   "The Snaefell Dash",
+   "The Peel Sprint"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sport",
+  "d": 1,
+  "q": "In which athletics event would you perform a 'Fosbury Flop'?",
+  "a": [
+   "High jump",
+   "Pole vault",
+   "Long jump",
+   "Triple jump"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "The University Boat Race is rowed from Putney to where?",
+  "a": [
+   "Mortlake",
+   "Kew",
+   "Richmond",
+   "Hammersmith"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "In golf, what is three under par on a hole called?",
+  "a": [
+   "Eagle",
+   "Condor",
+   "Albatross",
+   "Double bogey"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "Which football club is nicknamed 'The Toffees'?",
+  "a": [
+   "Everton",
+   "Blackburn Rovers",
+   "Bolton Wanderers",
+   "Burnley"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "How long is a marathon?",
+  "a": [
+   "25 miles 385 yards",
+   "26 miles 385 yards",
+   "24 miles 385 yards",
+   "26 miles 285 yards"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "In cricket, a score of 111 is traditionally nicknamed what?",
+  "a": [
+   "Churchill",
+   "Nelson",
+   "Drake",
+   "Wellington"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "Which horse won the Cheltenham Gold Cup in 1964, 1965 and 1966?",
+  "a": [
+   "L'Escargot",
+   "Mill House",
+   "Arkle",
+   "Captain Christy"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "Which jockey won the 2010 Grand National on Don't Push It?",
+  "a": [
+   "Tony McCoy",
+   "Peter Scudamore",
+   "Frankie Dettori",
+   "Richard Dunwoody"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "How many times did Lester Piggott win the Derby?",
+  "a": [
+   "Twelve",
+   "Five",
+   "Seven",
+   "Nine"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "In 1982, who made the first televised maximum 147 break?",
+  "a": [
+   "Cliff Thorburn",
+   "Steve Davis",
+   "Jimmy White",
+   "Ray Reardon"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "Which snooker champion was nicknamed 'Dracula'?",
+  "a": [
+   "John Spencer",
+   "Ray Reardon",
+   "Cliff Thorburn",
+   "Fred Davis"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "What is the highest possible checkout in darts?",
+  "a": [
+   "170",
+   "167",
+   "160",
+   "180"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "Which darts commentator was famous for his colourful one-liners?",
+  "a": [
+   "Ted Lowe",
+   "John Motson",
+   "Dickie Davies",
+   "Sid Waddell"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "Which club won the first Premier League title, in 1992–93?",
+  "a": [
+   "Leeds United",
+   "Manchester United",
+   "Arsenal",
+   "Blackburn Rovers"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "Which manager led Liverpool to three European Cups between 1977 and 1981?",
+  "a": [
+   "Kenny Dalglish",
+   "Bob Paisley",
+   "Bill Shankly",
+   "Joe Fagan"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "Which club signed Kenny Dalglish from Celtic in 1977?",
+  "a": [
+   "Arsenal",
+   "Nottingham Forest",
+   "Manchester United",
+   "Liverpool"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "Which non-league club knocked Newcastle out of the FA Cup in 1972?",
+  "a": [
+   "Wimbledon",
+   "Sutton United",
+   "Hereford United",
+   "Yeovil Town"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "Who captained West Indies to the first two men's Cricket World Cup titles?",
+  "a": [
+   "Clive Lloyd",
+   "Viv Richards",
+   "Garfield Sobers",
+   "Michael Holding"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "Which country won the 1983 Cricket World Cup final at Lord's?",
+  "a": [
+   "Pakistan",
+   "West Indies",
+   "India",
+   "Australia"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "Which rugby league commentator was known for 'up and under'?",
+  "a": [
+   "Bill McLaren",
+   "Murray Walker",
+   "Ray French",
+   "Eddie Waring"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "Which German won seven Wimbledon singles titles between 1988 and 1996?",
+  "a": [
+   "Steffi Graf",
+   "Anke Huber",
+   "Martina Navratilova",
+   "Monica Seles"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "Which middle-distance runner was 'The Jarrow Arrow'?",
+  "a": [
+   "Brendan Foster",
+   "Steve Cram",
+   "Peter Elliott",
+   "Steve Ovett"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "In which city did Paula Radcliffe set her 2003 marathon world record?",
+  "a": [
+   "New York",
+   "London",
+   "Berlin",
+   "Chicago"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "Which cyclist is nicknamed 'The Manx Missile'?",
+  "a": [
+   "Mark Cavendish",
+   "Geraint Thomas",
+   "Bradley Wiggins",
+   "Chris Hoy"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "Boxer 'Prince' Naseem Hamed came from which city?",
+  "a": [
+   "Leeds",
+   "Liverpool",
+   "Sheffield",
+   "Manchester"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "Which British driver won Formula One titles in 1962 and 1968?",
+  "a": [
+   "Jackie Stewart",
+   "Graham Hill",
+   "John Surtees",
+   "Jim Clark"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "Who won the 1999 Open at Carnoustie after Jean van de Velde's collapse?",
+  "a": [
+   "Colin Montgomerie",
+   "Justin Leonard",
+   "Sandy Lyle",
+   "Paul Lawrie"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "Which Welsh golfer won the Masters in 1991?",
+  "a": [
+   "Philip Price",
+   "Nick Faldo",
+   "Ian Woosnam",
+   "Sandy Lyle"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "In 1969, Tony Jacklin won which golf major?",
+  "a": [
+   "The US PGA",
+   "The Masters",
+   "The US Open",
+   "The Open"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "Which BBC tennis commentator was famous for saying 'Oh, I say'?",
+  "a": [
+   "Peter Alliss",
+   "Harry Carpenter",
+   "John Barrett",
+   "Dan Maskell"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "Which club won the 1953 FA Cup final, known as the 'Matthews Final'?",
+  "a": [
+   "Preston North End",
+   "Stoke City",
+   "Bolton Wanderers",
+   "Blackpool"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sport",
+  "d": 2,
+  "q": "Which city hosted the 2002 Commonwealth Games?",
+  "a": [
+   "Edinburgh",
+   "Birmingham",
+   "Manchester",
+   "Glasgow"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sport",
+  "d": 3,
+  "q": "How many hurdles are there in a 110m hurdles race?",
+  "a": [
+   "Ten",
+   "Eleven",
+   "Eight",
+   "Twelve"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sport",
+  "d": 3,
+  "q": "Which is the oldest of the five English Classic horse races?",
+  "a": [
+   "The Derby",
+   "The Oaks",
+   "2,000 Guineas",
+   "St Leger"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sport",
+  "d": 3,
+  "q": "Which club won the first FA Cup final, in 1872?",
+  "a": [
+   "Queen's Park",
+   "Wanderers",
+   "Old Etonians",
+   "Royal Engineers"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sport",
+  "d": 3,
+  "q": "Which England cricketer turned commentator is nicknamed 'Bumble'?",
+  "a": [
+   "Bob Willis",
+   "David Gower",
+   "David Lloyd",
+   "Mike Atherton"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sport",
+  "d": 3,
+  "q": "Which umpire was famous for a little hop whenever the score reached 111?",
+  "a": [
+   "Steve Bucknor",
+   "David Shepherd",
+   "Dickie Bird",
+   "Billy Bowden"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sport",
+  "d": 3,
+  "q": "In which year did England host the first men's Cricket World Cup?",
+  "a": [
+   "1975",
+   "1983",
+   "1979",
+   "1969"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sport",
+  "d": 3,
+  "q": "Brian Lara scored 501 not out in 1994 for which county?",
+  "a": [
+   "Durham",
+   "Lancashire",
+   "Warwickshire",
+   "Yorkshire"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sport",
+  "d": 3,
+  "q": "Which Welsh fly-half of the early 1970s was nicknamed 'The King'?",
+  "a": [
+   "Barry John",
+   "Phil Bennett",
+   "JPR Williams",
+   "Cliff Morgan"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sport",
+  "d": 3,
+  "q": "Who beat Jimmy Connors in the 1975 Wimbledon men's final?",
+  "a": [
+   "Ilie Năstase",
+   "Ken Rosewall",
+   "Björn Borg",
+   "Arthur Ashe"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sport",
+  "d": 3,
+  "q": "Which British woman won the Wimbledon ladies' singles in 1969?",
+  "a": [
+   "Sue Barker",
+   "Angela Mortimer",
+   "Christine Truman",
+   "Ann Jones"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sport",
+  "d": 3,
+  "q": "In which years did Barry Sheene win the 500cc world title?",
+  "a": [
+   "1978 and 1979",
+   "1976 and 1977",
+   "1974 and 1975",
+   "1980 and 1981"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sport",
+  "d": 3,
+  "q": "Where was the first Open Championship played, in 1860?",
+  "a": [
+   "St Andrews",
+   "Muirfield",
+   "Carnoustie",
+   "Prestwick"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sport",
+  "d": 3,
+  "q": "Who was the first BBC Sports Personality of the Year, in 1954?",
+  "a": [
+   "Stanley Matthews",
+   "Roger Bannister",
+   "Jim Laker",
+   "Chris Chataway"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sport",
+  "d": 3,
+  "q": "Which country did England beat in the 1966 World Cup semi-final?",
+  "a": [
+   "Uruguay",
+   "Portugal",
+   "Argentina",
+   "USSR"
+  ],
+  "k": 1
+ }
+]

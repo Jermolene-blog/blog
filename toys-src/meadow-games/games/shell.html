@@ -1,0 +1,95 @@
+<title>Meadow Games</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap">
+<style>
+/* Layout: the 3D meadow fills the screen. Home = a row of picture tiles over the grazing herd; in a game only a home button, a star tally and a speech bubble float on top. Single daylight look. */
+:root{
+  --sky:#bfe3f2; --ink:#22311f; --soft:#4d5e48; --card:rgba(255,255,255,.9); --line:rgba(34,49,31,.12);
+  --accent:#e0702c; --accent-ink:#fff; --gold:#f4b73c;
+  --display:"Fredoka","Trebuchet MS",system-ui,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+html,body{height:100%}
+body{background:var(--sky);color:var(--ink);font-family:var(--body);overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.app{position:relative;height:100%;width:100%;touch-action:none}
+#world{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+
+/* home */
+.home{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;gap:16px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:16px calc(16px + env(safe-area-inset-bottom,0px));pointer-events:none;overflow-y:auto}
+.home>*{pointer-events:auto}
+.head{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:10px}
+.title{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:10px 16px;max-width:46ch;backdrop-filter:blur(6px)}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(24px,4vw,34px);line-height:1.05;margin:0}
+.title p{margin:4px 0 0;font-size:14px;color:var(--soft);line-height:1.4}
+.pill{font-family:var(--display);font-weight:500;font-size:15px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 16px;min-height:42px;backdrop-filter:blur(6px)}
+.pill[aria-pressed="false"]{color:var(--soft)}
+.controls{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;align-items:center;max-width:100%}
+.voicebox{display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 4px 4px 14px;backdrop-filter:blur(6px);min-width:0;max-width:100%}
+.voicebox label{font-family:var(--display);font-weight:500;font-size:15px}
+.voicebox select{font:inherit;font-size:15px;color:var(--ink);background:transparent;border:0;min-width:0;max-width:min(260px,52vw);padding:6px 2px;text-overflow:ellipsis}
+.voicebox select:focus-visible{outline:3px solid var(--accent);border-radius:8px}
+.pill.small{min-height:36px;padding:6px 14px;background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.tiles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;max-width:1100px;width:100%;margin:0 auto}
+.tile{display:flex;flex-direction:column;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:0 0 12px;overflow:hidden;backdrop-filter:blur(6px);transition:transform .15s}
+.tile:hover{transform:translateY(-3px)}
+.tile:active{transform:scale(.97)}
+.tile .pic{aspect-ratio:4/3;max-width:100%;display:block;background:linear-gradient(#cfe9f5,#e5f2da)}
+.tile .pic img{width:100%;height:100%;object-fit:contain;display:block}
+.tile b{font-family:var(--display);font-weight:600;font-size:20px;padding:8px 12px 0;line-height:1.15}
+.tile span{font-size:13px;color:var(--soft);padding:3px 12px 0;line-height:1.35}
+.order{font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--soft);margin:0 auto -6px;max-width:1100px;width:100%;padding-left:4px}
+@media (max-width:900px){.tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:560px){.controls{justify-content:flex-start}.tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.tile b{font-size:17px}.tile span{display:none}.home{justify-content:flex-start}.tiles{margin-top:auto}}
+
+/* in-game */
+.hud{position:absolute;inset:0;pointer-events:none}
+.hud>*{pointer-events:auto}
+#back{position:absolute;top:12px;left:max(16px,env(safe-area-inset-left,0px));width:58px;height:58px;border-radius:50%;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;backdrop-filter:blur(6px)}
+#stars{position:absolute;top:18px;right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-wrap:wrap;justify-content:flex-end;gap:2px;max-width:50%;pointer-events:none}
+#stars svg{width:34px;height:34px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.18));animation:pop .5s cubic-bezier(.3,1.6,.5,1) both}
+#action{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));font-family:var(--display);font-weight:600;font-size:24px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:999px;padding:14px 30px;box-shadow:0 6px 0 #a94d17,0 10px 20px rgba(0,0,0,.18)}
+#action:active{transform:translateX(-50%) translateY(4px);box-shadow:0 2px 0 #a94d17}
+#say{position:absolute;left:50%;top:14px;transform:translateX(-50%);font-family:var(--display);font-weight:600;font-size:clamp(26px,5vw,40px);background:#fff;color:var(--ink);padding:6px 24px 8px;border-radius:24px;box-shadow:0 6px 18px rgba(0,0,0,.15);white-space:nowrap;max-width:calc(100% - 180px);overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+#say.show{animation:pop .45s cubic-bezier(.3,1.6,.5,1) both}
+@media (max-width:560px){#say{top:84px;max-width:calc(100% - 32px)}}
+@keyframes pop{from{transform:translateX(var(--tx,0)) scale(.5);opacity:0}to{transform:translateX(var(--tx,0)) scale(1);opacity:1}}
+#say{--tx:-50%}
+#loading{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-size:22px;color:var(--soft);background:var(--sky)}
+@media (prefers-reduced-motion:reduce){.tile,#say.show,#stars svg{animation:none;transition:none}}
+</style>
+
+<div class="app">
+  <canvas id="world" aria-label="Meadow with animals"></canvas>
+
+  <section id="home" class="home" hidden>
+    <div class="head">
+      <div class="title">
+        <h1>Meadow Games</h1>
+        <p>Five little games for toddlers. Every one works with single taps, no dragging. Turn the sound up: the animals' names are spoken.</p>
+      </div>
+      <div class="controls">
+        <button id="sound" class="pill" aria-pressed="true">Sound on</button>
+        <div class="voicebox">
+          <label for="voice">Voice</label>
+          <select id="voice"><option value="">Automatic</option></select>
+          <button id="try" class="pill small">Try</button>
+        </div>
+      </div>
+    </div>
+    <p class="order">Easiest first</p>
+    <div class="tiles" id="tiles"></div>
+  </section>
+
+  <div id="hud" class="hud" hidden>
+    <button id="back" aria-label="Back to the games"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path fill="currentColor" d="M12 3.2 2.6 11a1 1 0 0 0 1.3 1.5l.9-.8V20a1 1 0 0 0 1 1h4.4v-5.4h3.6V21h4.4a1 1 0 0 0 1-1v-8.3l.9.8A1 1 0 0 0 21.4 11Z"/></svg></button>
+    <div id="stars" aria-live="polite"></div>
+    <button id="action" hidden></button>
+  </div>
+  <div id="say" hidden></div>
+  <div id="loading">Loading the animals…</div>
+</div>

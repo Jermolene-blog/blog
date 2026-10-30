@@ -1,0 +1,8 @@
+{
+  "name": "jermolene-toys-src",
+  "private": true,
+  "description": "Shared test tooling for the toy sources. Some toys have their own package.json for extra build tools.",
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}

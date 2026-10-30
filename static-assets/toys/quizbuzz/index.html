@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- Built by toys-src/quizbuzz/build.py in the blog repo: edit the source there, not this file -->
 <html lang="en-GB">
 <meta charset="utf-8">
 <title>Quizbuzz</title>
@@ -1207,7 +1208,7 @@ function tutSlides(o){
      art:`<div class="mph s2"><div class="bar"><span>JO</span><span>500</span></div>${['Holmfirth','Skipton','Haworth','Whitby'].map((x,i)=>`<div class="mab c${i} ${i===2?'t-ring':'t-fade'}"><span>${LETTERS[i]}</span>${x}</div>`).join('')}<div class="ll t-show" style="animation-delay:2.2s">LOCKED IN</div></div><div class="fing"></div>`}
   ];
   (o.lineup||[]).forEach((id,i,a)=>L.push({k:i===a.length-1?'The final round':`Round ${ROUND_WORDS[i]}`,t:ROUNDS[id].name,b:ROUND_TIPS[id],art:ROUND_ART[id]()}));
-  if(o.toddler)L.push({k:'Watch out',t:'The toddler strikes',b:'Our youngest contestant can <b>splat</b>, freeze or jumble any player she likes. Then she has to wait a little.',
+  if(o.toddler)L.push({k:'Watch out',t:'The toddler strikes',b:'Our youngest contestant can <b>splat</b>, freeze or jumble any player they like. Then they have to wait a little.',
      art:mpod(145,150,2,'Sam','lit','400')+'<div class="tpie"></div><div class="tsplat"></div><div class="dl" style="left:160px;top:282px;color:var(--coral);animation-delay:1.7s">−150</div>'});
   L.push(o.role==='host'
     ?{k:'Fair play',t:'Tonight’s quizmaster',b:'The quizmaster doesn’t play. They can skip a dodgy question, and their word on the scores is final.',

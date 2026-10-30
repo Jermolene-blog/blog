@@ -1,0 +1,16 @@
+{
+  "name": "animal-island",
+  "version": "0.4.0",
+  "private": true,
+  "description": "Single-file three.js toddler game: tap animals on an island to hear their names and sounds.",
+  "type": "module",
+  "scripts": {
+    "test": "node tests/smoke.mjs",
+    "shots": "node tests/smoke.mjs --shots",
+    "serve": "npx --yes http-server -p 8080 -c-1 ."
+  },
+  "devDependencies": {
+    "playwright": "^1.47.0",
+    "three": "0.128.0"
+  }
+}

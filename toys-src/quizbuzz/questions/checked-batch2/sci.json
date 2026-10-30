@@ -1,0 +1,842 @@
+[
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "What is the chemical symbol for sodium?",
+  "a": [
+   "So",
+   "Na",
+   "Sd",
+   "Sm"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "How many planets are in our solar system?",
+  "a": [
+   "Eight",
+   "Nine",
+   "Seven",
+   "Ten"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "Which planet is closest to the Sun?",
+  "a": [
+   "Venus",
+   "Mars",
+   "Jupiter",
+   "Mercury"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "What is a young swan called?",
+  "a": [
+   "Gosling",
+   "Eyas",
+   "Cygnet",
+   "Duckling"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "Which pigment makes leaves green?",
+  "a": [
+   "Carotene",
+   "Chlorophyll",
+   "Melanin",
+   "Haemoglobin"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "What is the chemical symbol for iron?",
+  "a": [
+   "Fe",
+   "Ir",
+   "In",
+   "I"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "Which blood cells fight infection?",
+  "a": [
+   "Red cells",
+   "Platelets",
+   "Nerve cells",
+   "White cells"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "At what Fahrenheit temperature does water freeze?",
+  "a": [
+   "0°F",
+   "100°F",
+   "32°F",
+   "212°F"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "Which scientist developed the theory of general relativity?",
+  "a": [
+   "Niels Bohr",
+   "Albert Einstein",
+   "Max Planck",
+   "Stephen Hawking"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "Who set out the laws of motion in 'Principia' in 1687?",
+  "a": [
+   "Isaac Newton",
+   "Robert Hooke",
+   "Edmond Halley",
+   "Galileo"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "Which British bird drums its beak on trees?",
+  "a": [
+   "Nuthatch",
+   "Treecreeper",
+   "Wren",
+   "Woodpecker"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "Which car, launched in 1959, was designed by Alec Issigonis?",
+  "a": [
+   "Ford Cortina",
+   "Austin Allegro",
+   "Mini",
+   "Triumph Herald"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "Who designed the steamship SS Great Britain?",
+  "a": [
+   "Telford",
+   "Brunel",
+   "Stephenson",
+   "Watt"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "Which bird famously guards the Tower of London?",
+  "a": [
+   "Raven",
+   "Crow",
+   "Rook",
+   "Magpie"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "'One for sorrow, two for joy' counts which bird?",
+  "a": [
+   "Crow",
+   "Jackdaw",
+   "Starling",
+   "Magpie"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "What is the largest animal alive today?",
+  "a": [
+   "Fin whale",
+   "Whale shark",
+   "Blue whale",
+   "Sperm whale"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "What is the common name for sodium chloride?",
+  "a": [
+   "Baking soda",
+   "Table salt",
+   "Chalk",
+   "Bleach"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "The femur is commonly known as which bone?",
+  "a": [
+   "Thigh bone",
+   "Shin bone",
+   "Collarbone",
+   "Upper arm bone"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "What is the coloured part of the eye called?",
+  "a": [
+   "Pupil",
+   "Retina",
+   "Cornea",
+   "Iris"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "James Dyson is famous for which bagless invention?",
+  "a": [
+   "Washing machine",
+   "Tumble dryer",
+   "Vacuum cleaner",
+   "Dishwasher"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "Which supersonic airliner was built jointly by Britain and France?",
+  "a": [
+   "Comet",
+   "Concorde",
+   "Trident",
+   "Britannia"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "What does a Geiger counter detect?",
+  "a": [
+   "Radiation",
+   "Earthquakes",
+   "Humidity",
+   "Wind speed"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "What does the Beaufort scale measure?",
+  "a": [
+   "Earthquakes",
+   "Hardness",
+   "Rainfall",
+   "Wind speed"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "Which tree is known for its papery silver-white bark?",
+  "a": [
+   "Beech",
+   "Hornbeam",
+   "Silver birch",
+   "Sweet chestnut"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sci",
+  "d": 1,
+  "q": "Which British bird is a flash of electric blue along rivers?",
+  "a": [
+   "Jay",
+   "Kingfisher",
+   "Pied wagtail",
+   "Dipper"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "What is a female fox called?",
+  "a": [
+   "Vixen",
+   "Doe",
+   "Jenny",
+   "Jill"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "Halley's Comet returns roughly every how many years?",
+  "a": [
+   "50",
+   "100",
+   "120",
+   "76"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "A group of owls is called a what?",
+  "a": [
+   "Murmuration",
+   "Gaggle",
+   "Parliament",
+   "Charm"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "Which of these deer is native to Britain?",
+  "a": [
+   "Muntjac",
+   "Roe deer",
+   "Sika",
+   "Fallow deer"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "What is the chemical symbol for potassium?",
+  "a": [
+   "K",
+   "P",
+   "Po",
+   "Pt"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "Which engineer invented the hovercraft?",
+  "a": [
+   "Wallis",
+   "Whittle",
+   "Issigonis",
+   "Cockerell"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "Barnes Wallis designed which famous wartime device?",
+  "a": [
+   "Spitfire",
+   "Radar",
+   "Bouncing bomb",
+   "Enigma machine"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "Humphry Davy invented which miners' safety device in 1815?",
+  "a": [
+   "Hard hat",
+   "Safety lamp",
+   "Ventilation fan",
+   "Pit prop"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "Joseph Swan of Sunderland developed which invention?",
+  "a": [
+   "Light bulb",
+   "Telephone",
+   "Gramophone",
+   "Steam turbine"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "Which is the brightest star in the night sky?",
+  "a": [
+   "Polaris",
+   "Betelgeuse",
+   "Vega",
+   "Sirius"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "What kind of animal is a natterjack?",
+  "a": [
+   "Lizard",
+   "Newt",
+   "Toad",
+   "Snake"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "Which bird of prey is best known for hovering over motorway verges?",
+  "a": [
+   "Buzzard",
+   "Kestrel",
+   "Red kite",
+   "Sparrowhawk"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "Which bird of prey was reintroduced to the Chilterns from 1989?",
+  "a": [
+   "Red kite",
+   "Osprey",
+   "Golden eagle",
+   "Goshawk"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "What is a male swan called?",
+  "a": [
+   "Pen",
+   "Drake",
+   "Tom",
+   "Cob"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "A squirrel's nest is called a what?",
+  "a": [
+   "Holt",
+   "Form",
+   "Drey",
+   "Lodge"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "The slow worm is actually a type of what?",
+  "a": [
+   "Snake",
+   "Lizard",
+   "Amphibian",
+   "Eel"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "How many hearts does an octopus have?",
+  "a": [
+   "Three",
+   "One",
+   "Two",
+   "Eight"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "Which is the hottest planet in our solar system?",
+  "a": [
+   "Mercury",
+   "Mars",
+   "Jupiter",
+   "Venus"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "What is the largest moon of Saturn?",
+  "a": [
+   "Europa",
+   "Io",
+   "Titan",
+   "Phobos"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "Roughly how fast does light travel?",
+  "a": [
+   "30,000 km per second",
+   "300,000 km per second",
+   "3,000 km per second",
+   "3 million km per second"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "The unit of power is named after which Scottish engineer?",
+  "a": [
+   "James Watt",
+   "Thomas Telford",
+   "John Rennie",
+   "William Murdoch"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "Joseph Lister pioneered what in surgery?",
+  "a": [
+   "Anaesthesia",
+   "Transfusions",
+   "X-rays",
+   "Antiseptics"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "Wilhelm Röntgen discovered which rays in 1895?",
+  "a": [
+   "Gamma rays",
+   "Cosmic rays",
+   "X-rays",
+   "Infrared"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "Which home computer did Sinclair launch in 1982?",
+  "a": [
+   "BBC Micro",
+   "ZX Spectrum",
+   "Commodore 64",
+   "Amstrad CPC"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "Which company built the BBC Micro?",
+  "a": [
+   "Acorn",
+   "Sinclair",
+   "Amstrad",
+   "Dragon"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "Which metal is extracted from bauxite?",
+  "a": [
+   "Iron",
+   "Magnesium",
+   "Tin",
+   "Aluminium"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "What is a young hare called?",
+  "a": [
+   "Kit",
+   "Cheeper",
+   "Leveret",
+   "Pup"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "Which is Britain's longest-lived native tree?",
+  "a": [
+   "Oak",
+   "Yew",
+   "Scots pine",
+   "Ash"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "Who is called the father of genetics for his work on peas?",
+  "a": [
+   "Gregor Mendel",
+   "Charles Darwin",
+   "Louis Pasteur",
+   "Jean Lamarck"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "In 1963, who became the first woman in space?",
+  "a": [
+   "Ride",
+   "Savitskaya",
+   "Sharman",
+   "Tereshkova"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sci",
+  "d": 2,
+  "q": "What was the first artificial satellite, launched in 1957?",
+  "a": [
+   "Vostok 1",
+   "Explorer 1",
+   "Sputnik 1",
+   "Telstar"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sci",
+  "d": 3,
+  "q": "A charm is the collective noun for which bird?",
+  "a": [
+   "Starlings",
+   "Goldfinches",
+   "Long-tailed tits",
+   "Geese"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sci",
+  "d": 3,
+  "q": "Which planet rotates on its side?",
+  "a": [
+   "Uranus",
+   "Neptune",
+   "Venus",
+   "Saturn"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sci",
+  "d": 3,
+  "q": "Who discovered the electron in 1897?",
+  "a": [
+   "Ernest Rutherford",
+   "Niels Bohr",
+   "Michael Faraday",
+   "J.J. Thomson"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sci",
+  "d": 3,
+  "q": "Who discovered electromagnetic induction in 1831?",
+  "a": [
+   "Humphry Davy",
+   "James Clerk Maxwell",
+   "Michael Faraday",
+   "Joseph Swan"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sci",
+  "d": 3,
+  "q": "Who jointly presented evolution by natural selection with Darwin in 1858?",
+  "a": [
+   "Huxley",
+   "Wallace",
+   "Hooker",
+   "Mendel"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sci",
+  "d": 3,
+  "q": "In 1628, who described the circulation of the blood?",
+  "a": [
+   "William Harvey",
+   "Joseph Lister",
+   "John Hunter",
+   "Thomas Sydenham"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sci",
+  "d": 3,
+  "q": "Which Scottish scientist invented the vacuum flask?",
+  "a": [
+   "Joseph Black",
+   "Lord Kelvin",
+   "William Ramsay",
+   "James Dewar"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sci",
+  "d": 3,
+  "q": "The de Havilland Comet, first flown in 1949, was the world's first what?",
+  "a": [
+   "Jump jet",
+   "Airship",
+   "Jet airliner",
+   "Supersonic airliner"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sci",
+  "d": 3,
+  "q": "Which atmospheric layer contains the ozone layer?",
+  "a": [
+   "Troposphere",
+   "Stratosphere",
+   "Mesosphere",
+   "Thermosphere"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sci",
+  "d": 3,
+  "q": "Leatherjackets are the larvae of which insect?",
+  "a": [
+   "Crane fly",
+   "Ladybird",
+   "Dragonfly",
+   "Bluebottle"
+  ],
+  "k": 0
+ },
+ {
+  "c": "sci",
+  "d": 3,
+  "q": "Bass Rock hosts a huge colony of which seabird?",
+  "a": [
+   "Puffin",
+   "Guillemot",
+   "Fulmar",
+   "Gannet"
+  ],
+  "k": 3
+ },
+ {
+  "c": "sci",
+  "d": 3,
+  "q": "What is Britain's most common bat?",
+  "a": [
+   "Noctule",
+   "Greater horseshoe",
+   "Common pipistrelle",
+   "Daubenton's"
+  ],
+  "k": 2
+ },
+ {
+  "c": "sci",
+  "d": 3,
+  "q": "Who discovered the neutron in 1932?",
+  "a": [
+   "Ernest Rutherford",
+   "James Chadwick",
+   "Paul Dirac",
+   "John Cockcroft"
+  ],
+  "k": 1
+ },
+ {
+  "c": "sci",
+  "d": 3,
+  "q": "Ernest Rutherford was born in which country?",
+  "a": [
+   "New Zealand",
+   "Australia",
+   "Canada",
+   "South Africa"
+  ],
+  "k": 0
+ }
+]

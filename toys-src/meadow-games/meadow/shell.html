@@ -1,0 +1,71 @@
+<title>Animal Meadow</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&display=swap">
+<style>
+/* Layout: the island fills the screen; a few soft controls float in the corners. Single daylight look. */
+:root{
+  --sky:#bfe3f2; --ink:#20321f; --pill:rgba(255,255,255,.86); --pill-line:rgba(32,50,31,.14);
+  --accent:#e0702c; --accent-ink:#fff;
+  --display:"Fredoka","Trebuchet MS",system-ui,sans-serif;
+}
+html,body{height:100%}
+body{background:var(--sky);color:var(--ink);font-family:var(--display);overflow:hidden;
+  padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))}
+.app{position:relative;height:100%;width:100%}
+#world{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
+.hud{position:absolute;display:flex;flex-wrap:wrap;gap:8px;align-items:center;pointer-events:none}
+.hud>*{pointer-events:auto}
+.top{top:12px;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));justify-content:space-between}
+.bottom{bottom:calc(14px + env(safe-area-inset-bottom,0px));left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));justify-content:flex-end}
+h1{margin:0;font-weight:600;font-size:22px;letter-spacing:.01em;background:var(--pill);border:1px solid var(--pill-line);padding:4px 14px;border-radius:999px;backdrop-filter:blur(6px)}
+.group{display:flex;gap:4px;background:var(--pill);border:1px solid var(--pill-line);border-radius:999px;padding:3px;backdrop-filter:blur(6px)}
+button{font:inherit;font-weight:500;font-size:15px;color:var(--ink);background:transparent;border:0;border-radius:999px;padding:7px 14px;cursor:pointer;min-height:38px}
+button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.solo{background:var(--pill);border:1px solid var(--pill-line);backdrop-filter:blur(6px)}
+.lbl{font-size:12px;letter-spacing:.07em;text-transform:uppercase;opacity:.7;padding:0 4px 0 10px;align-self:center}
+#hint{position:absolute;left:max(16px,env(safe-area-inset-left,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));margin:0;font-size:14px;background:var(--pill);border:1px solid var(--pill-line);padding:6px 12px;border-radius:12px;max-width:min(60ch,calc(100% - 32px))}
+#hint.ready{animation:fade 1s 7s forwards}
+@keyframes fade{to{opacity:0;visibility:hidden}}
+#label{position:absolute;left:0;top:0;pointer-events:none;font-size:24px;font-weight:600;background:#fff;color:var(--ink);padding:4px 16px 6px;border-radius:16px;box-shadow:0 4px 14px rgba(0,0,0,.18);white-space:nowrap;margin-top:-10px}
+#label::after{content:"";position:absolute;left:50%;bottom:-7px;margin-left:-8px;border:8px solid transparent;border-bottom:0;border-top-color:#fff}
+.right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.icon{width:42px;padding:0;display:grid;place-items:center}
+.panel{position:absolute;top:64px;right:max(16px,env(safe-area-inset-right,0px));width:min(300px,calc(100% - 32px));background:var(--pill);border:1px solid var(--pill-line);border-radius:16px;padding:12px 14px;backdrop-filter:blur(8px);display:flex;flex-direction:column;gap:6px;box-shadow:0 6px 20px rgba(0,0,0,.12)}
+.panel label{display:flex;justify-content:space-between;font-weight:500;font-size:15px}
+.panel output{font-variant-numeric:tabular-nums}
+.panel input{width:100%;accent-color:var(--accent)}
+.note{margin:0;font-size:13px;opacity:.75;font-family:system-ui,sans-serif}
+@media (max-width:560px){.top{gap:6px}h1{font-size:18px}button{font-size:14px;padding:6px 11px}.bottom{bottom:calc(60px + env(safe-area-inset-bottom,0px))}}
+@media (prefers-reduced-motion:reduce){#hint.ready{animation:none}}
+</style>
+
+<div class="app">
+  <canvas id="world" tabindex="0" aria-label="Island with animals. Drag to move around, pinch or scroll to zoom, tap an animal."></canvas>
+  <div class="hud top">
+    <h1>Animal Meadow</h1>
+    <div class="right">
+    <div class="group" role="group" aria-label="How many of each animal">
+      <span class="lbl">Herd</span>
+      <button class="herd" data-n="1" aria-pressed="false">1</button>
+      <button class="herd" data-n="2" aria-pressed="true">2</button>
+      <button class="herd" data-n="3" aria-pressed="false">3</button>
+    </div>
+    <button id="cog" class="solo icon" aria-label="Settings" aria-expanded="false" aria-controls="panel"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.5 7.5 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.5 7.5 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5ZM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z" transform="translate(-1 0)"/></svg></button>
+    </div>
+  </div>
+  <div id="panel" class="panel" hidden>
+    <label for="size">Animal and tree size <output id="size-out">4×</output></label>
+    <input id="size" type="range" min="1" max="6" step="0.5" value="4">
+    <p class="note">Bigger animals means a smaller island, so the herd stays close together.</p>
+  </div>
+  <div class="hud bottom">
+    <button id="follow" class="solo" aria-pressed="false" hidden>Follow</button>
+    <button id="fall" class="solo">All fall down</button>
+    <button id="sound" class="solo" aria-pressed="false">Names: off</button>
+    <button id="reset" class="solo">Whole island</button>
+  </div>
+  <p id="hint">Loading animals… Drag to move, pinch or scroll to zoom, right-drag or two fingers to turn. Tap an animal.</p>
+  <div id="label" hidden></div>
+</div>

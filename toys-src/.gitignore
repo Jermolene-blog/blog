@@ -1,0 +1,9 @@
+node_modules/
+dist/
+__pycache__/
+# build outputs and test screenshots
+quizbuzz/quizbuzz.html
+quizbuzz/quizbuzz-standalone.html
+quizbuzz/*.png
+*/test/shots/
+*/tests/shots/
