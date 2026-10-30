@@ -402,7 +402,10 @@ function seeds(){
   if(FAST){R=Math.ceil(n/Wt);const st=new Float32Array(Wt*R*4);for(let k=0;k<n;k++){st[k*4]=d[k*6];st[k*4+1]=d[k*6+1]}
     del([seedTex],[]);seedTex=mkTex(gl.RGBA32F,Wt,R,gl.RGBA,gl.FLOAT,gl.NEAREST,st)}
   dirty=true}
-addEventListener('resize',resize);
+let ctxLost=0;
+cv.addEventListener('webglcontextlost',e=>{e.preventDefault();ctxLost++;location.reload()});
+let needResize=false,rescales=0,ceil=1e9;
+addEventListener('resize',()=>{needResize=true});
 
 const STEP=3.5;
 function stepsFor(P,k=1){const base=Math.max(3,Math.round(P.len*k/STEP));let S=Math.min(200,Math.round(base*1.5));if(FAST)S=Math.min(S,Math.floor(MAXTEX/R)-1);return S}
@@ -511,6 +514,8 @@ let last=performance.now(),frameN=0,perfAcc=0,perfN=0,goodWin=0;var lastStrokeT=
 function step(st,dt){if(!paused){st.T+=dt*st.P.drift;st.F+=dt*st.P.flow;st.ph+=dt*st.P.cycle}}
 function frame(now){
   const rawDt=(now-last)/1000;const dt=Math.min(.05,rawDt);last=now;
+  // apply any size/scale change here, before drawing, so a cleared canvas is never presented
+  if(needResize){needResize=false;resize();dirty=true}
   ST.verts=ST.passes=ST.tiles=ST.draws=0;const t0=performance.now();
   step(main,dt);if(exploring)tiles.forEach((t,i)=>{if(i!==4)step(t,dt)});
   const active=handDown||now-lastStrokeT<Math.min(P.memory,40)*4000||view.x!==gView.x||view.y!==gView.y||view.z!==gView.z;
@@ -532,8 +537,8 @@ function frame(now){
     }else{draw(main,0,0,W,H,nSeeds,true);dirty=false;
       // adaptive resolution: drop pixel density under load, recover slowly
       perfAcc+=dt;if(++perfN>=30){const a=perfAcc/perfN;perfAcc=perfN=0;
-        if(a>.021&&scale>1){scale=Math.max(1,scale*.85);goodWin=0;resize()}
-        else if(a<.0175){if(++goodWin>=4&&scale<MAXS){scale=Math.min(MAXS,scale*1.12);goodWin=0;resize()}}else goodWin=0}}
+        if(a>.021&&scale>1){ceil=scale;scale=Math.max(1,scale*.85);goodWin=0;needResize=true;rescales++}
+        else if(a<.0175){const top=Math.min(MAXS,ceil*.97);if(++goodWin>=10&&scale<top-.01){scale=Math.min(top,scale*1.08);goodWin=0;needResize=true;rescales++}}else goodWin=0}}
     if(snapCb){const c=snapCb;snapCb=null;c(cv.toDataURL('image/png'))}
   }
   updatePurr(dt);
@@ -559,7 +564,8 @@ function dbgFrame(dt,cpu){
   dbgt.innerHTML=
 `<b>${(1000/avg).toFixed(0).padStart(3)}</b> fps   ${avg.toFixed(1)} ms avg  ${mx.toFixed(1)} max
 cpu   ${(cpuAcc/cpuN).toFixed(2)} ms/frame
-scale ${scale.toFixed(2)}× of ${MAXS}×   ${W}×${H}
+scale ${scale.toFixed(2)}× of ${MAXS}×   ${W}×${H}  rescales ${rescales}
+lost  ${ctxLost}
 hairs ${fmtK(nSeeds)}   verts ${fmtK(ST.verts)}
 trace ${ST.passes} passes  draws ${ST.draws}
 ${exploring?`tiles ${ST.tiles}/frame (${tpf} max)`:`groom ${groomActive?'active':'idle'}  ${paused?'paused':'live'}`}
