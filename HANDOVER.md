@@ -43,19 +43,19 @@ Each published version is one commit, tagged `v4`…`v9`. Versions 1–3 (sumina
 | Tag | Change | Notes for reverting |
 |---|---|---|
 | v4 | Explore: offscreen atlas, round-robin tiles, true miniatures | Baseline for this repo. |
-| v5 | Perf: split field into scalar + gradient passes; RGBA16F field; length buckets; 3.5 px step; groom-aware pass count; adaptive render scale | Large; touches draw(), seeds(), FS_FIELD, VS_FAST. The adaptive scale introduced the black-flash bug fixed in v7. |
-| v6 | Debug panel (D) | Self-contained; adds `ST` counters in draw()/frame(). |
-| v7 | Black-flash fix: deferred resize, scale hysteresis, `webglcontextlost` → reload; debug shows rescales/lost | Depends on v5's adaptive scale. Reverting v5 without v7 conflicts. |
+| v5 | Perf: split field into scalar + gradient passes; RGBA16F field; length buckets; 3.5 px step; groom-aware pass count; adaptive render scale | Large; touches draw(), seeds(), FS_FIELD, VS_FAST. The adaptive scale introduced the black-flash bug fixed in v7. `git revert` conflicts with v6–v8; easier to re-apply later work onto `v4` by hand. |
+| v6 | Debug panel (D) | Adds `ST` counters in draw()/frame(). `git revert` conflicts (v7 edited the panel text); resolve by deleting the debug block. |
+| v7 | Black-flash fix: deferred resize, scale hysteresis, `webglcontextlost` → reload; debug shows rescales/lost | Reverts cleanly (brings the flashes back). |
 | v8 | Rename to Flowing Field; zentangle Tangle sections | Touches FS_FIELD (zero dir in sections), FS_TRACE/VS_* (stop at zero dir), FS_PAPER (tangle art), new `TANGLE`/`INK` GLSL strings, `setTangle()`, `st.M` line-drift phase, Tangle SPEC group, randomP. |
 | v9 | Inking terminology; nib-scratch sound replaces purr | Labels/text only, plus `initAudio`/`updatePurr` bodies. Internal names (`purrOn`, `hand`, `memory`, `groom`) intentionally unchanged. |
 
-Typical operations:
+Revert behaviour was checked: v9 and v7 revert cleanly against the head; v8, v6 and v5 conflict. Typical operations:
 
 ```sh
 git diff v7 v8 -- flowing-field.html        # see exactly what a version changed
-git revert --no-edit <commit-of-v6>          # drop the debug panel, keep later work (clean)
-git revert --no-edit <commit-of-v9>          # back to purr + old wording (clean)
-git revert <commit-of-v8>                    # drop tangles: CONFLICTS with v9's label edits inside the
+git revert --no-edit v9                      # back to purr + old wording (clean)
+git revert --no-edit v7                      # undo the flash fix (clean)
+git revert v8                                # drop tangles: CONFLICTS with v9's label edits inside the
                                              #   Tangle group; resolve by deleting the Tangle group and
                                              #   keeping v9's other labels
 git checkout v7 -- flowing-field.html        # or simply restore a whole earlier version
