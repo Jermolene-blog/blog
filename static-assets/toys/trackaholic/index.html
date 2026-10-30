@@ -859,7 +859,7 @@ addEventListener('blur',()=>{keys.L=keys.R=keys.U=keys.D=keys.N=keys.S=0;touch.s
    Android reporting gravity with opposite signs makes no difference. iOS asks permission, so askTilt() is
    called from the taps that start or join a race */
 const TILT_ABLE=IS_TOUCH&&'DeviceMotionEvent' in window;
-const tilt={pref:store.get('trackaholic.steer')||(TILT_ABLE?'tilt':'drag'),ok:false,on:false,raw:0,zero:null,steer:0};
+const tilt={pref:store.get('trackaholic.steer')||(TILT_ABLE?'tilt':'drag'),ok:false,on:false,raw:0,zero:null,steer:0,settle:0,far:0,land:innerWidth>innerHeight};
 function onMotion(e){const g=e.accelerationIncludingGravity;if(!g||g.x==null)return;
   if(Math.hypot(g.x,g.y)>2.5)tilt.raw=Math.atan2(g.x,g.y); // too flat to tell otherwise: keep the last angle
   if(tilt.zero===null)tilt.zero=tilt.raw;
@@ -871,9 +871,19 @@ function askTilt(){
   if(D&&typeof D.requestPermission==='function')D.requestPermission().then(r=>{if(r==='granted')listenTilt();else{tilt.pref='drag';paintSteer()}}).catch(()=>{});
   else listenTilt()}
 function tiltZero(){tilt.zero=tilt.raw;tilt.steer=0}
+// turning the device between portrait and landscape is itself a quarter turn in the plane of the screen, so when the
+// screen rotates, centre the steering while it settles and measure from wherever the device is then held
+function tiltRotated(){tilt.settle=now()+600;tiltZero()}
+if(screen.orientation&&screen.orientation.addEventListener)screen.orientation.addEventListener('change',tiltRotated);
+addEventListener('orientationchange',tiltRotated);
+addEventListener('resize',()=>{const l=innerWidth>innerHeight;if(l!==tilt.land){tilt.land=l;tiltRotated()}});
 function tiltSteer(dt){
+  if(now()<tilt.settle){tiltZero();return 0}
   let d=tilt.raw-tilt.zero;d=Math.atan2(Math.sin(d),Math.cos(d));
-  const deg=-d*180/Math.PI,a=Math.abs(deg),s=a<1.5?0:Math.sign(deg)*Math.pow(Math.min(1,(a-1.5)/26.5),1.15);
+  const deg=-d*180/Math.PI,a=Math.abs(deg);
+  // held far past any steering angle for most of a second (a turned device whose screen is locked): centre again
+  if(a>65){if(!tilt.far)tilt.far=now();else if(now()-tilt.far>800){tilt.far=0;tiltZero();return 0}}else tilt.far=0;
+  const s=a<1.5?0:Math.sign(deg)*Math.pow(Math.min(1,(a-1.5)/26.5),1.15);
   tilt.steer+=(s-tilt.steer)*Math.min(1,dt*18);return tilt.steer}
 const tiltMode=()=>tilt.pref==='tilt'&&tilt.ok;
 function paintPad(){$('#pad').classList.toggle('tilt',tiltMode())}
